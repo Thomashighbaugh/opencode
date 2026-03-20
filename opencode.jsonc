@@ -1,0 +1,18 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": [
+    "@0xsero/open-queue",
+    "@tarquinen/opencode-dcp@latest",
+        "opencode-orchestrator",
+    "@plannotator/opencode@latest",
+    "@plannotator/opencode",
+    "@gitlab/opencode-gitlab-auth",
+
+  ],
+  "autoupdate": true,
+  "instructions": [
+    "rules/*.md",
+    "~/.config/opencode/plugin/shell-strategy/shell_strategy.md"
+  ]
+}
+

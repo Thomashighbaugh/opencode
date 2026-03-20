@@ -1,0 +1,20 @@
+{
+  "name": "opencode",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@0xsero/open-queue": "^1.0.11",
+    "@gitlab/opencode-gitlab-auth": "^1.3.3",
+    "@opencode-ai/plugin": "1.2.27",
+    "@plannotator/opencode": "^0.14.0",
+    "@tarquinen/opencode-dcp": "^3.0.4",
+    "opencode-orchestrator": "^1.2.62"
+  }
+}
