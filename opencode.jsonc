@@ -1,14 +1,11 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "plugin": [
-    "@0xsero/open-queue",
     "@tarquinen/opencode-dcp@latest",
-        "opencode-orchestrator",
+    "opencode-orchestrator",
     "@plannotator/opencode@latest",
-    "@plannotator/opencode",
-    "@gitlab/opencode-gitlab-auth",
-
-  ],
+    "superpowers@git+https://github.com/obra/superpowers.git"
+],
   "autoupdate": true,
   "instructions": [
     "rules/*.md",

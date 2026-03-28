@@ -1,0 +1,4 @@
+allowBuilds:
+  '@plannotator/opencode': true
+  bun: true
+  opencode-orchestrator: true
