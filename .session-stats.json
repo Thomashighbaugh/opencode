@@ -1,0 +1,13 @@
+{
+  "sessions": {
+    "ses_21de71135ffeVM5EKJ5vnQxjly": {
+      "tool_counts": {
+        "bash": 2
+      },
+      "last_tool": "bash",
+      "total_calls": 2,
+      "started_at": 1777615260,
+      "updated_at": 1777615315
+    }
+  }
+}

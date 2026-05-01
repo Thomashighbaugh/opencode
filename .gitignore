@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.opencode/state/
+*.log
+.DS_Store
+**/state/*
+opencode.json 
+.session-stats.json 
+env.d.ts
+

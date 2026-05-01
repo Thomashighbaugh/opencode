@@ -1,0 +1,19 @@
+{
+  "aliases": {
+    "omc": {
+      "repo": "Yeachan-Heo/opencode-joc",
+      "local": "~/Workspace/opencode-joc",
+      "default_base": "main"
+    },
+    "cc": {
+      "repo": "opencode-ai/opencode",
+      "local": "~/Workspace/opencode",
+      "default_base": "main"
+    }
+  },
+  "defaults": {
+    "worktree_root": "~/.psm/worktrees",
+    "cleanup_after_days": 14,
+    "auto_cleanup_merged": true
+  }
+}

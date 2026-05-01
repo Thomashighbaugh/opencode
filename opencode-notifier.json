@@ -1,0 +1,43 @@
+{
+  "sound": false,
+  "notification": true,
+  "timeout": 5,
+  "showProjectName": true,
+  "showSessionTitle": false,
+  "showIcon": false,
+  "suppressWhenFocused": true,
+  "linux": {
+    "grouping": false
+  },
+  "command": {
+    "enabled": false,
+    "path": "/path/to/command",
+    "args": ["--event", "{event}", "--message", "{message}"],
+    "minDuration": 0
+  },
+  "events": {
+    "permission": { "sound": true, "notification": true },
+    "complete": { "sound": true, "notification": true },
+    "subagent_complete": { "sound": false, "notification": false },
+    "error": { "sound": true, "notification": true },
+    "question": { "sound": true, "notification": true },
+    "user_cancelled": { "sound": false, "notification": false }
+  },
+  "messages": {
+    "permission": "Session {sessionTitle} \n Needs Permission to Continue",
+    "complete": "Task Complete \n Session {sessionTitle}",
+    "subagent_complete": "Subagent Task Completed \n Session {sessionTitle}",
+    "error": "Session {sessionTitle} \n Has Encountered An Error",
+    "question": "Session {sessionTitle} \n Has a Question for the User",
+    "user_cancelled": "Session {sessionTitle} \n Canceled by the User"
+  },
+
+  "volumes": {
+    "permission": 1,
+    "complete": 1,
+    "subagent_complete": 1,
+    "error": 1,
+    "question": 1,
+    "user_cancelled": 1
+  }
+}

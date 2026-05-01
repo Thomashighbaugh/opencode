@@ -1,0 +1,100 @@
+{
+    "$schema": "https://opencode.ai/config.json",
+    "model": "ollama/deepseek-v4-pro:cloud",
+    "provider": {
+        "opencode": {
+            "options": {}
+        },
+        "ollama": {
+            "name": "Ollama",
+            "npm": "@ai-sdk/openai-compatible",
+            "options": {
+                "baseURL": "http://127.0.0.1:11434/v1"
+            },
+            "models": {
+                "deepseek-v4-pro:cloud": {
+                    "name": "deepseek-v4-pro:cloud",
+                    "limit": {
+                        "context": 1048576,
+                        "output": 131072
+                    }
+                },
+                "deepseek-v4-flash:cloud": {
+                    "name": "deepseek-v4-flash:cloud",
+                    "limit": {
+                        "context": 1048576,
+                        "output": 131072
+                    }
+                },
+                "glm-5.1:cloud": {
+                    "name": "glm-5.1:cloud",
+                    "limit": {
+                        "context": 202752,
+                        "output": 131072
+                    }
+                },
+                "glm-5:cloud": {
+                    "name": "glm-5:cloud",
+                    "limit": {
+                        "context": 202752,
+                        "output": 131072
+                    }
+                },
+                "kimi-k2.6:cloud": {
+                    "name": "kimi-k2.6:cloud",
+                    "limit": {
+                        "context": 262144,
+                        "output": 262144
+                    }
+                },
+                "minimax-m2.7:cloud": {
+                    "name": "minimax-m2.7:cloud",
+                    "limit": {
+                        "context": 204800,
+                        "output": 128000
+                    }
+                },
+                "qwen3.6:cloud": {
+                    "name": "qwen3.6:cloud",
+                    "limit": {
+                        "context": 262144,
+                        "output": 32768
+                    }
+                }
+            }
+        }
+    },
+    "permission": {
+        "edit": {
+            ".joc/**": "allow",
+            ".opencode/**": "allow"
+        }
+    },
+    "mcp": {
+        "context7": {
+            "type": "remote",
+            "url": "https://mcp.context7.com/mcp",
+            "headers": {
+                "CONTEXT7_API_KEY": "{env:CONTEXT7_API_KEY}"
+            },
+            "enabled": true
+        }
+    },
+    "plugin": [
+        "./plugins/joc-plugin.ts",
+        "./plugins/joc-tui/index.js",
+        "opencode-bytheway@0.3.10",
+        "@plannotifier/opencode@latest",
+        "@opencode-plugins/env-protection",
+        // "@0xsero/open-queue",
+        "@franlol/opencode-md-table-formatter@0.0.3",
+        "@mohak34/opencode-notifier@latest",
+        // "opencode-auto-resume"
+    ],
+    "instructions": [
+        "AGENTS.md",
+        "./rules/shell_strategy.md",
+        "./rules/*",
+        "./.opencode/rules/*"
+    ]
+}

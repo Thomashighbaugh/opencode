@@ -1,0 +1,5 @@
+{
+  "plugin": [
+    "../plugins/joc-tui/index.js"
+  ]
+}
