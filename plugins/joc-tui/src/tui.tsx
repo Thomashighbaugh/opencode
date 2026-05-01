@@ -1,5 +1,5 @@
 /** @jsxImportSource @opentui/solid */
-import type { TuiPlugin, TuiPluginApi, PluginOptions, TuiPluginMeta, TuiDialogSelectOption, TuiPromptRef, TuiPromptInfo } from '@opencode-ai/plugin/tui'
+import type { TuiPlugin, TuiPluginApi, PluginOptions, TuiPluginMeta, TuiDialogSelectOption } from '@opencode-ai/plugin/tui'
 
 interface HubSubcommand {
   label: string
@@ -23,12 +23,12 @@ const HUBS: HubDefinition[] = [
     title: "Init Project",
     description: "Initialize or refine project setup",
     subcommands: [
-      { label: "setup", description: "Full project setup", command: "/init-project setup", promptText: "Full init from scratch. I'll verify global JOC, detect your stack, scaffold config, generate docs, and validate." },
-      { label: "detect", description: "Detect language, framework, build tools", command: "/init-project detect", promptText: "Detecting your project stack. I'll identify language, framework, package manager, build system, and CI." },
-      { label: "docs", description: "Generate hierarchical AGENTS.md", command: "/init-project docs", promptText: "Generating codebase documentation. Run deepinit to create hierarchical AGENTS.md files." },
-      { label: "context", description: "Capture session knowledge", command: "/init-project context", promptText: "Capturing session knowledge. Run the remember skill to promote insights to project memory." },
-      { label: "verify", description: "Validate configuration", command: "/init-project verify", promptText: "Validating configuration. Use the verifier agent to check config completeness." },
-      { label: "refresh", description: "Update config preserving edits", command: "/init-project refresh", promptText: "Updating existing config. Run /init-project with refresh mode, preserving manual edits." },
+      { label: "setup", description: "Full project setup", command: "/init-project setup", promptText: "Full init from scratch. Verify global JOC, detect stack, scaffold config, generate docs, validate — phases 0-7." },
+      { label: "detect", description: "Detect language, framework, build tools", command: "/init-project detect", promptText: "Detect project stack — identify language, framework, package manager, build system, and CI." },
+      { label: "docs", description: "Generate hierarchical AGENTS.md", command: "/init-project docs", promptText: "Generate codebase documentation — create hierarchical AGENTS.md files via deepinit." },
+      { label: "context", description: "Capture session knowledge", command: "/init-project context", promptText: "Capture session knowledge — promote insights to project memory, notepad, and AGENTS.md." },
+      { label: "verify", description: "Validate configuration", command: "/init-project verify", promptText: "Validate configuration — check file existence, config syntax, parent refs, and gitignore." },
+      { label: "refresh", description: "Update config preserving edits", command: "/init-project refresh", promptText: "Update existing config — preserve manual edits, merge new detections, phases 0-7 merge mode." },
       { label: "status", description: "Show init state", command: "/init-project status", promptText: "Show the current initialization state by listing .opencode/state/init/ and checkpoint progress." },
       { label: "map-codebase", description: "Analyze brownfield codebase", command: "/init-project map-codebase", promptText: "Spawn parallel agents to map this codebase: stack, architecture, conventions, and integration points." },
       { label: "doctor", description: "Diagnostic health check", command: "/init-project doctor", promptText: "Validate JOC installation: config integrity, state consistency, hook status, and dependency health." }
@@ -39,12 +39,12 @@ const HUBS: HubDefinition[] = [
     title: "Ideation",
     description: "Planning, research, and ideation hub",
     subcommands: [
-      { label: "plan", description: "Strategic planning", command: "/ideation plan", promptText: "Use the plan skill for interview-style strategic planning. Clarify goals, identify constraints, break into ordered tasks with acceptance criteria." },
-      { label: "refine", description: "Diverge/converge iteration", command: "/ideation refine", promptText: "Use the idea-refine skill. Expand my idea through structured brainstorming, then converge on the strongest version." },
-      { label: "deep", description: "Socratic interview", command: "/ideation deep", promptText: "Use the deep-interview skill. Socratic interview with ambiguity gating — crystallize requirements." },
-      { label: "graph", description: "Relationship mapping", command: "/ideation graph", promptText: "Use the graph-thinking skill to map relationships, dependencies, and tradeoffs as a graph." },
-      { label: "research", description: "Multi-model synthesis", command: "/ideation research", promptText: "Use the ccg skill for multi-model synthesis of diverse perspectives into a coherent answer." },
-      { label: "ralplan", description: "Consensus planning", command: "/ideation ralplan", promptText: "Use the ralplan skill. Consensus planning gate — validate the plan is concrete enough to execute." },
+      { label: "plan", description: "Strategic planning", command: "/ideation plan", promptText: "Interview-style strategic planning. Clarify goals, identify constraints, break into ordered tasks with acceptance criteria." },
+      { label: "refine", description: "Diverge/converge iteration", command: "/ideation refine", promptText: "Diverge/converge iteration. Expand the idea through structured brainstorming, then converge on the strongest version." },
+      { label: "deep", description: "Socratic interview", command: "/ideation deep", promptText: "Socratic interview with ambiguity gating — crystallize requirements through probing questions." },
+      { label: "graph", description: "Relationship mapping", command: "/ideation graph", promptText: "Map relationships, dependencies, and tradeoffs visually as a graph to reveal hidden structure." },
+      { label: "research", description: "Multi-model synthesis", command: "/ideation research", promptText: "Multi-model synthesis — gather diverse perspectives and merge them into a coherent, cross-referenced answer." },
+      { label: "ralplan", description: "Consensus planning", command: "/ideation ralplan", promptText: "Consensus planning gate — validate the plan is concrete enough to execute, run interview if not." },
       { label: "ddd", description: "Domain-driven design", command: "/ideation ddd", promptText: "Explore bounded contexts, model aggregates and domain events using Domain-Driven Design." },
       { label: "event-storming", description: "Domain exploration", command: "/ideation event-storming", promptText: "Model domain events, commands, and aggregates on a timeline using Event Storming." },
       { label: "double-diamond", description: "Discover→Define→Develop→Deliver", command: "/ideation double-diamond", promptText: "Guide through the four-phase Double Diamond design council framework: Discover→Define→Develop→Deliver." },
@@ -57,7 +57,9 @@ const HUBS: HubDefinition[] = [
       { label: "cleanroom", description: "Formal correctness", command: "/ideation cleanroom", promptText: "Box structure specs with statistical usage testing and MTTF certification (Cleanroom)." },
       { label: "pwf", description: "Files-as-disk planning", command: "/ideation pwf", promptText: "Three-file pattern with filesystem as disk and quality convergence scoring (PWF planning)." },
       { label: "rpikit", description: "Research-Plan-Implement", command: "/ideation rpikit", promptText: "Iron Law — understand problem domain before touching any code. Research then plan then implement." },
-      { label: "constitution", description: "Project governance", command: "/ideation constitution", promptText: "Establish quality, UX, performance, and security governing principles as project constitution." }
+      { label: "constitution", description: "Project governance", command: "/ideation constitution", promptText: "Establish quality, UX, performance, and security governing principles as project constitution." },
+      { label: "resume", description: "Resume last ideation session", command: "/ideation resume", promptText: "Resume last ideation session — load most recent in-progress work from .opencode/state/ideation/work-products/." },
+      { label: "status", description: "Show ideation state", command: "/ideation status", promptText: "Show ideation state — list state files and checkpoints in .opencode/state/ideation/." }
     ]
   },
   {
@@ -65,14 +67,14 @@ const HUBS: HubDefinition[] = [
     title: "Orchestrate",
     description: "Execution hub — pick pattern, load plan, build",
     subcommands: [
-      { label: "ralph", description: "Persistent loop", command: "/orchestrate ralph", promptText: "Use the ralph skill. Persistent loop — keep working until the task is verified complete." },
-      { label: "team", description: "N coordinated agents", command: "/orchestrate team", promptText: "Use the team skill. Spin up N coordinated agents on a shared task list with real-time messaging." },
-      { label: "deep", description: "Causal trace", command: "/orchestrate deep", promptText: "Use the deep-dive skill. 2-stage: causal trace then deep interview to crystallize requirements." },
-      { label: "ccg", description: "Multi-model synthesis", command: "/orchestrate ccg", promptText: "Use the ccg skill. Multi-model synthesis — query diverse models and merge perspectives." },
-      { label: "ultrawork", description: "Max parallel", command: "/orchestrate ultrawork", promptText: "Use the ultrawork skill. Maximum parallel execution for high-throughput tasks." },
-      { label: "autopilot", description: "Full autonomous", command: "/orchestrate autopilot", promptText: "Use the autopilot skill. Full autonomous execution from idea to working code." },
-      { label: "sciomc", description: "Parallel scientists", command: "/orchestrate sciomc", promptText: "Use the sciomc skill. Parallel scientist agents for comprehensive analysis." },
-      { label: "swarm", description: "Architect-led 11-agent team", command: "/orchestrate swarm", promptText: "Use the opencode-swarm plugin — architect-led team with gated QA pipeline." },
+      { label: "ralph", description: "Persistent loop", command: "/orchestrate ralph", promptText: "Persistent execution loop — keep working until the task is verified complete. Won't stop early." },
+      { label: "team", description: "N coordinated agents", command: "/orchestrate team", promptText: "N coordinated agents on a shared task list with real-time messaging and parallel execution." },
+      { label: "deep", description: "Causal trace", command: "/orchestrate deep", promptText: "2-stage pipeline: causal trace to find root cause, then deep interview to crystallize requirements." },
+      { label: "ccg", description: "Multi-model synthesis", command: "/orchestrate ccg", promptText: "Multi-model synthesis — query diverse models and merge their perspectives into one answer." },
+      { label: "ultrawork", description: "Max parallel", command: "/orchestrate ultrawork", promptText: "Maximum parallel execution — execute all independent tasks simultaneously for high throughput." },
+      { label: "autopilot", description: "Full autonomous", command: "/orchestrate autopilot", promptText: "Full autonomous execution from idea to working code — handles everything end-to-end." },
+      { label: "sciomc", description: "Parallel scientists", command: "/orchestrate sciomc", promptText: "Parallel scientist agents for comprehensive analysis — run multiple analysts concurrently." },
+      { label: "swarm", description: "Architect-led 11-agent team", command: "/orchestrate swarm", promptText: "Architect-led swarm with coder, reviewer, test engineer, critic — gated QA pipeline." },
       { label: "state-machine", description: "States with transitions", command: "/orchestrate state-machine", promptText: "Model workflow as state machine with guard conditions and agents as state implementations." },
       { label: "consensus", description: "Voting / weighting agents", command: "/orchestrate consensus", promptText: "Run agents independently then aggregate via voting or weighted synthesis." },
       { label: "evolutionary", description: "Incremental generations", command: "/orchestrate evolutionary", promptText: "Evolve solutions through incremental generations with fitness validation and tournament selection." },
@@ -89,7 +91,9 @@ const HUBS: HubDefinition[] = [
       { label: "ruflo", description: "Q-Learning smart swarm", command: "/orchestrate ruflo", promptText: "60+ agents with Q-Learning routing and Queen/Worker hierarchical topologies." },
       { label: "harden", description: "Add robustness layers", command: "/orchestrate harden", promptText: "Wrap workflow with safeTask, circuitBreaker, and verificationGate composables." },
       { label: "brownfield", description: "Feature on existing codebase", command: "/orchestrate brownfield", promptText: "Analyze existing system, identify integration points, validate before implementing." },
-      { label: "vibe-code", description: "Conversational prototyping", command: "/orchestrate vibe-code", promptText: "Describe in natural language, generate full-stack, iterate through conversational feedback rounds." }
+      { label: "vibe-code", description: "Conversational prototyping", command: "/orchestrate vibe-code", promptText: "Describe in natural language, generate full-stack, iterate through conversational feedback rounds." },
+      { label: "resume", description: "Resume last orchestration session", command: "/orchestrate resume", promptText: "Resume last orchestration session — load latest checkpoint from .opencode/state/orchestration/checkpoints/." },
+      { label: "status", description: "Show orchestration state", command: "/orchestrate status", promptText: "Show orchestration state — list state files in .opencode/state/orchestration/." }
     ]
   },
   {
@@ -99,13 +103,12 @@ const HUBS: HubDefinition[] = [
     subcommands: [
       { label: "session", description: "Extract session patterns", command: "/harvest-context session", promptText: "Extract decisions, patterns, and learnings from the current session." },
       { label: "codebase", description: "Generate AGENTS.md", command: "/harvest-context codebase", promptText: "Generate hierarchical AGENTS.md documentation across the entire codebase using deepinit." },
-      { label: "skill", description: "Create a skill", command: "/harvest-context skill", promptText: "Use skill-creator to create a reusable skill from this session's knowledge." },
-      { label: "agent", description: "Create an agent", command: "/harvest-context agent", promptText: "Use opencode-agent-creator to create a project-specific agent." },
-      { label: "rule", description: "Create a project rule", command: "/harvest-context rule", promptText: "Create a project rule file in .opencode/rules/." },
-      { label: "command", description: "Create a slash command", command: "/harvest-context command", promptText: "Use opencode-command-creator to create a project slash command." },
-      { label: "memory", description: "Promote to memory", command: "/harvest-context memory", promptText: "Use the remember skill to promote durable knowledge to project memory, notepad, or wiki." },
-      { label: "docs", description: "Fetch library docs", command: "/harvest-context docs", promptText: "Use Context7 MCP to fetch official library documentation for any package." },
-      { label: "decompose", description: "Break into actionable units", command: "/harvest-context decompose", promptText: "Use the planner agent to break down this concept into smaller actionable units." },
+      { label: "skill", description: "Create a skill", command: "/harvest-context skill", promptText: "Create a reusable skill from this session's knowledge using skill-creator." },
+      { label: "agent", description: "Create an agent", command: "/harvest-context agent", promptText: "Create a project-specific agent with defined purpose, tools, and persona." },
+      { label: "command", description: "Create a slash command", command: "/harvest-context command", promptText: "Create a project slash command with trigger, arguments, and behavior definition." },
+      { label: "memory", description: "Promote to memory", command: "/harvest-context memory", promptText: "Promote durable knowledge to project memory, notepad, or wiki — classify what goes where." },
+      { label: "docs", description: "Fetch library docs", command: "/harvest-context docs", promptText: "Fetch official library documentation for any package using Context7 MCP." },
+      { label: "decompose", description: "Break into actionable units", command: "/harvest-context decompose", promptText: "Break down a concept or goal into smaller, ordered, actionable units." },
       { label: "context", description: "Manage context files", command: "/harvest-context context", promptText: "Manage context files — harvest, extract, organize, compact, or map project context." },
       { label: "compress", description: "Token compression", command: "/harvest-context compress", promptText: "Apply 4-layer compression for 50-67% token savings." },
       { label: "secondbrain", description: "Local knowledge base", command: "/harvest-context secondbrain", promptText: "Set up markdown+Git knowledge base with role packs and self-healing cross-references." },
@@ -117,15 +120,16 @@ const HUBS: HubDefinition[] = [
     title: "Project Ops",
     description: "Project operations — tests, git, optimization",
     subcommands: [
-      { label: "commit", description: "Conventional commit", command: "/project commit", promptText: "Use the conventional-commit skill to create a well-formatted commit message." },
-      { label: "stage", description: "Stage changes", command: "/project stage", promptText: "Use the git-stage-thread command to stage changes from this conversation." },
-      { label: "pr", description: "Manage PRs", command: "/project pr", promptText: "Use the pr command to create, view, merge, or manage pull requests." },
-      { label: "gh", description: "GitHub operations", command: "/project gh", promptText: "Use the github-ops skill for full GitHub CLI operations." },
-      { label: "changelog", description: "Changelog", command: "/project changelog", promptText: "Use the changelog-generator skill to create a user-facing changelog from commits." },
-      { label: "optimize", description: "Optimize code", command: "/project optimize", promptText: "Use the optimize command to analyze and improve code performance and security." },
-      { label: "icon", description: "Generate icons", command: "/project icon", promptText: "Use the icon-generator skill to generate web/PWA/UE icon assets from a source image." },
-      { label: "organize", description: "File organization", command: "/project organize", promptText: "Use the file-organizer skill to find duplicates and suggest better structures." },
-      { label: "analyze", description: "Analyze patterns", command: "/project analyze", promptText: "Use the analyze-patterns command to find code patterns and anti-patterns." },
+      { label: "tests", description: "Generate test suite", command: "/project tests", promptText: "Generate comprehensive test suite — 8 test types: unit, integration, e2e, snapshot, property, mutation, fuzz, contract." },
+      { label: "commit", description: "Conventional commit", command: "/project commit", promptText: "Create a well-formatted conventional commit message — stage changes and write commit." },
+      { label: "stage", description: "Stage changes", command: "/project stage", promptText: "Stage git changes from this conversation thread — identify and stage changed files." },
+      { label: "pr", description: "Manage PRs", command: "/project pr", promptText: "Create, view, merge, or manage pull requests via GitHub CLI." },
+      { label: "gh", description: "GitHub operations", command: "/project gh", promptText: "Full GitHub CLI operations — PRs, issues, searches, and repository management." },
+      { label: "changelog", description: "Changelog", command: "/project changelog", promptText: "Generate a user-facing changelog from git commits — analyze and categorize changes." },
+      { label: "optimize", description: "Optimize code", command: "/project optimize", promptText: "Analyze and improve code performance and security — find optimization opportunities." },
+      { label: "icon", description: "Generate icons", command: "/project icon", promptText: "Generate web/PWA/UE icon assets from a source SVG or PNG image." },
+      { label: "organize", description: "File organization", command: "/project organize", promptText: "Find duplicates, suggest better file structures, and automate cleanup." },
+      { label: "analyze", description: "Analyze patterns", command: "/project analyze", promptText: "Find code patterns and anti-patterns across the codebase — improvement opportunities." },
       { label: "converge", description: "5-gate quality convergence", command: "/project converge", promptText: "Run functional/lint/type/security/perf gates with progressive targets." },
       { label: "scan", description: "Security scan", command: "/project scan", promptText: "Run SAST, secrets detection, dependency audit, and compliance checks." },
       { label: "sandbox", description: "Sandbox enforcement", command: "/project sandbox", promptText: "Define policy-based tool, file, and network controls for agent calls." },
@@ -136,71 +140,55 @@ const HUBS: HubDefinition[] = [
 ]
 
 const tui: TuiPlugin = async (api: TuiPluginApi, _options: PluginOptions | undefined, _meta: TuiPluginMeta) => {
-  // Capture TuiPromptRef from both home and session prompt slots.
-  // When available, we can set text + submit directly — the most reliable approach.
-  let homePromptRef: TuiPromptRef | undefined
-  let sessionPromptRef: TuiPromptRef | undefined
-
-  try {
-    api.slots.register({
-      id: "joc-hub-prompt-capture",
-      init(props: Record<string, unknown>) { return props },
-      slots: {
-        home_prompt: {
-          ref: (ref: TuiPromptRef | undefined) => {
-            if (ref) homePromptRef = ref
-          }
-        },
-        session_prompt: {
-          ref: (ref: TuiPromptRef | undefined) => {
-            if (ref) sessionPromptRef = ref
-          }
-        }
-      }
-    } as any)
-  } catch {
-    // Slot registration may fail if slots are already occupied.
-    // We fall back to session.prompt() and command.trigger() below.
-  }
-
   /**
-   * Submit prompt text to the LLM using the best available strategy.
+   * Submit prompt text to the LLM.
    *
-   * Strategy 1: TuiPromptRef.set() + submit() — puts text in the input box and hits enter.
-   *   Works on home (creates new session) and in-session (appends to current session).
-   * Strategy 2: api.client.session.prompt() — SDK-level send, works only in-session.
-   * Strategy 3: api.command.trigger() — opens command palette with the text as fallback.
+   * HOME route: navigate to a new session with the prompt text, then
+   * use client.session.prompt() to start the conversation.
+   * IN-SESSION: prompt() the current session directly.
    */
-  function submitPrompt(promptText: string) {
-    // Strategy 1: Use captured prompt ref (most reliable)
-    const isHome = api.route.current.name !== "session"
-    const ref = isHome ? homePromptRef : sessionPromptRef
-
-    if (ref) {
-      const info: TuiPromptInfo = {
-        input: promptText,
-        mode: "normal",
-        parts: [{ type: "text", text: promptText }]
-      }
-      ref.set(info)
-      ref.submit()
-      return
-    }
-
-    // Strategy 2: Use SDK client (in-session only)
+  async function submitPrompt(promptText: string) {
     const route = api.route.current
+
+    // Already in a session — prompt it directly
     if (route.name === "session" && route.params?.sessionID) {
       try {
-        api.client.session.prompt({
-          sessionID: route.params.sessionID as string,
-          parts: [{ type: "text" as const, text: promptText }]
+        const sid = route.params.sessionID as string
+        const result: any = await api.client.session.prompt({
+          sessionID: sid,
+          parts: [{ type: "text", text: promptText }],
         })
-        return
-      } catch {}
+        // prompt() returns { data, error, response } — data is truthy on success
+        if (result && !result.error) return
+        console.error("[joc-tui] In-session prompt rejected:", result?.error)
+      } catch (e: any) {
+        console.error("[joc-tui] In-session prompt threw:", e?.message || e)
+      }
     }
 
-    // Strategy 3: Trigger as command (fallback — opens command palette)
-    api.command.trigger(promptText)
+    // HOME route (or session prompt failed): create new session → prompt → navigate
+    try {
+      const createResult: any = await api.client.session.create({
+        title: promptText.replace(/\n/g, " ").substring(0, 80),
+      })
+      const session = createResult?.data
+      if (session?.id) {
+        const promptResult: any = await api.client.session.prompt({
+          sessionID: session.id,
+          parts: [{ type: "text", text: promptText }],
+        })
+        if (promptResult && !promptResult.error) {
+          // Navigate to the new session so user sees the response
+          api.route.navigate("session", { sessionID: session.id })
+          return
+        }
+        console.error("[joc-tui] Session prompt rejected:", promptResult?.error)
+      } else {
+        console.error("[joc-tui] Session create returned no id:", createResult)
+      }
+    } catch (e: any) {
+      console.error("[joc-tui] Session create/prompt threw:", e?.message || e)
+    }
   }
 
   // Register all hub commands in a single call.
@@ -224,7 +212,17 @@ const tui: TuiPlugin = async (api: TuiPluginApi, _options: PluginOptions | undef
             api.ui.dialog.clear()
             const sub = hub.subcommands.find(s => s.label === selected.value)
             if (!sub) return
-            submitPrompt(sub.promptText)
+
+            // Build routing-aware prompt so the LLM knows which hub/subcommand was selected
+            // and delegates via hubMenu tool. The CRITICAL guard prevents double-execution
+            // by blocking direct skill/agent invocation before hubMenu is called.
+            const routingPrompt = `[TUI HUB ROUTING: /${hub.name} ${sub.label}]
+DO NOT invoke any skill, agent, or command directly.
+STEP 1 (REQUIRED): Call hubMenu(action="route", hub="${hub.name}", subcommand="${sub.label}").
+STEP 2: hubMenu returns a delegation object { type, target } and a reminder string. Follow ONLY that reminder text. Invoke ONLY the target returned by hubMenu.
+Selected: ${hub.title} → ${sub.label}
+Context: ${sub.promptText}`
+            submitPrompt(routingPrompt)
           }
         }))
       }

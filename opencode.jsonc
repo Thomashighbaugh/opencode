@@ -84,7 +84,6 @@
         "./plugins/joc-plugin.ts",
         "./plugins/joc-tui/index.js",
         "opencode-bytheway@0.3.10",
-        "@plannotifier/opencode@latest",
         "@opencode-plugins/env-protection",
         // "@0xsero/open-queue",
         "@franlol/opencode-md-table-formatter@0.0.3",

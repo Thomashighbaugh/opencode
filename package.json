@@ -1,6 +1,8 @@
 {
   "dependencies": {
-    "@opencode-ai/plugin": "1.14.30",
+    "@franlol/opencode-md-table-formatter": "0.0.3",
+    "@opencode-ai/plugin": "1.14.31",
+    "@opencode-ai/sdk": "latest",
     "typescript": "^6.0.3",
     "zod": "^3.25.76"
   },

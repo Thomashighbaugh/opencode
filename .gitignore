@@ -7,4 +7,4 @@ dist/
 opencode.json 
 .session-stats.json 
 env.d.ts
-
+opencode-notifier-state.json
