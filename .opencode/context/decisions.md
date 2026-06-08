@@ -119,3 +119,30 @@ Create `opencode-configure` as a **coordinator skill** that covers all 8 config 
 
 ## Rationale
 Single-creation skills (agent, skill, command, plugin) are well-covered by existing creators. What was missing was the holistic view — someone who says "fix my config" or "set up a project .opencode/" needs to touch multiple surfaces at once.
+
+---
+
+# ADR: Add NVIDIA Nemotron 3 Ultra as Available Cloud Model
+
+**Status:** Accepted  
+**Date:** 2026-06-08
+
+## Context
+The existing model lineup lacked a model specialized for agent orchestration and long-running agent workflows. Available models were either general-purpose, fast-reasoning, or extended-context, but none specifically targeted multi-step agentic loops with tool calling at scale.
+
+## Decision
+Add `nemotron-3-ultra:cloud` (NVIDIA Nemotron 3 Ultra) as an available Ollama cloud model with:
+- 256K context window / 131K output limit
+- Best For: agent orchestration, long-running agents, deep research
+- 550B parameters (55B active per token) — efficient for its class
+
+## Rationale
+- Built for long-running agents — tuned for orchestration, coding agents, and complex enterprise workflows
+- 1M token native context (cloud version limited to 256K)
+- Optimized for tool calling across hundreds of steps — directly relevant to Hubs orchestration patterns
+- The existing model mix (pro/flash/glm/kimi/minimax/qwen) had no specific "agent orchestration" specialist
+
+## Consequences
+- Users can now select a model optimized for `/orchestrate` workloads
+- 256K context is smaller than the pro/flash 1M models, but output of 131K matches flash
+- Model is listed prominently as the third entry (after flash) in the AGENTS.md table
