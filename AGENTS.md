@@ -111,6 +111,7 @@ Default ollama cloud models:
 |-------|---------|--------|----------|
 | deepseek-v4-pro:cloud | 1M | 131K | Default — frontier reasoning, agentic tasks |
 | deepseek-v4-flash:cloud | 1M | 131K | Fast efficient reasoning |
+| nemotron-3-ultra:cloud | 256K | 131K | Agent orchestration, long-running agents |
 | glm-5.1:cloud | 202K | 131K | General purpose |
 | glm-5:cloud | 202K | 131K | General purpose |
 | kimi-k2.6:cloud | 262K | 262K | Extended context |

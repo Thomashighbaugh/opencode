@@ -61,6 +61,13 @@
                         "context": 262144,
                         "output": 32768
                     }
+                },
+                "nemotron-3-ultra:cloud": {
+                    "name": "nemotron-3-ultra:cloud",
+                    "limit": {
+                        "context": 262144,
+                        "output": 131072
+                    }
                 }
             }
         }
