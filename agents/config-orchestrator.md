@@ -1,6 +1,6 @@
 ---
 description: Orchestrate OpenCode configurations. Use when setting up, modifying, or validating opencode.json(c), skills, agents, commands, tools, plugins, or AGENTS.md files.
-model: ollama/glm-5.1:cloud
+model: ollama/deepseek-v4-flash:cloud
 mode: subagent
 permission:
   bash: ask

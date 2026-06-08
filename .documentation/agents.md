@@ -1,6 +1,6 @@
 # Agents Reference
 
-> Complete reference for all 28 JOC agents
+> Complete reference for all 28 Hubs agents
 
 ## Table of Contents
 
@@ -24,7 +24,7 @@ Agents are specialized subagents that handle specific task types. Each agent has
 - **Name**: Unique identifier
 - **Description**: What the agent does
 - **Model**: The AI model used (opus, sonnet, haiku, glm-5.1:cloud, etc.)
-- **Mode**: Always `subagent` for JOC agents
+- **Mode**: Always `subagent` for Hubs agents
 - **Permissions**: Tool access restrictions
 
 ## Agent Architecture
@@ -564,7 +564,7 @@ Agents focused on workflows and debugging.
 - Agent configuration
 
 **Best For:**
-- "Configure JOC"
+- "Configure Hubs"
 - "Update opencode.jsonc"
 - "Validate the configuration"
 - "Set up MCP servers"

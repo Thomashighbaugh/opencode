@@ -1,6 +1,6 @@
 # Execution Modes
 
-> Comprehensive guide to JOC execution modes for multi-agent orchestration
+> Comprehensive guide to Hubs execution modes for multi-agent orchestration
 
 ## Table of Contents
 
@@ -19,7 +19,7 @@
 
 ## Overview
 
-JOC provides execution modes that control how tasks are processed. Each mode offers different trade-offs between autonomy, parallelism, and verification.
+Hubs provides execution modes that control how tasks are processed. Each mode offers different trade-offs between autonomy, parallelism, and verification.
 
 | Mode | Level | Autonomy | Parallelism | Verification | Use Case |
 |------|-------|----------|-------------|---------------|----------|
@@ -41,7 +41,7 @@ JOC provides execution modes that control how tasks are processed. Each mode off
 │                         ▼                                        │
 │              ┌─────────────────────┐                             │
 │              │  Keyword Detection │                             │
-│              │  (joc-plugin.ts)    │                             │
+│              │  (hubs-plugin.ts)    │                             │
 │              └─────────────────────┘                             │
 │                         │                                        │
 │                         ▼                                        │
@@ -844,7 +844,7 @@ Natural language triggers that activate modes without explicit commands.
 
 ### Detection Logic
 
-The plugin (`joc-plugin.ts`) uses regex patterns:
+The plugin (`hubs-plugin.ts`) uses regex patterns:
 
 ```typescript
 const KEYWORD_PATTERNS = {
@@ -898,7 +898,7 @@ States persist across sessions:
 ### Cross-Session Restoration
 
 ```typescript
-// In joc-plugin.ts
+// In hubs-plugin.ts
 function getSessionRestoreMessages(directory, sessionId) {
   const messages = []
   

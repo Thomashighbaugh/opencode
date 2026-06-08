@@ -1,6 +1,6 @@
 # Model Configuration
 
-> Complete reference for configuring AI models in JOC
+> Complete reference for configuring AI models in Hubs
 
 ## Table of Contents
 
@@ -14,7 +14,7 @@
 
 ## Overview
 
-JOC uses ollama cloud models by default, providing a balance of capability and cost-effectiveness. Models are configured in `opencode.jsonc`.
+Hubs uses ollama cloud models by default, providing a balance of capability and cost-effectiveness. Models are configured in `opencode.jsonc`.
 
 ## Default Models
 
@@ -280,7 +280,7 @@ Configure different models for different agent types:
    ```
 
 2. **Use conversation compaction:**
-   - Let JOC compact when needed
+   - Let Hubs compact when needed
    - Key state is preserved
 
 3. **Prefer focused prompts:**

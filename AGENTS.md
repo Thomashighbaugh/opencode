@@ -1,6 +1,6 @@
-# OpenCode JOC - Project Instructions
+# OpenCode Hubs - Project Instructions
 
-> Joint Operations Center - Multi-agent orchestration for OpenCode
+> Hub-based multi-agent orchestration for OpenCode
 
 ## Overview
 
@@ -19,7 +19,7 @@ This project provides a comprehensive multi-agent orchestration system for OpenC
 
 | Mode | Trigger | Purpose |
 |------|---------|---------|
-| **ralph** | `"ralph"` or `/orchestrate ralph` | Persistent execution until verified complete |
+| **hubs** | `"hubs"` | Orchestrate subagents for complex multi-step tasks with auto-context creation |
 | **autopilot** | `"autopilot"` or `/orchestrate autopilot` | Full autonomous execution |
 | **ultrawork** | `"ulw"` or `/orchestrate ultrawork` | Maximum parallel execution |
 | **team** | `/orchestrate team` | N coordinated agents on shared tasks |
@@ -29,7 +29,7 @@ This project provides a comprehensive multi-agent orchestration system for OpenC
 
 | Agent | Use For |
 |-------|---------|
-| **joc** | Orchestration of subagents for complex tasks |
+| **hubs** | Orchestration of subagents for complex tasks with auto-context creation |
 | **executor** | Implementation work |
 | **architect** | System design |
 | **planner** | Task sequencing |
@@ -43,14 +43,14 @@ This project provides a comprehensive multi-agent orchestration system for OpenC
 
 | Skill | Level | Use For |
 |-------|-------|---------|
-| **joc-reference** | 1 | OAS catalog and tools reference (auto-loads) |
-| **joc-setup** | 2 | Backward-compat alias → /init-project |
-| **joc-doctor** | 2 | Diagnose JOC issues |
+| **hubs-reference** (hubs-reference) | 1 | Hubs catalog and tools reference (auto-loads) |
+| **hubs-setup** (hubs-setup) | 2 | Backward-compat alias → /init-project |
+| **hubs-doctor** (hubs-doctor) | 2 | Diagnose Hubs issues |
 | **init-project** | 3 | Project init hub — setup, detect, docs, context, verify, refresh, map-codebase, doctor |
-| **ideation** | 2 | Planning/research hub — plan, refine, deep, graph, research, ralplan, ddd, event-storming, double-diamond, jtbd, impact-mapping, spiral, top-down, bottom-up, adversarial-debate, cleanroom, pwf, rpikit, constitution |
-| **orchestrate** | 2 | Execution hub — ralph, team, deep, ccg, ultrawork, autopilot, sciomc, swarm, state-machine, consensus, evolutionary, spec-driven, plan-execute, gsd, self-assess, remediate, devin, maestro, metaswarm, cc10x, gastown, ruflo, harden, brownfield, vibe-code |
+| **ideation** | 2 | Planning/research hub — plan, brainstorm, refine, deep, graph, research, ralplan, ddd, event-storming, double-diamond, jtbd, impact-mapping, spiral, top-down, bottom-up, adversarial-debate, cleanroom, pwf, rpikit, hive, story-mapping, lean-canvas, constitution |
+| **orchestrate** | 2 | Execution hub — ralph, team, deep, ccg, ultrawork, autopilot, sciomc, swarm, state-machine, consensus, evolutionary, spec-driven, react, plan-execute, hive, tdd, pair, pipeline, gsd, self-assess, remediate, devin, maestro, metaswarm, cc10x, gastown, ruflo, harden, brownfield, vibe-code |
 | **harvest-context** | 2 | Context/artifact hub — session, codebase, skill, agent, rule, command, memory, docs, decompose, context, compress, secondbrain, journal |
-| **project** | 2 | Project ops hub — tests, commit, stage, pr, gh, optimize, icon, organize, analyze, changelog, converge, scan, sandbox, retrospect, purge |
+| **project** | 2 | Project ops hub — tests, commit, stage, pr, gh, optimize, icon, organize, analyze, changelog, converge, scan, sandbox, retrospect, purge, release, review, audit, archive, workspace |
 | **configure-notifications** | 2 | Configure Telegram/Discord/Slack notifications |
 | **context7-mcp** | 2 | Fetch library docs via Context7 MCP |
 | **context7-docs** | 2 | Context7 docs for Tailwind, React, Next.js, etc. |
@@ -69,11 +69,11 @@ Natural language triggers for modes:
 
 | Command | Subcommands | Purpose |
 |---------|------------|---------|
-| `/init-project` | setup, detect, docs, context, verify, refresh, status, map-codebase, doctor | Project init — full setup through detection and validation |
-| `/ideation` | plan, refine, deep, graph, research, ralplan, ddd, event-storming, double-diamond, jtbd, impact-mapping, spiral, top-down, bottom-up, adversarial-debate, cleanroom, pwf, rpikit, constitution, resume, status | Planning & research — 19 methodologies from strategic planning to formal correctness |
-| `/orchestrate` | ralph, team, deep, ccg, ultrawork, autopilot, sciomc, swarm, state-machine, consensus, evolutionary, spec-driven, plan-execute, gsd, self-assess, remediate, devin, maestro, metaswarm, cc10x, gastown, ruflo, harden, brownfield, vibe-code, resume, status | Execution — 25 patterns from persistent loops to Q-Learning swarms |
-| `/harvest-context` | session, codebase, skill, agent, rule, command, memory, docs, decompose, context, compress, secondbrain, journal | Context & artifacts — 13 subcommands for knowledge extraction and compression |
-| `/project` | tests, commit, stage, pr, gh, optimize, icon, organize, analyze, changelog, converge, scan, sandbox, retrospect, purge | Project ops — 15 subcommands for quality, security, and maintenance |
+| `/init-project` | setup, detect, docs, context, verify, refresh, status, map-codebase, doctor, reset | Project init — full setup, detection, validation, and reset |
+| `/ideation` | plan, brainstorm, refine, deep, graph, research, ralplan, ddd, event-storming, double-diamond, jtbd, impact-mapping, spiral, top-down, bottom-up, adversarial-debate, cleanroom, pwf, rpikit, hive, story-mapping, lean-canvas, constitution, resume, status | Planning & research — 23 methodologies from strategic planning to lean canvas |
+| `/orchestrate` | ralph, team, deep, ccg, ultrawork, autopilot, sciomc, swarm, state-machine, consensus, evolutionary, spec-driven, react, plan-execute, hive, tdd, pair, pipeline, gsd, self-assess, remediate, devin, maestro, metaswarm, cc10x, gastown, ruflo, harden, brownfield, vibe-code, resume, status | Execution — 30 patterns from persistent loops to multi-stage pipelines |
+| `/harvest-context` | session, codebase, skill, agent, rule, command, memory, docs, decompose, context, consume, compress, search, prune, export, diff, secondbrain, journal | Context & artifacts — 18 subcommands for knowledge extraction and management |
+| `/project` | tests, commit, stage, pr, gh, optimize, icon, organize, analyze, changelog, converge, scan, sandbox, retrospect, purge, release, review, audit, archive, workspace | Project ops — 20 subcommands for quality, security, and maintenance |
 
 ## Project Structure
 
@@ -85,7 +85,7 @@ Natural language triggers for modes:
 ├── skills/              # 64 workflow skills
 ├── commands/            # 6 custom commands
 ├── tools/               # 10 TypeScript tools (hubMenu, loadSkill, listAgents, etc.)
-├── plugins/             # Hook system + TUI plugins (joc-plugin.ts, joc-tui/)
+├── plugins/             # Hook system + TUI plugins (hubs-plugin.ts, hubs-tui/)
 ├── rules/               # Shared rules (shell_strategy.md, context-strategy.md, hub-state.md, hub-routing.md, etc.)
 ├── templates/           # File templates
 ├── .opencode/           # Project-scoped config
@@ -145,7 +145,7 @@ Session state lives in `.opencode/state/`:
 
 ## Plugin Hooks
 
-The JOC plugin (`joc-plugin.ts`) provides:
+The Hubs plugin (`hubs-plugin.ts`) provides:
 
 - `session.created` / `session.deleted` - Session lifecycle
 - `tool.execute.before` / `tool.execute.after` - Tool lifecycle
@@ -158,7 +158,7 @@ The JOC plugin (`joc-plugin.ts`) provides:
 
 Configured in `opencode.jsonc`:
 
-- `joc-tui-hubs@0.1.0` - TUI hub dialogs (server.config removed to fix crash)
+- `hubs-tui-hubs@0.1.0` - TUI hub dialogs (server.config removed to fix crash)
 - `@plannotifier/opencode` - Plan notifications
 - `@opencode-plugins/env-protection` - Environment protection
 - `@franlol/opencode-md-table-formatter` - Markdown tables
@@ -189,7 +189,7 @@ Configured in `opencode.jsonc`:
 /init-project map-codebase    # Analyze brownfield codebase before init
 /init-project doctor          # Run diagnostic health check
 
-# Plan and research (19 methodologies via /ideation)
+# Plan and research (23 methodologies via /ideation)
 /ideation plan sprint 5 implementation
 /ideation deep design payment system
 /ideation research auth tradeoffs
@@ -204,29 +204,38 @@ Configured in `opencode.jsonc`:
 /ideation adversarial-debate validate spec
 /ideation cleanroom verify correctness
 /ideation pwf plan with file persistence
+/ideation story-mapping plan user journey
+/ideation lean-canvas model product strategy
 
-# Execute tasks (25 patterns via /orchestrate)
+# Execute tasks (30 patterns via /orchestrate)
 /orchestrate ralph fix all TypeScript errors
 /orchestrate autopilot build feature X
 /orchestrate ultrawork implement auth in parallel
 /orchestrate swarm orchestrate gated pipeline
+/orchestrate react debug login loop
 /orchestrate consensus vote on best approach
 /orchestrate evolutionary evolve to optimal solution
-/orchestrate gsd full spec-driven lifecycle
+/orchestrate tdd build feature test-first
+/orchestrate pair review and implement
+/orchestrate pipeline deploy validated changes
 /orchestrate cc10x detect and route automatically
 /orchestrate metaswarm autonomous issue-to-PR
 /orchestrate maestro strict role-separated factory
 /orchestrate vibe-code conversational prototyping
 
-# Harvest context and create artifacts (13 subcommands via /harvest-context)
+# Harvest context and create artifacts (18 subcommands via /harvest-context)
 /harvest-context session
 /harvest-context codebase
 /harvest-context skill error handling pattern
 /harvest-context compress reduce token usage
+/harvest-context search find auth decisions
+/harvest-context prune clean stale context
+/harvest-context export generate team report
+/harvest-context diff show context changes
 /harvest-context secondbrain setup knowledge base
 /harvest-context journal enable audit trails
 
-# Project operations (15 subcommands via /project)
+# Project operations (20 subcommands via /project)
 /project commit fix auth bug
 /project stage
 /project pr create
@@ -238,6 +247,10 @@ Configured in `opencode.jsonc`:
 /project sandbox enforce tool execution policies
 /project retrospect analyze completed run
 /project purge clean stale orchestration state
+/project release tag and publish
+/project review analyze recent changes
+/project audit full project health check
+/project archive move stale branches
 ```
 
 ## Dependencies

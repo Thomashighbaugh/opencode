@@ -17,7 +17,7 @@ Unified entry point for all execution and orchestration patterns. Each subcomman
 
 ## No-Argument Behavior
 
-When invoked without arguments (`/orchestrate`), list the subcommands as plain text and ask the user to choose. Do NOT call `hubMenu` or any other tool — just output the list directly. Available patterns: ralph, team, deep, ccg, ultrawork, autopilot, sciomc, swarm, state-machine, consensus, evolutionary, spec-driven, plan-execute, gsd, self-assess, remediate, devin, maestro, metaswarm, cc10x, gastown, ruflo, harden, brownfield, vibe-code.
+When invoked without arguments (`/orchestrate`), list the subcommands as plain text and ask the user to choose. Do NOT call `hubMenu` or any other tool — just output the list directly. Available patterns: ralph, team, deep, ccg, ultrawork, autopilot, sciomc, swarm, state-machine, consensus, evolutionary, spec-driven, react, plan-execute, hive, tdd, pair, pipeline, gsd, self-assess, remediate, devin, maestro, metaswarm, cc10x, gastown, ruflo, harden, brownfield, vibe-code.
 
 ## With-Argument Behavior
 
@@ -267,14 +267,44 @@ During orchestration, if the need arises for a new rule, skill, or agent:
 
 Do NOT block execution waiting for user approval on resource creation unless the change is destructive.
 
-### Step 7: Harvest Context
+### Step 7: Harvest Context to Durable Knowledge
 
-As orchestration progresses, actively harvest useful context:
+As orchestration progresses, actively harvest useful context into durable files:
 
-- Decisions made and why → `.opencode/state/orchestration/progress/`
-- Patterns discovered → note for potential rules/skills
-- Errors encountered and solutions → note for project memory
-- Architecture decisions → note for AGENTS.md updates
+- **Decisions** → `.opencode/context/decisions.md` (ADR format: context, decision, rationale)
+- **Patterns discovered** → `.opencode/context/patterns/{name}.md`
+- **Research/findings** → `.opencode/context/research/{name}.md`
+- **Framework conventions** → `.opencode/context/frameworks/{name}.md`
+- **Project facts** → `.opencode/state/project-memory.json`
+- **Progress checkpoints** → `.opencode/state/orchestration/progress/`
+
+This ensures the user can browse `.opencode/context/` to see everything learned across all sessions.
+
+### Step 7b: Vectorize, Commit, and Update Changelog
+
+After context files are written, three things happen automatically:
+
+**1. Vectorize**: The `vectorize-context` skill's lazy indexing stats `.opencode/context/` files and re-indexes only what changed. On the next `/harvest-context context search`, the new content is immediately findable.
+
+**2. Auto-commit**: If `.opencode/` has changes, create an automatic conventional commit:
+```bash
+if git status --short .opencode/ | grep -q .; then
+  git add .opencode/context/ .opencode/state/project-memory.json 2>/dev/null
+  git commit -m "chore(hubs): auto-save context after orchestration
+
+Auto-generated from Hubs orchestration execution.
+Includes: decisions, patterns, research, framework conventions, and project memory updates."
+fi
+```
+
+**3. Changelog**: Append an entry to `.opencode/CHANGELOG.md`:
+```bash
+CHANGELOG=".opencode/CHANGELOG.md"
+ENTRY="## $(date +%Y-%m-%d) - orchestration ${METHOD}"
+if [ ! -f "$CHANGELOG" ] || ! grep -q "$ENTRY" "$CHANGELOG" 2>/dev/null; then
+  echo -e "\n$ENTRY\n\n- Orchestration method: ${METHOD}\n- Context files updated in \`.opencode/context/\`\n- $(git log -1 --format='%h' -- .opencode/)" >> "$CHANGELOG"
+fi
+```
 
 ### Step 8: Completion
 

@@ -465,7 +465,7 @@ Optional settings in `.opencode/settings.json`:
 
 ```json
 {
-  "joc": {
+  "hubs": {
     "research": {
       "maxIterations": 10,
       "maxConcurrentScientists": 5,

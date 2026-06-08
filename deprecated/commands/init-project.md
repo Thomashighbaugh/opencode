@@ -1,12 +1,12 @@
 ---
-description: "Initialize or refine project setup — global JOC config, project .opencode/, hierarchical docs, and context capture in one pass"
+description: "Initialize or refine project setup — global Hubs config, project .opencode/, hierarchical docs, and context capture in one pass"
 invoke: init-project
 argument-hint: "[setup|detect|docs|context|verify|refresh] [--flags]"
 ---
 
 # Init Project
 
-Unified project initialization hub. Set up, detect, document, or refine an OpenCode JOC project through focused subcommands. Replaces `/joc-setup`, `/deepinit`, and `/init-project-config`.
+Unified project initialization hub. Set up, detect, document, or refine an OpenCode Hubs project through focused subcommands. Replaces `/hubs-setup`, `/deepinit`, and `/init-project-config`.
 
 ## Behavior
 
@@ -25,7 +25,7 @@ After the user selects, invoke the `init-project` skill with the selected subcom
 | Selection | Phases | What It Does |
 |-----------|--------|--------------|
 | `setup` | 0-7 | Full project initialization from scratch — verify global, detect, plan, scaffold, document, capture context, optimize routing, validate |
-| `detect` | 0-1 | Verify global JOC and detect language, framework, package manager, build system, key directories, CI |
+| `detect` | 0-1 | Verify global Hubs and detect language, framework, package manager, build system, key directories, CI |
 | `docs` | 4 | Regenerate hierarchical AGENTS.md documentation across the codebase (equivalent to `/deepinit`) |
 | `context` | 5 | Capture session knowledge and promote insights to project memory, notepad, and AGENTS.md |
 | `verify` | 7 | Validate all generated files, config syntax, parent references, and gitignore |

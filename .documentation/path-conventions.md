@@ -1,6 +1,6 @@
 # Path Conventions
 
-> Complete reference for JOC file and directory conventions
+> Complete reference for Hubs file and directory conventions
 
 ## Table of Contents
 
@@ -15,7 +15,7 @@
 
 ## Overview
 
-JOC uses a hierarchical configuration system with two main locations:
+Hubs uses a hierarchical configuration system with two main locations:
 
 | Location | Path | Purpose |
 |----------|------|---------|
@@ -190,7 +190,7 @@ State should be gitignored:
 
 ## Search Order
 
-When looking for configuration, JOC searches:
+When looking for configuration, Hubs searches:
 
 ```
 1. Project-level: ./.opencode/

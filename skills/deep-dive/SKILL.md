@@ -120,7 +120,7 @@ After confirmation, update state to `current_phase: "trace-executing"`.
 
 ## Phase 3: Trace Execution
 
-Run the trace autonomously using the `OpenCode JOC:trace` skill's behavioral contract.
+Run the trace autonomously using the `OpenCode Hubs:trace` skill's behavioral contract.
 
 ### Team Mode Orchestration
 
@@ -198,7 +198,7 @@ After saving:
 
 ### Architecture: Reference-not-Copy
 
-Phase 4 follows the `OpenCode JOC:deep-interview` SKILL.md Phases 2-4 (Interview Loop, Challenge Agents, Crystallize Spec) as the base behavioral contract. The executor MUST read the deep-interview SKILL.md to understand the full interview protocol. Deep-dive does NOT duplicate the interview protocol — it specifies exactly **3 initialization overrides**:
+Phase 4 follows the `OpenCode Hubs:deep-interview` SKILL.md Phases 2-4 (Interview Loop, Challenge Agents, Crystallize Spec) as the base behavioral contract. The executor MUST read the deep-interview SKILL.md to understand the full interview protocol. Deep-dive does NOT duplicate the interview protocol — it specifies exactly **3 initialization overrides**:
 
 ### 3-Point Injection (the core differentiator)
 

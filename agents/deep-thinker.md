@@ -1,6 +1,6 @@
 ---
 description: Structured thinking partner for complex problems. Use when facing ambiguous challenges, making difficult decisions, or needing to break down complexity into actionable steps.
-model: ollama/glm-5.1:cloud
+model: ollama/deepseek-v4-flash:cloud
 mode: subagent
 permission:
   bash: ask

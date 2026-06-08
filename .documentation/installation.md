@@ -1,6 +1,6 @@
 # Installation Guide
 
-> Comprehensive guide to installing OpenCode JOC (Joint Operations Center)
+> Comprehensive guide to installing OpenCode Hubs (Joint Operations Center)
 
 ## Table of Contents
 
@@ -18,7 +18,7 @@
 
 ## Overview
 
-JOC can be installed in three ways:
+Hubs can be installed in three ways:
 
 | Method | Location | Scope | Use Case |
 |--------|----------|-------|----------|
@@ -60,13 +60,13 @@ git --version
 
 ### Global Installation
 
-Installs JOC to `~/.config/opencode/` for use across all projects.
+Installs Hubs to `~/.config/opencode/` for use across all projects.
 
 #### Basic Installation
 
 ```bash
 # Install globally with curl
-curl -fsSL https://raw.githubusercontent.com/joc/opencode-joc/main/install.sh | bash -s -- --global
+curl -fsSL https://raw.githubusercontent.com/joc/opencode-hubs/main/install.sh | bash -s -- --global
 ```
 
 #### What Happens During Global Installation
@@ -118,7 +118,7 @@ curl -fsSL https://raw.githubusercontent.com/joc/opencode-joc/main/install.sh | 
 
 ### Per-Project Installation
 
-Installs JOC to `.opencode/` in the current directory.
+Installs Hubs to `.opencode/` in the current directory.
 
 #### Basic Installation
 
@@ -127,10 +127,10 @@ Installs JOC to `.opencode/` in the current directory.
 cd /path/to/your/project
 
 # Install locally
-curl -fsSL https://raw.githubusercontent.com/joc/opencode-joc/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/joc/opencode-hubs/main/install.sh | bash
 
 # Or explicitly specify local
-curl -fsSL https://raw.githubusercontent.com/joc/opencode-joc/main/install.sh | bash -s -- --local
+curl -fsSL https://raw.githubusercontent.com/joc/opencode-hubs/main/install.sh | bash -s -- --local
 ```
 
 #### What Happens During Local Installation
@@ -169,12 +169,12 @@ git clone https://github.com/Thomashighbaugh/opencode.git
 
 # 2. Copy to target location
 # For global:
-cp -r opencode-joc/.opencode ~/.config/opencode
-cp opencode-joc/AGENTS.md ~/.config/opencode/
+cp -r opencode-hubs/.opencode ~/.config/opencode
+cp opencode-hubs/AGENTS.md ~/.config/opencode/
 
 # For local:
-cp -r opencode-joc/.opencode ./.opencode
-cp opencode-joc/AGENTS.md ./.opencode/
+cp -r opencode-hubs/.opencode ./.opencode
+cp opencode-hubs/AGENTS.md ./.opencode/
 
 # 3. Install dependencies
 cd ~/.config/opencode  # or ./.opencode
@@ -225,7 +225,7 @@ ls ~/.config/opencode/tools/*.ts | wc -l        # Should be 10
 
 ### Main Configuration File
 
-`opencode.jsonc` controls all JOC settings:
+`opencode.jsonc` controls all Hubs settings:
 
 ```jsonc
 {
@@ -243,7 +243,7 @@ ls ~/.config/opencode/tools/*.ts | wc -l        # Should be 10
     "agentContext": "./tools/agentContext.ts"
   },
   "plugin": [
-    "./plugins/joc-plugin.ts",
+    "./plugins/hubs-plugin.ts",
     "@plannotifier/opencode@latest"
   ],
   "instructions": ["AGENTS.md"],
@@ -255,7 +255,7 @@ ls ~/.config/opencode/tools/*.ts | wc -l        # Should be 10
 
 ### Environment Detection
 
-JOC automatically detects:
+Hubs automatically detects:
 - Programming language (from file extensions)
 - Framework (from dependencies)
 - Test framework (from devDependencies)
@@ -296,7 +296,7 @@ curl -fsSL https://raw.githubusercontent.com/Thomashighbaugh/opencode/main/insta
 
 ```bash
 # Pull latest changes
-cd opencode-joc
+cd opencode-hubs
 git pull origin main
 
 # Re-copy files
@@ -414,12 +414,12 @@ mv ~/.config/opencode.bak ~/.config/opencode
 mv ~/.config/opencode ~/.config/opencode.bak.$(date +%s)
 
 # Reinstall
-curl -fsSL https://raw.githubusercontent.com/joc/opencode-joc/main/install.sh | bash -s -- --global
+curl -fsSL https://raw.githubusercontent.com/joc/opencode-hubs/main/install.sh | bash -s -- --global
 ```
 
 ### Getting Help
 
-1. **Run diagnostics**: `/joc-doctor`
+1. **Run diagnostics**: `/hubs-doctor`
 2. **Check logs**: `~/.config/opencode/state/logs/`
 3. **GitHub Issues**: [github.com/Thomashighbaugh/opencode/issues](https://github.com/Thomashighbaugh/opencode/issues)
 4. **Documentation**: This file and linked documentation

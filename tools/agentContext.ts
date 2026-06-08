@@ -69,7 +69,7 @@ function getActiveModes(stateDir: string): string[] {
 const VALID_CTX_ACTIONS = ['get', 'update-memory', 'update-notepad', 'clear-mode', 'list-plans', 'get-state'] as const
 
 export default tool({
-  description: "Get or update agent context including project memory, notepad, active modes, and JOC state directories",
+  description: "Get or update agent context including project memory, notepad, active modes, and Hubs state directories",
   args: {
     action: tool.schema.string().describe(`Action to perform on the context. Valid: ${VALID_CTX_ACTIONS.join(', ')}`),
     data: tool.schema.any().optional().describe("Data for update operations (memory object, notepad content, or mode name for clear-mode)"),

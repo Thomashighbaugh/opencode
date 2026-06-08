@@ -5,7 +5,7 @@ argument-hint: "<subcommand> [args]"
 
 # Skill Manager
 
-Unified command for managing OpenCode JOC skills. Covers CRUD, search, sync, packaging, and validation.
+Unified command for managing OpenCode Hubs skills. Covers CRUD, search, sync, packaging, and validation.
 
 ## Subcommands
 

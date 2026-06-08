@@ -1,14 +1,14 @@
 # Init Project
 
-Unified project initialization hub with subcommand routing. Detects, scaffolds, documents, and refines an OpenCode JOC project. Works for both first-time setup and iterative re-runs.
+Unified project initialization hub with subcommand routing. Detects, scaffolds, documents, and refines an OpenCode Hubs project. Works for both first-time setup and iterative re-runs.
 
 ## When to Use
 
-- First time setting up JOC in a project
-- Adding JOC to an existing codebase
+- First time setting up Hubs in a project
+- Adding Hubs to an existing codebase
 - Refreshing config after major changes (refactors, new deps, team growth)
 - Re-running to capture new context and refine docs
-- Replacing `/joc-setup`, `/deepinit`, or `/init-project-config`
+- Replacing `/hubs-setup`, `/deepinit`, or `/init-project-config`
 
 ## No-Argument Behavior
 
@@ -23,7 +23,7 @@ Directly invoke the matching subcommand. Print the reminder, then delegate to th
 | Subcommand | Phases | Skill/Delegate | What It Does |
 |------------|--------|----------------|--------------|
 | `setup` | 0-7 | self (all phases) | Full project initialization from scratch |
-| `detect` | 0-1 | `explore` agent | Verify global JOC + detect language, framework, tooling |
+| `detect` | 0-1 | `explore` agent | Verify global Hubs + detect language, framework, tooling |
 | `docs` | 4 | `deepinit` skill | Regenerate hierarchical AGENTS.md documentation |
 | `context` | 5 | `remember` + `wiki` | Capture session knowledge, promote insights |
 | `verify` | 7 | `verifier` agent | Validate configuration completeness and integrity |
@@ -45,7 +45,7 @@ Each subcommand follows the hub pattern:
 
 | Subcommand | Reminder on Invoke |
 |------------|-------------------|
-| `setup` | Full init from scratch. I'll verify global JOC, detect your stack, scaffold config, generate docs, and validate. |
+| `setup` | Full init from scratch. I'll verify global Hubs, detect your stack, scaffold config, generate docs, and validate. |
 | `detect` | Detecting your project stack. I'll identify language, framework, package manager, build system, and CI. |
 | `docs` | Generating codebase documentation. I'll create hierarchical AGENTS.md files across your directories. |
 | `context` | Capturing session knowledge. I'll promote insights to project memory, notepad, and AGENTS.md. |
@@ -66,7 +66,7 @@ Flags modify subcommand behavior and are passed through:
 | `--no-detect` | Use generic defaults | `setup`, `refresh` |
 | `--no-docs` | Skip Phase 4 | `setup`, `refresh` |
 
-Default (no flags, `setup` subcommand): Phases 0-4 (full scaffold + docs, no context/routing).
+Default (no flags, `setup` subcommand): Phases 0-5 (full scaffold + provision + docs, no context/routing).
 
 ## State Management
 
@@ -118,14 +118,20 @@ Init state lives in `.opencode/state/init/` (gitignored).
 | 1 - Detection | `explore` | Scan project files, detect language/framework |
 | 2 - Planning | `planner` | Generate initialization plan from detection |
 | 3 - Scaffolding | `executor` | Create `.opencode/` structure, opencode.jsonc, AGENTS.md |
-| 4 - Docs | `deepinit` | Hierarchical AGENTS.md across codebase |
-| 5 - Context Capture | `remember` + `wiki` | Promote session knowledge, scan state artifacts |
-| 6 - Routing | `architect` | Optimize agent selection for detected stack |
-| 7 - Verification | `verifier` | Validate completeness, references, config |
+| 4 - Provisioning | `executor` + `config-orchestrator` | Create project-specific agents, tools, commands, skills scaled to mode |
+| 5 - Docs | `deepinit` | Hierarchical AGENTS.md across codebase |
+| 6 - Context Capture | `remember` + `wiki` | Promote session knowledge, scan state artifacts |
+| 7 - Routing | `architect` | Optimize agent selection for detected stack |
+| 8 - Verification | `verifier` | Validate completeness, references, config |
+
+The effort in Phase 4 scales with the init mode:
+- `--minimal`: Create empty directories only
+- Default: Stub agents + basic commands
+- `--full`: Thorough agents with full prompts + project-specific TypeScript tools + comprehensive commands + reusable skills
 
 ## Subcommand: setup
 
-Full project initialization from scratch. Runs all applicable phases (0-7 by default, 0-3 with `--minimal`, 0-7 with `--full`).
+Full project initialization from scratch. Runs all applicable phases (0-8 by default, 0-3 with `--minimal`, 0-8 with `--full`).
 
 ### Pre-Flight
 
@@ -148,7 +154,7 @@ if [ -f "$GLOBAL_DIR/AGENTS.md" ] && [ -f "$GLOBAL_DIR/opencode.jsonc" ]; then
   GLOBAL_HEALTHY="true"
 else
   GLOBAL_HEALTHY="false"
-  echo "WARNING: Global JOC config incomplete or missing"
+  echo "WARNING: Global Hubs config incomplete or missing"
 fi
 ```
 
@@ -166,25 +172,26 @@ If `IS_RERUN=true` and no `--force` or `--refresh` flag was passed, ask:
 
 Run phases sequentially, saving checkpoints after each phase:
 
-1. Phase 0: Verify global JOC
+1. Phase 0: Verify global Hubs
 2. Phase 1: Detect project stack
 3. Phase 2: Plan configuration
 4. Phase 3: Scaffold `.opencode/`
-5. Phase 4: Generate docs (skip if `--minimal` or `--no-docs`)
-6. Phase 5: Capture context (skip if not `--full`)
-7. Phase 6: Optimize routing (skip if not `--full`)
-8. Phase 7: Validate everything
+5. Phase 4: Provision project-specific agents, tools, commands, skills (scales with mode)
+6. Phase 5: Generate docs (skip if `--minimal` or `--no-docs`)
+7. Phase 6: Capture context (skip if not `--full`)
+8. Phase 7: Optimize routing (skip if not `--full`)
+9. Phase 8: Validate everything
 
 Save checkpoint after each phase to `.opencode/state/init/init-checkpoint.json`.
 
 On completion, display summary and offer next step:
 - If `--minimal`: Offer `/init-project docs`
 - If default: Offer `/init-project context` or `/init-project verify`
-- If `--full`: Offer `/harvest-context`
+- If `--full`: Offer `/harvest-context` or `/project workspace` to manage the new setup
 
 ## Subcommand: detect
 
-Verify global JOC installation and detect project configuration. Phases 0-1 only.
+Verify global Hubs installation and detect project configuration. Phases 0-1 only.
 
 ### Behavior
 
@@ -377,7 +384,7 @@ Resume with `/init-project setup --force` or `/init-project refresh`.
 - `remember` skill — Context promotion (called by `context` subcommand)
 - `wiki` skill — Persistent knowledge base (used by `context` subcommand)
 - `mcp-setup` skill — MCP server configuration
-- `joc-doctor` skill — Diagnose installation issues
+- `hubs-doctor` skill — Diagnose installation issues
 - `/ideation` hub — Planning and research
 - `/orchestrate` hub — Execution patterns
 - `/harvest-context` hub — Context and artifact extraction

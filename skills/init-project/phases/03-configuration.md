@@ -112,7 +112,7 @@ TOOLS_EOF
 
     # Close JSON
     cat >> "$output" << 'CLOSE_EOF'
-  "plugin": ["./plugins/joc-plugin.ts"],
+  "plugin": ["./plugins/hubs-plugin.ts"],
   "instructions": ["AGENTS.md"],
   "skills": { "paths": ["./.opencode/skills"] },
   "agents": { "paths": ["./.opencode/agent"] },
@@ -340,7 +340,7 @@ update_gitignore() {
     # Check if .opencode/state/ is already ignored
     if ! grep -q "^\.opencode/state/" "$gitignore" 2>/dev/null; then
         echo "" >> "$gitignore"
-        echo "# OpenCode JOC session state" >> "$gitignore"
+        echo "# OpenCode Hubs session state" >> "$gitignore"
         echo ".opencode/state/" >> "$gitignore"
     fi
 }

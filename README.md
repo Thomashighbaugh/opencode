@@ -1,4 +1,4 @@
-# OpenCode JOC (Joint Operations Center)
+# OpenCode Hubs (Joint Operations Center)
 
 > Hub-driven multi-agent orchestration for OpenCode — interactive menus, not memorization.
 
@@ -6,7 +6,7 @@ _Named after the military field command post. Yes, another milspec acronym in de
 
 ## The problem
 
-OpenCode configs pile up capabilities faster than anyone can keep track of. 64 skills. 29 agents. 6 commands. At some point you stop discovering things and start hoping they exist. JOC's answer: four hub commands that give you a menu instead of a scavenger hunt.
+OpenCode configs pile up capabilities faster than anyone can keep track of. 64 skills. 29 agents. 6 commands. At some point you stop discovering things and start hoping they exist. Hubs's answer: four hub commands that give you a menu instead of a scavenger hunt.
 
 ## The four hubs
 
@@ -134,7 +134,7 @@ Skip the menu with natural language triggers. They call the subcommand directly.
 | Planning | plan, ralplan, deep-interview, deep-dive, sciomc |
 | Quality | ai-slop-cleaner, self-improve, verify, visual-verdict |
 | Development | deepinit, changelog-generator, skillify, learner |
-| Setup | init-project, joc-doctor, joc-reference, mcp-setup |
+| Setup | init-project, hubs-doctor, hubs-reference, mcp-setup |
 | Hubs | ideation, orchestrate, project, harvest-context |
 
 Yes, 64 skills. Nobody has them all memorized. That's the point of the hubs.

@@ -1,12 +1,12 @@
 ---
 name: release
-description: Automated release workflow for OpenCode JOC
+description: Automated release workflow for OpenCode Hubs
 level: 3
 ---
 
 # Release Skill
 
-Automate the release process for OpenCode JOC.
+Automate the release process for OpenCode Hubs.
 
 ## Usage
 
@@ -60,7 +60,7 @@ gh release create v<version> --title "v<version> - <title>" --notes "<release no
 ```
 
 ### 7. Verify
-- [ ] npm: https://www.npmjs.com/package/OpenCode JOC
+- [ ] npm: https://www.npmjs.com/package/OpenCode Hubs
 - [ ] GitHub: https://github.com/Thomashighbaugh/opencode/releases
 
 ## Version Files Reference

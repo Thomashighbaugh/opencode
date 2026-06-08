@@ -1,6 +1,6 @@
 # Tools Reference
 
-> Complete reference for all 10 JOC TypeScript tools
+> Complete reference for all 10 Hubs TypeScript tools
 
 ## Table of Contents
 
@@ -15,7 +15,7 @@
 
 ## Overview
 
-JOC includes TypeScript tools that provide programmatic access to core functionality. Each tool is a TypeScript file using the `@opencode-ai/plugin` SDK.
+Hubs includes TypeScript tools that provide programmatic access to core functionality. Each tool is a TypeScript file using the `@opencode-ai/plugin` SDK.
 
 | Tool | Purpose |
 |------|---------|
@@ -170,7 +170,7 @@ Executes skill-bundled shell scripts.
 ```typescript
 // Run setup script
 const result = await runSkillScript({
-  skillName: "joc-setup",
+  skillName: "hubs-setup",
   scriptPath: "scripts/setup.sh",
   args: { mode: "global" }
 })

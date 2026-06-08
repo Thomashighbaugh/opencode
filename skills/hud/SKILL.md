@@ -43,7 +43,7 @@ node -e "const p=require('path'),f=require('fs'),d=process.env.OPENCODE_CONFIG_D
 
 **Step 2:** Verify the plugin is installed:
 ```bash
-node -e "const p=require('path'),f=require('fs'),d=process.env.OPENCODE_CONFIG_DIR||p.join(require('os').homedir(),'.opencode'),b=p.join(d,'plugins','cache','omc','OpenCode JOC');try{const v=f.readdirSync(b).filter(x=>/^\d/.test(x)).sort((a,c)=>a.localeCompare(c,void 0,{numeric:true}));if(v.length===0){console.log('Plugin not installed - run: /plugin install OpenCode JOC');process.exit()}const l=v[v.length-1],h=p.join(b,l,'dist','hud','index.js');console.log('Version:',l);console.log(f.existsSync(h)?'READY':'NOT_FOUND - try reinstalling: /plugin install OpenCode JOC')}catch{console.log('Plugin not installed - run: /plugin install OpenCode JOC')}}"
+node -e "const p=require('path'),f=require('fs'),d=process.env.OPENCODE_CONFIG_DIR||p.join(require('os').homedir(),'.opencode'),b=p.join(d,'plugins','cache','omc','OpenCode Hubs');try{const v=f.readdirSync(b).filter(x=>/^\d/.test(x)).sort((a,c)=>a.localeCompare(c,void 0,{numeric:true}));if(v.length===0){console.log('Plugin not installed - run: /plugin install OpenCode Hubs');process.exit()}const l=v[v.length-1],h=p.join(b,l,'dist','hud','index.js');console.log('Version:',l);console.log(f.existsSync(h)?'READY':'NOT_FOUND - try reinstalling: /plugin install OpenCode Hubs')}catch{console.log('Plugin not installed - run: /plugin install OpenCode Hubs')}}"
 ```
 
 **Step 3:** If omc-hud.mjs is MISSING or argument is `setup`, create the HUD directory and script:
@@ -75,9 +75,9 @@ async function main() {
   // 1. Development paths (only when OMC_DEV=1)
   if (process.env.OMC_DEV === "1") {
     const devPaths = [
-      join(home, "Workspace/OpenCode JOC/dist/hud/index.js"),
-      join(home, "workspace/OpenCode JOC/dist/hud/index.js"),
-      join(home, "projects/OpenCode JOC/dist/hud/index.js"),
+      join(home, "Workspace/OpenCode Hubs/dist/hud/index.js"),
+      join(home, "workspace/OpenCode Hubs/dist/hud/index.js"),
+      join(home, "projects/OpenCode Hubs/dist/hud/index.js"),
     ];
 
     for (const devPath of devPaths) {
@@ -93,7 +93,7 @@ async function main() {
   // 2. Plugin cache (for production installs)
   // Respect OPENCODE_CONFIG_DIR so installs under a custom config dir are found
   const configDir = process.env.OPENCODE_CONFIG_DIR || join(home, ".opencode");
-  const pluginCacheBase = join(configDir, "plugins", "cache", "omc", "OpenCode JOC");
+  const pluginCacheBase = join(configDir, "plugins", "cache", "omc", "OpenCode Hubs");
   if (existsSync(pluginCacheBase)) {
     try {
       const versions = readdirSync(pluginCacheBase);
@@ -119,7 +119,7 @@ async function main() {
 
   // 3. npm package (global or local install)
   try {
-    await import("OpenCode JOC/dist/hud/index.js");
+    await import("OpenCode Hubs/dist/hud/index.js");
     return;
   } catch { /* continue */ }
 
@@ -208,7 +208,7 @@ Shows all relevant elements:
 ### Full
 Shows everything including multi-line agent details:
 ```
-[OMC] repo:OpenCode JOC branch:main | ralph:3/10 | US-002 (2/5) | ultrawork | ctx:[████░░]67% | agents:3 | bg:3/5 | todos:2/5
+[OMC] repo:OpenCode Hubs branch:main | ralph:3/10 | US-002 (2/5) | ultrawork | ctx:[████░░]67% | agents:3 | bg:3/5 | todos:2/5
 ├─ O architect    2m   analyzing architecture patterns...
 ├─ e explore     45s   searching for test files
 └─ s executor     1m   implementing validation logic

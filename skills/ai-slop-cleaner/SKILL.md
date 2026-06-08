@@ -41,7 +41,7 @@ Do not use this skill when:
 
 This skill can be bounded to an explicit file list or changed-file scope when the caller already knows the safe cleanup surface.
 
-- Good fit: `OpenCode JOC:ai-slop-cleaner skills/ralph/SKILL.md skills/ai-slop-cleaner/SKILL.md`
+- Good fit: `OpenCode Hubs:ai-slop-cleaner skills/ralph/SKILL.md skills/ai-slop-cleaner/SKILL.md`
 - Good fit: a Ralph session handing off only the files changed in that session
 - Preserve the same regression-safe workflow even when the scope is a short file list
 - Do not silently expand a changed-file scope into broader cleanup work unless the user explicitly asks for it

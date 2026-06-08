@@ -1,6 +1,6 @@
 ---
 description: Interactive CLI testing specialist using tmux for session management
-model: ollama/glm-5.1:cloud
+model: ollama/deepseek-v4-flash:cloud
 mode: subagent
 ---
 

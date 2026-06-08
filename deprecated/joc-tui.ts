@@ -1,5 +1,5 @@
 /**
- * OpenCode JOC TUI Plugin — Instant Hub Command Routing
+ * OpenCode Hubs TUI Plugin — Instant Hub Command Routing
  *
  * Provides instant (no LLM inference) hub command menus via DialogSelect.
  * When a user invokes /init-project, /ideation, /orchestrate, /harvest-context,
@@ -13,7 +13,7 @@
  * - On pick, injects prompt text via TuiPromptRef + submit()
  * - Fallback: uses api.command.trigger() if no prompt ref available
  *
- * @module joc-tui
+ * @module hubs-tui
  */
 
 import type { TuiPlugin, TuiPluginApi, TuiPluginMeta, TuiCommand, TuiDialogSelectOption, TuiDialogSelectProps, TuiPromptRef, TuiPromptInfo } from "@opencode-ai/plugin/tui"
@@ -46,7 +46,7 @@ const HUBS: HubDefinition[] = [
     description: "Initialize or refine project setup",
     stateDir: "init",
     subcommands: [
-      { label: "setup", description: "Full project setup — global JOC verify, detection, scaffold, docs, context, routing, verify", skill: "init-project", reminder: "Full init from scratch. I'll verify global JOC, detect your stack, scaffold config, generate docs, and validate.", phases: "0-7" },
+      { label: "setup", description: "Full project setup — global Hubs verify, detection, scaffold, docs, context, routing, verify", skill: "init-project", reminder: "Full init from scratch. I'll verify global Hubs, detect your stack, scaffold config, generate docs, and validate.", phases: "0-7" },
       { label: "detect", description: "Detect language, framework, build tools, and key directories", agent: "explore", reminder: "Detecting your project stack. I'll identify language, framework, package manager, build system, and CI.", phases: "0-1" },
       { label: "docs", description: "Generate hierarchical AGENTS.md documentation across the codebase", skill: "deepinit", reminder: "Generating codebase documentation. I'll create hierarchical AGENTS.md files across your directories.", phases: "4" },
       { label: "context", description: "Capture session knowledge, promote insights to project memory and docs", skill: "remember", reminder: "Capturing session knowledge. I'll promote insights to project memory, notepad, and AGENTS.md.", phases: "5" },

@@ -50,8 +50,8 @@ Supported formats:
 {
   "aliases": {
     "omc": {
-      "repo": "joc/OpenCode JOC",
-      "local": "~/Workspace/OpenCode JOC",
+      "repo": "hubs/OpenCode Hubs",
+      "local": "~/Workspace/OpenCode Hubs",
       "default_base": "main"
     }
   },
@@ -544,8 +544,8 @@ if [[ ! -f ~/.psm/projects.json ]]; then
 {
   "aliases": {
     "omc": {
-      "repo": "joc/OpenCode JOC",
-      "local": "~/Workspace/OpenCode JOC",
+      "repo": "hubs/OpenCode Hubs",
+      "local": "~/Workspace/OpenCode Hubs",
       "default_base": "main"
     }
   },

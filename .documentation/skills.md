@@ -1,6 +1,6 @@
 # Skills Reference
 
-> Complete reference for all 57 JOC workflow skills
+> Complete reference for all 57 Hubs workflow skills
 
 ## Table of Contents
 
@@ -101,7 +101,7 @@ Skills are rated on a complexity/autonomy scale from 1 to 7:
 
 | Level | Autonomy | Complexity | Read-Only? | Example |
 |-------|----------|------------|------------|---------|
-| 1 | Lowest | Simple utilities | Yes | joc-reference |
+| 1 | Lowest | Simple utilities | Yes | hubs-reference |
 | 2 | Low | Standard workflows | Mostly | conventional-commit |
 | 3 | Medium | Complex workflows | No | ai-slop-cleaner |
 | 4 | High | Autonomous execution | No | ralph, autopilot |
@@ -682,7 +682,7 @@ Manages git worktrees and development sessions.
 |----------|-------|
 | **Level** | 3 |
 | **User-Invocable** | Yes |
-| **Description** | Automated release workflow for OpenCode JOC |
+| **Description** | Automated release workflow for OpenCode Hubs |
 
 **Purpose:**
 
@@ -720,13 +720,13 @@ Sets up notification channels.
 
 ## Setup & Configuration
 
-### joc-setup
+### hubs-setup
 
 | Property | Value |
 |----------|-------|
 | **Level** | 2 |
 | **User-Invocable** | Yes |
-| **Description** | Install or refresh OpenCode JOC for plugin, npm, and local-dev setups |
+| **Description** | Install or refresh OpenCode Hubs for plugin, npm, and local-dev setups |
 
 **Purpose:**
 
@@ -734,21 +734,21 @@ Installation and setup workflow.
 
 ---
 
-### joc-doctor
+### hubs-doctor
 
 | Property | Value |
 |----------|-------|
 | **Level** | 3 |
 | **User-Invocable** | Yes |
-| **Description** | Diagnose and fix OpenCode JOC installation issues |
+| **Description** | Diagnose and fix OpenCode Hubs installation issues |
 
 **Purpose:**
 
-Diagnostic tool for JOC issues.
+Diagnostic tool for Hubs issues.
 
 ---
 
-### joc-reference
+### hubs-reference
 
 | Property | Value |
 |----------|-------|

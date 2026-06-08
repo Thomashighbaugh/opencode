@@ -1,6 +1,6 @@
 ---
 description: Test strategy, integration/e2e coverage, flaky test hardening, TDD workflows
-model: ollama/glm-5.1:cloud
+model: ollama/deepseek-v4-flash:cloud
 mode: subagent
 ---
 

@@ -4,7 +4,7 @@
 
 ## Core Operating Theory
 
-OpenCode JOC is a multi-agent orchestration system. Agents are stateless workers. Hubs coordinate work. Skills encode repeatable workflows. State is ephemeral session data. Context is durable, compiled knowledge.
+OpenCode Hubs is a multi-agent orchestration system. Agents are stateless workers. Hubs coordinate work. Skills encode repeatable workflows. State is ephemeral session data. Context is durable, compiled knowledge.
 
 ## Design Principles
 

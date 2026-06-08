@@ -1,6 +1,6 @@
 # Plugin System
 
-> Complete reference for the JOC hook system plugin
+> Complete reference for the Hubs hook system plugin
 
 ## Table of Contents
 
@@ -17,7 +17,7 @@
 
 ## Overview
 
-The JOC plugin (`joc-plugin.ts`) provides the hook system that enables:
+The Hubs plugin (`hubs-plugin.ts`) provides the hook system that enables:
 
 - **Keyword detection**: Natural language triggers for modes
 - **State persistence**: Cross-session mode tracking
@@ -30,7 +30,7 @@ The JOC plugin (`joc-plugin.ts`) provides the hook system that enables:
 ### Plugin Structure
 
 ```typescript
-// .opencode/plugins/joc-plugin.ts
+// .opencode/plugins/hubs-plugin.ts
 
 import type { Plugin, Hooks } from "@opencode-ai/plugin"
 import type { Event } from "@opencode-ai/sdk"
@@ -365,9 +365,9 @@ hooks["experimental.chat.system.transform"] = async (input, output) => {
   
   // Inject into system prompt
   const contextBlock = `
-    <joc-plugin-context>
+    <hubs-plugin-context>
     ${messages.join('\n\n')}
-    </joc-plugin-context>
+    </hubs-plugin-context>
   `
   output.system.push(contextBlock)
 }

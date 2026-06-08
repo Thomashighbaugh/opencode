@@ -1,6 +1,6 @@
 # Hub State Conventions
 
-OpenCode JOC uses five hub commands. Four track state; `/project` is stateless. All state lives in `.opencode/state/` and is gitignored. Durable context lives in `.opencode/context/` and is committed. See `rules/context-strategy.md` for the full context model.
+OpenCode Hubs uses five hub commands. Four track state; `/project` is stateless. All state lives in `.opencode/state/` and is gitignored. Durable context lives in `.opencode/context/` and is committed. See `rules/context-strategy.md` for the full context model.
 
 ## State vs Context Separation
 
@@ -57,6 +57,34 @@ Agents load relevant context on process start — never all at once, always subt
 | Gate passed | Evidence + quality report | `state/orchestration/progress/` |
 | Error found + fixed | Root cause + solution | `context/patterns/` |
 | Theory updated | Updated THEORY.MD | `context/theory.md` |
+
+## Auto-Vectorization
+
+After ANY of the above writes to `.opencode/context/`, the vector DB (`.opencode/.vector/context.db`) is auto-refreshed via **lazy indexing** — no manual trigger needed:
+
+| Trigger | Vector DB Behavior |
+|---------|-------------------|
+| Context file written/updated | File mtime changes → next query finds it stale → re-indexes automatically |
+| Context file deleted | Stored mtime no longer matches → next re-index cleans it up |
+| Direct file edit (not via hub) | Same mtime comparison catches it |
+| Query call | `queryChunks()` calls `ensureIndexed()` first, which stats all files and re-indexes stale ones |
+| Manual `rm -rf .opencode/.vector/` | Next query auto-rebuilds from scratch |
+
+**How it works:**
+1. `ensureIndexed()` scans `.opencode/context/` for `*.md` files
+2. Compares each file's mtime against what's stored in the vector DB
+3. If no files changed → returns instantly, no model loaded
+4. If files changed → chunks by headers, embeds via ONNX (all-MiniLM-L6-v2), inserts into sqlite-vec
+5. The ML model (~200MB) is only loaded when there's actual indexing work to do
+
+**Programmatic API** (for agent integration):
+```js
+import { ensureIndexed, queryChunks, getIndexStats } from '../skills/vectorize-context/scripts/veclib.mjs';
+await ensureIndexed();                                    // Lazy refresh
+const results = await queryChunks(dir, 'query text', 10); // Auto-freshens first
+```
+
+See `skills/vectorize-context/SKILL.md` for full documentation. |
 
 ## Cross-Hub Hand-Off
 

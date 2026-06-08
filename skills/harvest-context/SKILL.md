@@ -18,7 +18,7 @@ Unified entry point for extracting, generating, and managing project context. Ea
 
 ## No-Argument Behavior
 
-When invoked without arguments (`/harvest-context`), list the subcommands as plain text and ask the user to choose. Do NOT call `hubMenu` or any other tool — just output the list directly. Available operations: session, codebase, skill, agent, rule, command, memory, docs, decompose, context, compress, secondbrain, journal.
+When invoked without arguments (`/harvest-context`), list the subcommands as plain text and ask the user to choose. Do NOT call `hubMenu` or any other tool — just output the list directly. Available operations: session, codebase, skill, agent, rule, command, memory, docs, consume, decompose, context, compress, secondbrain, journal.
 
 ## With-Argument Behavior
 
@@ -230,6 +230,36 @@ Break down concepts, problems, goals, or code into smaller actionable units.
 
 ---
 
+### `/harvest-context consume` — Ingest Content into Context
+
+Ingest a file, directory, or URL — extract text content, summarize, and save as durable context in `.opencode/context/research/`.
+
+**Process:**
+1. Determine what to consume:
+   - **File path**: Read the file, extract text content
+   - **Directory**: Walk the directory, read all text files
+   - **URL**: Fetch the URL via `webfetch` tool, convert to markdown
+2. Extract and summarize key points
+3. Save to `.opencode/context/research/{name}.md` with:
+   - Source metadata (path, URL, timestamp)
+   - Summary of content
+   - Key points or findings
+   - Relevance to the project
+4. Confirm with the user
+
+**Usage:**
+- `/harvest-context consume ./docs/api.md` — Ingest a local file
+- `/harvest-context consume ./src/components/` — Ingest a directory
+- `/harvest-context consume https://example.com/docs` — Ingest a URL
+- `/harvest-context consume ./docs/ https://api.example.com` — Ingest multiple sources
+
+**Output:** `.opencode/context/research/{name}.md`
+
+**Reminder:**
+> Consume: I'll ingest the specified file, directory, or URL — extract text content, summarize key points, and save to `.opencode/context/research/` as durable context.
+
+---
+
 ### `/harvest-context context` — Manage Context Files
 
 Manage OpenCode context files for knowledge persistence and organization.
@@ -288,6 +318,7 @@ Write the output to the appropriate location:
 | `command` | `.opencode/commands/{name}.md` |
 | `memory` | `.opencode/state/project-memory.json`, `notepad.md`, wiki articles |
 | `docs` | On screen, optionally `.opencode/context/` |
+| `consume` | `.opencode/context/research/{name}.md` |
 | `decompose` | On screen, optionally `.opencode/context/` |
 | `context` | `.opencode/context/` organized by function |
 

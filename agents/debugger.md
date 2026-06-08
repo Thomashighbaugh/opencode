@@ -1,6 +1,6 @@
 ---
 description: Root-cause analysis, regression isolation, stack trace analysis, build/compilation error resolution
-model: ollama/glm-5.1:cloud
+model: ollama/deepseek-v4-flash:cloud
 mode: subagent
 ---
 

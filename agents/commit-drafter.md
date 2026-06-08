@@ -1,6 +1,6 @@
 ---
 description: Structures conventional commit messages based on user intent before coding starts.
-model: ollama/glm-5.1:cloud
+model: ollama/deepseek-v4-flash:cloud
 mode: subagent
 permission:
   saveCommitMessage: allow

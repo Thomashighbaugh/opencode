@@ -1,6 +1,6 @@
 ---
 description: Pre-planning consultant for requirements analysis (Opus)
-model: ollama/glm-5.1:cloud
+model: ollama/deepseek-v4-flash:cloud
 mode: subagent
 disallowedTools: Write, Edit
 ---

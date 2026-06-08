@@ -1,6 +1,6 @@
 ---
 description: Create custom skills with proper structure and metadata. Use when building new skills, setting up skill directories, or packaging skills for distribution.
-model: ollama/glm-5.1:cloud
+model: ollama/deepseek-v4-flash:cloud
 mode: subagent
 permission:
   bash: ask

@@ -1,6 +1,6 @@
 # State Management
 
-> Complete reference for JOC state persistence and session management
+> Complete reference for Hubs state persistence and session management
 
 ## Table of Contents
 
@@ -19,7 +19,7 @@
 
 ## Overview
 
-JOC maintains state across sessions to enable:
+Hubs maintains state across sessions to enable:
 
 - **Mode continuity**: Resume where you left off
 - **Context preservation**: Remember project details
@@ -34,7 +34,7 @@ JOC maintains state across sessions to enable:
 │                           │                                       │
 │                           ▼                                       │
 │              ┌─────────────────────┐                              │
-│              │   joc-plugin.ts     │                              │
+│              │   hubs-plugin.ts     │                              │
 │              │   (State Manager)   │                              │
 │              └─────────────────────┘                              │
 │                           │                                       │
@@ -692,7 +692,7 @@ ls -la .opencode/state/artifacts/
 ls -la .opencode/state/*.json
 
 # Check plugin is in config
-grep "joc-plugin" .opencode/opencode.jsonc
+grep "hubs-plugin" .opencode/opencode.jsonc
 ```
 
 ## See Also

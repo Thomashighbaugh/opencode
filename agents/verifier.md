@@ -1,6 +1,6 @@
 ---
 description: Verification strategy, evidence-based completion checks, test adequacy
-model: ollama/glm-5.1:cloud
+model: ollama/deepseek-v4-flash:cloud
 mode: subagent
 permission:
   runSkillScript: allow

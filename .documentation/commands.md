@@ -1,6 +1,6 @@
 # Commands Reference
 
-> Complete reference for all 16 JOC custom commands
+> Complete reference for all 16 Hubs custom commands
 
 ## Table of Contents
 
@@ -73,7 +73,7 @@ Commands are resolved in this order:
 
 | Property | Value |
 |----------|-------|
-| **Description** | Initialize or refine project — global JOC config, project .opencode/, hierarchical docs, and context capture in one pass |
+| **Description** | Initialize or refine project — global Hubs config, project .opencode/, hierarchical docs, and context capture in one pass |
 
 **Purpose:**
 

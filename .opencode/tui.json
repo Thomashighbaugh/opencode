@@ -1,5 +1,5 @@
 {
   "plugin": [
-    "../plugins/joc-tui/index.js"
+    "../plugins/hubs-tui/index.js"
   ]
 }

@@ -1,35 +1,121 @@
-# Architecture Decision Records
+# ADR: Hub Subcommand Selection — Toast + AppendPrompt Pattern
 
-## 2026-04-28: Durable Context Separation
+**Status:** Accepted  
+**Date:** 2026-05-01
 
-**Status:** Accepted
+## Context
+Hub subcommand clicks from the TUI dialog were submitting directly to `session.command()` or `session.prompt()`, causing a 3+ minute LLM inference wait before any feedback to the user.
 
-Split `.opencode/` into two storage tiers:
-- `state/` — gitignored, ephemeral session data (progress, checkpoints, active modes, secrets)
-- `context/` — committed, durable knowledge (frameworks, patterns, research, theory, ADRs)
+## Decision
+Subcommand clicks will:
+1. Show a toast notification instantly (pure TUI rendering, zero latency)
+2. Use `appendPrompt()` to pre-fill the prompt bar with the command text
+3. NOT call `session.command()`, `session.prompt()`, or any LLM-involved API
 
-Inspired by StackMemory principle: "State != Context. State is ephemeral. Context compounds across sessions."
+The user then presses Enter when ready, which triggers the normal LLM pipeline.
 
-## 2026-04-28: Inline Delegation for Methodology Patterns
+## Rationale
+- Instant feedback for the click action
+- User controls when the 90-second LLM wait starts
+- No way to bypass LLM inference in the current SDK — this is the best achievable UX
 
-**Status:** Accepted
+## Limitations
+- `appendPrompt()` may not work visually in all OpenCode versions
+- The 90+ second LLM wait is still unavoidable when the user presses Enter
+- A proper fix requires an SDK-level API for tool/command execution without AI
 
-Methodology patterns (adversarial-debate, consensus, evolutionary, etc.) use `inline: true` delegation rather than separate skills or agents. Rationale: these are instruction patterns, not executable tools. The agent implements the pattern directly for the user's specific goals. Keeps hub menus flat while providing rich methodology selection.
+## Alternatives Considered
+- **session.command()**: Still calls LLM, 3+ minute wait
+- **session.prompt()**: Still calls LLM, 3+ minute wait
+- **Pre-warming sessions**: Doesn't help with cloud API cold-start
+- **Plugin hook short-circuit**: `command.execute.before` cannot skip execution
 
-## 2026-04-28: joc-tui-hubs server.config Removal
+---
 
-**Status:** Resolved
+# ADR: Lazy Freshness Vector Indexing
 
-Removed the `server.config` hook from `joc-tui-hubs/index.js`. The hook was registering hub commands with template strings (`"/${hub} [subcommand]"`), creating registration collisions with `commands/*.md` markdown files. OpenCode resolved to the template registration, dispatched `hubMenu(action="display")`, causing `undefined.split()`. Resolution: strip `server.config`, rely solely on TUI `api.command.register()` and markdown `invoke:`.
+**Status:** Accepted  
+**Date:** 2026-05-04
 
-## 2026-04-28: Hub Command Structure
+## Context
+The vectorize-context skill required manual invocation (`node vectorize.mjs`) to index `.opencode/context/` files into sqlite-vec. Users had to remember to trigger it, and the DB could get stale between runs.
 
-**Status:** Accepted
+## Decision
+Vector indexing uses **lazy freshness** — `ensureIndexed()` is called automatically on every `queryChunks()` call. It stats all files, re-indexes only stale ones, and returns instantly if nothing changed. The ML model (~200MB) only loads when there's actual indexing work.
 
-Five hubs: `/init-project`, `/ideation`, `/orchestrate`, `/harvest-context`, `/project`. Each routes subcommands via `hubMenu` tool. State tracked in `.opencode/state/{hub}/`. Context extracted to `.opencode/context/{category}/`.
+## Rationale
+- Users never need to remember to index
+- Fast path (no changes) costs only filesystem stats (~8-20ms)
+- Write operations (hub context saves, direct edits, file deletions) all get picked up automatically on next query
+- The common case (no change) is nearly free
 
-## 2026-04-28: Babysitter Methodology Integration
+## Implementation
+- `skills/vectorize-context/scripts/veclib.mjs` — shared library exporting `ensureIndexed()`, `queryChunks()`, `getIndexStats()`
+- CLI scripts became thin wrappers
+- File paths stored as relative paths in DB for cross-project portability
+- Deleted files have their chunks cleaned up automatically
 
-**Status:** Accepted
+---
 
-Integrated 30+ patterns from `a5c-ai/babysitter/library/methodologies/` and `gsd-build/get-shit-done`. Patterns are instruction-level — each describes a methodology the agent implements. No code dependencies, no SDK requirements. Pure methodology descriptions.
+# ADR: Intent Router for Hub Subcommands
+
+**Status:** Accepted  
+**Date:** 2026-05-04
+
+## Context
+When a user types `/orchestrate fix this bug` without specifying a subcommand, there was no mechanism to route them to `deep` or `remediate`. Same for `/ideation` and `/harvest-context`.
+
+## Decision
+Create intent-detecting router scripts that classify user requests across multi-dimensional profiles and score against subcommand profiles. Each profile covers 5-8 dimensions with normalized 0-1 scores.
+
+## Rationale
+- Subcommand profiles as data make adding new subcommands trivial
+- Multi-dimensional scoring handles ambiguous inputs naturally
+- Anti-keywords prevent false positives
+- stderr/stdout separation (diagnostics vs machine output) lets CLI and agents use the same scripts
+
+## Affected
+- `skills/orchestrate-router/scripts/route-orchestrate.mjs` — 27 subcommands
+- `skills/orchestrate-router/scripts/route-ideation.mjs` — 21 subcommands
+- `skills/orchestrate-router/scripts/route-harvest.mjs` — 13 subcommands + auto-vectorize
+
+---
+
+# ADR: Plugin Creator Skill from Real Codebase Analysis
+
+**Status:** Accepted  
+**Date:** 2026-05-04
+
+## Context
+OpenCode has a plugin system with 10 hook types, 2 independent context injection mechanisms, and stateful patterns — but no consolidated skill existed to guide users through plugin creation.
+
+## Decision
+Create `opencode-plugin-creator` skill with:
+- Hook API reference extracted from `plugins/hubs-plugin.ts` (the production plugin)
+- Templates for minimal hook, stateful, and TUI plugins
+- Documentation of the two distinct context injection mechanisms
+
+## Key Finding
+OpenCode has **two independent context injection mechanisms**:
+1. `experimental.chat.system.transform` — injected into system prompt every turn via `output.system[]`. Requires `queueContextMessage()`/`consumeContextMessages()` async pattern.
+2. `experimental.session.compacting` — survives context window compression via `output.context[]` (plain markdown). Both mechanisms can be used in the same plugin and serve different purposes.
+
+---
+
+# ADR: Configure Skill as Coordinator Over Creator Skills
+
+**Status:** Accepted  
+**Date:** 2026-05-04
+
+## Context
+Existing skills cover specific creation tasks (agent-creator, skill-creator, command-creator, plugin-creator) but there was no holistic config management skill for validation, inspection, cross-surface integration, and project `.opencode/` setup.
+
+## Decision
+Create `opencode-configure` as a **coordinator skill** that covers all 8 config surfaces. It delegates to existing creator skills for focused tasks and provides:
+- 20-item validation checklist covering JSONC, paths, frontmatter, plugins, MCP, gitignore
+- Config inspection and repair workflows
+- Project `.opencode/` directory structure setup
+- Cross-surface integration verification
+
+## Rationale
+Single-creation skills (agent, skill, command, plugin) are well-covered by existing creators. What was missing was the holistic view — someone who says "fix my config" or "set up a project .opencode/" needs to touch multiple surfaces at once.

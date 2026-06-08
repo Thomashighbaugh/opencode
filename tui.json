@@ -1,6 +1,6 @@
 {
   "plugin": [
     "opencode-bytheway@0.3.10",
-    "./plugins/joc-tui/index.js"
+    "./plugins/hubs-tui/index.js"
   ]
 }
