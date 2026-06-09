@@ -290,7 +290,7 @@ await agentContext({
 })
 ```
 
-### When Memory is Used
+### When Memory Is Used
 
 1. **Session start**: Memory is loaded for context
 2. **During skills**: Skills reference memory for decisions
@@ -460,7 +460,7 @@ tail -100 .opencode/state/logs/$(date +%Y-%m-%d).log
 
 ## State Persistence
 
-### When State is Written
+### When State Is Written
 
 | Event | State Written |
 |-------|--------------|
@@ -474,7 +474,7 @@ tail -100 .opencode/state/logs/$(date +%Y-%m-%d).log
 | Tool invocation | Log file |
 | Session end | All state files |
 
-### When State is Read
+### When State Is Read
 
 | Event | State Read |
 |-------|-----------|

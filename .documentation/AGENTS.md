@@ -23,9 +23,10 @@ Reference documentation generated from the source codebase. Contains auto-genera
 
 ## For AI Agents
 
-### Working In This Directory
+### Working in This Directory
 - These files are generated/curated reference docs — do not edit directly unless regenerating
 - Source of truth lives in the actual agent/skill/rule/tool files
 - If docs are stale, regenerate from source via `/init-project docs`
+- Any modification that changes how the user interacts with the project, alters configuration structure or location, adds or removes subcommands from hub menus, introduces new agents/skills/tools/commands, or restructures the file system layout MUST also update README.md at the project root and keep these documentation files in sync.
 
 <!-- MANUAL: -->

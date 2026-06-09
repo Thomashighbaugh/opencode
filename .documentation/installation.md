@@ -357,7 +357,7 @@ chmod 755 ~/.config/opencode
 sudo curl -fsSL ... | bash -s -- --global
 ```
 
-#### Dependencies fail to install
+#### Dependencies Fail to Install
 
 Package manager or network issues.
 
@@ -370,7 +370,7 @@ pnpm install   # Good alternative
 pnpm store prune
 ```
 
-#### Configuration not loading
+#### Configuration Not Loading
 
 Check file paths and syntax.
 
@@ -382,7 +382,7 @@ cat ~/.config/opencode/opencode.jsonc | python3 -m json.tool
 ls -la ~/.config/opencode/opencode.jsonc
 ```
 
-#### Agents/Skills not appearing
+#### Agents/Skills Not Appearing
 
 Path configuration issue.
 

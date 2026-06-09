@@ -15,6 +15,20 @@ Project-scoped OpenCode configuration. Contains runtime config, persistent state
 | `package.json` | Node.js dependencies for project-scoped tools |
 | `.gitignore` | Git ignore rules for state and node_modules |
 
+## Critical Instruction: README Maintenance
+
+**Any modification that changes how the user interacts with the project, alters configuration structure or location, adds or removes subcommands from hub menus, introduces new agents/skills/tools/commands that change the capability surface, or restructures the file system layout MUST update `README.md` and the appropriate `.documentation/*.md` files before the session completes.**
+
+This includes but is not limited to:
+
+- **Hub menus**: Adding, removing, or renaming subcommands on `/ideation`, `/orchestrate`, `/harvest-context`, `/project`, or `/init-project`
+- **Configuration surface**: Changes to `opencode.jsonc` structure, model lists, plugin paths, instruction paths, permission rules
+- **Agent/skill/command/tool inventory**: Adding or removing any of the 29 agents, 64 skills, 6 commands, or 10 tools that changes the advertised capability surface
+- **File system layout**: Moving or renaming top-level directories or paths referenced in documentation
+- **Workflow semantics**: Changes to how hubs delegate, how state is persisted, or how context is harvested
+
+The README and documentation files are the primary user-facing reference. They must remain in sync with the codebase they document.
+
 ## Subdirectories
 
 | Directory | Purpose |
