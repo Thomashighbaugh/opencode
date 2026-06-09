@@ -1,18 +1,18 @@
-# OpenCode Hubs (Joint Operations Center)
+# OpenCode Hubs
 
-> Hub-driven multi-agent orchestration for OpenCode — interactive menus, not memorization.
+My opencode configuration meant to ease the use of various agentic models and orchestration paradigms through native menus and a catch-all default agent to enable experimentation and per-project specification in project specific `.opencode` subdirectories, using sqlite databases of vectorized context and work products to ease accessing its content in subsequent LLM API calls, which will detect the content of the codebase and then create the necessary agents, skills, tools and rules easing the use of orchestrated subagents that work on the codebase in one of the available paradigms or a specified alternative you describe.
 
-_Named after the military field command post. Yes, another milspec acronym in dev tooling. We know._
 
 ## The problem
 
-OpenCode configs pile up capabilities faster than anyone can keep track of. 64 skills. 29 agents. 6 commands. At some point you stop discovering things and start hoping they exist. Hubs's answer: four hub commands that give you a menu instead of a scavenger hunt.
+There are numerous plugins and configuration frameworks generally built around a single orchestration pattern for using subagents in various stages of the product lifecycle. Some are more suited to specific tasks than others and committing to just one or flipping between several (like sometimes people do with neovim configuration frameworks) is onerous while excessive plugins + lots of subagents running on different projects with separate subagents is a great way to make your system run slow, hot and browsers running Javascript engines already do that 
 
 ## The four hubs
 
 | Hub | What it's for | Example |
 |-----|---------------|---------|
-| `/ideation` | Plan and research before you paint yourself into a corner | `/ideation plan sprint 5` |
+| `/init-project` |  Set up project specific configuration in .opencode subdirectory with source code detection and agent bootstrapping. | `/init-project` |
+| `/ideation` | Plan and research before you ask an LLM to build anything to reduce AI code slop | `/ideation plan sprint 5` |
 | `/orchestrate` | Pick an execution pattern and let it run | `/orchestrate ralph fix TS errors` |
 | `/project` | Git, reviews, PRs, tests, icons, changelogs | `/project review` |
 | `/harvest-context` | Save things before the context window forgets them | `/harvest-context session` |
@@ -219,3 +219,4 @@ curl -fsSL https://raw.githubusercontent.com/Thomashighbaugh/opencode/main/insta
 ## License
 
 MIT
+
