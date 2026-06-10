@@ -146,3 +146,37 @@ Add `nemotron-3-ultra:cloud` (NVIDIA Nemotron 3 Ultra) as an available Ollama cl
 - Users can now select a model optimized for `/orchestrate` workloads
 - 256K context is smaller than the pro/flash 1M models, but output of 131K matches flash
 - Model is listed prominently as the third entry (after flash) in the AGENTS.md table
+
+---
+
+# ADR: Conscientious Craftsman Agent Pattern (Design Analysis)
+
+**Status:** Proposed — Design Analysis Complete  
+**Date:** 2026-06-09
+
+## Context
+Current agent orchestration patterns treat agents as "ant-agents" — single-purpose workers that execute a task, then pass their raw output to a separate reviewer agent. This creates high overhead: 2+ handoffs per quality cycle, context serialization between agents, and a reviewer bottleneck when many agents produce output simultaneously.
+
+The biological analogy is instructive: ants do not self-preserve or self-critique; they follow their assignment unquestioningly. Humans in skilled roles internalize quality standards and self-correct before presenting work.
+
+## Analysis
+A design analysis was conducted (via `deep-thinker` agent) evaluating whether a "craftsman agent" pattern — where each agent carries an internal self-critique loop — is theoretically sound and feasible.
+
+### Key Findings
+
+1. **The pattern is sound as a component**, not a standalone replacement. Self-critique improves quality per agent, but external verification is still required for convergence guarantees.
+
+2. **"Incentivization" is achievable through structured prompt sequencing**, not true internal motivation. Five levers exist: role-identity framing, accountability hooks, structured generation protocols, contrastive examples, and orchestrator-level meta-incentives.
+
+3. **Composition is key** — the craftsman pattern nests inside existing patterns:
+   - `ralph + craftsman`: outer loop guarantees convergence, inner loop polishes each submission
+   - `ultrawork + craftsman`: each parallel lane self-polishes independently
+   - `team + craftsman`: reviewer focuses on composition, not individual quality
+
+4. **Risks are manageable**: over-engineering (cap iterations), under-critique (require written critique), same-model blind spots (externally-authored checklists), false quality (never skip external verification for critical tasks).
+
+## Recommended Name
+`craftsman` — one word, self-evident in software engineering, pairs naturally with existing patterns.
+
+## Next Steps
+If adopted: implement as an orchestration pattern option that injects a self-critique quality charter into each agent's context, with configurable max_inner_iterations and an externally-authored checklist.

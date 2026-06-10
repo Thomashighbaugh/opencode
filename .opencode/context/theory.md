@@ -46,7 +46,17 @@ Hooks handle mechanical work: checkpointing at phase transitions, capturing ADRs
 
 ## Current Direction
 
-- Pattern catalog growing from babysitter methodologies (49 hub subcommands and counting)
+- Pattern catalog growing from babysitter methodologies (103 hub subcommands and counting)
 - Durable context auto-capture: decisions.md on ADRs, patterns/ on discoveries, research/ on web extraction
 - Progressive context loading: start with compact summary, expand on demand
 - Living theory: this file updates when architectural decisions are made
+
+## Emerging Ideas
+
+### Craftsman Agent Pattern (Conscientious Internal Loop)
+
+A proposed pattern where agents internalize quality standards rather than relying on external reviewers. Inspired by the biological distinction between ants (single-purpose, no self-preservation) and human craftsmen (self-critique before presenting work).
+
+**Key principle:** "Never submit work you wouldn't approve yourself." — the agent runs an internal execute→critique→revise cycle before outputting results.
+
+**Status:** Design analysis complete (2026-06-09). Not yet implemented. See `context/patterns/craftsman-agent.md` and `context/decisions.md` (ADR: Conscientious Craftsman Agent Pattern).
