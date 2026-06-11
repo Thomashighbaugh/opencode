@@ -7,6 +7,12 @@
   - Registered in hubMenu.ts, documented in ideation/SKILL.md, intent-routing profile added to route-ideation.mjs
   - ADR added to decisions.md
 
+- **docs: reorder hub menus by project lifecycle** (`61bac08`)
+  - Reordered all hub listings in README and AGENTS.md to follow the project development lifecycle: init-project → ideation → orchestrate → harvest-context → project
+  - Updated subcommand reference sections, quick reference table, quick start examples, and commands table
+  - Updated architecture overview to describe the lifecycle ordering
+  - Added `decomposition` to ideation subcommand lists across AGENTS.md
+
 ## 2026-06-09
 
 - **docs(patterns): add Craftsman Agent pattern analysis and ADR** (`999d6b8`)

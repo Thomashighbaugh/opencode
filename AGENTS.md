@@ -47,7 +47,7 @@ This project provides a comprehensive multi-agent orchestration system for OpenC
 | **hubs-setup** (hubs-setup) | 2 | Backward-compat alias → /init-project |
 | **hubs-doctor** (hubs-doctor) | 2 | Diagnose Hubs issues |
 | **init-project** | 3 | Project init hub — setup, detect, docs, context, verify, refresh, map-codebase, doctor |
-| **ideation** | 2 | Planning/research hub — plan, brainstorm, refine, deep, graph, research, ralplan, ddd, event-storming, double-diamond, jtbd, impact-mapping, spiral, top-down, bottom-up, adversarial-debate, cleanroom, pwf, rpikit, hive, story-mapping, lean-canvas, constitution |
+| **ideation** | 2 | Planning/research hub — plan, brainstorm, decomposition, refine, deep, graph, research, ralplan, ddd, event-storming, double-diamond, jtbd, impact-mapping, spiral, top-down, bottom-up, adversarial-debate, cleanroom, pwf, rpikit, hive, story-mapping, lean-canvas, constitution |
 | **orchestrate** | 2 | Execution hub — ralph, team, deep, ccg, ultrawork, autopilot, sciomc, swarm, state-machine, consensus, evolutionary, spec-driven, react, plan-execute, hive, tdd, pair, pipeline, gsd, self-assess, remediate, devin, maestro, metaswarm, cc10x, gastown, ruflo, harden, brownfield, vibe-code |
 | **harvest-context** | 2 | Context/artifact hub — session, codebase, skill, agent, rule, command, memory, docs, decompose, context, compress, secondbrain, journal |
 | **project** | 2 | Project ops hub — tests, commit, stage, pr, gh, optimize, icon, organize, analyze, changelog, converge, scan, sandbox, retrospect, purge, release, review, audit, archive, workspace |
@@ -70,7 +70,7 @@ Natural language triggers for modes:
 | Command | Subcommands | Purpose |
 |---------|------------|---------|
 | `/init-project` | setup, detect, docs, context, verify, refresh, status, map-codebase, doctor, reset | Project init — full setup, detection, validation, and reset |
-| `/ideation` | plan, brainstorm, refine, deep, graph, research, ralplan, ddd, event-storming, double-diamond, jtbd, impact-mapping, spiral, top-down, bottom-up, adversarial-debate, cleanroom, pwf, rpikit, hive, story-mapping, lean-canvas, constitution, resume, status | Planning & research — 23 methodologies from strategic planning to lean canvas |
+| `/ideation` | plan, brainstorm, decomposition, refine, deep, graph, research, ralplan, ddd, event-storming, double-diamond, jtbd, impact-mapping, spiral, top-down, bottom-up, adversarial-debate, cleanroom, pwf, rpikit, hive, story-mapping, lean-canvas, constitution, resume, status | Planning & research — 24 methodologies plus task decomposition
 | `/orchestrate` | ralph, team, deep, ccg, ultrawork, autopilot, sciomc, swarm, state-machine, consensus, evolutionary, spec-driven, react, plan-execute, hive, tdd, pair, pipeline, gsd, self-assess, remediate, devin, maestro, metaswarm, cc10x, gastown, ruflo, harden, brownfield, vibe-code, resume, status | Execution — 30 patterns from persistent loops to multi-stage pipelines |
 | `/harvest-context` | session, codebase, skill, agent, rule, command, memory, docs, decompose, context, consume, compress, search, prune, export, diff, secondbrain, journal | Context & artifacts — 18 subcommands for knowledge extraction and management |
 | `/project` | tests, commit, stage, pr, gh, optimize, icon, organize, analyze, changelog, converge, scan, sandbox, retrospect, purge, release, review, audit, archive, workspace | Project ops — 20 subcommands for quality, security, and maintenance |

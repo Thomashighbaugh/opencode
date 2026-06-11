@@ -10,17 +10,34 @@ The name derives from the military field command post concept — a central oper
 
 | Hub | Subcommands | Purpose |
 |-----|-------------|---------|
-| `/ideation` | 25 | Planning, research, and structured thinking — 23 methodologies |
+| `/init-project` | 10 | Project initialization, detection, validation, and diagnostics |
+| `/ideation` | 26 | Planning, research, and structured thinking — 24 methodologies |
 | `/orchestrate` | 32 | Execution patterns — from persistent loops to multi-stage pipelines |
 | `/harvest-context` | 18 | Knowledge extraction and artifact management |
 | `/project` | 20 | Git operations, code quality, release management, file organization |
-| `/init-project` | 10 | Project initialization, detection, validation, and diagnostics |
 
 No arguments on any hub produces an interactive menu. Supply a subcommand directly to skip the menu: `/orchestrate ralph`, `/project commit`, `/harvest-context session`.
 
 ---
 
 ## Subcommand Reference
+
+### `/init-project` — Project Initialization Hub
+
+10 subcommands for first-time setup, detection, and diagnostics.
+
+| Subcommand | Delegates To | Description |
+|------------|-------------|-------------|
+| `setup` | inline | Full initialization from scratch (phases 0–7). Add `--full` for context capture. |
+| `detect` | inline | Auto-detect language, framework, test framework, and linter |
+| `docs` | inline | Regenerate AGENTS.md hierarchy from source |
+| `context` | inline | Capture session knowledge into durable context |
+| `verify` | inline | Validate configuration, paths, and file integrity |
+| `refresh` | inline | Update existing setup while preserving manual edits |
+| `status` | inline | Show init state, checkpoints, and completion status |
+| `map-codebase` | inline | Analyze brownfield codebase structure before initialization |
+| `doctor` | inline | Run diagnostic health check for common configuration issues |
+| `reset` | inline | Factory reset — wipe state and start fresh |
 
 ### `/ideation` — Planning, Research, And Ideation Hub
 
@@ -146,30 +163,13 @@ No arguments on any hub produces an interactive menu. Supply a subcommand direct
 | `archive` | inline | Move stale branches and inactive components to archive storage |
 | `workspace` | inline | Worktree-first dev environment management with tmux sessions |
 
-### `/init-project` — Project Initialization Hub
-
-10 subcommands for first-time setup, detection, and diagnostics.
-
-| Subcommand | Delegates To | Description |
-|------------|-------------|-------------|
-| `setup` | inline | Full initialization from scratch (phases 0–7). Add `--full` for context capture. |
-| `detect` | inline | Auto-detect language, framework, test framework, and linter |
-| `docs` | inline | Regenerate AGENTS.md hierarchy from source |
-| `context` | inline | Capture session knowledge into durable context |
-| `verify` | inline | Validate configuration, paths, and file integrity |
-| `refresh` | inline | Update existing setup while preserving manual edits |
-| `status` | inline | Show init state, checkpoints, and completion status |
-| `map-codebase` | inline | Analyze brownfield codebase structure before initialization |
-| `doctor` | inline | Run diagnostic health check for common configuration issues |
-| `reset` | inline | Factory reset — wipe state and start fresh |
-
 ---
 
 ## Overview
 
 OpenCode Hubs solves a problem of scale. A configuration that accumulates 29 agents, 64 skills, and 6 commands over time becomes a burden of memory rather than a toolbox. The natural response — "I hope what I need exists somewhere" — is not a workflow.
 
-The four primary hubs (`/ideation`, `/orchestrate`, `/project`, `/harvest-context`) plus `/init-project` give every capability a discoverable home. Each hub offers a menu when invoked without arguments, listing subcommands with descriptions. For experienced users, direct invocation skips the menu entirely: `/orchestrate ralph fix all TypeScript errors`.
+The five hubs (`/init-project`, `/ideation`, `/orchestrate`, `/harvest-context`, `/project`) give every capability a discoverable home, ordered by the project development lifecycle. Each hub offers a menu when invoked without arguments, listing subcommands with descriptions. For experienced users, direct invocation skips the menu entirely: `/orchestrate ralph fix all TypeScript errors`.
 
 ### Architecture
 
@@ -177,7 +177,7 @@ Every hub follows the same three-phase lifecycle:
 
 1. **Argument Detection** — No arguments produce an interactive menu; a recognized subcommand proceeds directly.
 2. **Execution** — A terse reminder confirms intent, the hub checks for prior state, then delegates to the appropriate skill or agent.
-3. **Post-Completion** — The hub suggests the next logical step in the workflow chain: ideation leads to orchestration, orchestration leads to context harvesting, and completed artifacts should be committed.
+3. **Post-Completion** — The hub suggests the next logical step in the workflow chain: init sets the stage, ideation leads to orchestration, orchestration leads to context harvesting, and completed artifacts should be committed.
 
 Three hubs (`ideation`, `orchestrate`, `harvest-context`) persist progress to `.opencode/state/` for session-to-session continuity. The `/project` hub is intentionally stateless — git serves as its record.
 
@@ -210,17 +210,18 @@ Natural language triggers that invoke subcommands directly, bypassing the menu. 
 
 ```bash
 # Explore — menus guide discovery
+/init-project
 /ideation
 /orchestrate
-/project
 /harvest-context
+/project
 
 # Go direct when you know the subcommand
-/orchestrate ralph fix all TypeScript errors
-/project commit
-/project review
+/init-project setup
 /ideation plan redesign the auth module
+/orchestrate ralph fix all TypeScript errors
 /harvest-context memory
+/project commit
 ```
 
 ---
@@ -256,8 +257,8 @@ Natural language triggers that invoke subcommands directly, bypassing the menu. 
 | `/init-project` | Initialize or refresh project configuration and documentation |
 | `/ideation` | Planning and research hub |
 | `/orchestrate` | Execution hub |
-| `/project` | Project operations hub |
 | `/harvest-context` | Context and artifact hub |
+| `/project` | Project operations hub |
 | `/skill` | Manage workflow skills |
 
 ### Tools (10)
