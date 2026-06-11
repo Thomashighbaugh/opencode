@@ -48,6 +48,7 @@ const HUBS: HubDefinition[] = [
     subcommands: [
       { label: "plan", description: "Interview-style strategic planning — clarify goals, break into tasks", skill: "plan", reminder: "Strategic planning: clarify goals → ordered tasks." },
       { label: "brainstorm", description: "Free-form idea generation — throw ideas at the wall on any topic, then cluster and prioritize", inline: true, reminder: "Generate, cluster, and prioritize ideas." },
+      { label: "decomposition", description: "Decompose a task into actionable subtasks — break complex work into ordered, verifiable steps", inline: true, reminder: "Break complex tasks into actionable subtasks." },
       { label: "refine", description: "Diverge/converge iteration — expand ideas, then sharpen them", skill: "idea-refine", reminder: "Diverge and converge to sharpen ideas." },
       { label: "deep", description: "Socratic interview with ambiguity gating — crystallize vague requirements", skill: "deep-interview", reminder: "Socratic interview to crystallize requirements." },
       { label: "graph", description: "Visual relationship mapping — dependencies, components, tradeoffs", skill: "graph-thinking", reminder: "Map relationships as visual graphs." },

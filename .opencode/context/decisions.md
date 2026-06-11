@@ -180,3 +180,27 @@ A design analysis was conducted (via `deep-thinker` agent) evaluating whether a 
 
 ## Next Steps
 If adopted: implement as an orchestration pattern option that injects a self-critique quality charter into each agent's context, with configurable max_inner_iterations and an externally-authored checklist.
+
+---
+
+# ADR: Add "decomposition" as Third /ideation Subcommand
+
+**Status:** Accepted  
+**Date:** 2026-06-10
+
+## Context
+The /ideation hub had no dedicated method for breaking a complex task into smaller, actionable subtasks. Users had to use "top-down" or "plan" to approximate this, but neither is optimized for pure work breakdown with dependencies and acceptance criteria.
+
+## Decision
+Add "decomposition" as the 3rd menu option in /ideation (after brainstorm, before refine), implemented as an inline subcommand.
+
+## Rationale
+- Decomposition is a distinct cognitive operation from planning (which is interview-driven) and refining (which is diverge/converge)
+- Inline execution is appropriate — no separate skill file needed since the workflow is straightforward: accept task → break down → output ordered subtasks with dependencies and criteria
+- Positioning as 3rd option puts it early in the menu where users expect fundamental task-analysis tools
+
+## Consequences
+- hubMenu.ts: entry added at index 51 with `inline: true`
+- ideation/SKILL.md: method documented under new section between brainstorm and refine
+- route-ideation.mjs: profile added for intent-based routing with decomposition-specific keywords
+- Users who type /ideation decompose or "break down this task" will now route correctly

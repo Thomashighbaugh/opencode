@@ -17,7 +17,7 @@ Unified entry point for all planning and research methods. Each subcommand is a 
 
 ## No-Argument Behavior
 
-When invoked without arguments (`/ideation`), list the subcommands as plain text and ask the user to choose. Do NOT call `hubMenu` or any other tool — just output the list directly. Available methods: plan, brainstorm, refine, deep, graph, research, ralplan, ddd, event-storming, double-diamond, jtbd, impact-mapping, spiral, top-down, bottom-up, adversarial-debate, cleanroom, pwf, rpikit, hive, story-mapping, lean-canvas, constitution.
+When invoked without arguments (`/ideation`), list the subcommands as plain text and ask the user to choose. Do NOT call `hubMenu` or any other tool — just output the list directly. Available methods: plan, brainstorm, decomposition, refine, deep, graph, research, ralplan, ddd, event-storming, double-diamond, jtbd, impact-mapping, spiral, top-down, bottom-up, adversarial-debate, cleanroom, pwf, rpikit, hive, story-mapping, lean-canvas, constitution.
 
 ## With-Argument Behavior
 
@@ -35,6 +35,19 @@ Interview-style planning. Asks clarifying questions, identifies constraints, bre
 > Plan: Interview-style strategic planning. I'll ask clarifying questions, identify constraints, and break your goal into ordered tasks with acceptance criteria.
 
 **Delegates to:** `plan` skill
+
+---
+
+### `/ideation decomposition` — Task Decomposition
+
+**Method:** `decomposition`
+
+Breaks a complex task or goal into smaller, actionable subtasks. Identifies dependencies, orders them logically, and defines clear acceptance criteria for each subtask. Good for turning amorphous "build X" requests into a concrete work plan.
+
+**Reminder shown to user:**
+> Decomposition: Breaking down your task into ordered, actionable subtasks. I'll identify dependencies, define acceptance criteria for each, and produce a clear work breakdown.
+
+**Delegates to:** inline (executed directly)
 
 ---
 
@@ -135,6 +148,7 @@ Load and execute the appropriate skill:
 | Subcommand | Skill to Load |
 |------------|---------------|
 | `plan` | `plan` |
+| `decomposition` | inline (executed directly) |
 | `refine` | `idea-refine` |
 | `deep` | `deep-interview` |
 | `graph` | `graph-thinking` |

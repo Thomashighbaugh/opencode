@@ -37,6 +37,18 @@ const SUBCMDS = [
     description: "Best for: generating many ideas on a topic without judgment, then clustering and prioritizing. Pure divergence before convergence."
   },
   {
+    name: "decomposition",
+    tagline: "Break a task down into actionable subtasks with dependencies, ordering, and acceptance criteria",
+    mode: { clarify: 0.7, explore: 0.3, structure: 1.0, evaluate: 0.5 },
+    scope:  { narrow: 0.8, broad: 0.5, vague: 0.7, concrete: 0.9 },
+    depth:  { quick: 0.4, thorough: 0.8, exhaustive: 0.6 },
+    rigor:  { loose: 0.2, structured: 0.9, formal: 0.7 },
+    outcome:{ deliverable: 0.9, understanding: 0.5, decision: 0.6 },
+    keywords: ["decompose", "break down", "subtask", "component", "divide", "split", "modularize", "work breakdown", "wbs", "task breakdown", "actionable steps", "ordered steps", "smaller tasks", "independent pieces"],
+    antiKeywords: ["brainstorm", "creative", "vibe", "design thinking"],
+    description: "Best for: taking a complex task or goal and breaking it into ordered, actionable subtasks with dependencies and acceptance criteria. Produces a concrete work breakdown structure."
+  },
+  {
     name: "refine",
     tagline: "Diverge/converge iteration — expand an idea, then sharpen into strongest version",
     mode: { clarify: 0.6, explore: 0.7, structure: 0.6, evaluate: 0.7 },
