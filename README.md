@@ -24,12 +24,13 @@ No arguments on any hub produces an interactive menu. Supply a subcommand direct
 
 ### `/ideation` — Planning, Research, And Ideation Hub
 
-25 subcommands spanning strategic planning, domain modeling, and creative exploration.
+26 subcommands spanning strategic planning, domain modeling, task decomposition, and creative exploration.
 
 | Subcommand | Delegates To | Description |
 |------------|-------------|-------------|
 | `plan` | `plan` skill | Structured work plan via interview, direct, or consensus mode |
 | `brainstorm` | inline | Divergent idea generation around a topic |
+| `decomposition` | inline | Break complex tasks into ordered, actionable subtasks with dependencies |
 | `refine` | `idea-refine` skill | Convergent/divergent refinement of raw concepts |
 | `deep` | `deep-interview` skill | Socratic interview with mathematical ambiguity gating |
 | `graph` | `graph-thinking` skill | Map complex relationships as dependency/flow graphs |

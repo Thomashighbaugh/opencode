@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-06-10
+
+- **feat(ideation): add decomposition as third /ideation subcommand** (`6a7d8f1`)
+  - New inline subcommand at position 3 (after brainstorm, before refine) for breaking complex tasks into actionable subtasks with dependencies and acceptance criteria
+  - Registered in hubMenu.ts, documented in ideation/SKILL.md, intent-routing profile added to route-ideation.mjs
+  - ADR added to decisions.md
+
 ## 2026-06-09
 
 - **docs(patterns): add Craftsman Agent pattern analysis and ADR** (`999d6b8`)
