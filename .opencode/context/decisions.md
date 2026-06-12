@@ -183,6 +183,107 @@ If adopted: implement as an orchestration pattern option that injects a self-cri
 
 ---
 
+# ADR: Remove Invalid Top-Level Config Keys from opencode.jsonc
+
+**Status:** Accepted
+**Date:** 2026-06-12
+
+## Context
+The `opencode.jsonc` templates and provision script were injecting invalid top-level keys (`agents: { paths: [...] }`, `commands: { paths: [...] }`, `agentPaths: [...]`) that are not part of the OpenCode config schema. These caused OpenCode's config loader to reject the file, preventing OpenCode from running in projects initialized with `/init-project`.
+
+## Decision
+Remove all invalid top-level keys from templates and generation code. Agents, commands, tools, and rules are **auto-discovered** from their respective `.opencode/` subdirectories — no config registration needed. The only valid key for pointing to additional directories is `skills: { paths: [...] }`.
+
+## Rationale
+- The official schema at `https://opencode.ai/config.json` has `additionalProperties: false` on the Config object — any unrecognized key causes rejection
+- OpenCode auto-discovers agents from `agents/`, commands from `commands/`, tools from `tools/`, rules from `rules/` — no config needed
+- The `skills` key is the exception because skill directories can be at arbitrary paths
+
+## Consequences
+- Fixed in: `03-configuration.md` template, `opencode.jsonc.template`, `provision.mjs` Phase 6, `provision/SKILL.md`, and 3 `.documentation/` files
+- Created `config-sync` skill to prevent future drift — fetches schema from `opencode.ai/config.json` and validates
+
+---
+
+# ADR: Agent Format Normalization — All Agents Must Use `<Agent_Prompt>` Wrapper
+
+**Status:** Accepted
+**Date:** 2026-06-12
+
+## Context
+10 of 29 agent definition files used plain markdown without the `<Agent_Prompt>` XML wrapper convention. This created an inconsistency where some agents had structured prompt sections (`<Role>`, `<Constraints>`, `<Success_Criteria>`) and others had free-form text. The non-compliant agents were: code-reviewer, code-simplifier, commit-drafter, config-orchestrator, deep-thinker, effort-estimator, prompt-simplifier, refactoring, requirements-analyzer, skill-creator.
+
+## Decision
+All 29 agents must use the `<Agent_Prompt>` wrapper with `<Role>` sub-tag. Created `agent-format-enforcer` skill with `check-agent-format.mjs` script that validates compliance and can auto-fix.
+
+## Rationale
+- Consistent structure ensures all agents load correctly into OpenCode's agent system
+- The `<Agent_Prompt>` wrapper is the documented convention — non-compliance was an oversight
+- Automated enforcement prevents future drift
+
+## Consequences
+- 10 agents wrapped in `<Agent_Prompt>` tags
+- `agent-format-enforcer` skill created with validation script
+- `package.json` scripts added: `check-agents`, `fix-agents`
+
+---
+
+# ADR: Eliminate `.opencode/` Config Redundancy in Global Config Directory
+
+**Status:** Accepted
+**Date:** 2026-06-12
+
+## Context
+The `~/.config/opencode/` directory IS the global OpenCode config directory. Having a `.opencode/` subdirectory inside it with duplicate config files (`opencode.json`, `package.json`, `tui.json`, `node_modules/`) was conceptually wrong — `.opencode/` is a project-scoped pattern, not something that should nest inside the global config.
+
+## Decision
+Remove all redundant config files from `.opencode/`:
+- `opencode.json` — redundant with root `opencode.jsonc`
+- `package.json` + `package-lock.json` — redundant with root `package.json`
+- `tui.json` — redundant with root `tui.json`
+- `node_modules/` — redundant with root `node_modules/`
+
+Keep only: `context/`, `state/`, `CHANGELOG.md`, `AGENTS.md`, `.vector/`, `.gitignore`
+
+## Rationale
+- Eliminates duplicate version pinning (root had `@opencode-ai/plugin@1.14.30`, `.opencode/` had `1.14.25`)
+- Removes conceptual confusion about where config lives
+- Saves 58MB of duplicated `node_modules/`
+
+## Consequences
+- `.opencode/` now serves as a pure durable knowledge store (context + changelog + state)
+- `.opencode/.gitignore` updated to only ignore `state/` and `.vector/`
+- `init-project` scaffold now adds `.opencode/node_modules/` to project `.gitignore`
+
+---
+
+# ADR: Hubs Must Parallel-Dispatch Multi-Item Raw Text Instructions
+
+**Status:** Accepted
+**Date:** 2026-06-12
+
+## Context
+When given raw text with multiple work items (numbered lists, "and" clauses, compound requests), the Hubs agent was serial-executing them itself instead of decomposing and dispatching to parallel subagents. This violated the core "orchestrate, don't execute" principle and made multi-item tasks take much longer than necessary.
+
+## Decision
+Added a `<Critical_Behavior>` section to the Hubs agent prompt that mandates:
+- Raw text with 3+ implicit work items → ALWAYS decompose and parallelize
+- Numbered lists, "and" clauses, compound requests → extract N discrete work items
+- Dispatch each item to its own subagent via concurrent `task()` calls
+- No serial self-execution for multi-item tasks
+
+## Rationale
+- The orchestrator's job is to dispatch, monitor, and integrate — not to implement
+- Parallel dispatch reduces wall-clock time for N items from O(N) to O(max(N))
+- The existing `ultrawork` and `team` patterns already support this — the gap was in the Hubs prompt itself
+
+## Consequences
+- `agents/hubs.md` updated with `<Critical_Behavior>` section
+- Multi-Item Batch pattern added to `<Orchestration_Patterns>`
+- Workflow step 2 hardened: "if 3+ implicit work items, ALWAYS decompose and parallelize"
+
+---
+
 # ADR: Add "decomposition" as Third /ideation Subcommand
 
 **Status:** Accepted  
