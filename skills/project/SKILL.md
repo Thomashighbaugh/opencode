@@ -22,7 +22,7 @@ Unified entry point for project operations. Each subcommand delegates to an exis
 
 ## No-Argument Behavior
 
-When invoked without arguments, list the subcommands as plain text and ask the user to choose. Do NOT call `hubMenu` or any other tool — just output the list directly. Available operations: tests, commit, stage, pr, gh, optimize, icon, organize, analyze, changelog, converge, scan, sandbox, retrospect, purge.
+When invoked without arguments, list the subcommands as plain text and ask the user to choose. Do NOT call `hubMenu` or any other tool — just output the list directly. Available operations: tests, commit, stage, pr, gh, optimize, icon, organize, analyze, changelog, converge, scan, sandbox, retrospect, purge, git-cleanup.
 
 ## With-Argument Behavior
 
@@ -190,6 +190,33 @@ Generate user-facing changelogs from git commits.
 - `/project changelog since v1.5.0` — Since specific version
 - `/project changelog last week` — Last 7 days
 - `/project changelog 2024-01-01..2024-01-31` — Date range
+
+---
+
+### `/project git-cleanup` — Fix Orphaned CHANGELOG Entries
+
+**Delegates to:** inline execution
+
+Repair CHANGELOG or `.opencode/CHANGELOG.md` files whose commit references no longer exist in git history. This happens when a project's `.git/` directory is rebuilt from remote (e.g., after `rm -rf .git && git clone`). The changelog entries themselves are valid — the work happened — but the commit hashes they reference are gone.
+
+**Process:**
+1. Read all `CHANGELOG.md` and `.opencode/CHANGELOG.md` files
+2. Parse every entry for commit hash references (e.g., `` `abc1234` ``)
+3. For each hash, run `git cat-file -t <hash>` to check if it exists in current history
+4. Report entries with orphaned hashes — show the content that would be lost
+5. **Option A — Replace hash with context**: `` `abc1234` `` → `[context: removed]`
+6. **Option B — Replace hash with date/topic**: `` `abc1234` `` → `[2026-06-12]` (inferred from entry date)
+7. **Option C — Leave hash but mark**: `` `abc1234` `` → `` `abc1234` `` (not in current history)
+8. Default: Option B (most readable), confirm with user
+
+**Reminder:**
+> Git-cleanup: I'll scan CHANGELOG files for commit references that no longer exist in git history (common after .git/ rebuild), and repair them without losing the changelog content.
+
+**Usage:**
+- `/project git-cleanup` — Scan all changelogs, report orphaned refs, prompt for fix
+- `/project git-cleanup --fix` — Auto-repair all orphaned refs with date-based replacements
+- `/project git-cleanup --fix --option context` — Replace with [context: removed]
+- `/project git-cleanup --check-only` — Just report, don't fix
 
 ---
 

@@ -18,7 +18,7 @@ Unified entry point for extracting, generating, and managing project context. Ea
 
 ## No-Argument Behavior
 
-When invoked without arguments (`/harvest-context`), list the subcommands as plain text and ask the user to choose. Do NOT call `hubMenu` or any other tool — just output the list directly. Available operations: session, codebase, skill, agent, rule, command, memory, docs, consume, decompose, context, compress, secondbrain, journal.
+When invoked without arguments (`/harvest-context`), list the subcommands as plain text and ask the user to choose. Do NOT call `hubMenu` or any other tool — just output the list directly. Available operations: session, codebase, skill, agent, rule, command, memory, docs, consume, decompose, context, compress, secondbrain, journal, sweep.
 
 ## With-Argument Behavior
 
@@ -285,6 +285,40 @@ Manage OpenCode context files for knowledge persistence and organization.
 
 ---
 
+### `/harvest-context sweep` — Sweep Bloated `.opencode/` Artifacts
+
+Proactively scan `.opencode/` for files and directories that should be gitignored but aren't. Prevents the `.opencode/` directory from swelling to sizes that break `git push`.
+
+**Process:**
+1. Scan `.opencode/` for files that should be in `.gitignore` but aren't:
+   - `.opencode/node_modules/` — project-scoped tool deps
+   - `.opencode/.vector/` — regenerable vector search DB
+   - Large generated files (>1MB) in `state/` or `harvest/`
+   - Session artifacts that reference commits not in git history
+2. Check `.gitignore` exists and contains expected patterns
+3. Report any missing entries — offer to add them
+4. Report oversized files with paths and sizes
+5. If `--fix` flag passed, auto-append missing patterns to `.gitignore`
+6. Save a report to `.opencode/state/harvest/sweep-{timestamp}.md`
+
+**Reminder:**
+> Sweep: I'll scan your `.opencode/` directory for files that should be gitignored but aren't — preventing bloat that breaks git push.
+
+---
+
+## Auto-Sweep on Harvest
+
+Every `/harvest-context` subcommand automatically runs a lightweight sweep check after saving its artifact. If it finds files that should be gitignored, it warns the user:
+
+```
+⚠  .opencode/ sweep: found 2 files that should be gitignored
+   - .opencode/node_modules/ (58M) — missing from .gitignore
+   - .opencode/.vector/ (12M) — missing from .gitignore
+   Run /harvest-context sweep to fix.
+```
+
+---
+
 ## Shared Lifecycle
 
 Every subcommand follows this pattern:
@@ -321,8 +355,28 @@ Write the output to the appropriate location:
 | `consume` | `.opencode/context/research/{name}.md` |
 | `decompose` | On screen, optionally `.opencode/context/` |
 | `context` | `.opencode/context/` organized by function |
+| `sweep` | `.opencode/state/harvest/sweep-{ts}.md` + `.gitignore` updates |
 
-### Step 4: Confirm and Print
+### Step 4: Auto-Sweep Check
+
+After saving any artifact, run a lightweight sweep:
+
+```bash
+# Quick scan for bloat risk
+total_kb=$(du -sk .opencode/ 2>/dev/null | cut -f1)
+if [ "$total_kb" -gt 10240 ]; then  # >10MB
+  echo "⚠  .opencode/ is ${total_kb}KB — run /harvest-context sweep to check gitignore"
+fi
+
+# Check for known bloat vectors
+for pattern in ".opencode/node_modules" ".opencode/.vector"; do
+  if [ -d "$pattern" ] && ! grep -q "^$pattern" .gitignore 2>/dev/null; then
+    echo "⚠  $pattern exists but is not gitignored — add it or run /harvest-context sweep --fix"
+  fi
+done
+```
+
+### Step 5: Confirm and Print
 
 ```
 ✓ Harvested: {artifact type}

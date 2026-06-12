@@ -75,8 +75,8 @@ Natural language triggers for modes:
 | `/init-project` | setup, detect, docs, context, verify, refresh, status, map-codebase, doctor, reset, provision | Project init — full setup, detection, validation, codebase-aware artifact generation, and reset |
 | `/ideation` | plan, brainstorm, decomposition, refine, deep, graph, research, ralplan, ddd, event-storming, double-diamond, jtbd, impact-mapping, spiral, top-down, bottom-up, adversarial-debate, cleanroom, pwf, rpikit, hive, story-mapping, lean-canvas, constitution, resume, status | Planning & research — 24 methodologies plus task decomposition
 | `/orchestrate` | ralph, team, deep, ccg, ultrawork, autopilot, sciomc, swarm, state-machine, consensus, evolutionary, spec-driven, react, plan-execute, hive, tdd, pair, pipeline, gsd, self-assess, remediate, devin, maestro, metaswarm, cc10x, gastown, ruflo, harden, brownfield, vibe-code, resume, status | Execution — 30 patterns from persistent loops to multi-stage pipelines |
-| `/harvest-context` | session, codebase, skill, agent, rule, command, memory, docs, decompose, context, consume, compress, search, prune, export, diff, secondbrain, journal | Context & artifacts — 18 subcommands for knowledge extraction and management |
-| `/project` | tests, commit, stage, pr, gh, optimize, icon, organize, analyze, changelog, converge, scan, sandbox, retrospect, purge, release, review, audit, archive, workspace | Project ops — 20 subcommands for quality, security, and maintenance |
+| `/harvest-context` | session, codebase, skill, agent, rule, command, memory, docs, decompose, context, consume, compress, search, prune, export, diff, secondbrain, journal, sweep | Context & artifacts — 18 subcommands plus proactive gitignore bloat sweep |
+| `/project` | tests, commit, stage, pr, gh, optimize, icon, organize, analyze, changelog, converge, scan, sandbox, retrospect, purge, release, review, audit, archive, git-cleanup, workspace | Project ops — 21 subcommands for quality, security, and maintenance |
 
 ## Project Structure
 

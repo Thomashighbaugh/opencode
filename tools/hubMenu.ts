@@ -136,7 +136,8 @@ const HUBS: HubDefinition[] = [
       { label: "search", description: "Semantic search across all context files — find decisions, patterns, research matching a query across .opencode/context/", inline: true, reminder: "Semantic search across context files." },
       { label: "prune", description: "Stale context management — identify old or superseded context files, archive or delete them to keep .opencode/context/ healthy", inline: true, reminder: "Identify and archive stale context files." },
       { label: "export", description: "Export context as a readable summary, markdown bundle, or team report — share what the project knows", inline: true, reminder: "Export context as readable summary." },
-      { label: "diff", description: "Context diff — compare current context state to a previous checkpoint, showing new decisions, patterns, and changes since last harvest", inline: true, reminder: "Diff context against previous checkpoint." }
+      { label: "diff", description: "Context diff — compare current context state to a previous checkpoint, showing new decisions, patterns, and changes since last harvest", inline: true, reminder: "Diff context against previous checkpoint." },
+      { label: "sweep", description: "Scan .opencode/ for files that should be gitignored but aren't — prevents bloat that breaks git push", inline: true, reminder: "Sweep .opencode/ for gitignore violations." }
     ]
   },
   {
@@ -163,6 +164,7 @@ const HUBS: HubDefinition[] = [
       { label: "review", description: "Full code review round — analyze recent changes, run security scan, check complexity, produce a review report", inline: true, reminder: "Run full code review round." },
       { label: "audit", description: "Comprehensive project health check — dependencies, security, code quality, test coverage, bundle size in one command", inline: true, reminder: "Run comprehensive project health audit." },
       { label: "archive", description: "Move stale branches, old artifacts, unused config to timestamped archive — keep working tree clean", inline: true, reminder: "Archive stale branches and artifacts." },
+      { label: "git-cleanup", description: "Fix orphaned CHANGELOG entries referencing commits not in git history after .git/ rebuild — preserves entries, removes bad refs", inline: true, reminder: "Clean up orphaned commit references in CHANGELOG." },
       { label: "workspace", description: "Manage .opencode across projects — list Hubs-enabled projects, sync config, init .opencode in new directories, check health", inline: true, reminder: "Manage Hubs workspace across projects." }
     ]
   }
