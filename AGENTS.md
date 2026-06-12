@@ -7,7 +7,7 @@
 This project provides a comprehensive multi-agent orchestration system for OpenCode. It includes:
 
 - **29 specialized agents** for different task types
-- **64 workflow skills** for development tasks
+- **65 workflow skills** for development tasks
 - **6 commands** for automation
 - **10 TypeScript tools** for session management
 - **Hook system plugin** for mode detection and state persistence
@@ -46,7 +46,8 @@ This project provides a comprehensive multi-agent orchestration system for OpenC
 | **hubs-reference** (hubs-reference) | 1 | Hubs catalog and tools reference (auto-loads) |
 | **hubs-setup** (hubs-setup) | 2 | Backward-compat alias → /init-project |
 | **hubs-doctor** (hubs-doctor) | 2 | Diagnose Hubs issues |
-| **init-project** | 3 | Project init hub — setup, detect, docs, context, verify, refresh, map-codebase, doctor |
+| **init-project** | 3 | Project init hub — setup, detect, docs, context, verify, refresh, map-codebase, doctor, reset, provision |
+| **provision** | 3 | Codebase-aware artifact generator — analyzes project and auto-generates agents, skills, tools, and rules |
 | **ideation** | 2 | Planning/research hub — plan, brainstorm, decomposition, refine, deep, graph, research, ralplan, ddd, event-storming, double-diamond, jtbd, impact-mapping, spiral, top-down, bottom-up, adversarial-debate, cleanroom, pwf, rpikit, hive, story-mapping, lean-canvas, constitution |
 | **orchestrate** | 2 | Execution hub — ralph, team, deep, ccg, ultrawork, autopilot, sciomc, swarm, state-machine, consensus, evolutionary, spec-driven, react, plan-execute, hive, tdd, pair, pipeline, gsd, self-assess, remediate, devin, maestro, metaswarm, cc10x, gastown, ruflo, harden, brownfield, vibe-code |
 | **harvest-context** | 2 | Context/artifact hub — session, codebase, skill, agent, rule, command, memory, docs, decompose, context, compress, secondbrain, journal |
@@ -69,7 +70,7 @@ Natural language triggers for modes:
 
 | Command | Subcommands | Purpose |
 |---------|------------|---------|
-| `/init-project` | setup, detect, docs, context, verify, refresh, status, map-codebase, doctor, reset | Project init — full setup, detection, validation, and reset |
+| `/init-project` | setup, detect, docs, context, verify, refresh, status, map-codebase, doctor, reset, provision | Project init — full setup, detection, validation, codebase-aware artifact generation, and reset |
 | `/ideation` | plan, brainstorm, decomposition, refine, deep, graph, research, ralplan, ddd, event-storming, double-diamond, jtbd, impact-mapping, spiral, top-down, bottom-up, adversarial-debate, cleanroom, pwf, rpikit, hive, story-mapping, lean-canvas, constitution, resume, status | Planning & research — 24 methodologies plus task decomposition
 | `/orchestrate` | ralph, team, deep, ccg, ultrawork, autopilot, sciomc, swarm, state-machine, consensus, evolutionary, spec-driven, react, plan-execute, hive, tdd, pair, pipeline, gsd, self-assess, remediate, devin, maestro, metaswarm, cc10x, gastown, ruflo, harden, brownfield, vibe-code, resume, status | Execution — 30 patterns from persistent loops to multi-stage pipelines |
 | `/harvest-context` | session, codebase, skill, agent, rule, command, memory, docs, decompose, context, consume, compress, search, prune, export, diff, secondbrain, journal | Context & artifacts — 18 subcommands for knowledge extraction and management |
@@ -189,6 +190,8 @@ Configured in `opencode.jsonc`:
 /init-project status          # Show init state and checkpoints
 /init-project map-codebase    # Analyze brownfield codebase before init
 /init-project doctor          # Run diagnostic health check
+/init-project reset           # Reset project state with clean slate
+/init-project provision       # Analyze codebase and auto-generate project-specific agents, skills, tools, and rules
 
 # Plan and research (23 methodologies via /ideation)
 /ideation plan sprint 5 implementation

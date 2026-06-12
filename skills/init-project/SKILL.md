@@ -28,6 +28,7 @@ Directly invoke the matching subcommand. Print the reminder, then delegate to th
 | `context` | 5 | `remember` + `wiki` | Capture session knowledge, promote insights |
 | `verify` | 7 | `verifier` agent | Validate configuration completeness and integrity |
 | `refresh` | 0-7 (merge) | self (all phases, merge mode) | Update existing config, preserve manual edits |
+| `provision` | Provision 1-7 | `provision` skill | Analyze codebase and auto-generate project-specific agents, skills, tools, and rules |
 | `status` | — | self (inline) | List state files and show checkpoint progress |
 
 ### Subcommand Behavior
@@ -51,6 +52,7 @@ Each subcommand follows the hub pattern:
 | `context` | Capturing session knowledge. I'll promote insights to project memory, notepad, and AGENTS.md. |
 | `verify` | Validating configuration. I'll check file existence, config syntax, parent refs, and gitignore. |
 | `refresh` | Updating existing config. I'll preserve your manual edits and merge new detections. |
+| `provision` | Provisioning project-aware agents, skills, tools, and rules. I'll analyze your codebase and generate tailored artifacts. |
 | `status` | Showing init state and checkpoint progress. |
 
 ### Flag Parsing

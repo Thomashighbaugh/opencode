@@ -38,7 +38,8 @@ const HUBS: HubDefinition[] = [
       { label: "status", description: "Show current initialization state and checkpoint progress", inline: true, reminder: "Show init state and checkpoint progress." },
       { label: "map-codebase", description: "Analyze existing brownfield codebase — spawn parallel agents to map stack, architecture, conventions, and integration points before init", inline: true, reminder: "Map codebase via parallel agent analysis." },
       { label: "doctor", description: "Run diagnostic health check — validate Hubs installation, config integrity, state consistency, and hook status", inline: true, reminder: "Run Hubs health diagnostics." },
-      { label: "reset", description: "Reset project state — archive .opencode/state and .opencode/context, start fresh with clean slate", inline: true, reminder: "Reset project state with clean slate." }
+      { label: "reset", description: "Reset project state — archive .opencode/state and .opencode/context, start fresh with clean slate", inline: true, reminder: "Reset project state with clean slate." },
+      { label: "provision", description: "Analyze codebase and auto-generate project-specific agents, skills, tools, and rules in .opencode/", skill: "provision", reminder: "Provision project-aware agents, skills, tools, and rules from codebase analysis." }
     ]
   },
   {

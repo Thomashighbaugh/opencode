@@ -4,7 +4,7 @@
 # skills
 
 ## Purpose
-64 specialized workflow skills organized into functional hubs. Each skill provides domain-specific instructions, workflows, and bundled resources (scripts, references, templates) that agents load at runtime.
+65 specialized workflow skills organized into functional hubs. Each skill provides domain-specific instructions, workflows, and bundled resources (scripts, references, templates) that agents load at runtime.
 
 ## For AI Agents
 
@@ -18,7 +18,7 @@
 
 | Hub | Skills |
 |-----|--------|
-| **Init** | `init-project`, `hubs-setup`, `deepinit`, `hubs-doctor` |
+| **Init** | `init-project`, `hubs-setup`, `deepinit`, `hubs-doctor`, `provision` |
 | **Ideation** | `ideation`, `plan`, `deep-interview`, `graph-thinking`, `idea-refine`, `ralplan` |
 | **Orchestrate** | `orchestrate`, `ralph`, `autopilot`, `ultrawork`, `team`, `ccg`, `sciomc`, `deep-dive`, `trace`, `cancel` |
 | **Harvest** | `harvest-context`, `remember`, `wiki`, `skill-creator`, `opencode-agent-creator`, `opencode-command-creator`, `skillify`, `conventional-commit`, `humanizer` |
