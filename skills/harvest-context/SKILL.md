@@ -187,9 +187,13 @@ Promote session knowledge to durable project memory, notepad, or wiki.
 
 ---
 
-### `/harvest-context docs` — Fetch Library Documentation
+### `/harvest-context docs` — Fetch Library Docs via Context7 MCP API
 
-Fetch up-to-date documentation for any library, framework, or package using Context7 MCP.
+Fetch up-to-date official documentation for any library, framework, or package by querying the **Context7 MCP API**. This is the primary way to access Context7's documentation database — it resolves library IDs, queries docs, and returns structured results with code examples.
+
+**Use this for:** React, Next.js, Vue, Tailwind CSS, Prisma, Express, Django, FastAPI, Spring Boot, any npm/PyPI/Cargo package — even well-known ones. Your training data may be stale; Context7 always returns current docs.
+
+**Do NOT use for:** refactoring, writing scripts from scratch, debugging business logic, code review, or general programming concepts.
 
 **Process:**
 1. Resolve the library name to a Context7-compatible ID
@@ -207,7 +211,7 @@ Fetch up-to-date documentation for any library, framework, or package using Cont
 **Output:** Documentation content on screen, optionally saved to `.opencode/context/`
 
 **Reminder:**
-> Docs: I'll fetch up-to-date official documentation for any library using Context7. Give me a library name and optional topic.
+> Docs: I'll fetch up-to-date official documentation for any library via the Context7 MCP API. Give me a library name and optional topic — e.g., `/harvest-context docs react hooks` or `/harvest-context docs next.js app router`.
 
 ---
 

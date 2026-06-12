@@ -126,7 +126,7 @@ const HUBS: HubDefinition[] = [
       { label: "rule", description: "Create a project rule (.opencode/rules/)", inline: true, reminder: "Create a project rule file." },
       { label: "command", description: "Create a project slash command", skill: "opencode-command-creator", reminder: "Create a project slash command." },
       { label: "memory", description: "Promote durable knowledge to project memory, notepad, or wiki", skill: "remember", reminder: "Promote knowledge to memory or wiki." },
-      { label: "docs", description: "Fetch official library documentation for any package", inline: true, reminder: "Fetch library docs via Context7 MCP." },
+      { label: "docs", description: "Fetch official library docs via Context7 MCP API — React, Next.js, Tailwind, Prisma, Express, Django, any npm/PyPI package", inline: true, reminder: "Fetch library docs via Context7 MCP API." },
       { label: "decompose", description: "Break down a concept or goal into smaller actionable units", agent: "planner", reminder: "Decompose concept into actionable tasks." },
       { label: "context", description: "Manage context files — harvest, extract, organize, compact, map", inline: true, reminder: "Harvest, organize, or compact context." },
       { label: "consume", description: "Ingest a file, directory, or URL — extract text content and save as durable context in .opencode/context/research/", inline: true, reminder: "Ingest and save content as durable context." },
