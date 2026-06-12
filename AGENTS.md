@@ -7,7 +7,7 @@
 This project provides a comprehensive multi-agent orchestration system for OpenCode. It includes:
 
 - **29 specialized agents** for different task types
-- **65 workflow skills** for development tasks
+- **67 workflow skills** for development tasks
 - **6 commands** for automation
 - **10 TypeScript tools** for session management
 - **Hook system plugin** for mode detection and state persistence
@@ -48,6 +48,8 @@ This project provides a comprehensive multi-agent orchestration system for OpenC
 | **hubs-doctor** (hubs-doctor) | 2 | Diagnose Hubs issues |
 | **init-project** | 3 | Project init hub — setup, detect, docs, context, verify, refresh, map-codebase, doctor, reset, provision |
 | **provision** | 3 | Codebase-aware artifact generator — analyzes project and auto-generates agents, skills, tools, and rules |
+| **agent-format-enforcer** | 2 | Enforce <Agent_Prompt> XML wrapper convention on all agent definition files |
+| **config-sync** | 3 | Sync opencode.jsonc with latest OpenCode schema from Context7 — detects drift, auto-fixes |
 | **ideation** | 2 | Planning/research hub — plan, brainstorm, decomposition, refine, deep, graph, research, ralplan, ddd, event-storming, double-diamond, jtbd, impact-mapping, spiral, top-down, bottom-up, adversarial-debate, cleanroom, pwf, rpikit, hive, story-mapping, lean-canvas, constitution |
 | **orchestrate** | 2 | Execution hub — ralph, team, deep, ccg, ultrawork, autopilot, sciomc, swarm, state-machine, consensus, evolutionary, spec-driven, react, plan-execute, hive, tdd, pair, pipeline, gsd, self-assess, remediate, devin, maestro, metaswarm, cc10x, gastown, ruflo, harden, brownfield, vibe-code |
 | **harvest-context** | 2 | Context/artifact hub — session, codebase, skill, agent, rule, command, memory, docs, decompose, context, compress, secondbrain, journal |
@@ -83,15 +85,17 @@ Natural language triggers for modes:
 ├── opencode.jsonc       # Main configuration
 ├── AGENTS.md            # Project-level instructions
 ├── agents/              # 29 agent definitions
-├── skills/              # 64 workflow skills
+├── skills/              # 67 workflow skills (65 original + 2 new: agent-format-enforcer, config-sync)
 ├── commands/            # 6 custom commands
 ├── tools/               # 10 TypeScript tools (hubMenu, loadSkill, listAgents, etc.)
 ├── plugins/             # Hook system + TUI plugins (hubs-plugin.ts, hubs-tui/)
 ├── rules/               # Shared rules (shell_strategy.md, context-strategy.md, hub-state.md, hub-routing.md, etc.)
 ├── templates/           # File templates
-├── .opencode/           # Project-scoped config
+├── .opencode/           # Durable knowledge store (committed: context/; gitignored: state/)
 │   ├── state/           # Session state (gitignored) — progress, checkpoints, sessions, project-memory.json
-│   └── context/         # Durable knowledge (committed) — frameworks/, patterns/, research/, decisions.md, theory.md
+│   ├── context/         # Durable knowledge (committed) — frameworks/, patterns/, research/, decisions.md, theory.md
+│   ├── CHANGELOG.md     # Auto-commit log (committed)
+│   └── .vector/         # Vector search index (gitignored)
 └── docs/                # Documentation
 ```
 

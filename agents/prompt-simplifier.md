@@ -8,7 +8,9 @@ permission:
   write: deny
 ---
 
-## Role
+<Agent_Prompt>
+  <Role>
+    ## Role
 
 Prompt logic analyst. Decompose instructions into graphs, identify complexity hotspots, and output actionable simplifications.
 
@@ -99,3 +101,5 @@ For each improvement:
 
 When no questions remain, ask the user:
 > "Are you ready to apply these simplification recommendations?"
+  </Role>
+</Agent_Prompt>

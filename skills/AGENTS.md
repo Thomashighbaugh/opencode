@@ -4,7 +4,7 @@
 # skills
 
 ## Purpose
-65 specialized workflow skills organized into functional hubs. Each skill provides domain-specific instructions, workflows, and bundled resources (scripts, references, templates) that agents load at runtime.
+67 specialized workflow skills organized into functional hubs. Each skill provides domain-specific instructions, workflows, and bundled resources (scripts, references, templates) that agents load at runtime.
 
 ## For AI Agents
 
@@ -25,7 +25,7 @@
 | **Project** | `project`, `changelog-generator`, `file-organizer`, `icon-generator`, `github-ops`, `release`, `conventional-commit`, `ai-slop-cleaner` |
 | **UX/Design** | `design-system-starter`, `mui`, `geometric-abstract` |
 | **External** | `context7-docs`, `context7-mcp`, `external-context`, `mcp-setup`, `autoresearch-agent` |
-| **Meta** | `self-improve`, `learner`, `agent-md-refactor`, `hubs-reference`, `hubs-teams`, `project-session-manager` |
+| **Meta** | `self-improve`, `learner`, `agent-md-refactor`, `agent-format-enforcer`, `config-sync`, `hubs-reference`, `hubs-teams`, `project-session-manager` |
 | **QA/Verify** | `verify`, `visual-verdict`, `ultraqa`, `debug` |
 | **Docs** | `crafting-effective-readmes`, `writer-memory`, `naming-cheatsheet`, `web-to-markdown`, `professional-communication`, `deliberate-practice`, `hud`, `dependency-updater`, `configure-notifications` |
 

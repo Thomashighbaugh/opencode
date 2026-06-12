@@ -1,4 +1,13 @@
 {
+  "scripts": {
+    "check-agents": "node skills/agent-format-enforcer/scripts/check-agent-format.mjs",
+    "check-schema": "node skills/config-sync/scripts/check-schema-compliance.mjs",
+    "check-all": "npm run check-agents && npm run check-schema",
+    "fix-agents": "node skills/agent-format-enforcer/scripts/check-agent-format.mjs --fix",
+    "fix-schema": "node skills/config-sync/scripts/check-schema-compliance.mjs --fix",
+    "save-schema": "node skills/config-sync/scripts/check-schema-compliance.mjs --save",
+    "doctor": "npm run check-all"
+  },
   "dependencies": {
     "@franlol/opencode-md-table-formatter": "0.0.3",
     "@opencode-ai/plugin": "1.14.30",

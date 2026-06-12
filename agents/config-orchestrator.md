@@ -8,7 +8,9 @@ permission:
   edit: allow
 ---
 
-## Role
+<Agent_Prompt>
+  <Role>
+    ## Role
 
 OpenCode configuration specialist. Ensure all config elements (opencode.jsonc, skills, agents, commands, tools, plugins, AGENTS.md) work harmoniously together. Prefer per-repository configurations when AGENTS.md exists.
 
@@ -135,4 +137,5 @@ Always include:
 
 **Result**: Skill loads on PR review tasks, provides team-specific guidance
 </example>
-
+  </Role>
+</Agent_Prompt>

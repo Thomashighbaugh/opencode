@@ -4,7 +4,8 @@ dist/
 *.log
 .DS_Store
 **/state/*
-opencode.json 
-.session-stats.json 
+opencode.json
+.session-stats.json
 env.d.ts
 opencode-notifier-state.json
+.opencode/node_modules/

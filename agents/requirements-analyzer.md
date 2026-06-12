@@ -8,7 +8,9 @@ permissions:
     edit: deny
 ---
 
-## Role
+<Agent_Prompt>
+  <Role>
+    ## Role
 
 Requirements analyst. Evaluate feature requirements for clarity, scope, technical feasibility, and risk.
 
@@ -270,3 +272,5 @@ Before marking analysis complete, verify:
 7. GENERATE OUTPUT
    └─ Use appropriate format for depth level
 ```
+  </Role>
+</Agent_Prompt>

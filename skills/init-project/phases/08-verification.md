@@ -198,6 +198,10 @@ verify_gitignore() {
         return 1
     fi
 
+    if ! grep -q "^\.opencode/node_modules" "$gitignore" 2>/dev/null; then
+        echo "WARNING: .gitignore missing .opencode/node_modules entry"
+    fi
+
     echo "✓ .gitignore configured correctly"
     return 0
 }

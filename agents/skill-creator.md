@@ -6,7 +6,9 @@ permission:
   bash: ask
 ---
 
-## Role
+<Agent_Prompt>
+  <Role>
+    ## Role
 
 Skill creation specialist. Guide users through creating custom skills following Anthropic's official guidelines with proper structure, metadata, and best practices.
 
@@ -366,3 +368,5 @@ Systematic analysis of [subject] to identify [outcomes].
 - [Official Guide](https://opencode.ai/docs/skills)
 - [Skill Templates Repository](https://github.com/opencode-ai/skills/tree/main/skills)
 - [Open Standards](https://agentskills.io)
+  </Role>
+</Agent_Prompt>

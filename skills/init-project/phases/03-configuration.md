@@ -345,6 +345,37 @@ update_gitignore() {
         echo "# OpenCode Hubs session state" >> "$gitignore"
         echo ".opencode/state/" >> "$gitignore"
     fi
+
+    # Ensure .opencode/node_modules/ is ignored (project-scoped tool deps)
+    if ! grep -q "^\.opencode/node_modules" "$gitignore" 2>/dev/null; then
+        echo "" >> "$gitignore"
+        echo "# OpenCode Hubs project-scoped tool dependencies" >> "$gitignore"
+        echo ".opencode/node_modules" >> "$gitignore"
+    fi
+
+    # Create root CHANGELOG.md if it doesn't exist (aggregated release log)
+    if [[ ! -f "$PROJECT_ROOT/CHANGELOG.md" ]]; then
+        cat > "$PROJECT_ROOT/CHANGELOG.md" << 'CHANGELOG_EOF'
+# Changelog
+
+> User-facing release log for this project.
+> Auto-commit logs (per-session granularity) live in `.opencode/CHANGELOG.md`.
+> Each major change should: commit, then append entry below.
+
+## [Unreleased]
+
+CHANGELOG_EOF
+        echo "  → Created $PROJECT_ROOT/CHANGELOG.md"
+    fi
+
+    # Create .opencode/CHANGELOG.md if it doesn't exist (per-session auto-commit log)
+    if [[ ! -f "$OPENCODE_DIR/CHANGELOG.md" ]]; then
+        mkdir -p "$OPENCODE_DIR"
+        echo "# Auto-Commit Log" > "$OPENCODE_DIR/CHANGELOG.md"
+        echo "" >> "$OPENCODE_DIR/CHANGELOG.md"
+        echo "Per-session granularity commit history. User-facing releases go in \`CHANGELOG.md\`." >> "$OPENCODE_DIR/CHANGELOG.md"
+        echo "  → Created $OPENCODE_DIR/CHANGELOG.md"
+    fi
 }
 ```
 

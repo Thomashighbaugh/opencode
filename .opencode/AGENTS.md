@@ -4,16 +4,19 @@
 # .opencode
 
 ## Purpose
-Project-scoped OpenCode configuration. Contains runtime config, persistent state (gitignored), and durable context (committed) that compounds across sessions.
+Durable knowledge store for the global OpenCode Hubs configuration. Since `~/.config/opencode/` **is** the global config directory, the `.opencode/` subdirectory here does NOT duplicate config files (opencode.json, package.json, tui.json) — those live at root. Instead, `.opencode/` hosts:
+- Durable context and research artifacts that compound across sessions
+- Auto-generated changelogs from hub operations
+- Vector search index for context retrieval
+- Session state (gitignored)
 
 ## Key Files
 
 | File | Description |
 |------|-------------|
-| `opencode.json` | Project-scoped OpenCode configuration (server, tools, plugins) |
-| `tui.json` | TUI plugin configuration |
-| `package.json` | Node.js dependencies for project-scoped tools |
-| `.gitignore` | Git ignore rules for state and node_modules |
+| `CHANGELOG.md` | Auto-generated commit log from hub operations |
+| `AGENTS.md` | Instructions for this durable knowledge directory |
+| `.gitignore` | Git ignore rules for state and generated files |
 
 ## Critical Instruction: README Maintenance
 
