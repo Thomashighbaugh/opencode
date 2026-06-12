@@ -129,8 +129,6 @@ Creates project-specific configuration with language detection and framework set
   },
   "instructions": ["AGENTS.md"],
   "skills": { "paths": ["./.opencode/skills"] },
-  "agents": { "paths": ["./.opencode/agent"] },
-  "commands": { "paths": ["./.opencode/commands"] },
   "project": {
     "language": "typescript",
     "framework": "react",

@@ -759,40 +759,27 @@ Auto-generated from codebase analysis for the [project] project.
 
 ### Phase 6: Install
 
-Register generated artifacts in `.opencode/opencode.jsonc` and create `.opencode/AGENTS.md`.
-
-**opencode.jsonc updates:**
+Register generated artifacts and create `.opencode/AGENTS.md`. Note that OpenCode **auto-discovers** agents, skills, tools, rules, and commands from their `.opencode/` subdirectories — no config registration is needed for them. The only valid top-level config key for pointing to additional directories is `"skills"`:
 
 ```jsonc
 {
   // ... existing config ...
-
-  "agents": {
-    "paths": [
-      "./.opencode/agents"
-    ]
-  },
 
   "skills": {
     "paths": [
       "./.opencode/skills",
       // ... existing paths ...
     ]
-  },
-
-  "tools": {
-    "project-info": "./tools/project-info.ts",
-    "deploy": "./tools/deploy.ts"
-    // ... generated tools ...
-  },
-
-  "rules": {
-    "paths": [
-      "./.opencode/rules"
-    ]
   }
 }
 ```
+
+All other artifacts are auto-discovered:
+- **Agents** from `.opencode/agents/` — auto-loaded
+- **Tools** from `.opencode/tools/` — auto-discovered via default export
+- **Rules** from `.opencode/rules/` — auto-loaded via `instructions` glob patterns
+- **Commands** from `.opencode/commands/` — auto-discovered
+- **Do NOT inject** `"agents"`, `"commands"`, `"rules"`, or `"agentPaths"` keys — they break OpenCode's config loader
 
 **AGENTS.md content:**
 
@@ -888,12 +875,11 @@ for rule in .opencode/rules/??-*.md; do
   fi
 done
 
-# Check config registration
-if grep -q ".opencode/agents" .opencode/opencode.jsonc 2>/dev/null; then
-  echo "  ✓ Agents registered in opencode.jsonc"
+# Check skills config (the only one that needs registration)
+if grep -q ".opencode/skills" .opencode/opencode.jsonc 2>/dev/null; then
+  echo "  ✓ Skills path registered in opencode.jsonc"
 else
-  echo "  ✗ Agents not registered in opencode.jsonc"
-  errors=$((errors + 1))
+  echo "  ⚠ Skills path not in opencode.jsonc — add 'skills': { 'paths': ['./.opencode/skills'] } if needed"
 fi
 
 echo ""

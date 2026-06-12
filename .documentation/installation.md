@@ -247,9 +247,7 @@ ls ~/.config/opencode/tools/*.ts | wc -l        # Should be 10
     "@plannotifier/opencode@latest"
   ],
   "instructions": ["AGENTS.md"],
-  "skills": { "paths": ["./skills"] },
-  "agents": { "paths": ["./agent"] },
-  "commands": { "paths": ["./commands"] }
+  "skills": { "paths": ["./skills"] }
 }
 ```
 
@@ -389,9 +387,7 @@ Path configuration issue.
 ```jsonc
 // Ensure paths are correct in opencode.jsonc
 {
-  "skills": { "paths": ["./skills"] },
-  "agents": { "paths": ["./agent"] },
-  "commands": { "paths": ["./commands"] }
+  "skills": { "paths": ["./skills"] }
 }
 ```
 

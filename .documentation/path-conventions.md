@@ -258,9 +258,7 @@ Main configuration file with JSON5 syntax (comments allowed).
     "./plugins/project-plugin.ts"
   ],
   "instructions": ["AGENTS.md"],
-  "skills": { "paths": ["./skills"] },
-  "agents": { "paths": ["./agent"] },
-  "commands": { "paths": ["./commands"] }
+  "skills": { "paths": ["./skills"] }
 }
 ```
 
@@ -275,9 +273,7 @@ Main configuration file with JSON5 syntax (comments allowed).
       }
     }
   },
-  "skills": { "paths": ["./skills"] },
-  "agents": { "paths": ["./agent"] },
-  "commands": { "paths": ["./commands"] }
+  "skills": { "paths": ["./skills"] }
 }
 ```
 

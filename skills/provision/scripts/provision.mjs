@@ -1595,28 +1595,12 @@ function generateInstall(generated, detection, opts) {
     modifications.push({ type: 'config', file: '.opencode/AGENTS.md' });
   }
 
-  // Update opencode.jsonc config
-  if (fs.existsSync(configPath)) {
-    let config = fs.readFileSync(configPath, 'utf-8');
-    
-    // Add agent paths if not present
-    if (!config.includes('.opencode/agents') && generated.some(g => g.type === 'agent')) {
-      // Try to add agent paths to existing config
-      const agentsBlock = `    "agentPaths": ["./.opencode/agents"],`;
-      config = config.replace(/(\s*"default_agent":\s*"[^"]+",)/, `$1\n${agentsBlock}`);
-    }
-
-    // Add skill paths
-    if (!config.includes('.opencode/skills') && generated.some(g => g.type === 'skill')) {
-      config = config.replace(
-        /("paths"\s*:\s*\[)/,
-        `$1\n      "./.opencode/skills",`
-      );
-    }
-
-    safeWriteFile(configPath, config, opts.force, opts.verbose)
-    modifications.push({ type: 'config', file: '.opencode/opencode.jsonc' });
-  }
+  // NOTE: opencode.jsonc config injection is intentionally skipped.
+  // Agents, skills, tools, and rules are auto-discovered by OpenCode
+  // from their respective directories (.opencode/agents/, .opencode/skills/,
+  // .opencode/tools/, .opencode/rules/). No config registration needed.
+  // Previously injected invalid keys like "agentPaths", "agents", or
+  // "commands" broke OpenCode's config loader.
 
   return modifications;
 }
@@ -1860,14 +1844,14 @@ function generateVerify(generated, opts) {
     report.push('');
   }
 
-  // Check config
+  // Check config — agents, tools, rules are auto-discovered; only skills needs path registration
   const configPath = path.join(opts.outputDir, 'opencode.jsonc');
   if (fs.existsSync(configPath)) {
     const config = fs.readFileSync(configPath, 'utf-8');
-    const hasAgentsPath = config.includes('.opencode/agents');
+    const hasSkillsPath = config.includes('.opencode/skills');
     report.push(`## Registration`);
-    report.push(`  ${hasAgentsPath ? '✓' : '⚠'} Agents registered in opencode.jsonc`);
-    if (!hasAgentsPath) errors.push('Agents not registered in opencode.jsonc');
+    report.push(`  ${hasSkillsPath ? '✓' : '⚠'} Skills path registered in opencode.jsonc`);
+    report.push(`  ℹ  Agents, tools, rules are auto-discovered from .opencode/ subdirectories`);
   }
 
   // Summary

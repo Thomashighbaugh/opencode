@@ -110,13 +110,15 @@ TOOLS_EOF
             ;;
     esac
 
-    # Close JSON
+    # Close JSON — only valid OpenCode config keys
+    # See https://opencode.ai/config.json schema:
+    #   skills   ✓ - { "paths": [...] } for additional skill directories
+    #   agents   ✗ - auto-discovered from agents/
+    #   commands ✗ - auto-discovered from commands/
     cat >> "$output" << 'CLOSE_EOF'
   "plugin": ["./plugins/hubs-plugin.ts"],
   "instructions": ["AGENTS.md"],
-  "skills": { "paths": ["./.opencode/skills"] },
-  "agents": { "paths": ["./.opencode/agent"] },
-  "commands": { "paths": ["./.opencode/commands"] }
+  "skills": { "paths": ["./.opencode/skills"] }
 }
 CLOSE_EOF
 }
