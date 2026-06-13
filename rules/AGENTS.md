@@ -14,6 +14,7 @@ Shared rule files loaded as agent instructions. These provide behavioral guidanc
 | `context-strategy.md` | Durable project memory model — state vs context separation, auto-load/save conventions, frame retrieval |
 | `hub-state.md` | Hub state conventions — state paths, context paths, auto-load/save triggers, cross-hub hand-off |
 | `hub-routing.md` | Hub command routing — delegation tables, TUI integration, magic keyword compatibility |
+| `hub-description-directive.md` | Hub subcommand description convention — embed tool names and buzzwords for discoverability |
 | `karpathy-guidelines.md` | Coding guidelines — think before coding, simplicity first, surgical changes, goal-driven execution |
 | `coding-style.md` | Coding style rules — immutability, file organization, error handling, input validation |
 | `testing.md` | Testing rules — mandatory TDD, 80% coverage, edge cases, quality checklist |
@@ -37,6 +38,7 @@ Shared rule files loaded as agent instructions. These provide behavioral guidanc
 - Markdown format with actionable checklists
 - BAD vs GOOD patterns for behavior enforcement
 - Progressive disclosure — rules reference each other in a hierarchy
+- `hub-description-directive.md` — hub subcommand descriptions MUST embed tool names and buzzwords since hub context is invisible in TUI dialogs
 
 ## Dependencies
 
