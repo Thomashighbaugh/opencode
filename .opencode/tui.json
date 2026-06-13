@@ -1,5 +1,0 @@
-{
-  "plugin": [
-    "../plugins/hubs-tui/index.js"
-  ]
-}
