@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-06-14 (3)
+
+- **feat(rules): add artifact-placement rule — no top-level scripts** (`40ba315`)
+  - Created `rules/artifact-placement.md` as canonical rule file
+  - Forbidden patterns: root-level `.sh`, `.ts`, `.mjs`, `.py`, `./tools/`, `./scripts/`
+  - Correct alternatives: `.opencode/tools/`, `.opencode/skills/{name}/scripts/`
+  - Hard constraints added to Hubs, Executor, Skill-creator, Refactoring agents
+  - Artifact placement checks added to Code-reviewer and Verifier agents
+  - Provision skill updated to emphasize `.opencode/tools/` as canonical
+  - Exceptions: package.json, Makefile, docker-compose.yml, GitHub Actions, install.sh
+
 ## 2026-06-14 (2)
 
 - **chore(hubs): remove JOC branding, add per-repo deployment architecture** (`4348078`)
