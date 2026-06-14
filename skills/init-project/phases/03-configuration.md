@@ -346,11 +346,51 @@ update_gitignore() {
         echo ".opencode/state/" >> "$gitignore"
     fi
 
+    # Ensure .opencode/state/sessions/ is ignored (chat transcripts, secrets)
+    if ! grep -q "^\.opencode/state/sessions" "$gitignore" 2>/dev/null; then
+        echo "" >> "$gitignore"
+        echo "# OpenCode Hubs session transcripts and secrets" >> "$gitignore"
+        echo ".opencode/state/sessions/" >> "$gitignore"
+    fi
+
+    # Ensure .opencode/chat-history/ is ignored (raw chat history)
+    if ! grep -q "^\.opencode/chat-history" "$gitignore" 2>/dev/null; then
+        echo "" >> "$gitignore"
+        echo "# OpenCode Hubs raw chat history" >> "$gitignore"
+        echo ".opencode/chat-history/" >> "$gitignore"
+    fi
+
+    # Ensure .opencode/chat/ is ignored (alternative chat history path)
+    if ! grep -q "^\.opencode/chat" "$gitignore" 2>/dev/null; then
+        echo "" >> "$gitignore"
+        echo "# OpenCode Hubs chat data" >> "$gitignore"
+        echo ".opencode/chat/" >> "$gitignore"
+    fi
+
     # Ensure .opencode/node_modules/ is ignored (project-scoped tool deps)
     if ! grep -q "^\.opencode/node_modules" "$gitignore" 2>/dev/null; then
         echo "" >> "$gitignore"
         echo "# OpenCode Hubs project-scoped tool dependencies" >> "$gitignore"
         echo ".opencode/node_modules" >> "$gitignore"
+    fi
+
+    # Run privacy scan to detect any additional patterns that should be gitignored
+    local privacy_scan="$GLOBAL_DIR/skills/privacy-scan/scripts/scan-privacy.mjs"
+    if [[ -f "$privacy_scan" ]]; then
+        echo "  → Running privacy scan for additional gitignore patterns..."
+        # Scan the .opencode directory for any files that might contain secrets
+        local scan_result=$(find "$OPENCODE_DIR" -type f \( -name "*.md" -o -name "*.json" -o -name "*.txt" -o -name "*.log" \) -not -path "*/node_modules/*" 2>/dev/null | head -20)
+        for scan_file in $scan_result; do
+            local verdict=$(node "$privacy_scan" --file "$scan_file" 2>/dev/null)
+            local risk=$(echo "$verdict" | jq -r '.risk' 2>/dev/null)
+            if [[ "$risk" == "high" ]] || [[ "$risk" == "medium" ]]; then
+                local rel_path="${scan_file#$PROJECT_ROOT/}"
+                echo "  ⚠  $rel_path — risk: $risk, adding to .gitignore"
+                if ! grep -q "^$rel_path$" "$gitignore" 2>/dev/null; then
+                    echo "$rel_path" >> "$gitignore"
+                fi
+            fi
+        done
     fi
 
     # Create root CHANGELOG.md if it doesn't exist (aggregated release log)

@@ -297,16 +297,32 @@ Proactively scan `.opencode/` for files and directories that should be gitignore
 1. Scan `.opencode/` for files that should be in `.gitignore` but aren't:
    - `.opencode/node_modules/` — project-scoped tool deps
    - `.opencode/.vector/` — regenerable vector search DB
+   - `.opencode/state/sessions/` — session transcripts and secrets
+   - `.opencode/chat-history/` — raw chat history
+   - `.opencode/chat/` — alternative chat data path
    - Large generated files (>1MB) in `state/` or `harvest/`
    - Session artifacts that reference commits not in git history
-2. Check `.gitignore` exists and contains expected patterns
-3. Report any missing entries — offer to add them
-4. Report oversized files with paths and sizes
-5. If `--fix` flag passed, auto-append missing patterns to `.gitignore`
-6. Save a report to `.opencode/state/harvest/sweep-{timestamp}.md`
+2. Run privacy scan on `.opencode/context/` files to detect any that may contain secrets:
+   ```bash
+   PRIVACY_SCAN="$HOME/.config/opencode/skills/privacy-scan/scripts/scan-privacy.mjs"
+   if [[ -f "$PRIVACY_SCAN" ]]; then
+     find .opencode/context/ -name "*.md" -type f | while read -r file; do
+       result=$(node "$PRIVACY_SCAN" --file "$file" 2>/dev/null)
+       risk=$(echo "$result" | jq -r '.risk')
+       if [[ "$risk" == "high" ]] || [[ "$risk" == "medium" ]]; then
+         echo "⚠  $file — privacy risk: $risk"
+       fi
+     done
+   fi
+   ```
+3. Check `.gitignore` exists and contains expected patterns
+4. Report any missing entries — offer to add them
+5. Report oversized files with paths and sizes
+6. If `--fix` flag passed, auto-append missing patterns to `.gitignore`
+7. Save a report to `.opencode/state/harvest/sweep-{timestamp}.md`
 
 **Reminder:**
-> Sweep: I'll scan your `.opencode/` directory for files that should be gitignored but aren't — preventing bloat that breaks git push.
+> Sweep: I'll scan your `.opencode/` directory for files that should be gitignored but aren't — preventing bloat and privacy leaks that break git push.
 
 ---
 
@@ -342,26 +358,91 @@ If overlapping artifacts exist, ask user: "Found prior harvest on [topic]. Use a
 
 Load and execute the appropriate skill or inline process (see each subcommand above).
 
-### Step 3: Save Artifact
+### Step 3: Privacy Scan (Before Saving to Context)
+
+Before saving any artifact to `.opencode/context/` (durable, committed knowledge), run a privacy scan to detect secrets, PII, or privacy-compromising content:
+
+```bash
+# Run privacy scan on the content before saving
+PRIVACY_SCAN="$HOME/.config/opencode/skills/privacy-scan/scripts/scan-privacy.mjs"
+if [[ -f "$PRIVACY_SCAN" ]]; then
+    SCAN_RESULT=$(echo "$ARTIFACT_CONTENT" | node "$PRIVACY_SCAN" --stdin 2>/dev/null)
+    SCAN_RISK=$(echo "$SCAN_RESULT" | jq -r '.risk' 2>/dev/null)
+    SCAN_RECOMMENDATION=$(echo "$SCAN_RESULT" | jq -r '.recommendation' 2>/dev/null)
+
+    case "$SCAN_RISK" in
+        high)
+            echo "⚠  Privacy scan: HIGH risk detected in context artifact"
+            echo "   → Adding to .gitignore instead of committing"
+            echo "$SCAN_RESULT" | jq -r '.findings[]' | while read -r finding; do
+                echo "   - $finding"
+            done
+            # Add the file to .gitignore
+            if ! grep -q "^${SAVE_PATH}$" .gitignore 2>/dev/null; then
+                echo "${SAVE_PATH}" >> .gitignore
+            fi
+            # Save to state (gitignored) instead of context (committed)
+            STATE_PATH="${SAVE_PATH/.opencode\/context\//.opencode\/state\/harvest\/}"
+            mkdir -p "$(dirname "$STATE_PATH")"
+            echo "$ARTIFACT_CONTENT" > "$STATE_PATH"
+            echo "   → Saved to $STATE_PATH (gitignored) instead"
+            return
+            ;;
+        medium)
+            echo "⚠  Privacy scan: MEDIUM risk detected in context artifact"
+            echo "   → Flagging for review, saving to state (gitignored)"
+            echo "$SCAN_RESULT" | jq -r '.findings[]' | while read -r finding; do
+                echo "   - $finding"
+            done
+            # Save to state (gitignored) for review
+            STATE_PATH="${SAVE_PATH/.opencode\/context\//.opencode\/state\/harvest\/}"
+            mkdir -p "$(dirname "$STATE_PATH")"
+            echo "$ARTIFACT_CONTENT" > "$STATE_PATH"
+            echo "   → Saved to $STATE_PATH (gitignored) — review before promoting to context/"
+            return
+            ;;
+        low)
+            echo "✓ Privacy scan: LOW risk — safe to commit as durable context"
+            ;;
+        uncertain)
+            echo "⚠  Privacy scan: UNCERTAIN — flagging for human review"
+            echo "   → Saving to state (gitignored) for review"
+            STATE_PATH="${SAVE_PATH/.opencode\/context\//.opencode\/state\/harvest\/}"
+            mkdir -p "$(dirname "$STATE_PATH")"
+            echo "$ARTIFACT_CONTENT" > "$STATE_PATH"
+            echo "   → Saved to $STATE_PATH (gitignored) — review before promoting"
+            return
+            ;;
+    esac
+fi
+```
+
+**Important distinction**: Privacy scan distinguishes between:
+- **Derived knowledge** (safe to commit): ADRs, pattern descriptions, architectural decisions, lessons learned, summaries, code snippets without credentials
+- **Raw data** (risky): Full session transcripts, raw logs, environment dumps, config files with real values, API responses
+
+The scan uses heuristics to tell these apart. Only raw data with actual secrets gets flagged.
+
+### Step 4: Save Artifact
 
 Write the output to the appropriate location:
 
-| Subcommand | Save Location |
-|------------|---------------|
-| `session` | `.opencode/state/harvest/session-{ts}.md` + promotions |
-| `codebase` | `{directory}/AGENTS.md` files across codebase |
-| `skill` | `.opencode/skills/{name}/SKILL.md` or `~/.config/opencode/skills/{name}/SKILL.md` |
-| `agent` | `.opencode/agents/{name}.md` or `~/.config/opencode/agents/{name}.md` |
-| `rule` | `.opencode/rules/{name}.md` |
-| `command` | `.opencode/commands/{name}.md` |
-| `memory` | `.opencode/state/project-memory.json`, `notepad.md`, wiki articles |
-| `docs` | On screen, optionally `.opencode/context/` |
-| `consume` | `.opencode/context/research/{name}.md` |
-| `decompose` | On screen, optionally `.opencode/context/` |
-| `context` | `.opencode/context/` organized by function |
-| `sweep` | `.opencode/state/harvest/sweep-{ts}.md` + `.gitignore` updates |
+| Subcommand | Save Location | Privacy Scan? |
+|------------|---------------|---------------|
+| `session` | `.opencode/state/harvest/session-{ts}.md` + promotions | Yes (promotions to context/) |
+| `codebase` | `{directory}/AGENTS.md` files across codebase | No (AGENTS.md is metadata) |
+| `skill` | `.opencode/skills/{name}/SKILL.md` or `~/.config/opencode/skills/{name}/SKILL.md` | No (skill definitions) |
+| `agent` | `.opencode/agents/{name}.md` or `~/.config/opencode/agents/{name}.md` | No (agent definitions) |
+| `rule` | `.opencode/rules/{name}.md` | No (rule definitions) |
+| `command` | `.opencode/commands/{name}.md` | No (command definitions) |
+| `memory` | `.opencode/state/project-memory.json`, `notepad.md`, wiki articles | Yes (if promoting to context/) |
+| `docs` | On screen, optionally `.opencode/context/` | Yes (if saving to context/) |
+| `consume` | `.opencode/context/research/{name}.md` | **Yes — always** |
+| `decompose` | On screen, optionally `.opencode/context/` | Yes (if saving to context/) |
+| `context` | `.opencode/context/` organized by function | **Yes — always** |
+| `sweep` | `.opencode/state/harvest/sweep-{ts}.md` + `.gitignore` updates | No (sweep is about gitignore) |
 
-### Step 4: Auto-Sweep Check
+### Step 5: Auto-Sweep Check
 
 After saving any artifact, run a lightweight sweep:
 
@@ -378,6 +459,27 @@ for pattern in ".opencode/node_modules" ".opencode/.vector"; do
     echo "⚠  $pattern exists but is not gitignored — add it or run /harvest-context sweep --fix"
   fi
 done
+
+# Check for privacy-sensitive paths that should be gitignored
+for pattern in ".opencode/state/sessions" ".opencode/chat-history" ".opencode/chat"; do
+  if [ -d "$pattern" ] && ! grep -q "^$pattern" .gitignore 2>/dev/null; then
+    echo "⚠  $pattern exists but is not gitignored — may contain secrets or chat history"
+  fi
+done
+
+# Run privacy scan on any new context files that were just created
+PRIVACY_SCAN="$HOME/.config/opencode/skills/privacy-scan/scripts/scan-privacy.mjs"
+if [[ -f "$PRIVACY_SCAN" ]] && [[ -n "$SAVED_CONTEXT_FILES" ]]; then
+  for ctx_file in $SAVED_CONTEXT_FILES; do
+    if [[ -f "$ctx_file" ]]; then
+      scan_result=$(node "$PRIVACY_SCAN" --file "$ctx_file" 2>/dev/null)
+      scan_risk=$(echo "$scan_result" | jq -r '.risk' 2>/dev/null)
+      if [[ "$scan_risk" == "high" ]] || [[ "$scan_risk" == "medium" ]]; then
+        echo "⚠  $ctx_file — privacy risk: $scan_risk — consider moving to state/ or adding to .gitignore"
+      fi
+    fi
+  done
+fi
 ```
 
 ### Step 5: Confirm and Print

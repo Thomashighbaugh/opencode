@@ -26,7 +26,7 @@ Directly invoke the matching subcommand. Print the reminder, then delegate to th
 | `detect` | 0-1 | `explore` agent | Verify global Hubs + detect language, framework, tooling |
 | `docs` | 4 | `deepinit` skill | Regenerate hierarchical AGENTS.md documentation |
 | `context` | 5 | `remember` + `wiki` | Capture session knowledge, promote insights |
-| `verify` | 7 | `verifier` agent | Validate configuration completeness and integrity |
+| `verify` | 7 | `verifier` agent | Validate configuration completeness and integrity, including .gitignore privacy protections |
 | `refresh` | 0-7 (merge) | self (all phases, merge mode) | Update existing config, preserve manual edits |
 | `provision` | Provision 1-7 | `provision` skill | Analyze codebase and auto-generate project-specific agents, skills, tools, and rules |
 | `status` | — | self (inline) | List state files and show checkpoint progress |
@@ -296,7 +296,8 @@ Verified:
   ✓ Configuration syntax valid
   ✓ AGENTS.md structure complete
   ✓ Parent references valid
-  ✓ .gitignore configured
+  ✓ .gitignore configured (state, sessions, chat-history, node_modules)
+  ✓ Privacy scan — no secrets in context files
   ✓ State directories created
 ```
 

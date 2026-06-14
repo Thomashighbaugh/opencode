@@ -81,11 +81,28 @@ Context windows compress and vanish. State serialized to Markdown/JSON on disk s
 | Session transcripts | Gitignored | May contain PII, secrets in context |
 | Active mode state | Gitignored | Contains session IDs, timestamps |
 | Checkpoint data | Gitignored | Contains full agent state |
+| Chat history | Gitignored | Raw conversation data may contain secrets |
 | Web-extracted docs | Committed | Public information |
 | Architecture patterns | Committed | Design knowledge, no secrets |
 | ADRs | Committed | Design decisions, no secrets |
 | Pattern catalogs | Committed | Reusable knowledge |
 | Project memory | Conditionally committed | Strip sensitive facts before commit |
+
+## Privacy Scan Integration
+
+Before any content is saved to `.opencode/context/` (committed, durable knowledge), a **privacy scan** is run using the `privacy-scan` skill:
+
+1. **Scan**: The content is analyzed for API keys, tokens, passwords, PII, private keys, connection strings, and session/chat indicators
+2. **Classify**: Risk is classified as HIGH, MEDIUM, LOW, or UNCERTAIN
+3. **Route**:
+   - **HIGH risk** → File is added to `.gitignore` and saved to `.opencode/state/` (gitignored) instead
+   - **MEDIUM risk** → File is saved to `.opencode/state/` for human review before promotion
+   - **LOW risk** → File is saved to `.opencode/context/` as normal durable context
+   - **UNCERTAIN** → File is saved to `.opencode/state/` for human review
+
+**Important**: The scan distinguishes between **derived knowledge** (ADRs, patterns, decisions, lessons — safe to commit) and **raw data** (session transcripts, logs, config dumps — may contain secrets). Only raw data with actual secrets gets flagged.
+
+See `skills/privacy-scan/SKILL.md` for full documentation.
 
 ## Frame Retrieval Convention
 

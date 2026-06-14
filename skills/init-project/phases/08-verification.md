@@ -198,6 +198,18 @@ verify_gitignore() {
         return 1
     fi
 
+    if ! grep -q "^\.opencode/state/sessions" "$gitignore" 2>/dev/null; then
+        echo "WARNING: .gitignore missing .opencode/state/sessions/ entry (session transcripts, secrets)"
+    fi
+
+    if ! grep -q "^\.opencode/chat-history" "$gitignore" 2>/dev/null; then
+        echo "WARNING: .gitignore missing .opencode/chat-history/ entry (raw chat history)"
+    fi
+
+    if ! grep -q "^\.opencode/chat" "$gitignore" 2>/dev/null; then
+        echo "WARNING: .gitignore missing .opencode/chat/ entry (chat data)"
+    fi
+
     if ! grep -q "^\.opencode/node_modules" "$gitignore" 2>/dev/null; then
         echo "WARNING: .gitignore missing .opencode/node_modules entry"
     fi

@@ -1,6 +1,9 @@
 node_modules/
 dist/
 .opencode/state/
+.opencode/state/sessions/
+.opencode/chat-history/
+.opencode/chat/
 *.log
 .DS_Store
 **/state/*

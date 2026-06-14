@@ -305,3 +305,37 @@ Add "decomposition" as the 3rd menu option in /ideation (after brainstorm, befor
 - ideation/SKILL.md: method documented under new section between brainstorm and refine
 - route-ideation.mjs: profile added for intent-based routing with decomposition-specific keywords
 - Users who type /ideation decompose or "break down this task" will now route correctly
+
+---
+
+# ADR: Privacy Scan for Context Files — Dynamic Secret Detection Before Commit
+
+**Status:** Accepted
+**Date:** 2026-06-14
+
+## Context
+Context files saved to `.opencode/context/` are committed to git and accumulate across sessions. There was no mechanism to prevent secrets, API keys, PII, or privacy-compromising content from being committed as durable context. The existing `.gitignore` only covered `.opencode/state/` — not session transcripts, chat history, or dynamically-identified sensitive files.
+
+## Decision
+Implement a two-pronged approach:
+
+1. **Preventive `.gitignore` entries**: Add `.opencode/state/sessions/`, `.opencode/chat-history/`, and `.opencode/chat/` to `.gitignore` in both the global config and project `.opencode/` directories.
+
+2. **Dynamic privacy scan**: Create a `privacy-scan` skill with a `scan-privacy.mjs` script that:
+   - Scans content for API keys, tokens, passwords, private keys, connection strings, PII, and session/chat indicators
+   - Classifies risk as HIGH/MEDIUM/LOW/UNCERTAIN
+   - Distinguishes **derived knowledge** (ADRs, patterns, decisions — safe to commit) from **raw data** (session transcripts, logs, config dumps — may contain secrets)
+   - Routes HIGH risk → `.gitignore` + `.opencode/state/`, MEDIUM/UNCERTAIN → `.opencode/state/` for review, LOW → `.opencode/context/` as normal
+
+## Rationale
+- Static `.gitignore` entries alone are insufficient — new types of sensitive content can appear dynamically
+- The derived-vs-raw distinction prevents false positives on legitimate context files (ADRs, patterns, lessons)
+- The scan is integrated into both `init-project` (setup/refresh) and `harvest-context` (before saving) for comprehensive coverage
+
+## Consequences
+- `init-project` Phase 3 now adds 4 gitignore entries + runs privacy scan during setup/refresh
+- `init-project` Phase 8 verifies gitignore entries exist
+- `harvest-context` runs privacy scan before saving any file to `.opencode/context/`
+- `harvest-context sweep` scans existing context files for privacy issues
+- `rules/context-strategy.md` updated with privacy scan documentation
+- New skill: `skills/privacy-scan/` with SKILL.md and scan-privacy.mjs script
