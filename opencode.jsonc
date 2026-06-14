@@ -92,7 +92,6 @@
     "plugin": [
         "./plugins/hubs-plugin.ts",
         "./plugins/hubs-tui/index.js",
-        "opencode-bytheway@0.3.10",
         "@opencode-plugins/env-protection",
         // "@0xsero/open-queue",
         "@franlol/opencode-md-table-formatter@0.0.3",

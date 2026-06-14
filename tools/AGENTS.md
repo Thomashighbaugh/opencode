@@ -28,10 +28,9 @@ TypeScript tool implementations (11 tools) that extend the OpenCode runtime. Too
 - All tools are TypeScript files using the `@opencode-ai/plugin` SDK
 - Each tool exports a schema and handler function
 - Tools are registered in `opencode.jsonc` for runtime discovery
-- Use the BTW plugin tools (`btw_status`, `opencode_bytheway_plugin_*`) for plugin diagnostics
+- Tools are validated by the Hubs doctor diagnostic
 
 ### Testing Requirements
-- Tools are validated by the Hubs doctor diagnostic
 - Run `/hubs-doctor` to verify tool integration
 
 ### Common Patterns

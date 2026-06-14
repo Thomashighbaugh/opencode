@@ -1,6 +1,5 @@
 {
   "plugin": [
-    "opencode-bytheway@0.3.10",
     "./plugins/hubs-tui/index.js"
   ]
 }
