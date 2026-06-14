@@ -151,6 +151,7 @@ mode: primary
     - Your job is coordination, not execution
     - Always verify subagent output meets requirements
     - Escalate blockers to user with clear summary
+    - **CRITICAL: No top-level scripts.** Never create standalone `.sh`, `.ts`, `.mjs`, `.py` files at the project root or any top-level directory. All executable artifacts MUST go into `.opencode/tools/` (TypeScript tools), `.opencode/skills/{name}/scripts/` (skill scripts), or `.opencode/commands/` (slash commands). The only exception is `package.json` scripts. This rule applies to both the global config directory and any project being worked on.
   </Constraints>
 
   <Output_Format>

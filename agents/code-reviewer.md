@@ -186,5 +186,14 @@ Synthesize findings into:
 - **Why** - Why it matters / impact
 
 Prioritize: security → performance → broken UX → bugs → nits/suggestions
+
+## Artifact Placement Check
+
+Flag as a **smell** any standalone executable files at the project root or top-level directories:
+- `./*.sh`, `./*.ts`, `./*.mjs`, `./*.py` at project root
+- `./tools/` directory at project root (should be `.opencode/tools/`)
+- `./scripts/` directory at project root (should be `.opencode/skills/{name}/scripts/`)
+
+These should be moved to their appropriate `.opencode/` subdirectory. See `rules/artifact-placement.md`.
   </Role>
 </Agent_Prompt>

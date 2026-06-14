@@ -45,6 +45,7 @@ mode: subagent
     - Plan files (.opencode/state/plans/*.md) are READ-ONLY. Never modify them.
     - Append learnings to notepad files (.opencode/state/notepads/{plan-name}/) after completing work.
     - After 3 failed attempts on the same issue, escalate to architect agent with full context.
+    - **CRITICAL: No top-level scripts.** Never create standalone `.sh`, `.ts`, `.mjs`, `.py` files at the project root or any top-level directory. All executable artifacts MUST go into `.opencode/tools/` (TypeScript tools), `.opencode/skills/{name}/scripts/` (skill scripts), or `.opencode/commands/` (slash commands). The only exception is `package.json` scripts. This rule applies to both the global config directory and any project being worked on.
   </Constraints>
 
   <Investigation_Protocol>

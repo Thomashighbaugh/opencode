@@ -478,6 +478,8 @@ Only generate skills that are relevant — skip `deploy` if no deployment config
 
 Generate project-specific TypeScript tools in `.opencode/tools/`.
 
+> **CRITICAL**: All generated tools MUST go into `.opencode/tools/` — never at the project root. OpenCode auto-discovers tools from `.opencode/tools/` via their default exports. Root-level `./tools/`, `./scripts/`, or standalone `.ts`/`.sh` files are NOT auto-discovered and create root directory pollution. See `rules/artifact-placement.md` for the full rule.
+
 **Standard tools:**
 
 #### `project-info.ts`

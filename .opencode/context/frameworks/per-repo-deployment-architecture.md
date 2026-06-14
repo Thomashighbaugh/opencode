@@ -164,12 +164,14 @@ Generate project-specific rules in `.opencode/rules/`:
 ```
 
 ### Phase 7: Tool + Command Generation
-Generate project-specific TypeScript tools:
+Generate project-specific TypeScript tools in `.opencode/tools/`:
 
 - Database migration tools
 - API client generators
 - Build/deploy helper tools
 - Custom slash commands for project workflows (e.g., `/build`, `/deploy staging`, `/migrate`)
+
+> **CRITICAL**: All generated tools MUST go into `.opencode/tools/` — never at the project root. OpenCode auto-discovers tools from `.opencode/tools/` via their default exports. Root-level `./tools/`, `./scripts/`, or standalone `.ts`/`.sh` files are NOT auto-discovered and create root directory pollution. This is enforced by `rules/artifact-placement.md` and hard-coded into all agent prompts.
 
 ### Phase 8: Skill Generation
 Generate project-specific reusable skills:

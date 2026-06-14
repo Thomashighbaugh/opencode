@@ -21,6 +21,7 @@ Shared rule files loaded as agent instructions. These provide behavioral guidanc
 | `security.md` | Security rules — mandatory checks, secret management, security response protocol |
 | `performance.md` | Performance rules — model selection strategy, context window management, algorithm efficiency |
 | `git-workflow.md` | Git workflow rules — commit message format, PR workflow, branch naming, feature implementation |
+| `artifact-placement.md` | Artifact placement rule — no standalone scripts at project root, all executables go into `.opencode/` subdirectories |
 
 ## For AI Agents
 

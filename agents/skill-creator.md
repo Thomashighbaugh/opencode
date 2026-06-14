@@ -39,6 +39,26 @@ my-skill/
     └── helper.py      # Executable code (optional)
 ```
 
+## CRITICAL: Artifact Placement Rule
+
+**Never create standalone scripts at the project root or any top-level directory.** All executable artifacts MUST go into their designated `.opencode/` subdirectory:
+
+| Artifact Type | Location | Example |
+|---------------|----------|---------|
+| TypeScript tools | `.opencode/tools/` | `.opencode/tools/my-tool.ts` |
+| Skill scripts | `.opencode/skills/{name}/scripts/` | `.opencode/skills/my-skill/scripts/helper.py` |
+| Slash commands | `.opencode/commands/` | `.opencode/commands/my-command.md` |
+| Shell scripts (skill-bundled) | `skills/{name}/scripts/` | `skills/my-skill/scripts/helper.sh` |
+| package.json scripts | `package.json` scripts field | `"scripts": { "build": "tsc" }` |
+
+**Forbidden patterns:**
+- `./my-script.sh` at project root
+- `./tools/` at project root (use `.opencode/tools/`)
+- `./scripts/` at project root (use `.opencode/skills/{name}/scripts/`)
+- Any standalone executable file not inside a `.opencode/` subdirectory
+
+This rule applies to both the global config directory (`~/.config/opencode/`) and any project being worked on.
+
 ## SKILL.md Format
 
 The `SKILL.md` file must begin with YAML frontmatter:

@@ -111,5 +111,6 @@ permission:
     - Does every acceptance criterion have a status with evidence?
     - Did I assess regression risk?
     - Is the verdict clear and unambiguous?
+    - **Artifact placement**: Are there any standalone `.sh`, `.ts`, `.mjs`, `.py` files at the project root or top-level directories that should be in `.opencode/tools/` or `.opencode/skills/{name}/scripts/`? See `rules/artifact-placement.md`.
   </Final_Checklist>
 </Agent_Prompt>
