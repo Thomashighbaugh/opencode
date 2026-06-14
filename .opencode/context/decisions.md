@@ -432,3 +432,61 @@ Adopt a **self-deploying agentic configuration** architecture where `/init-proje
 
 ## See Also
 - `.opencode/context/frameworks/per-repo-deployment-architecture.md` — Full architecture document
+
+---
+
+# ADR: Smart Stall Detection — Heartbeat-Based Progress Monitoring Without Spam
+
+**Status:** Accepted
+**Date:** 2026-06-14
+
+## Context
+The previous "continue" plugin pattern sent context-on-nudges on every tool call and every chat message without discriminating between active work, slow operations, or genuine stalls. This created three problems:
+
+1. **Subagent spam**: Context messages were queued into every LLM turn, consuming tokens and forcing agents to process irrelevant nudges while they were actively working
+2. **No stall detection**: The system could not distinguish between "agent is working" (tool calls happening) and "agent is stuck" (no tool calls for minutes)
+3. **Network reset blind**: If a session disconnected and reconnected, orphaned mode states persisted with no recovery mechanism
+
+## Decision
+Implement a heartbeat-based stall detection system with 5-tier classification:
+
+### Heartbeat Recording
+Every `tool.execute.after` call records a heartbeat entry to `.opencode/state/sessions/{session-id}/heartbeat.json` containing:
+- `lastToolCall` timestamp
+- `lastToolName`
+- Recent tool history (last 5 tools)
+- Todo progress snapshot
+
+### Stall Classification Algorithm
+| Tier | Window | Criteria | Action |
+|------|--------|----------|--------|
+| `ACTIVE` | < 15s since last tool call | Tools are firing | Nothing |
+| `SLOW_POSSIBLE` | 15-60s | No tool calls but could be a long build | Wait, extend threshold |
+| `STALLED_SOFT` | 60-120s + no todo progress | No tool calls, no progress | Single gentle nudge (max 1) |
+| `STALLED_HARD` | > 120s | No activity whatsoever | Stronger nudge + state summary |
+| `SESSION_RESET` | Session restarts with orphaned mode | Pre-existing active state but no heartbeat | Recovery context block, don't auto-restart |
+
+### Anti-Spam Safeguards
+- Nudge cooldown: minimum 90s between nudges
+- Max 1 soft nudge per stall period
+- Max 3 hard nudges per session, then offer cancel
+- Silent during known long ops (build, test, deploy, install)
+- Never inject empty context messages
+
+### Session Recovery
+On `session.created`, scan for orphaned mode states (active true, no recent heartbeat). Inject a single `<session-recovery>` block with state summary. Do NOT auto-restart modes.
+
+## Rationale
+- Heartbeat-based detection is cheap (write a small JSON file per tool call) and reliable
+- The 5-tier classification prevents nudging agents that are simply running long operations
+- Session recovery without auto-restart prevents infinite loops on reconnection
+- Anti-spam safeguards ensure the system gets quieter as it detects less progress, not louder
+
+## Consequences
+- `hubs-plugin.ts` updated with heartbeat recording, stall classification, and recovery logic
+- Framework document created: `context/frameworks/stall-detection-and-recovery.md`
+- ADR entry documenting the design and rationale
+- Redundant "continue" plugin can be removed once this is deployed
+
+## See Also
+- `.opencode/context/frameworks/stall-detection-and-recovery.md` — Full architecture document

@@ -367,6 +367,244 @@ function clearSessionContext(sessionId: string): void {
 }
 
 // ============================================================================
+// Smart Stall Detection — Heartbeat-Based Progress Monitor
+// ============================================================================
+
+interface HeartbeatEntry {
+  lastToolCall: string
+  lastToolName: string
+  lastOutputTruncated: string
+  toolCount: number
+  recentTools: Array<{ name: string; time: string }>
+  todoProgress: {
+    lastChange: string
+    completed: number
+    remaining: number
+    pending: number
+    inProgress: number
+  }
+}
+
+interface OrphanedMode {
+  name: string
+  state: ModeState
+}
+
+const STALL_CONFIG = {
+  activeThreshold: 15000,       // 15s — actively making tool calls
+  slowThreshold: 60000,         // 60s — might be a long-running tool
+  warnThreshold: 120000,        // 120s — no progress → soft nudge
+  hardThreshold: 300000,        // 300s — no activity → hard nudge
+  nudgeCooldown: 90000,         // 90s — min time between nudges
+  knownLongOps: ['build', 'test', 'deploy', 'install', 'compile', 'npm install'],
+  maxSoftNudges: 1,             // per stall period
+  maxHardNudgesPerSession: 3,   // per session lifetime
+}
+
+const STALL_NUDGE_CACHE = new Map<string, { lastNudge: number; softCount: number; hardCount: number }>()
+
+function getHeartbeatPath(directory: string, sessionId: string): string {
+  return join(directory, '.opencode', 'state', 'sessions', sessionId, 'heartbeat.json')
+}
+
+function recordHeartbeat(directory: string, sessionId: string, toolName: string, toolOutput: string, todoStatus: string): void {
+  const hbPath = getHeartbeatPath(directory, sessionId)
+  const existing = readJsonFile<HeartbeatEntry>(hbPath) || {
+    lastToolCall: '',
+    lastToolName: '',
+    lastOutputTruncated: '',
+    toolCount: 0,
+    recentTools: [],
+    todoProgress: { lastChange: '', completed: 0, remaining: 0, pending: 0, inProgress: 0 },
+  }
+
+  // Parse todo status like "[2 active, 3 pending] "
+  const todoMatch = todoStatus.match(/\[(\d+)\s+active,\s*(\d+)\s+pending\]/)
+  const active = todoMatch ? parseInt(todoMatch[1]) : 0
+  const pending = todoMatch ? parseInt(todoMatch[2]) : 0
+  const completed = existing.todoProgress.completed
+  const wasProgress = existing.todoProgress.remaining
+  const nowRemaining = active + pending
+  // Detect if progress was made (completed increased or remaining decreased)
+  const progressMade = completed > existing.todoProgress.completed || nowRemaining < existing.todoProgress.remaining
+
+  const now = new Date().toISOString()
+
+  const entry: HeartbeatEntry = {
+    lastToolCall: now,
+    lastToolName: toolName,
+    lastOutputTruncated: toolOutput.substring(0, 200).replace(/\n/g, ' '),
+    toolCount: existing.toolCount + 1,
+    recentTools: [
+      { name: toolName, time: now },
+      ...existing.recentTools.slice(0, 4),
+    ],
+    todoProgress: {
+      lastChange: progressMade ? now : existing.todoProgress.lastChange,
+      completed: existing.todoProgress.completed + (progressMade ? 1 : 0),
+      remaining: nowRemaining,
+      pending,
+      inProgress: active,
+    },
+  }
+
+  writeJsonFile(hbPath, entry)
+}
+
+type StallStatus = 'ACTIVE' | 'SLOW_POSSIBLE' | 'STALLED_SOFT' | 'STALLED_HARD' | 'SESSION_RESET'
+
+function classifyStall(directory: string, sessionId: string): StallStatus {
+  const hbPath = getHeartbeatPath(directory, sessionId)
+  const heartbeat = readJsonFile<HeartbeatEntry>(hbPath)
+  if (!heartbeat?.lastToolCall) return 'ACTIVE' // no heartbeat yet → assume active
+
+  const now = Date.now()
+  const lastCall = new Date(heartbeat.lastToolCall).getTime()
+  const elapsed = now - lastCall
+
+  // Check for known long ops
+  const isLongOp = STALL_CONFIG.knownLongOps.some(op =>
+    heartbeat.lastToolName === 'Bash' && heartbeat.lastOutputTruncated.toLowerCase().includes(op)
+  )
+
+  if (elapsed < STALL_CONFIG.activeThreshold) return 'ACTIVE'
+  if (isLongOp && elapsed < STALL_CONFIG.slowThreshold * 2) return 'SLOW_POSSIBLE' // double threshold for known long ops
+  if (elapsed < STALL_CONFIG.slowThreshold) return 'SLOW_POSSIBLE'
+
+  // Check if todos have changed recently
+  const progressTime = heartbeat.todoProgress.lastChange
+    ? new Date(heartbeat.todoProgress.lastChange).getTime()
+    : 0
+  const progressRecent = (now - progressTime) < STALL_CONFIG.warnThreshold
+
+  if (elapsed < STALL_CONFIG.warnThreshold && progressRecent) return 'SLOW_POSSIBLE'
+  if (elapsed < STALL_CONFIG.warnThreshold) return 'STALLED_SOFT'
+  if (elapsed < STALL_CONFIG.hardThreshold) return 'STALLED_SOFT'
+
+  return 'STALLED_HARD'
+}
+
+function shouldCheckStall(sessionId: string, directory: string): boolean {
+  // Check every 5th tool call or every 30 seconds, whichever is more frequent
+  const hbPath = getHeartbeatPath(directory, sessionId)
+  const heartbeat = readJsonFile<HeartbeatEntry>(hbPath)
+  if (!heartbeat) return false
+
+  // Every 10 tool calls
+  if (heartbeat.toolCount % 10 === 0) return true
+
+  // Or if last check was > 30s ago
+  const nudgeState = STALL_NUDGE_CACHE.get(sessionId)
+  if (!nudgeState) return true
+  if (Date.now() - nudgeState.lastNudge > 30000) return true
+
+  return false
+}
+
+function generateStallNudge(status: StallStatus, sessionId: string, directory: string): string | null {
+  const hbPath = getHeartbeatPath(directory, sessionId)
+  const heartbeat = readJsonFile<HeartbeatEntry>(hbPath)
+  if (!heartbeat) return null
+
+  const nudgeState = STALL_NUDGE_CACHE.get(sessionId) || { lastNudge: 0, softCount: 0, hardCount: 0 }
+
+  // Cooldown check
+  if (Date.now() - nudgeState.lastNudge < STALL_CONFIG.nudgeCooldown) return null
+
+  if (status === 'STALLED_SOFT') {
+    if (nudgeState.softCount >= STALL_CONFIG.maxSoftNudges) return null
+    nudgeState.softCount++
+    nudgeState.lastNudge = Date.now()
+    STALL_NUDGE_CACHE.set(sessionId, nudgeState)
+
+    const elapsed = Math.round((Date.now() - new Date(heartbeat.lastToolCall).getTime()) / 1000)
+    return `<stall-detection>
+Last tool call (${heartbeat.lastToolName}) was ${elapsed}s ago. No progress detected.
+Last output: "${heartbeat.lastOutputTruncated.substring(0, 80)}"
+Todos: ${heartbeat.todoProgress.completed} completed, ${heartbeat.todoProgress.remaining} remaining
+Are you stuck, or is a long operation in progress?
+</stall-detection>`
+  }
+
+  if (status === 'STALLED_HARD') {
+    if (nudgeState.hardCount >= STALL_CONFIG.maxHardNudgesPerSession) return null
+    nudgeState.hardCount++
+    nudgeState.lastNudge = Date.now()
+    nudgeState.softCount = 0 // reset soft counter since we escalated
+    STALL_NUDGE_CACHE.set(sessionId, nudgeState)
+
+    const elapsed = Math.round((Date.now() - new Date(heartbeat.lastToolCall).getTime()) / 1000)
+    return `<stall-recovery>
+No activity detected in ${elapsed}s. Last tool: ${heartbeat.lastToolName}.
+Last state: ${heartbeat.todoProgress.completed} completed, ${heartbeat.todoProgress.remaining} remaining.
+Original task context may still be relevant.
+
+Options:
+- Resume: continue from your last checkpoint
+- Reassess: review progress and adjust approach
+- Cancel: stop this operation entirely
+</stall-recovery>`
+  }
+
+  return null
+}
+
+function detectOrphanedModes(directory: string, sessionId?: string): OrphanedMode[] {
+  const stateDir = join(directory, '.opencode', 'state')
+  const orphaned: OrphanedMode[] = []
+
+  // Check session-scoped state files
+  if (sessionId && isValidSessionId(sessionId)) {
+    const sessionDir = join(stateDir, 'sessions', sessionId)
+    for (const file of MODE_STATE_FILES) {
+      const state = readJsonFile<ModeState>(join(sessionDir, file))
+      if (state?.active === true) {
+        // Check if there's a recent heartbeat
+        const hbPath = getHeartbeatPath(directory, sessionId)
+        const heartbeat = readJsonFile<HeartbeatEntry>(hbPath)
+        const modeName = file.replace('-state.json', '')
+        if (!heartbeat || (Date.now() - new Date(heartbeat.lastToolCall).getTime()) > STALL_CONFIG.hardThreshold) {
+          orphaned.push({ name: modeName, state })
+        }
+      }
+    }
+  }
+
+  // Check global state files
+  for (const file of MODE_STATE_FILES) {
+    const state = readJsonFile<ModeState>(join(stateDir, file))
+    if (state?.active === true && !state.session_id) {
+      const modeName = file.replace('-state.json', '')
+      orphaned.push({ name: modeName, state })
+    }
+  }
+
+  return orphaned
+}
+
+function generateRecoveryContext(orphaned: OrphanedMode[]): string {
+  if (orphaned.length === 0) return ''
+
+  const details = orphaned.map(o => {
+    const age = o.state.last_checked_at
+      ? Math.round((Date.now() - new Date(o.state.last_checked_at).getTime()) / 1000)
+      : 'unknown'
+    return `- Mode: ${o.name} (active as of ${o.state.last_checked_at || 'unknown'}, ~${age}s ago)
+  Original task: ${(o.state.prompt || o.state.original_prompt || 'Unknown').substring(0, 200)}`
+  }).join('\n')
+
+  return `<session-recovery>
+Previous session was interrupted. Found orphaned mode state:
+${details}
+
+The state has been preserved. You can:
+- Resume by continuing the original task
+- Use /cancel to clear the state and start fresh
+- Proceed with a new request (orphaned state will be ignored)
+</session-recovery>`
+}
+
+// ============================================================================
 // Session Statistics — In-Memory Cache (Avoid Sync I/O on Hot Path)
 // ============================================================================
 
@@ -739,18 +977,13 @@ function generatePreToolMessage(toolName: string, todoStatus: string, modeActive
     return ''
   }
   
-  const messages: Record<string, string> = {
-    TodoWrite: `${todoStatus}Mark todos in_progress BEFORE starting, completed IMMEDIATELY after finishing.`,
-    Bash: `${todoStatus}Use parallel execution for independent tasks. Use run_in_background for long operations.`,
-    Edit: `${todoStatus}Verify changes work after editing. Test functionality before marking complete.`,
-    Write: `${todoStatus}Verify changes work after editing. Test functionality before marking complete.`,
-    Read: `${todoStatus}Read multiple files in parallel when possible for faster analysis.`,
-    Grep: `${todoStatus}Combine searches in parallel when investigating multiple patterns.`,
-    Glob: `${todoStatus}Combine searches in parallel when investigating multiple patterns.`,
-  }
+  // No pre-tool reminders in active mode — stall detection handles nudging
+  if (modeActive) return ''
   
-  if (messages[toolName]) return messages[toolName]
-  if (modeActive) return `${todoStatus}The boulder never stops. Continue until all tasks complete.`
+  // Only remind on TodoWrite (for task management discipline)
+  if (toolName === 'TodoWrite') {
+    return `${todoStatus}Keep task list current — mark in_progress before starting, completed after finishing.`
+  }
   return ''
 }
 
@@ -809,45 +1042,25 @@ function generatePostToolMessage(toolName: string, toolOutput: string, toolCount
   switch (toolName) {
     case 'Bash':
       if (detectBashFailure(toolOutput)) {
-        message = 'Command failed. Please investigate the error and fix before continuing.'
-      } else if (QUIET_LEVEL < 2 && detectBackgroundOperation(toolOutput)) {
-        message = 'Background operation detected. Remember to verify results before proceeding.'
+        message = 'Command failed. Investigate and fix before continuing.'
       }
       break
     
     case 'Edit':
       if (detectWriteFailure(toolOutput)) {
-        message = 'Edit operation failed. Verify file exists and content matches exactly.'
-      } else if (QUIET_LEVEL === 0) {
-        message = 'Code modified. Verify changes work as expected before marking complete.'
+        message = 'Edit failed. Verify file exists and content matches.'
       }
       break
     
     case 'Write':
       if (detectWriteFailure(toolOutput)) {
-        message = 'Write operation failed. Check file permissions and directory existence.'
-      } else if (QUIET_LEVEL === 0) {
-        message = 'File written. Test the changes to ensure they work correctly.'
+        message = 'Write failed. Check file permissions and directory.'
       }
       break
     
-    case 'TodoWrite':
-      if (QUIET_LEVEL === 0) {
-        if (/created|added/i.test(toolOutput)) {
-          message = 'Todo list updated. Proceed with next task on the list.'
-        } else if (/completed|done/i.test(toolOutput)) {
-          message = 'Task marked complete. Continue with remaining todos.'
-        } else if (/in_progress/i.test(toolOutput)) {
-          message = 'Task marked in progress. Focus on completing this task.'
-        }
-      }
-      break
-    
-    case 'Read':
-      if (QUIET_LEVEL === 0 && toolCount > 10) {
-        message = `Extensive reading (${toolCount} files). Consider using Grep for pattern searches.`
-      }
-      break
+    // Removed success reminders (TodoWrite, Read, success paths).
+    // These spam context without adding value. Stall detection handles
+    // "are you stuck?" while agents already know to verify their work.
     
     case 'Grep':
       if (QUIET_LEVEL === 0 && /^0$|no matches/i.test(toolOutput)) {
@@ -878,20 +1091,23 @@ export const JocPlugin: Plugin = async ({ project, client, directory, worktree }
     switch (event.type) {
       case 'session.created': {
         const sessionId = event.properties.info.id
-        const messages = getSessionRestoreMessages(directory, sessionId)
         
-        if (messages.length > 0) {
-          for (const msg of messages) {
-            queueContextMessage(sessionId, msg)
+        // NEW: Detect orphaned mode states (from crashed/disconnected sessions)
+        // Inject a single recovery block instead of multiple continuation messages
+        const orphaned = detectOrphanedModes(directory, sessionId)
+        if (orphaned.length > 0) {
+          const recoveryMsg = generateRecoveryContext(orphaned)
+          if (recoveryMsg && sessionId) {
+            queueContextMessage(sessionId, recoveryMsg)
+            await client.app.log({
+              body: {
+                service: 'hubs-plugin',
+                level: 'info',
+                message: `Orphaned mode state detected: ${orphaned.map(o => o.name).join(', ')}`,
+                extra: { modes: orphaned.map(o => ({ name: o.name, prompt: o.state.prompt })) }
+              }
+            })
           }
-          await client.app.log({
-            body: {
-              service: 'hubs-plugin',
-              level: 'info',
-              message: 'Session restored with context',
-              extra: { messages }
-            }
-          })
         }
 
         // Inject hub state summary into session context on creation
@@ -1068,9 +1284,27 @@ ${resolved.map(m => `- ${m.name}: Use /${m.name === 'ralph' ? 'ralph-loop' : m.n
     const toolOutput = output.output || ''
     
     const toolCount = sessionId ? updateToolStats(toolName, sessionId) : 1
-    const message = generatePostToolMessage(toolName, toolOutput, toolCount)
     
-    if (message && sessionId) {
+    // NEW: Record heartbeat for stall detection (silent, no context message)
+    if (sessionId) {
+      const todoStatus = getTodoStatus(directory)
+      recordHeartbeat(directory, sessionId, toolName, toolOutput, todoStatus)
+    }
+    
+    // NEW: Check for stalled agent (only periodically, not every call)
+    if (sessionId && shouldCheckStall(sessionId, directory)) {
+      const stallStatus = classifyStall(directory, sessionId)
+      if (stallStatus !== 'ACTIVE' && stallStatus !== 'SLOW_POSSIBLE') {
+        const nudge = generateStallNudge(stallStatus, sessionId, directory)
+        if (nudge) {
+          queueContextMessage(sessionId, nudge)
+        }
+      }
+    }
+    
+    // Only remind on actual failures (not on routine operations)
+    const message = generatePostToolMessage(toolName, toolOutput, toolCount)
+    if (message && sessionId && toolName !== 'TodoWrite' && !toolName.startsWith('Read')) {
       queueContextMessage(sessionId, `<post-tool-reminder tool="${toolName}">\n${message}\n</post-tool-reminder>`)
     }
     
@@ -1171,30 +1405,27 @@ ${notes ? `### Custom Notes:\n${notes}` : ''}
   hooks["chat.message"] = async (input, output) => {
     const sessionId = input.sessionID
     
-    const restoreMessages = getSessionRestoreMessages(directory, sessionId)
-    if (restoreMessages.length > 0) {
-      for (const msg of restoreMessages) {
-        queueContextMessage(sessionId, msg)
-      }
-    }
-    
-    const ralphState = readState(directory, 'ralph', sessionId)
-    if (ralphState?.active && ralphState.prompt) {
-      queueContextMessage(sessionId, `<ralph-continuation>
-[RALPH LOOP ACTIVE - Iteration ${ralphState.iteration || 1}/${ralphState.max_iterations || 10}]
+    // Only inject mode context if we detect a stall — not on every chat message
+    // This prevents the "dumb continue" spam that consumed subagent context
+    if (sessionId) {
+      const stallStatus = classifyStall(directory, sessionId)
+      if (stallStatus === 'STALLED_SOFT' || stallStatus === 'STALLED_HARD') {
+        // Only inject mode context when actually stalled
+        const ralphState = readState(directory, 'ralph', sessionId)
+        if (ralphState?.active && ralphState.prompt) {
+          queueContextMessage(sessionId, `<stall-info mode="ralph">
+Iteration ${ralphState.iteration || 1}/${ralphState.max_iterations || 10}
 Original task: ${ralphState.prompt}
-Continue until complete. Run /cancel-ralph when done.
-</ralph-continuation>`)
-    }
-    
-    const ultraworkState = readState(directory, 'ultrawork', sessionId)
-    if (ultraworkState?.active && ultraworkState.original_prompt) {
-      queueContextMessage(sessionId, `<ultrawork-continuation>
-[ULTRAWORK MODE ACTIVE]
+</stall-info>`)
+        }
+        
+        const ultraworkState = readState(directory, 'ultrawork', sessionId)
+        if (ultraworkState?.active && ultraworkState.original_prompt) {
+          queueContextMessage(sessionId, `<stall-info mode="ultrawork">
 Original task: ${ultraworkState.original_prompt}
-Reinforcement: ${ultraworkState.reinforcement_count || 0}
-Continue with maximum parallelism.
-</ultrawork-continuation>`)
+</stall-info>`)
+        }
+      }
     }
   }
   
