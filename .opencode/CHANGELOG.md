@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026-06-14
+
+- **feat: add privacy-scan skill and gitignore protections for chat history and secrets** (`72c0e75`)
+  - Added `.opencode/state/sessions/`, `.opencode/chat-history/`, `.opencode/chat/` to `.gitignore` (both global and `.opencode/`)
+  - Created `privacy-scan` skill with `scan-privacy.mjs` script for dynamic secret/PII detection
+  - Distinguishes derived knowledge (ADRs, patterns — safe to commit) from raw data (sessions, logs — risky)
+  - Updated `init-project` Phase 3 to add gitignore entries + run privacy scan during setup/refresh
+  - Updated `init-project` Phase 8 verification to check all privacy gitignore entries
+  - Updated `harvest-context` to run privacy scan before saving any file to `.opencode/context/`
+  - Updated `harvest-context sweep` to scan existing context files for privacy issues
+  - Updated `rules/context-strategy.md` with privacy scan integration documentation
+  - ADR and pattern doc saved to durable context
+
 ## 2026-06-10
 
 - **feat(ideation): add decomposition as third /ideation subcommand** (`6a7d8f1`)
