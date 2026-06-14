@@ -1,5 +1,25 @@
 # Changelog
 
+## 2026-06-14 (2)
+
+- **chore(hubs): remove JOC branding, add per-repo deployment architecture** (`4348078`)
+  - Cleaned 35+ JOC (Joint Operations Center) branding references across 16 files
+  - `joc team` → `opencode team` in hubs-teams skill (14 occurrences)
+  - `joc-plugin.ts` → `hubs-plugin.ts` in init-project template
+  - `.joc/**` permission entry removed from opencode.jsonc
+  - `joc-tui-hubs` → `hubs-tui-hubs` in bun.lock
+  - All `joc/opencode-hubs` URLs → `Thomashighbaugh/opencode`
+  - `Yeachan-Heo/opencode-joc` → `Thomashighbaugh/opencode` in PSM config
+  - JOC comment references → OpenCode across veclib.mjs, .gitignore, docs
+  - "Joint Operations Center" → "Hub-driven" in hubs-doctor skill
+  - "military field command post" → "hub-and-spoke orchestration" in README
+- **docs: per-repo deployment architecture proposal** (`4348078`)
+  - ADR: Self-Deploying Per-Repo Agentic Configuration Architecture
+  - Framework document: `.opencode/context/frameworks/per-repo-deployment-architecture.md`
+  - 9-phase zero-to-context pipeline: scan → research → synthesize → generate → vectorize
+  - Global engine vs per-repo brain separation eliminating global config bloat
+  - ADR entry documenting the architecture and migration path
+
 ## 2026-06-14
 
 - **feat: add privacy-scan skill and gitignore protections for chat history and secrets** (`72c0e75`)
