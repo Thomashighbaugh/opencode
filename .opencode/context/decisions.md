@@ -490,3 +490,44 @@ On `session.created`, scan for orphaned mode states (active true, no recent hear
 
 ## See Also
 - `.opencode/context/frameworks/stall-detection-and-recovery.md` — Full architecture document
+
+---
+
+# ADR: Per-Repo Customization Engine — 11 Approaches for Zero-Touch Codebase Deployment
+
+**Status:** Proposed
+**Date:** 2026-06-14
+
+## Context
+The per-repo deployment architecture (ADR June 14) defines the high-level pipeline but lacks the specific mechanisms, reliability guarantees, and multifaceted approaches needed to make `/init-project setup --full` robust enough for diverse, niche, and highly specific projects. Users cannot be expected to decompose their project mechanics, translate jargon, or manually verify generated artifacts.
+
+## Decision
+Adopt an 11-approach architecture for the per-repo customization engine, each approach addressing a specific gap:
+
+| # | Approach | Addresses |
+|---|----------|-----------|
+| A1 | Multi-Pass Codebase Scanner (6 passes) | Shallow detection → deep project profile |
+| A2 | Dependency Graph + Version-Specific Research | Generic docs → exact-version context |
+| A3 | Heuristic Convention Detector | Template rules → codebase-accurate rules |
+| A4 | Domain Language Extraction (NLP-Lite) | Generic agents → domain-speaking agents |
+| A5 | Architecture Pattern Classification | Flat prompts → architecture-aware prompts |
+| A6 | Bootstrap Agent Generator | Manual agent creation → zero-shot agents |
+| A7 | Checkpointed Multi-Stage Pipeline | Full re-runs → resume from any phase |
+| A8 | Cross-Phase Consistency Verification | Blind generation → verified artifacts |
+| A9 | Lazy Vector Index with Auto-Merge | Single-file retrieval → cross-file synthesis |
+| A10 | Provision Dry-Run + Diff Review | Trust-the-process → preview-then-approve |
+| A11 | Post-Production Feedback Loop | One-time generation → self-healing context |
+
+## Rationale
+- Each approach is independently shippable — incremental deployment without breaking existing workflows
+- Combined, they address every failure mode: partial completion, broken references, stale context, wrong assumptions, missing docs, domain ignorance
+- Priority tiers (P0-P4) let implementation start with the highest-value foundations (scanner + checkpoints + architecture detection) and iterate toward polish (dry-run + feedback loop)
+
+## Consequences
+- Framework document: `.opencode/context/frameworks/per-repo-customization-engine.md` (full design)
+- Implementation priority: P0 (scanner + checkpoints) → P1 (architecture + conventions + verification) → P2 (research + vector) → P3 (domain language + agents) → P4 (dry-run + feedback)
+- Estimated total effort: 15-25 days for complete implementation
+
+## See Also
+- `.opencode/context/frameworks/per-repo-customization-engine.md` — Full 11-approach design document
+- `.opencode/context/frameworks/per-repo-deployment-architecture.md` — Parent architecture proposal

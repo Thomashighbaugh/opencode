@@ -1,5 +1,33 @@
 # Changelog
 
+## 2026-06-14 (4)
+
+- **feat(plugin): smart stall detection — heartbeat-based, spam-free progress monitoring** (`staged`)
+  - Replaced "dumb continue" pattern with 5-tier heartbeat-based stall classification
+  - ACTIVE → SLOW_POSSIBLE → STALLED_SOFT → STALLED_HARD → SESSION_RESET
+  - Anti-spam: nudge cooldown (90s), max 1 soft + 3 hard nudges per session
+  - Silent for known long ops (build, test, deploy) — double thresholds
+  - Session recovery on reconnect: detect orphaned modes, inject single recovery block
+  - Removed all pre-tool reminders during active modes
+  - Removed success-path post-tool reminders (no more "task done" / "file written")
+  - `chat.message` only injects mode context when actually stalled, not every message
+
+- **docs: per-repo customization engine — 11 approaches** (`staged`)
+  - ADR: Per-Repo Customization Engine — 11 approaches for zero-touch deployment
+  - Framework document: `.opencode/context/frameworks/per-repo-customization-engine.md`
+  - A1: Multi-Pass Scanner (6-pass: files, language, architecture, API, DB, conventions)
+  - A2: Dependency Graph + version-specific Context7 research
+  - A3: Heuristic Convention Detector (naming, imports, errors, testing, comments)
+  - A4: Domain Language Extraction (frequency-based + co-occurrence + API endpoints)
+  - A5: Architecture Pattern Classification (layered/feature/hexagonal/clean/microservices)
+  - A6: Bootstrap Agent Generator (zero-shot agents with project context baked in)
+  - A7: Checkpointed Multi-Stage Pipeline (resume from any phase)
+  - A8: Cross-Phase Consistency Verification (8 checks: models, paths, scripts, refs, compile)
+  - A9: Lazy Vector Index with Auto-Merge (cross-file synthesis chunks)
+  - A10: Provision Dry-Run + Diff Review (preview before generating)
+  - A11: Post-Production Feedback Loop (stale detection + self-healing rules)
+  - Priority tiers P0-P4 with effort estimates (15-25 days total)
+
 ## 2026-06-14 (3)
 
 - **feat(rules): add artifact-placement rule — no top-level scripts** (`40ba315`)
