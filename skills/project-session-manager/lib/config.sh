@@ -17,8 +17,8 @@ psm_init() {
 {
   "aliases": {
     "omc": {
-      "repo": "Yeachan-Heo/opencode-joc",
-      "local": "~/Workspace/opencode-joc",
+      "repo": "Thomashighbaugh/opencode",
+      "local": "~/Workspace/opencode",
       "default_base": "main"
     }
   },

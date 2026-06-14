@@ -3,7 +3,7 @@
   "configVersion": 0,
   "workspaces": {
     "": {
-      "name": "joc-tui-hubs",
+      "name": "hubs-tui-hubs",
       "devDependencies": {
         "@opencode-ai/plugin": "^1.14.24",
         "@opentui/solid": "0.1.99",

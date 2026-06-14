@@ -27,7 +27,7 @@
     "runSkillScript": "./tools/runSkillScript.ts",
     "artifacts": "./tools/artifacts.ts"
   },
-  "plugin": ["./plugins/joc-plugin.ts"],
+  "plugin": ["./plugins/hubs-plugin.ts"],
   "instructions": ["AGENTS.md"],
   "skills": { "paths": ["./.opencode/skills"] }
 }

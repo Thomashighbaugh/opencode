@@ -85,7 +85,7 @@ Reference formats:
 
 Examples:
   psm review omc#123
-  psm fix Yeachan-Heo/opencode-joc#42
+  psm fix Thomashighbaugh/opencode#42
   psm feature omc add-webhooks
   psm list
   psm attach omc:pr-123

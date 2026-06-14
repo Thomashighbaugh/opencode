@@ -348,7 +348,7 @@ if [ ! -f "$GLOBAL_DIR/AGENTS.md" ]; then
   cat > "$GLOBAL_DIR/AGENTS.md" << 'EOF'
 # OpenCode Hubs
 
-> Joint Operations Center - Multi-agent orchestration for OpenCode
+> Hub-driven multi-agent orchestration for OpenCode
 
 Run `/init-project` to set up or refresh project configuration.
 EOF

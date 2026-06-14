@@ -339,3 +339,96 @@ Implement a two-pronged approach:
 - `harvest-context sweep` scans existing context files for privacy issues
 - `rules/context-strategy.md` updated with privacy scan documentation
 - New skill: `skills/privacy-scan/` with SKILL.md and scan-privacy.mjs script
+
+---
+
+# ADR: Remove JOC (Joint Operations Center) Branding — Eliminate Legacy References
+
+**Status:** Accepted
+**Date:** 2026-06-14
+
+## Context
+The project was originally branded "JOC" (Joint Operations Center) — a military metaphor. Over time, the project was renamed to "OpenCode Hubs" with a hub-and-spoke metaphor. However, 35+ references to the old branding remained scattered across the codebase in comments, documentation, config files, templates, scripts, and lockfiles, creating confusion and an inconsistent identity.
+
+## Decision
+Remove all JOC branding references from the codebase and replace with "OpenCode" or "OpenCode Hubs" as appropriate:
+
+| Location | Change |
+|----------|--------|
+| `opencode.jsonc` | Remove `.joc/**` legacy permission entry |
+| `init-project` template | `joc-plugin.ts` → `hubs-plugin.ts` |
+| `veclib.mjs` | "JOC context" → "OpenCode context" |
+| `state/.gitignore` | "JOC State" → "State" |
+| `installation.md` | 5 URL changes + subtitle fix |
+| `README.md` | Title + origin story update |
+| `hubs-teams/SKILL.md` | `joc team` → `opencode team` (14 occurrences) |
+| `hubs-reference/SKILL.md` | `joc` → `opencode` (2 occurrences) |
+| `hub-doctor/SKILL.md` | "Joint Operations Center" → "Hub-driven" |
+| `route-harvest.mjs` | "JOC install layout" → "install layout" |
+| PSM files | repo/alias reference fixes |
+| `hubs-tui/bun.lock` | package name fix |
+
+## Rationale
+- Consistent branding across all documentation, code, and configuration
+- Eliminates confusion for new users encountering the old name
+- Removes dead code path (`.joc/**` permission no longer referenced anywhere)
+- The hub-and-spoke metaphor better reflects the architecture
+
+## Consequences
+- All legacy `joc` references removed from tracked files
+- Some `joc` references may remain in git history — they're inert
+- The `opencode team` CLI command is the correct invocation going forward
+
+---
+
+# ADR: Self-Deploying Per-Repository Agentic Configuration Architecture
+
+**Status:** Proposed
+**Date:** 2026-06-14
+
+## Context
+The global configuration (`~/.config/opencode/`) serves as a runtime engine with 29 agents, 67 skills, 6 commands, 10 tools, and 11 rules. However, every project has unique domain language, architecture patterns, coding conventions, testing practices, and external dependencies. Users currently must manually decompose their project architecture and wrestle with domain jargon before they can productively use AI assistance. There is no mechanism for `/init-project setup --full` to:
+
+- Auto-analyze a project's domain language, architecture, and conventions
+- Research detected dependencies via Context7 MCP and synthesize structured knowledge
+- Generate project-specific agents, rules, commands, tools, and skills
+- Vectorize synthesized context for semantic retrieval
+
+## Decision
+Adopt a **self-deploying agentic configuration** architecture where `/init-project setup --full` becomes a zero-to-context pipeline:
+
+### Global Engine vs Per-Repo Brain
+
+- **Global** (`~/.config/opencode/`): The compiler — generic agents, skills, commands, tools, rules. Never bloated with project-specific artifacts.
+- **Per-Repo** (`./.opencode/`): The compiled binary — project-specific agents, rules, commands, tools, skills, context, and vector index. Deployed fresh for each project.
+
+### Pipeline (9 Phases)
+
+1. **Phase 0: Verify Global Engine** — Check `~/.config/opencode/` is healthy
+2. **Phase 1: Deep Codebase Scan** — 6-pass scanner: file enumeration, language detection, framework detection, architecture detection, domain extraction, pattern extraction
+3. **Phase 2: Architecture Analysis** — Delegate to `@architect` for dependency mapping, boundary detection, and pattern classification
+4. **Phase 3: Context Research** — Fetch docs for every detected dependency via Context7 MCP
+5. **Phase 4: Context Synthesis** — Combine analysis + research into frameworks/, patterns/, decisions.md, theory.md
+6. **Phase 5: Agent Generation** — Generate project-aware agent wrappers in `.opencode/agents/`
+7. **Phase 6: Rule Generation** — Generate project-specific rules in `.opencode/rules/`
+8. **Phase 7: Tool + Command Generation** — Generate project-specific tools and commands
+9. **Phase 8: Skill Generation** — Generate project-specific reusable skills
+10. **Phase 9: Verification** — Validate all artifacts, compile tools, index vector DB
+
+## Rationale
+- Eliminates global config bloat — each project gets exactly what it needs
+- Zero manual decomposition — project mechanics are analyzed automatically
+- Agents understand domain language from codebase analysis, not manual glossaries
+- Vector-accelerated retrieval makes agents dramatically more effective for niche projects
+- Language- and framework-agnostic — works for any project type
+- Incrementally deployable — each phase adds capability without breaking existing workflows
+
+## Consequences
+- New sub-skills needed: `context-research`, `context-synthesize`, `deep-scanner`
+- Enhanced `provision.mjs` for project-specific artifact generation
+- `init-project` Phase 1-5 enhancements in 03-configuration.md, phases/*.md
+- Framework document created: `context/frameworks/per-repo-deployment-architecture.md`
+- Migration path: 5 phases over multiple iterations, each deployed incrementally
+
+## See Also
+- `.opencode/context/frameworks/per-repo-deployment-architecture.md` — Full architecture document

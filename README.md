@@ -1,8 +1,8 @@
-# OpenCode Hubs (Joint Operations Center)
+# OpenCode Hubs
 
 > Hub-Driven Multi-Agent Orchestration for OpenCode — Interactive Menus, Not Memorization.
 
-The name derives from the military field command post concept — a central operations hub that coordinates specialized units rather than trying to do everything itself. Each hub dispatches to a curated roster of 29 agents, 64 skills, and 6 commands through structured menus instead of requiring you to remember every capability's exact name.
+The name derives from the hub-and-spoke orchestration concept — a central operations hub that coordinates specialized units rather than trying to do everything itself. Each hub dispatches to a curated roster of 29 agents, 64 skills, and 6 commands through structured menus instead of requiring you to remember every capability's exact name.
 
 ---
 

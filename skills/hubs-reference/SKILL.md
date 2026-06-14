@@ -43,8 +43,8 @@ Prefix: `OpenCode Hubs:`. See `agents/*.md` for full prompts.
 
 ### External AI / orchestration
 - `/team N:executor "task"`
-- `joc team N:codex|gemini "..."`
-- `joc ask <opencode|codex|gemini>`
+- `opencode team N:codex|gemini "..."`
+- `opencode ask <opencode|codex|gemini>`
 - `/ccg`
 
 ### OAS state

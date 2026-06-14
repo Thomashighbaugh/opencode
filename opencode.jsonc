@@ -74,7 +74,6 @@
     },
     "permission": {
         "edit": {
-            ".joc/**": "allow", // legacy compat
             ".hubs/**": "allow",
             ".opencode/**": "allow"
         }

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * veclib.mjs — Shared vector DB library for JOC context auto-vectorization
+ * veclib.mjs — Shared vector DB library for OpenCode context auto-vectorization
  *
  * Exports:
  *   ensureIndexed(opencodeDir?)  — Lazy re-index: checks file mtimes, re-indexes stale files

@@ -1,6 +1,6 @@
 # Installation Guide
 
-> Comprehensive guide to installing OpenCode Hubs (Joint Operations Center)
+> Comprehensive guide to installing OpenCode Hubs
 
 ## Table of Contents
 
@@ -66,7 +66,7 @@ Installs Hubs to `~/.config/opencode/` for use across all projects.
 
 ```bash
 # Install globally with curl
-curl -fsSL https://raw.githubusercontent.com/joc/opencode-hubs/main/install.sh | bash -s -- --global
+curl -fsSL https://raw.githubusercontent.com/Thomashighbaugh/opencode/main/install.sh | bash -s -- --global
 ```
 
 #### What Happens During Global Installation
@@ -127,10 +127,10 @@ Installs Hubs to `.opencode/` in the current directory.
 cd /path/to/your/project
 
 # Install locally
-curl -fsSL https://raw.githubusercontent.com/joc/opencode-hubs/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/Thomashighbaugh/opencode/main/install.sh | bash
 
 # Or explicitly specify local
-curl -fsSL https://raw.githubusercontent.com/joc/opencode-hubs/main/install.sh | bash -s -- --local
+curl -fsSL https://raw.githubusercontent.com/Thomashighbaugh/opencode/main/install.sh | bash -s -- --local
 ```
 
 #### What Happens During Local Installation
@@ -410,7 +410,7 @@ mv ~/.config/opencode.bak ~/.config/opencode
 mv ~/.config/opencode ~/.config/opencode.bak.$(date +%s)
 
 # Reinstall
-curl -fsSL https://raw.githubusercontent.com/joc/opencode-hubs/main/install.sh | bash -s -- --global
+curl -fsSL https://raw.githubusercontent.com/Thomashighbaugh/opencode/main/install.sh | bash -s -- --global
 ```
 
 ### Getting Help

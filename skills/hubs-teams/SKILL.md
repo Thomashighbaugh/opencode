@@ -10,7 +10,7 @@ mode: subagent
 
 Spawn N CLI worker processes in tmux panes to execute tasks in parallel. Supports `opencode`, `codex`, and `gemini` agent types.
 
-`/hubs-teams` is a legacy compatibility skill for the CLI-first runtime: use `joc team ...` commands (not deprecated MCP runtime tools).
+`/hubs-teams` is a legacy compatibility skill for the CLI-first runtime: use `opencode team ...` commands (not deprecated MCP runtime tools).
 
 ## Usage
 
@@ -37,7 +37,7 @@ Spawn N CLI worker processes in tmux panes to execute tasks in parallel. Support
 ## Requirements
 
 - **tmux binary** must be installed and discoverable (`command -v tmux`)
-- **Classic tmux session optional** for in-place pane splitting (`$TMUX` set). Inside cmux or a plain terminal, `joc team` falls back to a detached tmux session instead of splitting the current surface.
+- **Classic tmux session optional** for in-place pane splitting (`$TMUX` set). Inside cmux or a plain terminal, `opencode team` falls back to a detached tmux session instead of splitting the current surface.
 - **opencode** CLI: installed via OpenCode
 - **codex** CLI: `npm install -g @openai/codex`
 - **gemini** CLI: `npm install -g @google/gemini-cli`
@@ -53,9 +53,9 @@ command -v tmux >/dev/null 2>&1
 ```
 
 - If this fails, report that **tmux is not installed** and stop.
-- If `$TMUX` is set, `joc team` can reuse the current tmux window/panes directly.
-- If `$TMUX` is empty but `CMUX_SURFACE_ID` is set, report that the user is running inside **cmux**. Do **not** say tmux is missing or that they are "not inside tmux"; `joc team` will launch a **detached tmux session** for workers instead of splitting the cmux surface.
-- If neither `$TMUX` nor `CMUX_SURFACE_ID` is set, report that the user is in a **plain terminal**. `joc team` can still launch a **detached tmux session**, but if they specifically want in-place pane/window topology they should start from a classic tmux session first.
+- If `$TMUX` is set, `opencode team` can reuse the current tmux window/panes directly.
+- If `$TMUX` is empty but `CMUX_SURFACE_ID` is set, report that the user is running inside **cmux**. Do **not** say tmux is missing or that they are "not inside tmux"; `opencode team` will launch a **detached tmux session** for workers instead of splitting the cmux surface.
+- If neither `$TMUX` nor `CMUX_SURFACE_ID` is set, report that the user is in a **plain terminal**. `opencode team` can still launch a **detached tmux session**, but if they specifically want in-place pane/window topology they should start from a classic tmux session first.
 - If you need to confirm the active tmux session, use:
 
 ```bash
@@ -91,7 +91,7 @@ state_write(mode="team", current_phase="team-exec", active=true)
 Start workers via CLI:
 
 ```bash
-joc team <N>:<opencode|codex|gemini> "<task>"
+opencode team <N>:<opencode|codex|gemini> "<task>"
 ```
 
 Team name defaults to a slug from the task text (example: `review-auth-flow`).
@@ -108,17 +108,17 @@ Do not claim the team started successfully unless pane output shows the command 
 ### Phase 4: Monitor + lifecycle API
 
 ```bash
-joc team status <team-name>
-joc team api list-tasks --input '{"team_name":"<team-name>"}' --json
+opencode team status <team-name>
+opencode team api list-tasks --input '{"team_name":"<team-name>"}' --json
 ```
 
-Use `joc team api ...` for task claiming, task transitions, mailbox delivery, and worker state updates.
+Use `opencode team api ...` for task claiming, task transitions, mailbox delivery, and worker state updates.
 
 ### Phase 5: Shutdown (only when needed)
 
 ```bash
-joc team shutdown <team-name>
-joc team shutdown <team-name> --force
+opencode team shutdown <team-name>
+opencode team shutdown <team-name> --force
 ```
 
 Use shutdown for intentional cancellation or stale-state cleanup. Prefer non-force shutdown first.
@@ -140,18 +140,18 @@ Legacy MCP runtime tools are deprecated for execution:
 - `oas_run_team_wait`
 - `oas_run_team_cleanup`
 
-If encountered, switch to `joc team ...` CLI commands.
+If encountered, switch to `opencode team ...` CLI commands.
 
 ## Error Reference
 
 | Error                        | Cause                               | Fix                                                                                 |
 | ---------------------------- | ----------------------------------- | ----------------------------------------------------------------------------------- |
-| `not inside tmux`            | Requested in-place pane topology from a non-tmux surface | Start tmux and rerun, or let `joc team` use its detached-session fallback           |
-| `cmux surface detected`      | Running inside cmux without `$TMUX` | Use the normal `joc team ...` flow; OAS will launch a detached tmux session         |
+| `not inside tmux`            | Requested in-place pane topology from a non-tmux surface | Start tmux and rerun, or let `opencode team` use its detached-session fallback           |
+| `cmux surface detected`      | Running inside cmux without `$TMUX` | Use the normal `opencode team ...` flow; OAS will launch a detached tmux session         |
 | `Unsupported agent type`     | Requested agent is not opencode/codex/gemini | Use `opencode`, `codex`, or `gemini`; for native OpenCode agents use `/team` |
 | `codex: command not found`   | Codex CLI not installed             | `npm install -g @openai/codex`                                                      |
 | `gemini: command not found`  | Gemini CLI not installed            | `npm install -g @google/gemini-cli`                                                 |
-| `Team <name> is not running` | stale or missing runtime state      | `joc team status <team-name>` then `joc team shutdown <team-name> --force` if stale |
+| `Team <name> is not running` | stale or missing runtime state      | `opencode team status <team-name>` then `opencode team shutdown <team-name> --force` if stale |
 | `status: failed`             | Workers exited with incomplete work | inspect runtime output, narrow scope, rerun                                         |
 
 ## Relationship to `/team`
@@ -159,6 +159,6 @@ If encountered, switch to `joc team ...` CLI commands.
 | Aspect       | `/team`                                   | `/hubs-teams`                                         |
 | ------------ | ----------------------------------------- | ---------------------------------------------------- |
 | Worker type  | OpenCode native team agents            | opencode / codex / gemini CLI processes in tmux        |
-| Invocation   | `TeamCreate` / `Task` / `SendMessage`     | `joc team [N:agent]` + `status` + `shutdown` + `api` |
+| Invocation   | `TeamCreate` / `Task` / `SendMessage`     | `opencode team [N:agent]` + `status` + `shutdown` + `api` |
 | Coordination | Native team messaging and staged pipeline | tmux worker runtime + CLI API state files            |
 | Use when     | You want OpenCode-native team orchestration | You want external CLI worker execution               |

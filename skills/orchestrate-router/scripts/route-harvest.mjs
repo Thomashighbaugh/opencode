@@ -22,7 +22,7 @@ let _veclibPromise = null;
 async function getVeclib() {
   if (_veclibPromise) return _veclibPromise;
   _veclibPromise = (async () => {
-    // Try sibling path first (standard JOC install layout: skills/vectorize-context/ is sibling of skills/orchestrate-router/)
+    // Try sibling path first (standard install layout: skills/vectorize-context/ is sibling of skills/orchestrate-router/)
     const siblingPath = new URL('../../vectorize-context/scripts/veclib.mjs', import.meta.url).pathname;
     try {
       const mod = await import(siblingPath);
