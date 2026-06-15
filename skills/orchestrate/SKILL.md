@@ -146,37 +146,11 @@ ls -t .opencode/state/orchestration/checkpoints/*.json 2>/dev/null | head -1
 
 4. **Interactive** — if no plan found, ask user to describe the task
 
-### Step 2: Review Plan With User
+### Step 2: Execute
 
-Before starting execution, present the plan and confirm:
+Skip plan review when the user explicitly invoked a subcommand with a task — they want execution, not confirmation. Only review if the plan came from ideation and the user hasn't seen it yet.
 
-```
-## Plan Review
-
-**Method:** {method}
-**Task:** {description}
-
-### Plan Summary
-{bullet list of key items from the plan}
-
-### Scope
-{what will be done}
-
-### Out of Scope
-{what won't be done}
-
-Proceed? [yes / no / adjust]
-```
-
-If user says "adjust" — loop back to `/ideation` or adjust inline.
-If user says "no" — stop.
-If user says "yes" — proceed to Step 3.
-
-### Step 3: Print Method Reminder
-
-Show the static 1-2 line description for the selected method. Do NOT generate dynamically.
-
-### Step 4: Execute With Progress Caching
+Print the method reminder inline (1-2 lines, static), then immediately begin execution. Do NOT pause for confirmation.
 
 Load and execute the appropriate skill:
 
@@ -235,25 +209,11 @@ cat > ".opencode/state/orchestration/progress/${STAGE_ID}.md" << 'EOF'
 EOF
 ```
 
-### Step 5: Report Status
+### Step 3: Report Progress (Inline Only)
 
-At each stage boundary, provide a status update:
+At stage boundaries, write a checkpoint to disk and provide a brief inline status update. Do NOT pause for confirmation — continue immediately to the next stage.
 
-```
-## Orchestration Progress
-
-**Method:** {method}
-**Stage:** {n}/{total} — {name}
-
-✓ {completed item}
-✓ {completed item}
-○ {remaining item}
-○ {remaining item}
-
-Continue? [yes / pause / stop]
-```
-
-### Step 6: Create Resources On The Fly
+### Step 4: Create Resources On The Fly
 
 During orchestration, if the need arises for a new rule, skill, or agent:
 
@@ -267,75 +227,9 @@ During orchestration, if the need arises for a new rule, skill, or agent:
 
 Do NOT block execution waiting for user approval on resource creation unless the change is destructive.
 
-### Step 7: Harvest Context to Durable Knowledge
+### Step 5: Completion
 
-As orchestration progresses, actively harvest useful context into durable files:
-
-- **Decisions** → `.opencode/context/decisions.md` (ADR format: context, decision, rationale)
-- **Patterns discovered** → `.opencode/context/patterns/{name}.md`
-- **Research/findings** → `.opencode/context/research/{name}.md`
-- **Framework conventions** → `.opencode/context/frameworks/{name}.md`
-- **Project facts** → `.opencode/state/project-memory.json`
-- **Progress checkpoints** → `.opencode/state/orchestration/progress/`
-
-This ensures the user can browse `.opencode/context/` to see everything learned across all sessions.
-
-### Step 7b: Vectorize, Commit, and Update Changelog
-
-After context files are written, three things happen automatically:
-
-**1. Vectorize**: The `vectorize-context` skill's lazy indexing stats `.opencode/context/` files and re-indexes only what changed. On the next `/harvest-context context search`, the new content is immediately findable.
-
-**2. Auto-commit**: If `.opencode/` has changes, create an automatic conventional commit:
-```bash
-if git status --short .opencode/ | grep -q .; then
-  git add .opencode/context/ .opencode/state/project-memory.json 2>/dev/null
-  git commit -m "chore(hubs): auto-save context after orchestration
-
-Auto-generated from Hubs orchestration execution.
-Includes: decisions, patterns, research, framework conventions, and project memory updates."
-fi
-```
-
-**3. Changelog**: Append an entry to `.opencode/CHANGELOG.md`:
-```bash
-CHANGELOG=".opencode/CHANGELOG.md"
-ENTRY="## $(date +%Y-%m-%d) - orchestration ${METHOD}"
-if [ ! -f "$CHANGELOG" ] || ! grep -q "$ENTRY" "$CHANGELOG" 2>/dev/null; then
-  echo -e "\n$ENTRY\n\n- Orchestration method: ${METHOD}\n- Context files updated in \`.opencode/context/\`\n- $(git log -1 --format='%h' -- .opencode/)" >> "$CHANGELOG"
-fi
-```
-
-### Step 8: Completion
-
-On task completion:
-
-```bash
-FINAL_ID="$(date +%Y%m%d_%H%M%S)_${METHOD}_complete"
-cat > ".opencode/state/orchestration/${FINAL_ID}.md" << 'EOF'
-# Orchestration Complete
-
-**Method:** {method}
-**Task:** {description}
-**Started:** {start timestamp}
-**Completed:** {end timestamp}
-**Stages:** {total stages}
-
-## Results
-{what was accomplished}
-
-## Artifacts Created
-{files, rules, skills, agents created}
-
-## Key Decisions
-{decisions made}
-
-## Lessons Learned
-{what to remember for next time}
-EOF
-```
-
-Offer: "Task complete. Would you like to harvest context from this session with `/harvest-context`?"
+On task completion, write a final checkpoint to disk. Report results inline. Do NOT offer hand-off to other hubs — the user will invoke them explicitly if needed.
 
 ## Resume Behavior
 

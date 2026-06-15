@@ -26,7 +26,7 @@ the situation and selecting appropriate mental models.
 
 ## Step 1: Clarify (Always Start Here)
 
-Establish clarity through **Who, What, Why**. Ask 2-3 questions total:
+Establish clarity through **Who, What, Why**. Ask questions only when genuinely unclear:
 
 | Dimension | Core Question                                        |
 | --------- | ---------------------------------------------------- |

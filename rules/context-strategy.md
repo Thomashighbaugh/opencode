@@ -17,10 +17,10 @@ Frames nest hierarchically by domain. A "security fix" frame lives inside an "au
 ### 3. Serialize to Disk, Not to Context Window
 Context windows compress and vanish. State serialized to Markdown/JSON on disk survives indefinitely. Any fresh session can resume from serialized state — compaction-proof by design.
 
-### 4. Automate the Tedious
-- Auto-checkpoint after significant milestones (phase completions, gate passes)
-- Auto-load relevant context on process start (based on process type/domain)
-- Never require manual "save" commands — everything worth keeping is kept
+### 4. Manual Context Operations
+- Context harvesting, saving, and loading are MANUAL ONLY — triggered by explicit user hub commands
+- No auto-checkpoints, no auto-loads, no auto-saves
+- The user controls when context is created, loaded, or persisted
 
 ### 5. Reject Complexity
 - Markdown + JSON files. No databases. No servers. No native bindings.
@@ -53,26 +53,11 @@ Context windows compress and vanish. State serialized to Markdown/JSON on disk s
 
 ## When Context is Loaded
 
-| Trigger | What's Loaded | Scope |
-|---------|---------------|-------|
-| Session start | `project-memory.json`, `notepad.md`, `decisions.md` | Full, compacted |
-| `/init-project setup` | `frameworks/`, `patterns/` | Relevant subtree |
-| `/ideation plan` | `research/`, `decisions.md` | Domain-filtered |
-| `/orchestrate execute` | Previous phase checkpoints, `patterns/` | Phase-scoped |
-| `/orchestrate resume` | Latest checkpoint from state dir | Full checkpoint |
-| `/harvest-context session` | Full session to extract into context dirs | New frame creation |
-| `/project commit` | `decisions.md` for recent ADRs | Decisions only |
+All context loading is MANUAL ONLY — triggered by explicit user hub commands (`/harvest-context`, `/ideation`, `/orchestrate resume`, `/project commit`). No automatic context loading on session start or hub invocation.
 
 ## When Context is Saved
 
-| Trigger | What's Saved | Where |
-|---------|-------------|-------|
-| Phase completion | Phase summary + patterns discovered | `state/orchestration/`, `context/patterns/` |
-| Gate passed | Evidence + quality report | `state/orchestration/progress/` |
-| `harvest context session` | Session decisions, patterns, lessons | `context/frameworks/`, `context/patterns/`, `context/decisions.md` |
-| Web doc extraction | Fetched documentation | `context/research/` |
-| Error pattern discovered | Root cause + fix | `context/patterns/` |
-| Architectural decision | ADR entry | `context/decisions.md` |
+All context saving is MANUAL ONLY — triggered by explicit user hub commands (`/harvest-context`, `/project commit`). No automatic saving on phase completion, gate pass, or error discovery.
 
 ## Security-Aware Storage Rules
 
@@ -90,19 +75,7 @@ Context windows compress and vanish. State serialized to Markdown/JSON on disk s
 
 ## Privacy Scan Integration
 
-Before any content is saved to `.opencode/context/` (committed, durable knowledge), a **privacy scan** is run using the `privacy-scan` skill:
-
-1. **Scan**: The content is analyzed for API keys, tokens, passwords, PII, private keys, connection strings, and session/chat indicators
-2. **Classify**: Risk is classified as HIGH, MEDIUM, LOW, or UNCERTAIN
-3. **Route**:
-   - **HIGH risk** → File is added to `.gitignore` and saved to `.opencode/state/` (gitignored) instead
-   - **MEDIUM risk** → File is saved to `.opencode/state/` for human review before promotion
-   - **LOW risk** → File is saved to `.opencode/context/` as normal durable context
-   - **UNCERTAIN** → File is saved to `.opencode/state/` for human review
-
-**Important**: The scan distinguishes between **derived knowledge** (ADRs, patterns, decisions, lessons — safe to commit) and **raw data** (session transcripts, logs, config dumps — may contain secrets). Only raw data with actual secrets gets flagged.
-
-See `skills/privacy-scan/SKILL.md` for full documentation.
+Privacy scanning is MANUAL ONLY — run via `/harvest-context sweep` or explicitly when saving to committed context. No automatic routing or interactive review pauses.
 
 ## Frame Retrieval Convention
 

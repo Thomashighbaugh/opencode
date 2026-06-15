@@ -39,7 +39,7 @@ Do NOT call `hubMenu` or any other tool — just output the list directly and as
 3. If user provides free-text (not a known sub-option), treat it as a project description and use it to populate detection data for empty directories
 4. **Delegate** to `provision.mjs` for the heavy lifting
 5. **Save checkpoint** after each phase
-6. On completion, offer `/harvest-context session` to capture generated context
+6. Report results inline — do NOT offer hand-off to other hubs
 
 ### Sub-Option Behavior
 

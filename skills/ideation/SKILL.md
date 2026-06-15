@@ -192,9 +192,9 @@ Continue the iterative process with the user. At each checkpoint:
 **User approval phrases that trigger finalization:**
 - "looks good" / "approved" / "finalize" / "that's it" / "done" / "ship it"
 
-### Step 6: Finalize
+### Step 6: Finalize and Report
 
-On user approval, save the final output:
+On user approval, save the final output and report results inline. Combine hand-off offer and session summary into a single turn — do NOT split into two separate interactive pauses.
 
 ```bash
 FINAL_ID="$(date +%Y%m%d_%H%M%S)_${METHOD}_${TOPIC_SLUG}_final"
@@ -221,40 +221,7 @@ cat > ".opencode/state/ideation/${FINAL_ID}.md" << 'EOF'
 EOF
 ```
 
-Also print the final result to screen.
-
-### Step 7: Hand-Off Offer
-
-Ask user: "Ready to implement this? I can hand off to `/orchestrate` with this plan."
-
-If yes, invoke `/orchestrate` with the plan context.
-
-### Step 8: Session Report Offer
-
-Ask user: "Would you like a session summary?"
-
-If yes, generate an on-screen report:
-
-```
-## Ideation Session Summary
-
-**Method:** {method}
-**Topic:** {topic}
-**Iterations:** {count}
-**Duration:** {elapsed}
-
-### Key Outputs
-- {bullet list of major outputs}
-
-### Decisions Made
-- {bullet list of decisions}
-
-### Artifacts Saved
-- {list of files in .opencode/state/ideation/}
-
-### Hand-Off
-{orchestrated | not orchestrated}
-```
+Report inline: show the final result, note the saved file, and mention that `/orchestrate` can execute it. Do NOT ask separate "Ready to implement?" and "Session summary?" questions — present both in one message.
 
 ## Resume Behavior
 

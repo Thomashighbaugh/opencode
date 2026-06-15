@@ -25,15 +25,10 @@ List subcommands as plain text. Do NOT call `hubMenu(action: "menu")` — the TU
 1. `hubMenu("route", hub, subcommand)` — cached after first call
 2. **If unknown subcommand** — route via intent detector: run `skills/orchestrate-router/scripts/route-{hub}.mjs "{text}"`, read `recommended` from JSON output, then `hubMenu("route", hub, recommended)`. Show user: "Routed to `/hub recommended` (confidence%)."
 3. Print the static terse reminder
-4. If `canResume: true`, offer resume or start fresh
-5. Execute subcommand via `delegation.type`/`delegation.target`
-6. **Cache progress** at significant stages (ideation, orchestration, harvest, init)
-7. **Auto-harvest** on completion — extract decisions/patterns → `.opencode/context/`
-8. **Chain hubs**: On ideation completion → offer `/orchestrate` hand-off. On orchestration completion → auto-offer `/harvest-context`. On harvest completion → suggest `/ideation` for next plan cycle.
+4. If `canResume: true`, resume automatically or start fresh based on subcommand context
+5. Execute subcommand via `delegation.type`/`delegation.target` — progress caching is implicit, not a separate step
 
-**Auto-vectorize after context write:** `veclib.mjs` handles lazy freshness — files changed on disk = re-indexed on next query. No manual triggering. See `skills/vectorize-context/SKILL.md`.
-
-**Auto-commit to git:** After context writes + vectorization, auto-commit `.opencode/` changes with conventional commit message. Accumulates in `.opencode/CHANGELOG.md`.
+**All context harvesting, version control, and vectorization are MANUAL ONLY.** Use `/harvest-context` to extract context, `/project commit` to commit, and `/harvest-context search` for semantic search. Nothing is automated.
 
 ### Resume / Status
 - Resume: load latest checkpoint/work-product from state dir
@@ -47,7 +42,7 @@ When a user enters text that doesn't match a known subcommand, use `skills/orche
 |-----|------|
 | `/orchestrate` | `.../route-orchestrate.mjs [text]` — 27 patterns |
 | `/ideation` | `.../route-ideation.mjs [text]` — 21 methods |
-| `/harvest-context` | `.../route-harvest.mjs [text]` — 13 subcommands + auto-vectorize |
+| `/harvest-context` | `.../route-harvest.mjs [text]` — 13 subcommands |
 
 Output JSON, read `recommended`, route via `hubMenu("route", hub, recommended)`.
 

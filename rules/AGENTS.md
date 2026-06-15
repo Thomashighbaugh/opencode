@@ -11,8 +11,8 @@ Shared rule files loaded as agent instructions. These provide behavioral guidanc
 | File | Description |
 |------|-------------|
 | `shell_strategy.md` | Non-interactive shell strategy — CI-safe command patterns, banned commands, environment variables |
-| `context-strategy.md` | Durable project memory model — state vs context separation, auto-load/save conventions, frame retrieval |
-| `hub-state.md` | Hub state conventions — state paths, context paths, auto-load/save triggers, cross-hub hand-off |
+| `context-strategy.md` | Durable project memory model — state vs context separation, manual-only load/save conventions, frame retrieval |
+| `hub-state.md` | Hub state conventions — state paths, context paths, manual-only load/save triggers, cross-hub hand-off |
 | `hub-routing.md` | Hub command routing — delegation tables, TUI integration, magic keyword compatibility |
 | `hub-description-directive.md` | Hub subcommand description convention — embed tool names and buzzwords for discoverability |
 | `karpathy-guidelines.md` | Coding guidelines — think before coding, simplicity first, surgical changes, goal-driven execution |

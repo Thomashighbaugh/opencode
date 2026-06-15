@@ -21,10 +21,12 @@ When creating PRs:
 
 ## Feature Implementation Workflow
 
-1. **Plan First** - Use `planner` agent
-2. **TDD Approach** - Use `tdd-guide` agent
-3. **Code Review** - Use `code-reviewer` agent after writing code
-4. **Commit** - Follow conventional commits format
+Use judgment for workflow complexity:
+- **Trivial changes** (typo, single-line fix): implement directly, commit
+- **Standard changes**: plan → implement → review → commit
+- **Complex features**: plan → TDD → implement → review → commit
+
+Agent delegation is optional — use only when the task complexity warrants it.
 
 ## Branch Naming
 

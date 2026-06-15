@@ -328,14 +328,7 @@ Proactively scan `.opencode/` for files and directories that should be gitignore
 
 ## Auto-Sweep on Harvest
 
-Every `/harvest-context` subcommand automatically runs a lightweight sweep check after saving its artifact. If it finds files that should be gitignored, it warns the user:
-
-```
-⚠  .opencode/ sweep: found 2 files that should be gitignored
-   - .opencode/node_modules/ (58M) — missing from .gitignore
-   - .opencode/.vector/ (12M) — missing from .gitignore
-   Run /harvest-context sweep to fix.
-```
+Auto-sweep REMOVED — manual-only per API call reduction directive. Use `/harvest-context sweep` explicitly when needed.
 
 ---
 
@@ -441,46 +434,6 @@ Write the output to the appropriate location:
 | `decompose` | On screen, optionally `.opencode/context/` | Yes (if saving to context/) |
 | `context` | `.opencode/context/` organized by function | **Yes — always** |
 | `sweep` | `.opencode/state/harvest/sweep-{ts}.md` + `.gitignore` updates | No (sweep is about gitignore) |
-
-### Step 5: Auto-Sweep Check
-
-After saving any artifact, run a lightweight sweep:
-
-```bash
-# Quick scan for bloat risk
-total_kb=$(du -sk .opencode/ 2>/dev/null | cut -f1)
-if [ "$total_kb" -gt 10240 ]; then  # >10MB
-  echo "⚠  .opencode/ is ${total_kb}KB — run /harvest-context sweep to check gitignore"
-fi
-
-# Check for known bloat vectors
-for pattern in ".opencode/node_modules" ".opencode/.vector"; do
-  if [ -d "$pattern" ] && ! grep -q "^$pattern" .gitignore 2>/dev/null; then
-    echo "⚠  $pattern exists but is not gitignored — add it or run /harvest-context sweep --fix"
-  fi
-done
-
-# Check for privacy-sensitive paths that should be gitignored
-for pattern in ".opencode/state/sessions" ".opencode/chat-history" ".opencode/chat"; do
-  if [ -d "$pattern" ] && ! grep -q "^$pattern" .gitignore 2>/dev/null; then
-    echo "⚠  $pattern exists but is not gitignored — may contain secrets or chat history"
-  fi
-done
-
-# Run privacy scan on any new context files that were just created
-PRIVACY_SCAN="$HOME/.config/opencode/skills/privacy-scan/scripts/scan-privacy.mjs"
-if [[ -f "$PRIVACY_SCAN" ]] && [[ -n "$SAVED_CONTEXT_FILES" ]]; then
-  for ctx_file in $SAVED_CONTEXT_FILES; do
-    if [[ -f "$ctx_file" ]]; then
-      scan_result=$(node "$PRIVACY_SCAN" --file "$ctx_file" 2>/dev/null)
-      scan_risk=$(echo "$scan_result" | jq -r '.risk' 2>/dev/null)
-      if [[ "$scan_risk" == "high" ]] || [[ "$scan_risk" == "medium" ]]; then
-        echo "⚠  $ctx_file — privacy risk: $scan_risk — consider moving to state/ or adding to .gitignore"
-      fi
-    fi
-  done
-fi
-```
 
 ### Step 5: Confirm and Print
 

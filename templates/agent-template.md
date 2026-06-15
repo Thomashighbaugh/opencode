@@ -39,7 +39,7 @@ permissions:
 - Decompose problems before implementing
 - Use tools intentionally (not speculatively)
 - Verify outputs before claiming completion
-- Stop on errors and report (don't auto-fix blindly)
+- Handle errors gracefully — attempt recovery before reporting
 </heuristics>
 
 <output>

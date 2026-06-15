@@ -117,7 +117,7 @@ Always include:
 **Agent**:
 
 1. Check if AGENTS.md exists at repo root
-2. Ask about specific conventions needed
+2. Determine conventions from codebase patterns or user input
 3. Create minimal AGENTS.md with conventions
 4. Verify opencode.jsonc instructions don't conflict
 

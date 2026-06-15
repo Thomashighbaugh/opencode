@@ -220,16 +220,6 @@ Repair CHANGELOG or `.opencode/CHANGELOG.md` files whose commit references no lo
 
 ---
 
-## Post-Execution Suggestions
-
-After execution, offer next steps based on context:
-- After `commit` → offer `stage` or `pr`
-- After `stage` → offer `commit`
-- After `review` → offer `commit` to fix issues found, or `pr` if changes are ready
-- After `tests` → offer `commit` to commit the test files
-- After `optimize` → offer `commit` to commit fixes
-- After any git operation → offer related git operations
-
 ## Related
 
 - `/ideation` — Plan before you build

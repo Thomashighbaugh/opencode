@@ -164,11 +164,8 @@ Before creating anything, check what already exists:
 
 ### Step 1: Gather Requirements
 
-Ask the user:
-- What is the skill's purpose?
-- When should an agent invoke it?
-- What inputs/outputs are expected?
-- Are there any dependencies?
+Determine from context or ask a single batched question:
+- What is the skill's purpose? When should an agent invoke it? What inputs/outputs are expected? Any dependencies?
 
 ### Step 2: Create Directory Structure
 
@@ -191,7 +188,7 @@ Run automated checks on the created skill:
 5. **File references:** If SKILL.md references other files (REFERENCE.md, scripts, etc.), run `glob` to verify they exist
 6. **Security scan:** Run `grep` for potential secrets — patterns like `API_KEY`, `SECRET`, `password`, `token`, `Bearer` — and flag any matches
 
-Report all validation results to the user. Do not skip this step.
+Run validation checks. Report any issues found inline.
 
 ### Step 5: Test
 

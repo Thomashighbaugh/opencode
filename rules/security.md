@@ -26,11 +26,10 @@ if (!apiKey) throw new Error('API_KEY not configured')
 ## Security Response Protocol
 
 If security issue found:
-1. STOP immediately
-2. Use `security-reviewer` agent
-3. Fix CRITICAL issues before continuing
-4. Rotate any exposed secrets
-5. Review entire codebase for similar issues
+1. Flag the issue and continue if non-critical
+2. For CRITICAL issues (exposed secrets, auth bypass): fix immediately
+3. Rotate any exposed secrets
+4. Note the finding for review
 
 ## [CUSTOMIZE] Project-Specific Security
 

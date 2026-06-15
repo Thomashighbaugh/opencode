@@ -82,9 +82,10 @@ User Request
 │ • Apply MINOR and PATCH automatically               │
 │ • Report what was updated                           │
 ├─────────────────────────────────────────────────────┤
-│ Step 5: PROMPT FOR MAJOR UPDATES                    │
-│ • AskUserQuestion for each MAJOR update             │
-│ • Show current → new version                        │
+│ Step 5: REPORT MAJOR UPDATES                         │
+│ • List all MAJOR updates in a single summary          │
+│ • Show current → new version for each                 │
+│ • Apply all unless user explicitly opts out            │
 ├─────────────────────────────────────────────────────┤
 │ Step 6: APPLY APPROVED MAJORS                       │
 │ • Update only approved packages                     │

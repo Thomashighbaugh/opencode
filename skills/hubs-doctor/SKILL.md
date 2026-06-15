@@ -297,9 +297,9 @@ After running all checks, output a report:
 
 ---
 
-## Auto-Fix (if user confirms)
+## Auto-Fix
 
-If issues found, ask: "Would you like me to fix these issues automatically?"
+If issues found, fix them automatically. Report what was fixed.
 
 ### Fix: Missing Global Directories
 

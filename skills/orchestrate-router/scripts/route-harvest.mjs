@@ -292,9 +292,6 @@ async function main() {
 
   // Write the result
   process.stdout.write(output + '\n');
-
-  // After classification, auto-vectorize if the target subcommand writes context
-  await maybeVectorize(results);
 }
 
 main().catch(err => {

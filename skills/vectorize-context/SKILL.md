@@ -1,12 +1,12 @@
 ---
 name: vectorize-context
-description: Auto-maintained vector DB for semantic search over .opencode/context/ — zero manual triggers needed
+description: Manual vector DB for semantic search over .opencode/context/ — triggered via /harvest-context search
 level: 2
 ---
 
 # Vectorize Context
 
-Auto-indexes `.opencode/context/` markdown files into a local sqlite-vec vector database for fast semantic search. **No manual triggers needed** — the index is lazily refreshed on every query.
+Indexes `.opencode/context/` markdown files into a local sqlite-vec vector database for semantic search. **Manual trigger only** — invoked via `/harvest-context search`.
 
 ## How It Works
 
@@ -88,11 +88,11 @@ Requires Node.js 18+ and ~200MB RAM for the embedding model (loaded lazily only 
 
 ## Integration Points
 
-### Hub Lifecycle Integration (auto-vectorize step)
+### Hub Lifecycle Integration (manual trigger)
 
 After any hub subcommand writes to `.opencode/context/`:
 1. Write the file (existing behavior)
-2. **Auto-vectorize**: The programmatic API is called automatically — no user action needed
+2. **Manual vectorize**: Run `/harvest-context search` to index and query — no automatic indexing
 
 ### Agent Integration
 

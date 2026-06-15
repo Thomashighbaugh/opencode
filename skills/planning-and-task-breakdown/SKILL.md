@@ -120,7 +120,7 @@ Add explicit checkpoints:
 - [ ] All tests pass
 - [ ] Application builds without errors
 - [ ] Core user flow works end-to-end
-- [ ] Review with human before proceeding
+- [ ] Review results before proceeding
 ```
 
 ## Task Sizing Guidelines

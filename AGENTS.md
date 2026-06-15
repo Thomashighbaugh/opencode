@@ -19,7 +19,7 @@ This project provides a comprehensive multi-agent orchestration system for OpenC
 
 | Mode | Trigger | Purpose |
 |------|---------|---------|
-| **hubs** | `"hubs"` | Orchestrate subagents for complex multi-step tasks with auto-context creation |
+| **hubs** | `"hubs"` | Orchestrate subagents for complex multi-step tasks |
 | **autopilot** | `"autopilot"` or `/orchestrate autopilot` | Full autonomous execution |
 | **ultrawork** | `"ulw"` or `/orchestrate ultrawork` | Maximum parallel execution |
 | **team** | `/orchestrate team` | N coordinated agents on shared tasks |
@@ -29,7 +29,7 @@ This project provides a comprehensive multi-agent orchestration system for OpenC
 
 | Agent | Use For |
 |-------|---------|
-| **hubs** | Orchestration of subagents for complex tasks with auto-context creation |
+| **hubs** | Orchestration of subagents for complex tasks |
 | **executor** | Implementation work |
 | **architect** | System design |
 | **planner** | Task sequencing |
@@ -106,7 +106,7 @@ Natural language triggers for modes:
 | **State** | `.opencode/state/` | Gitignored | Ephemeral session data (progress, checkpoints, secrets, active modes) |
 | **Context** | `.opencode/context/` | Committed | Durable knowledge (frameworks, patterns, research, decisions, theory) |
 
-See `rules/context-strategy.md` for the full context model — auto-load/save conventions, security-aware storage rules, and frame retrieval conventions.
+See `rules/context-strategy.md` for the full context model — manual-only load/save conventions, security-aware storage rules, and frame retrieval conventions.
 
 ## Model Configuration
 

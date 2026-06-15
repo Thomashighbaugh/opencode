@@ -30,75 +30,31 @@ OpenCode Hubs uses five hub commands. Four track state; `/project` is stateless.
 | Theory | `.opencode/context/theory.md` | Living documentation — THEORY.MD equivalent |
 | Memory | `.opencode/state/project-memory.json` | Cross-session durable facts (conditionally committed) |
 
-## Auto-Load Context Convention
+## Context Loading and Saving
 
-Agents load relevant context on process start — never all at once, always subtree-scoped:
+All context operations are MANUAL ONLY — triggered by explicit user hub commands. No automatic loading on session start or hub invocation. No automatic saving on phase completion or gate pass. See `rules/context-strategy.md` for the full model.
 
-| Trigger | Auto-load | Scope |
-|---------|-----------|-------|
-| Any hub invocation | `project-memory.json` | Facts only (compact) |
-| `/init-project setup` | `context/frameworks/`, `context/patterns/` | Framework subtree |
-| `/ideation plan` | `context/research/`, `context/decisions.md` | Domain-filtered |
-| `/ideation deep` | `context/theory.md` | Operating theory |
-| `/orchestrate execute` | `state/orchestration/checkpoints/`, `context/patterns/` | Phase-scoped |
-| `/orchestrate resume` | Latest checkpoint JSON | Full checkpoint |
-| `/orchestrate gsd` | `context/decisions.md` | ADRs for spec-driven work |
-| `/harvest-context session` | Full session scan then save to context dirs | New frame |
-| `/harvest-context docs` | Fetch → `context/research/` | New research frame |
+## State Database
 
-## Auto-Save Context Convention
+Each state subdirectory uses a SQLite database (`state.db`) for structured state queries instead of ONNX-based vectorization. SQLite databases are gitignored (in `.opencode/state/`).
 
-| Trigger | What's Saved | Where |
-|---------|-------------|-------|
-| Architectural decision | ADR entry | `.opencode/context/decisions.md` |
-| Pattern discovered | Pattern doc | `.opencode/context/patterns/` |
-| Web docs extracted | Research doc | `.opencode/context/research/` |
-| Phase completed | Phase summary + patterns | `state/orchestration/`, `context/patterns/` |
-| Gate passed | Evidence + quality report | `state/orchestration/progress/` |
-| Error found + fixed | Root cause + solution | `context/patterns/` |
-| Theory updated | Updated THEORY.MD | `context/theory.md` |
+| State Dir | Database | Purpose |
+|-----------|----------|---------|
+| `.opencode/state/init/` | `init.db` | Init project state — checkpoints, phases, detection results |
+| `.opencode/state/ideation/` | `ideation.db` | Ideation state — work products, plans, research |
+| `.opencode/state/orchestration/` | `orchestration.db` | Orchestration state — progress, checkpoints, phase data |
+| `.opencode/state/harvest/` | `harvest.db` | Harvest state — extracted context, session summaries |
 
-## Auto-Vectorization
-
-After ANY of the above writes to `.opencode/context/`, the vector DB (`.opencode/.vector/context.db`) is auto-refreshed via **lazy indexing** — no manual trigger needed:
-
-| Trigger | Vector DB Behavior |
-|---------|-------------------|
-| Context file written/updated | File mtime changes → next query finds it stale → re-indexes automatically |
-| Context file deleted | Stored mtime no longer matches → next re-index cleans it up |
-| Direct file edit (not via hub) | Same mtime comparison catches it |
-| Query call | `queryChunks()` calls `ensureIndexed()` first, which stats all files and re-indexes stale ones |
-| Manual `rm -rf .opencode/.vector/` | Next query auto-rebuilds from scratch |
-
-**How it works:**
-1. `ensureIndexed()` scans `.opencode/context/` for `*.md` files
-2. Compares each file's mtime against what's stored in the vector DB
-3. If no files changed → returns instantly, no model loaded
-4. If files changed → chunks by headers, embeds via ONNX (all-MiniLM-L6-v2), inserts into sqlite-vec
-5. The ML model (~200MB) is only loaded when there's actual indexing work to do
-
-**Programmatic API** (for agent integration):
-```js
-import { ensureIndexed, queryChunks, getIndexStats } from '../skills/vectorize-context/scripts/veclib.mjs';
-await ensureIndexed();                                    // Lazy refresh
-const results = await queryChunks(dir, 'query text', 10); // Auto-freshens first
-```
-
-See `skills/vectorize-context/SKILL.md` for full documentation. |
+SQLite databases are created on first use. Schema is auto-generated from the JSON state files written to each directory. No embedding models, no ONNX, no vector DB — plain SQL queries over structured state data.
 
 ## Cross-Hub Hand-Off
 
-- `/ideation` final output is read by `/orchestrate` to load approved plans
-- `/orchestrate` completion auto-saves patterns/decisons to `context/`, then offers `/harvest-context`
-- `/harvest-context` output feeds back into `/ideation` as prior context
-- `/init-project setup --full` completion auto-saves context, offers `/harvest-context`
-- `/init-project` detection results are read by `/ideation` for project context
-- `/project` subcommands generate artifacts (commits, PRs, icons, tests) but do not cache state
+Hub hand-offs are MANUAL ONLY — the user invokes the next hub explicitly. No automatic offers or suggestions after completion.
 
 ## Resume Behavior
 
 Each hub checks for existing state on `resume` and `status` subcommands:
-- Resume: load latest checkpoint/work-product, offer to continue
+- Resume: load latest checkpoint/work-product, continue immediately
 - Status: list all state files with timestamps
 
 (init, ideation, orchestration, harvest support resume/status; project is stateless)

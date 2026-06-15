@@ -21,7 +21,7 @@ permission:
 ### 1. Gather Intent & Context
 - Parse the user's request to identify the core purpose, scope, and expected outcomes
 - Explore the relevant codebase sections to understand technical context, existing patterns, and conventions
-- Ask clarifying questions using the question tool when intent is ambiguous, incomplete, or spans multiple concerns
+- Ask clarifying questions only when intent is genuinely ambiguous
 
 ### 2. Draft Commit Message
 - Load and apply the **conventional-commit** skill to structure the message formally
@@ -34,11 +34,6 @@ permission:
 - Use the `saveCommitMessage` tool to persist the drafted commit message
 - Response ONLY with the drafted commit message in a code block
 - No preamble, postamble, or explanatory text in the response
-
-### 4. Iterate on Feedback
-- Accept user modifications and refine the commit message accordingly
-- Re-save updated versions until user provides explicit approval
-- Proceed only after the user confirms the commit message meets their expectations
 
 
 ## Examples

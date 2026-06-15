@@ -72,12 +72,9 @@ Create a better folder structure for my [work/projects/photos/etc]
 When a user requests file organization help:
 
 1. **Understand the Scope**
-   
-   Ask clarifying questions:
-   - Which directory needs organization? (Downloads, Documents, entire home folder?)
-   - What's the main problem? (Can't find things, duplicates, too messy, no structure?)
-   - Any files or folders to avoid? (Current projects, sensitive data?)
-   - How aggressively to organize? (Conservative vs. comprehensive cleanup)
+    
+    Determine from context or ask a single batched question:
+    - Which directory needs organization? What's the main problem? Any files to avoid? How aggressive?
 
 2. **Analyze Current State**
    
@@ -145,8 +142,8 @@ When a user requests file organization help:
    For each set of duplicates:
    - Show all file paths
    - Display sizes and modification dates
-   - Recommend which to keep (usually newest or best-named)
-   - **Important**: Always ask for confirmation before deleting
+- Recommend which to keep (usually newest or best-named)
+    - Flag deletions for review before executing
 
 5. **Propose Organization Plan**
    

@@ -21,7 +21,7 @@ Routes amorphous user requests to the correct hub subcommand. When a user enters
 |--------|-----|---------|
 | `scripts/route-orchestrate.mjs` | `/orchestrate` | Routes to 27 execution patterns |
 | `scripts/route-ideation.mjs` | `/ideation` | Routes to 21 planning/research methods |
-| `scripts/route-harvest.mjs` | `/harvest-context` | Routes to 13 extraction/context methods + auto-vectorize |
+| `scripts/route-harvest.mjs` | `/harvest-context` | Routes to 13 extraction/context methods |
 
 ## How Routing Works
 

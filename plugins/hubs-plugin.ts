@@ -1267,21 +1267,12 @@ export const JocPlugin: Plugin = async ({ project, client, directory, worktree }
       case 'session.created': {
         const sessionId = event.properties.info.id
         
-        // NEW: Detect orphaned mode states (from crashed/disconnected sessions)
-        // Inject a single recovery block instead of multiple continuation messages
+        // Orphaned mode detection — file I/O only, no API calls
         const orphaned = detectOrphanedModes(directory, sessionId)
         if (orphaned.length > 0) {
           const recoveryMsg = generateRecoveryContext(orphaned)
           if (recoveryMsg && sessionId) {
             queueContextMessage(sessionId, recoveryMsg)
-            await client.app.log({
-              body: {
-                service: 'hubs-plugin',
-                level: 'info',
-                message: `Orphaned mode state detected: ${orphaned.map(o => o.name).join(', ')}`,
-                extra: { modes: orphaned.map(o => ({ name: o.name, prompt: o.state.prompt })) }
-              }
-            })
           }
         }
 
@@ -1368,13 +1359,6 @@ export const JocPlugin: Plugin = async ({ project, client, directory, worktree }
         
         if (resolved.length > 0 && resolved[0].name === 'cancel') {
           clearModeStates(directory, ['ralph', 'autopilot', 'ultrawork', 'ralplan'])
-          await client.app.log({
-            body: {
-              service: 'hubs-plugin',
-              level: 'info',
-              message: '[CANCEL] Active modes have been cleared.'
-            }
-          })
           return
         }
         
@@ -1405,30 +1389,12 @@ Invoke the corresponding skill/command to activate the mode:
 ${resolved.map(m => `- ${m.name}: Use /${m.name === 'ralph' ? 'ralph-loop' : m.name}`).join('\n')}`)
         }
         
-        if (additionalContext.length > 0) {
-          await client.app.log({
-            body: {
-              service: 'hubs-plugin',
-              level: 'info',
-              message: 'Keywords detected',
-              extra: { context: additionalContext.join('\n') }
-            }
-          })
-        }
-
         // Hub command pre-resolution — detect /hub subcommand patterns
-        // and log the detection so the next LLM turn has routing context
+        // (regex only, no API calls)
         const hubPattern = /^\/(init-project|ideation|orchestrate|harvest-context|project)\s+(\S+)/
         const hubMatch = prompt.match(hubPattern)
         if (hubMatch) {
-          const [, hubName, subName] = hubMatch
-          await client.app.log({
-            body: {
-              service: 'hubs-plugin',
-              level: 'info',
-              message: `hub-route-detected: /${hubName} ${subName}`
-            }
-          })
+          // Pattern detected — routing handled by agent instructions
         }
         break
       }
@@ -1493,31 +1459,8 @@ ${resolved.map(m => `- ${m.name}: Use /${m.name === 'ralph' ? 'ralph-loop' : m.n
       }
     }
     
-    // NEW: Prompt queue — when task completes, submit next queued prompt
-    if (sessionId && isTaskComplete(directory, sessionId)) {
-      const nextPrompt = trySubmitNextQueued(directory, sessionId)
-      if (nextPrompt) {
-        // Mark the current submitted item as completed
-        const queue = readQueue(directory, sessionId)
-        const submitted = queue.items.find(i => i.status === 'submitted')
-        if (submitted) {
-          markQueueItem(directory, sessionId, submitted.id, 'completed')
-        }
-        // Inject queue context so the LLM knows what's next
-        const queueCtx = generateQueueContext(directory, sessionId)
-        if (queueCtx) {
-          queueContextMessage(sessionId, queueCtx)
-        }
-        await client.app.log({
-          body: {
-            service: 'hubs-plugin',
-            level: 'info',
-            message: `[QUEUE] Auto-submitting next queued prompt: "${nextPrompt.substring(0, 80)}"`,
-            extra: { queueStatus: getQueueStatus(directory, sessionId) }
-          }
-        })
-      }
-    }
+    // Prompt queue auto-submit REMOVED — manual-only per API call reduction directive.
+    // Queue state is still maintained for manual /orchestrate resume operations.
     
     // Only remind on actual failures (not on routine operations)
     const message = generatePostToolMessage(toolName, toolOutput, toolCount)

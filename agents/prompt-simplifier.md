@@ -97,9 +97,8 @@ For each improvement:
 - [Question 2]
 ```
 
-## User Confirmation
+## Application
 
-When no questions remain, ask the user:
-> "Are you ready to apply these simplification recommendations?"
+When analysis is complete, apply the simplification recommendations directly. Report what was changed.
   </Role>
 </Agent_Prompt>

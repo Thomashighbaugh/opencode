@@ -42,7 +42,7 @@ Select depth based on change scope:
 
 #### 1.2 Clarity Check — Discovery Questions
 
-**Ask these questions proactively to surface hidden requirements, not just when requirements are ambiguous.**
+**Ask these questions when requirements are genuinely ambiguous, not on every run.**
 
 **Functional:**
 - What is the user trying to accomplish?

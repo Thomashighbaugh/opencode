@@ -37,10 +37,9 @@ Each subcommand follows the hub pattern:
 
 1. **Print a terse reminder** (1-2 lines, hardcoded below — never generated dynamically)
 2. **Check for prior state** in `.opencode/state/init/`
-3. If prior state exists, offer to **resume** or **start fresh**
+3. If prior state exists, resume automatically or start fresh based on subcommand context
 4. **Execute** by delegating to the appropriate phase or agent
-5. **Cache progress** at each significant stage
-6. On completion, offer the **next logical subcommand** (setup → docs → context → verify)
+5. **Report results** inline — do NOT offer next steps or chain into other subcommands
 
 ### Terse Reminders
 

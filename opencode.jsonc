@@ -65,17 +65,32 @@
     }
   },
   "lsp": {
-    "typescript": { "enabled": true },
-    "css": { "enabled": true },
-    "html": { "enabled": true },
-    "json": { "enabled": true }
+    "typescript": {
+      "enabled": true,
+      "command": ["./node_modules/.bin/typescript-language-server", "--stdio"],
+      "extensions": ["ts", "tsx", "js", "jsx", "mjs", "cjs", "mts", "cts"]
+    },
+    "css": {
+      "enabled": true,
+      "command": ["./node_modules/.bin/vscode-css-language-server", "--stdio"],
+      "extensions": ["css", "scss", "less"]
+    },
+    "html": {
+      "enabled": true,
+      "command": ["./node_modules/.bin/vscode-html-language-server", "--stdio"],
+      "extensions": ["html", "htm"]
+    },
+    "json": {
+      "enabled": true,
+      "command": ["./node_modules/.bin/vscode-json-language-server", "--stdio"],
+      "extensions": ["json", "jsonc"]
+    }
   },
   "plugin": [
     "./plugins/hubs-plugin.ts",
     "./plugins/hubs-tui/index.js",
     "@opencode-plugins/env-protection",
-    "@franlol/opencode-md-table-formatter@0.0.3",
-    "@mohak34/opencode-notifier@latest"
+    "@franlol/opencode-md-table-formatter@0.0.3"
   ],
   "instructions": [
     "AGENTS.md",
