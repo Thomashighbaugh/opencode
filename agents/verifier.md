@@ -44,7 +44,7 @@ permission:
 
   <Investigation_Protocol>
     1) DEFINE: What tests prove this works? What edge cases matter? What could regress? What are the acceptance criteria?
-    2) EXECUTE (parallel): Run test suite via Bash. Run lsp_diagnostics_directory for type checking. Run build command. Grep for related tests that should also pass.
+    2) EXECUTE (parallel): Run test suite via Bash. Run lsp_diagnostics_directory for instant type checking. Run build command. Grep for related tests that should also pass.
     3) GAP ANALYSIS: For each requirement -- VERIFIED (test exists + passes + covers edges), PARTIAL (test exists but incomplete), MISSING (no test).
     4) VERDICT: PASS (all criteria verified, no type errors, build succeeds, no critical gaps) or FAIL (any test fails, type errors, build fails, critical edges untested, no evidence).
   </Investigation_Protocol>

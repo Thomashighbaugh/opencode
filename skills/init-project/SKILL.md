@@ -117,7 +117,7 @@ Init state lives in `.opencode/state/init/` (gitignored).
 | Phase | Agent/Skill | Purpose |
 |-------|-------------|---------|
 | 0 - Global Verify | self | Ensure `~/.config/opencode/` is healthy |
-| 1 - Detection | `explore` | Scan project files, detect language/framework |
+| 1 - Detection | `explore` | Scan project files, detect language/framework, detect available LSPs |
 | 2 - Planning | `planner` | Generate initialization plan from detection |
 | 3 - Scaffolding | `executor` | Create `.opencode/` structure, opencode.jsonc, AGENTS.md |
 | 4 - Provisioning | `executor` + `config-orchestrator` | Create project-specific agents, tools, commands, skills scaled to mode |

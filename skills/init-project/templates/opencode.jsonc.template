@@ -15,6 +15,12 @@
     "edit": { ".opencode/state/**": "allow" }
   },
   "mcp": {},
+  "lsp": {
+    "typescript": { "enabled": true },
+    "css": { "enabled": true },
+    "html": { "enabled": true },
+    "json": { "enabled": true }
+  },
   "tools": {
     "getSessionID": "./tools/getSessionID.ts",
     "saveCommitMessage": "./tools/saveCommitMessage.ts",

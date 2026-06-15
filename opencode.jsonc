@@ -64,6 +64,12 @@
       "enabled": true
     }
   },
+  "lsp": {
+    "typescript": { "enabled": true },
+    "css": { "enabled": true },
+    "html": { "enabled": true },
+    "json": { "enabled": true }
+  },
   "plugin": [
     "./plugins/hubs-plugin.ts",
     "./plugins/hubs-tui/index.js",

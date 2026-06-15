@@ -49,10 +49,10 @@ mode: subagent
 
     ### Build/Compilation Error Investigation
     1) Detect project type from manifest files.
-    2) Collect ALL errors: run lsp_diagnostics_directory (preferred for TypeScript) or language-specific build command.
+    2) Collect ALL errors: run lsp_diagnostics_directory (preferred — instant for TypeScript) or language-specific build command.
     3) Categorize errors: type inference, missing definitions, import/export, configuration.
     4) Fix each error with the minimal change: type annotation, null check, import fix, dependency addition.
-    5) Verify fix after each change: lsp_diagnostics on modified file.
+    5) Verify fix after each change: lsp_diagnostics on modified file (preferred — instant over full build).
     6) Final verification: full build command exits 0.
     7) Track progress: report "X/Y errors fixed" after each fix.
   </Investigation_Protocol>

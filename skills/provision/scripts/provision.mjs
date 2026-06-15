@@ -162,10 +162,69 @@ function detectProject(opts) {
   detection.directories = detection.directories || detectDirectories();
   detection.keyFiles = detection.keyFiles || detectKeyFiles();
 
+  // Detect available LSPs
+  detection.lsp = detectAvailableLsps(detection.language);
+
   // Fill in convention defaults based on language
   fillConventionDefaults(detection);
 
   return detection;
+}
+
+/**
+ * Detect available language servers on the system and map them to the project's language.
+ * Returns an object suitable for the "lsp" key in opencode.jsonc.
+ */
+function detectAvailableLsps(language) {
+  const lspConfig = {};
+
+  // Language-to-LSP mapping
+  const lspMap = {
+    typescript: { name: 'typescript', binary: 'typescript-language-server', always: true },
+    javascript: { name: 'typescript', binary: 'typescript-language-server', always: true },
+    python:     { name: 'python', binary: 'pyright', alt: 'pylsp' },
+    rust:       { name: 'rust', binary: 'rust-analyzer' },
+    go:         { name: 'go', binary: 'gopls' },
+    lua:        { name: 'lua', binary: 'lua-language-server' },
+    vue:        { name: 'vue', binary: 'vue-language-server' },
+    svelte:     { name: 'svelte', binary: 'svelte-language-server' },
+    java:       { name: 'java', binary: 'jdtls' },
+    csharp:     { name: 'csharp', binary: 'csharp-ls' },
+    ruby:       { name: 'ruby', binary: 'solargraph' },
+    php:        { name: 'php', binary: 'intelephense' },
+  };
+
+  // Always-enable LSPs (built into OpenCode or universally useful)
+  const alwaysEnabled = ['css', 'html', 'json'];
+
+  // Add language-specific LSP if detected
+  const langLsp = lspMap[language];
+  if (langLsp) {
+    if (langLsp.always) {
+      lspConfig[langLsp.name] = { enabled: true };
+    } else {
+      const found = checkBinary(langLsp.binary) || (langLsp.alt && checkBinary(langLsp.alt));
+      if (found) {
+        lspConfig[langLsp.name] = { enabled: true };
+      }
+    }
+  }
+
+  // Add always-enabled LSPs
+  for (const lsp of alwaysEnabled) {
+    lspConfig[lsp] = { enabled: true };
+  }
+
+  return lspConfig;
+}
+
+function checkBinary(binary) {
+  try {
+    execSync(`which ${binary} 2>/dev/null`, { stdio: 'pipe' });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function scanPackageJson(filepath) {
@@ -1595,12 +1654,31 @@ function generateInstall(generated, detection, opts) {
     modifications.push({ type: 'config', file: '.opencode/AGENTS.md' });
   }
 
-  // NOTE: opencode.jsonc config injection is intentionally skipped.
-  // Agents, skills, tools, and rules are auto-discovered by OpenCode
-  // from their respective directories (.opencode/agents/, .opencode/skills/,
-  // .opencode/tools/, .opencode/rules/). No config registration needed.
-  // Previously injected invalid keys like "agentPaths", "agents", or
-  // "commands" broke OpenCode's config loader.
+  // Generate opencode.jsonc with LSP config if it doesn't exist
+  if (!fs.existsSync(configPath)) {
+    const lspEntries = detection.lsp || {};
+    const lspSection = Object.keys(lspEntries).length > 0
+      ? Object.entries(lspEntries).map(([k, v]) => `    "${k}": ${JSON.stringify(v)}`).join(',\n')
+      : '';
+
+    const configContent = `{
+  "$schema": "https://opencode.ai/config.json",
+  "permission": {
+    "edit": { ".opencode/**": "allow" }
+  },
+  "mcp": {},
+  "lsp": {
+${lspEntries ? Object.entries(lspEntries).map(([k, v]) => `    "${k}": ${JSON.stringify(v)}`).join(',\n') : '    // No language servers detected'}
+  },
+  "skills": { "paths": ["./.opencode/skills"] },
+  "plugin": ["./plugins/hubs-plugin.ts"],
+  "instructions": ["AGENTS.md"]
+}
+`;
+    if (safeWriteFile(configPath, configContent, opts.force)) {
+      modifications.push({ type: 'config', file: '.opencode/opencode.jsonc' });
+    }
+  }
 
   return modifications;
 }

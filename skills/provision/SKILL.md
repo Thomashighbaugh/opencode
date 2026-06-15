@@ -222,6 +222,38 @@ Detection captures:
 - Naming conventions across the codebase
 - CI/CD configuration
 - Deployment targets
+- **Available LSPs** — detects language servers on the system (typescript-language-server, rust-analyzer, gopls, pyright, etc.) and generates the `lsp` config block in `opencode.jsonc`
+
+### LSP Detection
+
+The scanner checks for installed language server binaries and generates an `lsp` section in `opencode.jsonc`:
+
+```jsonc
+"lsp": {
+  "typescript": { "enabled": true },    // typescript-language-server found
+  "css": { "enabled": true },           // always enabled (built into OpenCode)
+  "html": { "enabled": true },          // always enabled (built into OpenCode)
+  "json": { "enabled": true },          // always enabled (built into OpenCode)
+  "rust": { "enabled": true }           // rust-analyzer found on system
+}
+```
+
+Supported LSPs by language:
+
+| Language | LSP Binary | Detection |
+|----------|-----------|-----------|
+| TypeScript/JavaScript | `typescript-language-server` | Always enabled |
+| Python | `pyright` or `pylsp` | `which` check |
+| Rust | `rust-analyzer` | `which` check |
+| Go | `gopls` | `which` check |
+| Lua | `lua-language-server` | `which` check |
+| Vue | `vue-language-server` | `which` check |
+| Svelte | `svelte-language-server` | `which` check |
+| CSS | Built into OpenCode | Always enabled |
+| HTML | Built into OpenCode | Always enabled |
+| JSON | Built into OpenCode | Always enabled |
+
+Enabling LSP gives agents instant type feedback via `lsp_diagnostics` instead of waiting for full build commands.
 
 ### Phase 2: Agents
 

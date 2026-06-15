@@ -257,15 +257,36 @@ After all detection steps, produce JSON:
 
 ```json
 {
-  "language": "typescript",
-  "framework": "nextjs",
-  "packageManager": "npm",
-  "buildSystem": "tsc",
-  "directories": ["src", "tests", "docs", ".github"],
-  "ci": "github-actions",
-  "confidence": "high"
-}
-```
+"language": "typescript",
+   "framework": "nextjs",
+   "packageManager": "npm",
+   "buildSystem": "tsc",
+   "directories": ["src", "tests", "docs", ".github"],
+   "ci": "github-actions",
+   "lsp": {
+     "typescript": { "enabled": true },
+     "css": { "enabled": true },
+     "html": { "enabled": true },
+     "json": { "enabled": true }
+   },
+   "confidence": "high"
+ }
+ ```
+ 
+ ### LSP Detection
+ 
+ After detecting the language, check for available language servers:
+ 
+ | Language | LSP Binary | Check |
+ |----------|-----------|-------|
+ | TypeScript/JavaScript | `typescript-language-server` | `command -v` |
+ | Python | `pyright` or `pylsp` | `command -v` |
+ | Rust | `rust-analyzer` | `command -v` |
+ | Go | `gopls` | `command -v` |
+ | Lua | `lua-language-server` | `command -v` |
+ | CSS/HTML/JSON | Built into OpenCode | Always enabled |
+ 
+ The detected LSPs are written to the `lsp` section of `opencode.jsonc` during Phase 3 scaffolding.
 
 Save to `.opencode/state/init-detection.json` for Phase 2.
 
