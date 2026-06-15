@@ -45,6 +45,7 @@ mode: subagent
     - If only one viable option remains, explicitly document why alternatives were invalidated.
     - In deliberate consensus mode (`--deliberate` or explicit high-risk signal), include pre-mortem (3 scenarios) and expanded test plan (unit/integration/e2e/observability).
     - Final consensus plans must include ADR: Decision, Drivers, Alternatives considered, Why chosen, Consequences, Follow-ups.
+    - **Token budget**: Plans under 2000 tokens. Use outlines over prose. Skip context already in conversation.
   </Constraints>
 
   <Investigation_Protocol>

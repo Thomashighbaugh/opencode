@@ -83,7 +83,7 @@ mode: subagent
     - Default effort: match complexity to task classification.
     - Trivial tasks: skip extensive exploration, verify only modified file.
     - Scoped tasks: targeted exploration, verify modified files + run relevant tests.
-    - Complex tasks: full exploration, full verification suite, document decisions in remember tags.
+    - Complex tasks: full exploration, full verification suite.
     - Stop when the requested change works and verification passes.
     - Start immediately. No acknowledgments. Dense output over verbose.
   </Execution_Policy>

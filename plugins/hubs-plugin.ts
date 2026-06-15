@@ -1348,15 +1348,7 @@ export const JocPlugin: Plugin = async ({ project, client, directory, worktree }
         const sessionIdForQueue = event.properties.info?.id || ''
         
         if (!isContinuePrompt && sessionIdForQueue && isLlmBusy(directory, sessionIdForQueue)) {
-          const queued = enqueuePrompt(directory, sessionIdForQueue, prompt)
-          await client.app.log({
-            body: {
-              service: 'hubs-plugin',
-              level: 'info',
-              message: `[QUEUE] Prompt queued (${getQueueStatus(directory, sessionIdForQueue).queued} waiting): "${prompt.substring(0, 80)}"`,
-              extra: { queueId: queued.id }
-            }
-          })
+          enqueuePrompt(directory, sessionIdForQueue, prompt)
           return  // Don't process further — prompt is queued
         }
         

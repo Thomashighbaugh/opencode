@@ -1,9 +1,9 @@
 node_modules/
 dist/
-.opencode/state/
-.opencode/state/sessions/
-.opencode/chat-history/
-.opencode/chat/
+state/
+state/sessions/
+chat-history/
+chat/
 *.log
 .DS_Store
 **/state/*
@@ -11,4 +11,4 @@ opencode.json
 .session-stats.json
 env.d.ts
 opencode-notifier-state.json
-.opencode/node_modules/
+.vector/
