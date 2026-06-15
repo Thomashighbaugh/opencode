@@ -21,6 +21,7 @@ import type { Event } from "@opencode-ai/sdk"
 import { existsSync, mkdirSync, readFileSync, writeFileSync, unlinkSync, readdirSync } from "fs"
 import { join, dirname } from "path"
 import { homedir } from "os"
+import { getCache, CacheManager, withToolCache, invalidateToolCache, invalidateAllToolCaches } from "../tools/cache-utils"
 
 // User-wide configuration directory (Linux: ~/.config/opencode/)
 const USER_CONFIG_DIR = process.env.OPENCODE_CONFIG_DIR || join(homedir(), '.config', 'opencode')
@@ -1409,6 +1410,39 @@ ${resolved.map(m => `- ${m.name}: Use /${m.name === 'ralph' ? 'ralph-loop' : m.n
       updateToolStats(toolName, sessionId)
     }
     
+    // ── Tier 2: MCP cache hit injection ──────────────────────────────
+    // Before an MCP call goes out, check if we have a cached response.
+    // If so, inject it as context and skip the actual API call.
+    if (toolName === 'context7_query-docs' || toolName === 'context7_resolve-library-id') {
+      try {
+        const mcpCache = getCache('mcp')
+        const args = (input as any).args || {}
+        const key = CacheManager.key(toolName, JSON.stringify(args))
+        const cached = mcpCache.get<string>(key)
+        if (cached && sessionId) {
+          queueContextMessage(sessionId, `<mcp-cache-hit tool="${toolName}">\nUsing cached MCP response (7-day TTL).\n${cached.substring(0, 2000)}\n</mcp-cache-hit>`)
+        }
+      } catch {}
+    }
+    
+    // ── Tier 1: Tool cache hit injection ──────────────────────────────
+    // For deterministic tools, check cache and inject cached result as context.
+    const CACHEABLE_TOOLS = new Set([
+      'Glob', 'Grep', 'listAgents', 'getSessionID', 'hubMenu',
+      'loadSkill', 'runSkillScript',
+    ])
+    if (CACHEABLE_TOOLS.has(toolName)) {
+      try {
+        const toolCache = getCache('tool')
+        const args = (input as any).args || {}
+        const key = CacheManager.key(toolName, JSON.stringify(args))
+        const cached = toolCache.get<string>(key)
+        if (cached && sessionId) {
+          queueContextMessage(sessionId, `<tool-cache-hit tool="${toolName}">\nUsing cached result (30s TTL).\n${cached.substring(0, 1000)}\n</tool-cache-hit>`)
+        }
+      } catch {}
+    }
+    
     const modeActive = hasActiveMode(directory, sessionId)
     const todoStatus = getTodoStatus(directory)
     const message = generatePreToolMessage(toolName, todoStatus, modeActive)
@@ -1441,6 +1475,38 @@ ${resolved.map(m => `- ${m.name}: Use /${m.name === 'ralph' ? 'ralph-loop' : m.n
     const toolOutput = output.output || ''
     
     const toolCount = sessionId ? updateToolStats(toolName, sessionId) : 1
+    
+    // ── Tier 1: Cache deterministic tool outputs ──────────────────────
+    // These tools produce stable results for the same inputs within a short window.
+    const CACHEABLE_TOOLS = new Set([
+      'Glob', 'Grep', 'listAgents', 'getSessionID', 'hubMenu',
+      'Read', 'loadSkill', 'runSkillScript',
+    ])
+    if (CACHEABLE_TOOLS.has(toolName) && toolOutput && !toolOutput.startsWith('{') && !toolOutput.startsWith('[')) {
+      try {
+        const args = (input as any).args || {}
+        withToolCache(toolName, args, () => toolOutput, 30_000) // 30s TTL
+      } catch {}
+    }
+    // Invalidate tool cache on write operations
+    const WRITE_TOOLS = new Set(['Write', 'Edit', 'bash'])
+    if (WRITE_TOOLS.has(toolName)) {
+      invalidateToolCache('Glob')
+      invalidateToolCache('Grep')
+      invalidateToolCache('Read')
+    }
+    
+    // ── Tier 2: Cache MCP responses ───────────────────────────────────
+    if (toolName === 'context7_query-docs' || toolName === 'context7_resolve-library-id') {
+      try {
+        const mcpCache = getCache('mcp')
+        const args = (input as any).args || {}
+        const key = CacheManager.key(toolName, JSON.stringify(args))
+        mcpCache.set(key, toolOutput, 604_800_000) // 7 days
+      } catch {}
+    }
+    
+    // ── End caching ───────────────────────────────────────────────────
     
     // NEW: Record heartbeat for stall detection (silent, no context message)
     if (sessionId) {

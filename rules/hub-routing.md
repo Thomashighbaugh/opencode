@@ -41,7 +41,7 @@ When a user enters text that doesn't match a known subcommand, use `skills/orche
 | Hub | Router Script |
 |-----|------|
 | `/orchestrate` | `.../route-orchestrate.mjs [text]` — 27 patterns |
-| `/ideation` | `.../route-ideation.mjs [text]` — 21 methods |
+| `/ideation` | `.../route-ideation.mjs [text]` — 22 methods |
 | `/harvest-context` | `.../route-harvest.mjs [text]` — 13 subcommands |
 
 Output JSON, read `recommended`, route via `hubMenu("route", hub, recommended)`.
@@ -53,7 +53,7 @@ Canonical source: `tools/hubMenu.ts`. Key routing:
 | Hub | Subcommand | Delegates To |
 |-----|-----------|-------------|
 | `/init-project` | setup/detect/docs/context/verify | Various skills/agents |
-| `/ideation` | plan/refine/deep/graph/research/ralplan | Respective skills |
+| `/ideation` | plan/refine/overhaul/deep/graph/research/ralplan | Respective skills |
 | `/orchestrate` | ralph/team/deep/ccg/ultrawork/autopilot/sciomc/swarm | Respective skills |
 | `/orchestrate` | (21 inline patterns) | Inline execution |
 | `/harvest-context` | session/codebase/skill/agent/rule/command/memory/docs/consume/decompose/context | Various |

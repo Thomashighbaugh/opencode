@@ -2,6 +2,7 @@ import { tool } from "@opencode-ai/plugin"
 import * as fs from "fs"
 import * as path from "path"
 import { homedir } from "os"
+import { getCache, CacheManager } from "./cache-utils"
 
 const USER_CONFIG_DIR = process.env.OPENCODE_CONFIG_DIR || path.join(homedir(), '.config', 'opencode')
 
@@ -51,6 +52,7 @@ const HUBS: HubDefinition[] = [
       { label: "brainstorm", description: "Free-form idea generation — throw ideas at the wall on any topic, then cluster and prioritize", inline: true, reminder: "Generate, cluster, and prioritize ideas." },
       { label: "decomposition", description: "Decompose a task into actionable subtasks — break complex work into ordered, verifiable steps", inline: true, reminder: "Break complex tasks into actionable subtasks." },
       { label: "refine", description: "Diverge/converge iteration — expand ideas, then sharpen them", skill: "idea-refine", reminder: "Diverge and converge to sharpen ideas." },
+      { label: "overhaul", description: "Analyze project across 8 refinement dimensions — architecture, performance, security, code quality, testing, deps, DX — and produce a prioritized phased implementation plan", skill: "overhaul", reminder: "Analyze project and produce phased improvement plan." },
       { label: "deep", description: "Socratic interview with ambiguity gating — crystallize vague requirements", skill: "deep-interview", reminder: "Socratic interview to crystallize requirements." },
       { label: "graph", description: "Visual relationship mapping — dependencies, components, tradeoffs", skill: "graph-thinking", reminder: "Map relationships as visual graphs." },
       { label: "research", description: "Multi-model synthesis — diverse perspectives merged into one answer", skill: "ccg", reminder: "Synthesize diverse model perspectives." },
@@ -170,10 +172,11 @@ const HUBS: HubDefinition[] = [
   }
 ]
 
-// ─── In-Memory Route Cache ─────────────────────────────────────────────
-// Caches hubMenu route results to avoid redundant tool execution overhead.
-// Key: `${hub}:${subcommand}` — invalidated by process restart (intentional).
-const _routeCache = new Map<string, string>()
+// ─── Persistent Route Cache ────────────────────────────────────────────
+// Uses the shared cache-utils system for disk-backed, TTL-aware caching.
+// Key: `${hub}:${subcommand}` — TTL: 30s (tool cache default)
+// Invalidated by process restart OR explicit cache clear.
+const _routeCache = getCache("tool")
 
 function getProjectRoot(): string {
   try {

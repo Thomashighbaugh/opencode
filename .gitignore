@@ -12,3 +12,4 @@ opencode.json
 env.d.ts
 opencode-notifier-state.json
 .vector/
+cache/

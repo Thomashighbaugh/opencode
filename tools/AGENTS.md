@@ -4,7 +4,7 @@
 # tools
 
 ## Purpose
-TypeScript tool implementations (11 tools) that extend the OpenCode runtime. Tools provide structured APIs for session management, state persistence, agent listing, skill loading, and hub menu routing.
+TypeScript tool implementations (14 tools) that extend the OpenCode runtime. Tools provide structured APIs for session management, state persistence, agent listing, skill loading, hub menu routing, and multi-tier prompt caching.
 
 ## Key Files
 
@@ -21,6 +21,9 @@ TypeScript tool implementations (11 tools) that extend the OpenCode runtime. Too
 | `getSessionID.ts` | Get current session ID |
 | `saveCommitMessage.ts` | Upsert commit message to session temp directory |
 | `getCommitMessage.ts` | Get the upserted commit message from session temp directory |
+| `cache-utils.ts` | Shared multi-tier cache infrastructure — SHA256 keying, TTL, disk+memory LRU, 5 namespaces |
+| `cache.ts` | Cache management tool — view stats, clear caches, invalidate entries across all tiers |
+| `agent-cache.ts` | Tier 4 agent output cache — save/load/invalidate subagent outputs by agent type + task hash |
 
 ## For AI Agents
 

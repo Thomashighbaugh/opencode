@@ -21,6 +21,7 @@ const HUBS: Hub[] = [
     { label: "plan", description: "Strategic planning" },
     { label: "brainstorm", description: "Free-form idea generation" },
     { label: "refine", description: "Diverge/converge iteration" },
+    { label: "overhaul", description: "Analyze project across 8 dimensions — produce phased improvement plan" },
     { label: "deep", description: "Socratic interview" },
     { label: "graph", description: "Relationship mapping" },
     { label: "research", description: "Multi-model synthesis" },

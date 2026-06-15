@@ -50,7 +50,7 @@ This project provides a comprehensive multi-agent orchestration system for OpenC
 | **provision** | 3 | Codebase-aware artifact generator — analyzes project and auto-generates agents, skills, tools, and rules |
 | **agent-format-enforcer** | 2 | Enforce <Agent_Prompt> XML wrapper convention on all agent definition files |
 | **config-sync** | 3 | Sync opencode.jsonc with latest OpenCode schema from Context7 — detects drift, auto-fixes |
-| **ideation** | 2 | Planning/research hub — plan, brainstorm, decomposition, refine, deep, graph, research, ralplan, ddd, event-storming, double-diamond, jtbd, impact-mapping, spiral, top-down, bottom-up, adversarial-debate, cleanroom, pwf, rpikit, hive, story-mapping, lean-canvas, constitution |
+| **ideation** | 2 | Planning/research hub — plan, brainstorm, decomposition, refine, overhaul, deep, graph, research, ralplan, ddd, event-storming, double-diamond, jtbd, impact-mapping, spiral, top-down, bottom-up, adversarial-debate, cleanroom, pwf, rpikit, hive, story-mapping, lean-canvas, constitution |
 | **orchestrate** | 2 | Execution hub — ralph, team, deep, ccg, ultrawork, autopilot, sciomc, swarm, state-machine, consensus, evolutionary, spec-driven, react, plan-execute, hive, tdd, pair, pipeline, gsd, self-assess, remediate, devin, maestro, metaswarm, cc10x, gastown, ruflo, harden, brownfield, vibe-code |
 | **harvest-context** | 2 | Context/artifact hub — session, codebase, skill, agent, rule, command, memory, docs, decompose, context, compress, secondbrain, journal |
 | **project** | 2 | Project ops hub — tests, commit, stage, pr, gh, optimize, icon, organize, analyze, changelog, converge, scan, sandbox, retrospect, purge, release, review, audit, archive, workspace |
@@ -73,7 +73,7 @@ Natural language triggers for modes:
 | Command | Subcommands | Purpose |
 |---------|------------|---------|
 | `/init-project` | setup, detect, docs, context, verify, refresh, status, map-codebase, doctor, reset, provision | Project init — full setup, detection, validation, codebase-aware artifact generation, and reset |
-| `/ideation` | plan, brainstorm, decomposition, refine, deep, graph, research, ralplan, ddd, event-storming, double-diamond, jtbd, impact-mapping, spiral, top-down, bottom-up, adversarial-debate, cleanroom, pwf, rpikit, hive, story-mapping, lean-canvas, constitution, resume, status | Planning & research — 24 methodologies plus task decomposition
+| `/ideation` | plan, brainstorm, decomposition, refine, overhaul, deep, graph, research, ralplan, ddd, event-storming, double-diamond, jtbd, impact-mapping, spiral, top-down, bottom-up, adversarial-debate, cleanroom, pwf, rpikit, hive, story-mapping, lean-canvas, constitution, resume, status | Planning & research — 24 methodologies plus task decomposition |
 | `/orchestrate` | ralph, team, deep, ccg, ultrawork, autopilot, sciomc, swarm, state-machine, consensus, evolutionary, spec-driven, react, plan-execute, hive, tdd, pair, pipeline, gsd, self-assess, remediate, devin, maestro, metaswarm, cc10x, gastown, ruflo, harden, brownfield, vibe-code, resume, status | Execution — 30 patterns from persistent loops to multi-stage pipelines |
 | `/harvest-context` | session, codebase, skill, agent, rule, command, memory, docs, decompose, context, consume, compress, search, prune, export, diff, secondbrain, journal, sweep | Context & artifacts — 18 subcommands plus proactive gitignore bloat sweep |
 | `/project` | tests, commit, stage, pr, gh, optimize, icon, organize, analyze, changelog, converge, scan, sandbox, retrospect, purge, release, review, audit, archive, git-cleanup, workspace | Project ops — 21 subcommands for quality, security, and maintenance |
@@ -85,15 +85,16 @@ Natural language triggers for modes:
 ├── opencode.jsonc       # Main configuration
 ├── AGENTS.md            # Project-level instructions
 ├── agents/              # 29 agent definitions
-├── skills/              # 67 workflow skills (65 original + 2 new: agent-format-enforcer, config-sync)
+├── skills/              # 68 workflow skills (65 original + 3 new: agent-format-enforcer, config-sync, llm-cache)
 ├── commands/            # 6 custom commands
-├── tools/               # 10 TypeScript tools (hubMenu, loadSkill, listAgents, etc.)
+├── tools/               # 14 TypeScript tools (hubMenu, loadSkill, listAgents, cache-utils, cache, agent-cache, etc.)
 ├── plugins/             # Hook system + TUI plugins (hubs-plugin.ts, hubs-tui/)
 ├── rules/               # Shared rules (shell_strategy.md, context-strategy.md, hub-state.md, hub-routing.md, etc.)
 ├── templates/           # File templates
-├── .opencode/           # Durable knowledge store (committed: context/; gitignored: state/)
+├── .opencode/           # Durable knowledge store (committed: context/; gitignored: state/, cache/)
 │   ├── state/           # Session state (gitignored) — progress, checkpoints, sessions, project-memory.json
 │   ├── context/         # Durable knowledge (committed) — frameworks/, patterns/, research/, decisions.md, theory.md
+│   ├── cache/           # Multi-tier prompt cache (gitignored) — tool/, mcp/, llm/, agent/
 │   ├── CHANGELOG.md     # Auto-commit log (committed)
 │   └── .vector/         # Vector search index (gitignored)
 └── docs/                # Documentation
@@ -197,7 +198,7 @@ Configured in `opencode.jsonc`:
 /init-project reset           # Reset project state with clean slate
 /init-project provision       # Analyze codebase and auto-generate project-specific agents, skills, tools, and rules
 
-# Plan and research (23 methodologies via /ideation)
+# Plan and research (25 methodologies via /ideation)
 /ideation plan sprint 5 implementation
 /ideation deep design payment system
 /ideation research auth tradeoffs
@@ -214,6 +215,9 @@ Configured in `opencode.jsonc`:
 /ideation pwf plan with file persistence
 /ideation story-mapping plan user journey
 /ideation lean-canvas model product strategy
+/ideation overhaul analyze codebase quality
+/ideation overhaul:sec audit project security
+/ideation overhaul:perf identify performance bottlenecks
 
 # Execute tasks (30 patterns via /orchestrate)
 /orchestrate ralph fix all TypeScript errors

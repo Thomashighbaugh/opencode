@@ -17,7 +17,7 @@ Unified entry point for all planning and research methods. Each subcommand is a 
 
 ## No-Argument Behavior
 
-When invoked without arguments (`/ideation`), list the subcommands as plain text and ask the user to choose. Do NOT call `hubMenu` or any other tool — just output the list directly. Available methods: plan, brainstorm, decomposition, refine, deep, graph, research, ralplan, ddd, event-storming, double-diamond, jtbd, impact-mapping, spiral, top-down, bottom-up, adversarial-debate, cleanroom, pwf, rpikit, hive, story-mapping, lean-canvas, constitution.
+When invoked without arguments (`/ideation`), list the subcommands as plain text and ask the user to choose. Do NOT call `hubMenu` or any other tool — just output the list directly. Available methods: plan, brainstorm, decomposition, refine, overhaul, deep, graph, research, ralplan, ddd, event-storming, double-diamond, jtbd, impact-mapping, spiral, top-down, bottom-up, adversarial-debate, cleanroom, pwf, rpikit, hive, story-mapping, lean-canvas, constitution.
 
 ## With-Argument Behavior
 
@@ -61,6 +61,19 @@ Structured diverge/converge. Expands ideas through structured brainstorming, the
 > Refine: Diverge/converge iteration. I'll expand your idea through structured brainstorming, then help you converge on the strongest version.
 
 **Delegates to:** `idea-refine` skill
+
+---
+
+### `/ideation overhaul` — Project Overhaul
+
+**Method:** `overhaul`
+
+Analyze an existing project across configurable dimensions and produce a prioritized, phased implementation plan. Select from: architecture, performance, security, code quality/tech debt, testing, dependencies, developer experience. Use `overhaul:dim` to target a single dimension (e.g., `/ideation overhaul:arch`, `/ideation overhaul:sec`).
+
+**Reminder shown to user:**
+> Overhaul: Analyze your project across 8 refinement dimensions and produce a prioritized, phased implementation plan.
+
+**Delegates to:** `overhaul` skill
 
 ---
 
@@ -150,6 +163,7 @@ Load and execute the appropriate skill:
 | `plan` | `plan` |
 | `decomposition` | inline (executed directly) |
 | `refine` | `idea-refine` |
+| `overhaul` | `overhaul` |
 | `deep` | `deep-interview` |
 | `graph` | `graph-thinking` |
 | `research` | `ccg` |

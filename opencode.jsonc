@@ -1,99 +1,103 @@
 {
-  "$schema": "https://opencode.ai/config.json",
-  "model": "ollama/deepseek-v4-flash:cloud",
-  "default_agent": "hubs",
-  "provider": {
-    "opencode": {
-      "options": {}
-    },
-    "ollama": {
-      "name": "Ollama",
-      "npm": "@ai-sdk/openai-compatible",
-      "options": {
-        "baseURL": "http://127.0.0.1:11434/v1"
-      },
-      "models": {
-        "deepseek-v4-pro:cloud": {
-          "name": "deepseek-v4-pro:cloud",
-          "limit": { "context": 1048576, "output": 131072 }
+    "$schema": "https://opencode.ai/config.json",
+    "model": "ollama/deepseek-v4-flash:cloud",
+    "default_agent": "hubs",
+    "formatter": true,
+    "lsp": true,
+    "provider": {
+        "opencode": {
+            "options": {}
         },
-        "deepseek-v4-flash:cloud": {
-          "name": "deepseek-v4-flash:cloud",
-          "limit": { "context": 1048576, "output": 131072 }
-        },
-        "glm-5.1:cloud": {
-          "name": "glm-5.1:cloud",
-          "limit": { "context": 202752, "output": 131072 }
-        },
-        "glm-5:cloud": {
-          "name": "glm-5:cloud",
-          "limit": { "context": 202752, "output": 131072 }
-        },
-        "kimi-k2.6:cloud": {
-          "name": "kimi-k2.6:cloud",
-          "limit": { "context": 262144, "output": 262144 }
-        },
-        "minimax-m2.7:cloud": {
-          "name": "minimax-m2.7:cloud",
-          "limit": { "context": 204800, "output": 128000 }
-        },
-        "qwen3.6:cloud": {
-          "name": "qwen3.6:cloud",
-          "limit": { "context": 262144, "output": 32768 }
-        },
-        "nemotron-3-ultra:cloud": {
-          "name": "nemotron-3-ultra:cloud",
-          "limit": { "context": 262144, "output": 131072 }
+        "ollama": {
+            "name": "Ollama",
+            "npm": "@ai-sdk/openai-compatible",
+            "options": {
+                "baseURL": "http://127.0.0.1:11434/v1"
+            },
+            "models": {
+                "deepseek-v4-pro:cloud": {
+                    "name": "deepseek-v4-pro:cloud",
+                    "limit": {
+                        "context": 1048576,
+                        "output": 131072
+                    }
+                },
+                "deepseek-v4-flash:cloud": {
+                    "name": "deepseek-v4-flash:cloud",
+                    "limit": {
+                        "context": 1048576,
+                        "output": 131072
+                    }
+                },
+                "glm-5.1:cloud": {
+                    "name": "glm-5.1:cloud",
+                    "limit": {
+                        "context": 202752,
+                        "output": 131072
+                    }
+                },
+                "glm-5:cloud": {
+                    "name": "glm-5:cloud",
+                    "limit": {
+                        "context": 202752,
+                        "output": 131072
+                    }
+                },
+                "kimi-k2.6:cloud": {
+                    "name": "kimi-k2.6:cloud",
+                    "limit": {
+                        "context": 262144,
+                        "output": 262144
+                    }
+                },
+                "minimax-m2.7:cloud": {
+                    "name": "minimax-m2.7:cloud",
+                    "limit": {
+                        "context": 204800,
+                        "output": 128000
+                    }
+                },
+                "qwen3.6:cloud": {
+                    "name": "qwen3.6:cloud",
+                    "limit": {
+                        "context": 262144,
+                        "output": 32768
+                    }
+                },
+                "nemotron-3-ultra:cloud": {
+                    "name": "nemotron-3-ultra:cloud",
+                    "limit": {
+                        "context": 262144,
+                        "output": 131072
+                    }
+                }
+            }
         }
-      }
-    }
-  },
-  "permission": {
-    "edit": {
-      ".hubs/**": "allow",
-      ".opencode/**": "allow"
-    }
-  },
-  "mcp": {
-    "context7": {
-      "type": "remote",
-      "url": "https://mcp.context7.com/mcp",
-      "headers": {
-        "CONTEXT7_API_KEY": "{env:CONTEXT7_API_KEY}"
-      },
-      "enabled": true
-    }
-  },
-  "lsp": {
-    "typescript": {
-      "enabled": true,
-      "command": ["./node_modules/.bin/typescript-language-server", "--stdio"],
-      "extensions": ["ts", "tsx", "js", "jsx", "mjs", "cjs", "mts", "cts"]
     },
-    "css": {
-      "enabled": true,
-      "command": ["./node_modules/.bin/vscode-css-language-server", "--stdio"],
-      "extensions": ["css", "scss", "less"]
+    "permission": {
+        "edit": {
+            ".hubs/**": "allow",
+            ".opencode/**": "allow"
+        }
     },
-    "html": {
-      "enabled": true,
-      "command": ["./node_modules/.bin/vscode-html-language-server", "--stdio"],
-      "extensions": ["html", "htm"]
+    "mcp": {
+        "context7": {
+            "type": "remote",
+            "url": "https://mcp.context7.com/mcp",
+            "headers": {
+                "CONTEXT7_API_KEY": "{env:CONTEXT7_API_KEY}"
+            },
+            "enabled": true
+        }
     },
-    "json": {
-      "enabled": true,
-      "command": ["./node_modules/.bin/vscode-json-language-server", "--stdio"],
-      "extensions": ["json", "jsonc"]
-    }
-  },
-  "plugin": [
-    "./plugins/hubs-plugin.ts",
-    "./plugins/hubs-tui/index.js",
-    "@opencode-plugins/env-protection",
-    "@franlol/opencode-md-table-formatter@0.0.3"
-  ],
-  "instructions": [
-    "AGENTS.md",
-    "./rules/*"
-  ]
+    "plugin": [
+        "./plugins/hubs-plugin.ts",
+        "./plugins/hubs-tui/index.js",
+        "@opencode-plugins/env-protection",
+        "@franlol/opencode-md-table-formatter@0.0.3"
+    ],
+    "instructions": [
+        "AGENTS.md",
+        "./rules/*"
+    ]
 }

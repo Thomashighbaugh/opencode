@@ -61,6 +61,18 @@ const SUBCMDS = [
     description: "Best for: taking a rough idea and iteratively expanding then converging to the strongest version. Structured diverge/converge cycles."
   },
   {
+    name: "overhaul",
+    tagline: "Analyze project across 8 refinement dimensions — architecture, perf, security, quality, testing, deps, DX — and produce a prioritized phased implementation plan",
+    mode: { clarify: 0.3, explore: 0.5, structure: 0.9, evaluate: 0.9 },
+    scope:  { narrow: 0.8, broad: 0.8, vague: 0.4, concrete: 0.9 },
+    depth:  { quick: 0.2, thorough: 0.9, exhaustive: 0.8 },
+    rigor:  { loose: 0.1, structured: 0.9, formal: 0.8 },
+    outcome:{ deliverable: 1.0, understanding: 0.8, decision: 0.8 },
+    keywords: ["overhaul", "refactor", "improve project", "clean up", "tech debt", "fix codebase", "hardening", "code quality", "performance issues", "security issues", "audit project", "assess codebase", "improve code quality", "fix architecture", "optimize", "clean code", "poor design", "messy code", "analyze project"],
+    antiKeywords: ["new feature", "from scratch", "greenfield", "brainstorm", "idea"],
+    description: "Best for: analyzing an existing project that needs improvement. Scans across architecture, performance, security, code quality, testing, dependencies, and DX. Produces a prioritized, phased implementation plan."
+  },
+  {
     name: "deep",
     tagline: "Socratic interview with ambiguity gating — crystallizes vague requirements through probing questions",
     mode: { clarify: 1.0, explore: 0.4, structure: 0.5, evaluate: 0.5 },
