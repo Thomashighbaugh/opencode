@@ -58,6 +58,22 @@ interface SessionStats {
   }>
 }
 
+interface QueuedPrompt {
+  id: string
+  text: string
+  timestamp: string
+  status: 'queued' | 'submitted' | 'completed' | 'failed'
+  error?: string
+}
+
+interface PromptQueue {
+  items: QueuedPrompt[]
+  lastSubmittedId?: string
+  lastSubmittedAt?: string
+  paused: boolean
+  pausedReason?: string
+}
+
 interface KeywordMatch {
   name: string
   args: string
@@ -1079,7 +1095,166 @@ function generatePostToolMessage(toolName: string, toolOutput: string, toolCount
 }
 
 // ============================================================================
-// Main Plugin Export
+// Smart Prompt Queue — Complements Stall Detection
+// ============================================================================
+// When the LLM is actively working (tool calls happening, todos advancing),
+// user-submitted prompts are queued instead of interrupting. When the current
+// task completes (no more tool calls, all todos done, stall detected), the
+// next queued prompt is auto-submitted.
+//
+// This is NOT a "continue" mechanism — it only queues prompts the user
+// explicitly typed. It does NOT generate synthetic prompts.
+
+const PROMPT_QUEUE_FILE = 'prompt-queue.json'
+
+function getQueuePath(directory: string, sessionId: string): string {
+  return join(directory, '.opencode', 'state', 'sessions', sessionId, PROMPT_QUEUE_FILE)
+}
+
+function readQueue(directory: string, sessionId: string): PromptQueue {
+  const path = getQueuePath(directory, sessionId)
+  return readJsonFile<PromptQueue>(path) || { items: [], paused: false }
+}
+
+function writeQueue(directory: string, sessionId: string, queue: PromptQueue): void {
+  writeJsonFile(getQueuePath(directory, sessionId), queue)
+}
+
+function enqueuePrompt(directory: string, sessionId: string, text: string): QueuedPrompt {
+  const queue = readQueue(directory, sessionId)
+  const entry: QueuedPrompt = {
+    id: `q-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    text,
+    timestamp: new Date().toISOString(),
+    status: 'queued',
+  }
+  queue.items.push(entry)
+  writeQueue(directory, sessionId, queue)
+  return entry
+}
+
+function dequeueNext(directory: string, sessionId: string): QueuedPrompt | null {
+  const queue = readQueue(directory, sessionId)
+  const idx = queue.items.findIndex(i => i.status === 'queued')
+  if (idx === -1) return null
+  queue.items[idx].status = 'submitted'
+  queue.items[idx].timestamp = new Date().toISOString()
+  queue.lastSubmittedId = queue.items[idx].id
+  queue.lastSubmittedAt = queue.items[idx].timestamp
+  writeQueue(directory, sessionId, queue)
+  return queue.items[idx]
+}
+
+function markQueueItem(directory: string, sessionId: string, id: string, status: QueuedPrompt['status'], error?: string): void {
+  const queue = readQueue(directory, sessionId)
+  const item = queue.items.find(i => i.id === id)
+  if (!item) return
+  item.status = status
+  if (error) item.error = error
+  writeQueue(directory, sessionId, queue)
+}
+
+function getQueueStatus(directory: string, sessionId: string): { queued: number; submitted: number; completed: number; failed: number; paused: boolean } {
+  const queue = readQueue(directory, sessionId)
+  return {
+    queued: queue.items.filter(i => i.status === 'queued').length,
+    submitted: queue.items.filter(i => i.status === 'submitted').length,
+    completed: queue.items.filter(i => i.status === 'completed').length,
+    failed: queue.items.filter(i => i.status === 'failed').length,
+    paused: queue.paused,
+  }
+}
+
+function clearCompletedQueueItems(directory: string, sessionId: string): void {
+  const queue = readQueue(directory, sessionId)
+  queue.items = queue.items.filter(i => i.status === 'queued' || i.status === 'submitted')
+  writeQueue(directory, sessionId, queue)
+}
+
+/**
+ * Determine if the LLM is currently busy processing a task.
+ * Uses the same heartbeat data as stall detection.
+ */
+function isLlmBusy(directory: string, sessionId: string): boolean {
+  const stallStatus = classifyStall(directory, sessionId)
+  // ACTIVE or SLOW_POSSIBLE means the LLM is working
+  return stallStatus === 'ACTIVE' || stallStatus === 'SLOW_POSSIBLE'
+}
+
+/**
+ * Determine if the current task has completed.
+ * A task is complete when:
+ * 1. No tool calls in the warn threshold (120s) — STALLED_SOFT or worse
+ * 2. All todos are completed (0 remaining)
+ * 3. The last tool was not a long-running operation
+ */
+function isTaskComplete(directory: string, sessionId: string): boolean {
+  const stallStatus = classifyStall(directory, sessionId)
+  if (stallStatus === 'ACTIVE' || stallStatus === 'SLOW_POSSIBLE') return false
+
+  const hbPath = getHeartbeatPath(directory, sessionId)
+  const heartbeat = readJsonFile<HeartbeatEntry>(hbPath)
+  if (!heartbeat) return false
+
+  // All todos completed
+  if (heartbeat.todoProgress.remaining === 0 && heartbeat.todoProgress.completed > 0) return true
+
+  // Stalled hard — no activity for 5+ minutes
+  if (stallStatus === 'STALLED_HARD') return true
+
+  // Stalled soft with no remaining todos
+  if (stallStatus === 'STALLED_SOFT' && heartbeat.todoProgress.remaining === 0) return true
+
+  return false
+}
+
+/**
+ * Try to submit the next queued prompt.
+ * Returns the prompt text if submitted, null if nothing to submit or LLM is busy.
+ */
+function trySubmitNextQueued(directory: string, sessionId: string): string | null {
+  const queue = readQueue(directory, sessionId)
+  if (queue.paused) return null
+  if (queue.items.filter(i => i.status === 'queued').length === 0) return null
+
+  // Don't submit if LLM is still busy
+  if (isLlmBusy(directory, sessionId)) return null
+
+  // Don't submit if there's already a submitted item waiting
+  if (queue.items.some(i => i.status === 'submitted')) return null
+
+  const next = dequeueNext(directory, sessionId)
+  return next?.text || null
+}
+
+/**
+ * Generate a queue status context message for the LLM.
+ * Injected when there are queued prompts waiting.
+ */
+function generateQueueContext(directory: string, sessionId: string): string | null {
+  const status = getQueueStatus(directory, sessionId)
+  if (status.queued === 0 && status.submitted === 0) return null
+
+  const queue = readQueue(directory, sessionId)
+  const queuedItems = queue.items.filter(i => i.status === 'queued').slice(0, 5)
+  const submittedItem = queue.items.find(i => i.status === 'submitted')
+
+  let msg = `<prompt-queue>\n`
+  if (submittedItem) {
+    msg += `Current: "${submittedItem.text.substring(0, 100)}"\n`
+  }
+  if (queuedItems.length > 0) {
+    msg += `Queued (${status.queued}):\n`
+    for (const item of queuedItems) {
+      msg += `  - "${item.text.substring(0, 80)}"\n`
+    }
+  }
+  if (status.completed > 0) {
+    msg += `Completed: ${status.completed}\n`
+  }
+  msg += `</prompt-queue>`
+  return msg
+}
 // ============================================================================
 
 export const JocPlugin: Plugin = async ({ project, client, directory, worktree }) => {
@@ -1162,6 +1337,30 @@ export const JocPlugin: Plugin = async ({ project, client, directory, worktree }
         
         if (!prompt.trim()) return
         
+        // ── Smart Prompt Queue ──────────────────────────────────────────
+        // If the LLM is actively working (tool calls happening, todos advancing),
+        // queue the user's prompt instead of submitting it. When the current
+        // task completes, the next queued prompt is auto-submitted.
+        //
+        // This only applies to substantive user prompts — NOT to "continue" or
+        // "..." prompts which are handled by stall detection.
+        const isContinuePrompt = /^(\.\.\.|continue|go on|proceed)$/i.test(prompt.trim())
+        const sessionIdForQueue = event.properties.info?.id || ''
+        
+        if (!isContinuePrompt && sessionIdForQueue && isLlmBusy(directory, sessionIdForQueue)) {
+          const queued = enqueuePrompt(directory, sessionIdForQueue, prompt)
+          await client.app.log({
+            body: {
+              service: 'hubs-plugin',
+              level: 'info',
+              message: `[QUEUE] Prompt queued (${getQueueStatus(directory, sessionIdForQueue).queued} waiting): "${prompt.substring(0, 80)}"`,
+              extra: { queueId: queued.id }
+            }
+          })
+          return  // Don't process further — prompt is queued
+        }
+        
+        // ── Normal keyword detection (only for non-queued prompts) ──────
         const matches = detectKeywords(prompt)
         
         if (matches.length === 0) return
@@ -1302,6 +1501,32 @@ ${resolved.map(m => `- ${m.name}: Use /${m.name === 'ralph' ? 'ralph-loop' : m.n
       }
     }
     
+    // NEW: Prompt queue — when task completes, submit next queued prompt
+    if (sessionId && isTaskComplete(directory, sessionId)) {
+      const nextPrompt = trySubmitNextQueued(directory, sessionId)
+      if (nextPrompt) {
+        // Mark the current submitted item as completed
+        const queue = readQueue(directory, sessionId)
+        const submitted = queue.items.find(i => i.status === 'submitted')
+        if (submitted) {
+          markQueueItem(directory, sessionId, submitted.id, 'completed')
+        }
+        // Inject queue context so the LLM knows what's next
+        const queueCtx = generateQueueContext(directory, sessionId)
+        if (queueCtx) {
+          queueContextMessage(sessionId, queueCtx)
+        }
+        await client.app.log({
+          body: {
+            service: 'hubs-plugin',
+            level: 'info',
+            message: `[QUEUE] Auto-submitting next queued prompt: "${nextPrompt.substring(0, 80)}"`,
+            extra: { queueStatus: getQueueStatus(directory, sessionId) }
+          }
+        })
+      }
+    }
+    
     // Only remind on actual failures (not on routine operations)
     const message = generatePostToolMessage(toolName, toolOutput, toolCount)
     if (message && sessionId && toolName !== 'TodoWrite' && !toolName.startsWith('Read')) {
@@ -1321,6 +1546,13 @@ ${resolved.map(m => `- ${m.name}: Use /${m.name === 'ralph' ? 'ralph-loop' : m.n
     if (!sessionId) return
     
     const messages = consumeContextMessages(sessionId)
+    
+    // NEW: Inject prompt queue status so the LLM knows about queued prompts
+    const queueCtx = generateQueueContext(directory, sessionId)
+    if (queueCtx) {
+      messages.push(queueCtx)
+    }
+    
     if (messages.length === 0) return
     
     const contextBlock = `<hubs-plugin-context>\n${messages.join('\n\n')}\n</hubs-plugin-context>`
@@ -1351,6 +1583,17 @@ ${resolved.map(m => `- ${m.name}: Use /${m.name === 'ralph' ? 'ralph-loop' : m.n
     const todoStatus = getTodoStatus(directory)
     if (todoStatus) {
       output.context.push(`## Pending Tasks\n${todoStatus}\n`)
+    }
+    
+    // NEW: Preserve prompt queue state across context compression
+    if (sessionId) {
+      const queueStatus = getQueueStatus(directory, sessionId)
+      if (queueStatus.queued > 0 || queueStatus.submitted > 0) {
+        const queueCtx = generateQueueContext(directory, sessionId)
+        if (queueCtx) {
+          output.context.push(`## Prompt Queue\n${queueCtx}\n`)
+        }
+      }
     }
     
     const projectMemoryPath = join(directory, '.opencode', 'state', 'project-memory.json')

@@ -531,3 +531,39 @@ Adopt an 11-approach architecture for the per-repo customization engine, each ap
 ## See Also
 - `.opencode/context/frameworks/per-repo-customization-engine.md` — Full 11-approach design document
 - `.opencode/context/frameworks/per-repo-deployment-architecture.md` — Parent architecture proposal
+
+---
+
+# ADR: Smart Prompt Queue — Non-Interrupting User Prompt Sequencing
+
+**Status:** Accepted
+**Date:** 2026-06-14
+
+## Context
+When the LLM is actively working (tool calls happening, todos advancing), any prompt the user types is submitted immediately — interrupting the current task mid-stream. If the user types multiple prompts while waiting, only the last one is processed. The stall detection system (ADR June 14) handles the "LLM is stuck" case but does nothing for the "LLM is busy, user has more to say" case.
+
+## Decision
+Implement a smart prompt queue that:
+1. **Queues substantive user prompts** when the LLM is busy (heartbeat shows activity within 15-60s)
+2. **Does NOT queue** continuation signals ("...", "continue", "go on") — those are handled by stall detection
+3. **Auto-submits** the next queued prompt when the current task completes (no tool calls in 120s+ AND all todos done)
+4. **Persists** the queue to `.opencode/state/sessions/{id}/prompt-queue.json` across sessions
+5. **Injects queue context** into the LLM's system prompt so it knows more prompts are waiting
+
+## Rationale
+- Preserves user intent across task boundaries without interrupting active work
+- Complements stall detection without overlapping (stall = stuck, queue = busy)
+- No synthetic prompts — only what the user actually typed
+- Survives context compression and session restarts
+
+## Consequences
+- `hubs-plugin.ts` updated with queue storage, enqueue/dequeue, completion detection
+- `tui.prompt.append` hook intercepts prompts when LLM is busy
+- `tool.execute.after` checks for task completion and auto-submits next prompt
+- `experimental.chat.system.transform` injects queue status into LLM context
+- `experimental.session.compacting` preserves queue state
+- Framework document: `context/frameworks/smart-prompt-queue.md`
+
+## See Also
+- `.opencode/context/frameworks/smart-prompt-queue.md` — Full design document
+- `.opencode/context/frameworks/stall-detection-and-recovery.md` — Complementary stall detection
