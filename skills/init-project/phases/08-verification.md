@@ -68,8 +68,17 @@ verify_jsonc() {
         return 1
     fi
 
+    # Check for invalid top-level keys that cause startup errors
+    local invalid_keys=("tools" "agents" "commands" "rules" "agentPaths" "project")
+    for key in "${invalid_keys[@]}"; do
+        if jq -e ".$key" "$config" > /dev/null 2>&1; then
+            echo "ERROR: Invalid top-level key '$key' in opencode.jsonc — OpenCode does not recognize this key and it may cause startup failures"
+            return 1
+        fi
+    done
+
     # Check required fields
-    local required_fields=("provider" "instructions")
+    local required_fields=("model" "default_agent" "provider" "instructions")
     for field in "${required_fields[@]}"; do
         if ! jq -e ".$field" "$config" > /dev/null 2>&1; then
             echo "ERROR: Missing required field in opencode.jsonc: $field"
@@ -77,7 +86,7 @@ verify_jsonc() {
         fi
     done
 
-    echo "✓ opencode.jsonc syntax valid"
+    echo "✓ opencode.jsonc syntax valid, no invalid keys"
     return 0
 }
 ```

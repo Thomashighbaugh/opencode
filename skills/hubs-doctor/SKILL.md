@@ -324,15 +324,19 @@ fi
 cat > "$GLOBAL_DIR/opencode.jsonc" << 'EOF'
 {
   "$schema": "https://opencode.ai/config.json",
+  "model": "ollama/deepseek-v4-flash:cloud",
+  "default_agent": "hubs",
+  "formatter": true,
+  "lsp": true,
   "provider": {},
-  "instructions": [
-    "AGENTS.md"
-  ],
+  "permission": {
+    "edit": { ".opencode/**": "allow" }
+  },
+  "mcp": {},
+  "plugin": ["./plugins/hubs-plugin.ts"],
+  "instructions": ["AGENTS.md"],
   "skills": {
-    "paths": [
-      "./.opencode/skills",
-      "./skills"
-    ]
+    "paths": ["./.opencode/skills", "./skills"]
   }
 }
 EOF

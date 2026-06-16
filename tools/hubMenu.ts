@@ -178,12 +178,22 @@ const HUBS: HubDefinition[] = [
 // Invalidated by process restart OR explicit cache clear.
 const _routeCache = getCache("tool")
 
+// Cache the project root to avoid forking git on every call
+let _cachedProjectRoot: string | null = null
+
 function getProjectRoot(): string {
+  if (_cachedProjectRoot) return _cachedProjectRoot
   try {
     const result = require('child_process').execSync('git rev-parse --show-toplevel 2>/dev/null', { encoding: 'utf-8' }).trim()
-    if (result) return result
-  } catch {}
-  return process.cwd()
+    if (result) {
+      _cachedProjectRoot = result
+      return result
+    }
+  } catch {
+    // Fallback to CWD if not a git repo
+  }
+  _cachedProjectRoot = process.cwd()
+  return _cachedProjectRoot
 }
 
 function getStateDir(hub: HubDefinition): string {
@@ -220,23 +230,33 @@ function getStateInfo(hub: HubDefinition): Record<string, unknown> {
     } catch {}
   }
 
-  // Fallback: recursive scan (only if no index file)
+  // Fallback: limited-depth scan (only if no index file)
+  // Uses depth-first traversal capped at 3 levels to avoid O(n) on large dirs
   const files: Array<{name: string; modified: string; size: number}> = []
-  try {
-    for (const entry of fs.readdirSync(stateDir, { recursive: true, withFileTypes: false })) {
-      const filePath = path.join(stateDir, entry as string)
-      try {
-        const stat = fs.statSync(filePath)
-        if (stat.isFile() && !(entry as string).endsWith('index.json')) {
-          files.push({
-            name: entry as string,
-            modified: stat.mtime.toISOString(),
-            size: stat.size
-          })
+  const MAX_SCAN_DEPTH = 3
+  function scanDir(dir: string, depth: number = 0): void {
+    if (depth > MAX_SCAN_DEPTH) return
+    try {
+      const entries = fs.readdirSync(dir, { withFileTypes: true })
+      for (const entry of entries) {
+        const entryPath = path.join(dir, entry.name)
+        const relPath = path.relative(stateDir, entryPath)
+        if (entry.isDirectory()) {
+          scanDir(entryPath, depth + 1)
+        } else if (entry.isFile() && !entry.name.endsWith('index.json')) {
+          try {
+            const stat = fs.statSync(entryPath)
+            files.push({ name: relPath, modified: stat.mtime.toISOString(), size: stat.size })
+          } catch {
+            // Race condition: file deleted between readdir and stat
+          }
         }
-      } catch {}
+      }
+    } catch {
+      // Permission or not-found — skip silently
     }
-  } catch {}
+  }
+  scanDir(stateDir)
 
   return {
     hasState: files.length > 0,
@@ -252,15 +272,25 @@ function updateStateIndex(stateDir: string): void {
   if (!stateDir || !fs.existsSync(stateDir)) return
   try {
     const files: Array<{name: string; modified: string; size: number}> = []
-    for (const entry of fs.readdirSync(stateDir, { recursive: true, withFileTypes: false })) {
-      const filePath = path.join(stateDir, entry as string)
-      try {
-        const stat = fs.statSync(filePath)
-        if (stat.isFile() && !(entry as string).endsWith('index.json')) {
-          files.push({ name: entry as string, modified: stat.mtime.toISOString(), size: stat.size })
+    const MAX_SCAN_DEPTH = 3
+    function scanDir(dir: string, depth: number = 0): void {
+      if (depth > MAX_SCAN_DEPTH) return
+      const entries = fs.readdirSync(dir, { withFileTypes: true })
+      for (const entry of entries) {
+        const entryPath = path.join(dir, entry.name)
+        if (entry.isDirectory()) {
+          scanDir(entryPath, depth + 1)
+        } else if (entry.isFile() && !entry.name.endsWith('index.json')) {
+          try {
+            const stat = fs.statSync(entryPath)
+            files.push({ name: path.relative(stateDir, entryPath), modified: stat.mtime.toISOString(), size: stat.size })
+          } catch {
+            // Race: file deleted between readdir and stat
+          }
         }
-      } catch {}
+      }
     }
+    scanDir(stateDir)
     const sorted = files.sort((a, b) => b.modified.localeCompare(a.modified))
     fs.writeFileSync(path.join(stateDir, 'index.json'), JSON.stringify({
       count: sorted.length,

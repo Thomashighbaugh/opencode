@@ -61,11 +61,20 @@ Always read the current state before proposing changes:
 
 **Main config:**
 ```json
-// opencode.jsonc structure:
+// opencode.jsonc structure — only valid top-level keys:
 {
   "$schema": "https://opencode.ai/config.json",
   "model": "provider/model-id",
+  "small_model": "provider/model-id",
   "default_agent": "agent-name",
+  "username": "string",
+  "shell": "/bin/zsh",
+  "logLevel": "DEBUG | INFO | WARN | ERROR",
+  "formatter": true,
+  "lsp": true,
+  "share": "manual | auto | disabled",
+  "autoupdate": true | false | "notify",
+  "snapshot": true,
   "provider": {
     "provider-name": {
       "name": "Display Name",
@@ -74,11 +83,22 @@ Always read the current state before proposing changes:
       "models": { "model-id": { "name": "...", "limit": { "context": N, "output": N } } }
     }
   },
+  "disabled_providers": ["openai"],
+  "enabled_providers": ["anthropic"],
   "permission": { "edit": { "pattern": "allow" } },
   "mcp": { "server-name": { "type": "remote|local", "url": "...", "enabled": true } },
   "plugin": [ "./plugins/*.ts", "@npm/package" ],
-  "instructions": [ "AGENTS.md", "./rules/*" ]
+  "instructions": [ "AGENTS.md", "./rules/*" ],
+  "skills": { "paths": ["./.opencode/skills"] },
+  "command": { "my-cmd": { "template": "...", "description": "..." } },
+  "agent": { "my-agent": { "model": "...", "mode": "subagent", "description": "..." } },
+  "references": { "docs": { "path": "../docs", "description": "..." } },
+  "tool_output": { "max_lines": 200, "max_bytes": 8192 },
+  "compaction": { "auto": true, "tail_turns": 15 },
+  "experimental": { "primary_tools": ["edit"], "mcp_timeout": 30000 }
 }
+// NOTE: 'tools' is NOT a valid top-level key. Tools are auto-discovered from the tools/ directory.
+// NOTE: 'agents', 'commands', 'rules' are NOT valid top-level keys. They are auto-discovered from their directories.
 ```
 
 **Agents dir:**

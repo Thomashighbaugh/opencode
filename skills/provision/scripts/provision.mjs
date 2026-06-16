@@ -173,7 +173,7 @@ function detectProject(opts) {
 
 /**
  * Detect available language servers on the system and map them to the project's language.
- * Returns an object suitable for the "lsp" key in opencode.jsonc.
+ * Returns an object keyed by LSP name — used to determine if lsp should be true/false in opencode.jsonc.
  */
 function detectAvailableLsps(language) {
   const lspConfig = {};
@@ -1657,19 +1657,18 @@ function generateInstall(generated, detection, opts) {
   // Generate opencode.jsonc with LSP config if it doesn't exist
   if (!fs.existsSync(configPath)) {
     const lspEntries = detection.lsp || {};
-    const lspSection = Object.keys(lspEntries).length > 0
-      ? Object.entries(lspEntries).map(([k, v]) => `    "${k}": ${JSON.stringify(v)}`).join(',\n')
-      : '';
+    const hasLsp = Object.keys(lspEntries).length > 0;
 
     const configContent = `{
   "$schema": "https://opencode.ai/config.json",
+  "model": "ollama/deepseek-v4-flash:cloud",
+  "default_agent": "hubs",
+  "formatter": true,
+  "lsp": ${hasLsp ? 'true' : 'false'},
   "permission": {
     "edit": { ".opencode/**": "allow" }
   },
   "mcp": {},
-  "lsp": {
-${lspEntries ? Object.entries(lspEntries).map(([k, v]) => `    "${k}": ${JSON.stringify(v)}`).join(',\n') : '    // No language servers detected'}
-  },
   "skills": { "paths": ["./.opencode/skills"] },
   "plugin": ["./plugins/hubs-plugin.ts"],
   "instructions": ["AGENTS.md"]

@@ -26,14 +26,14 @@ const SAVE = args.includes('--save');
 const VERBOSE = args.includes('--verbose');
 
 // Known valid top-level keys from https://opencode.ai/config.json
-// These are the OFICIALLY SUPPORTED keys as of 2026-06
+// These are the OFFICIALLY SUPPORTED keys as of 2026-06
 const VALID_KEYS = new Set([
   '$schema', 'shell', 'logLevel', 'server', 'command', 'skills',
-  'references', 'reference', 'watcher', 'snapshot', 'plugin',
-  'share', 'autoshare', 'autoupdate', 'disabled_providers', 'enabled_providers',
-  'model', 'small_model', 'default_agent', 'username', 'mode', 'agent',
-  'provider', 'mcp', 'formatter', 'lsp', 'instructions', 'layout',
-  'permission', 'tools', 'attachment', 'enterprise', 'tool_output',
+  'references', 'watcher', 'snapshot', 'plugin',
+  'share', 'autoupdate', 'disabled_providers', 'enabled_providers',
+  'model', 'small_model', 'default_agent', 'username', 'agent',
+  'provider', 'mcp', 'formatter', 'lsp', 'instructions',
+  'permission', 'attachment', 'enterprise', 'tool_output',
   'compaction', 'experimental',
 ]);
 

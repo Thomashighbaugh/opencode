@@ -1,15 +1,16 @@
 node_modules/
 dist/
-state/
-state/sessions/
-chat-history/
-chat/
 *.log
 .DS_Store
-**/state/*
 opencode.json
+
+# Runtime-generated state files
 .session-stats.json
 env.d.ts
 opencode-notifier-state.json
-.vector/
-cache/
+opencode-notifier.json
+
+# Project-level .opencode/ state and cache (gitignored, ephemeral)
+.opencode/state/
+.opencode/cache/
+.opencode/.vector/

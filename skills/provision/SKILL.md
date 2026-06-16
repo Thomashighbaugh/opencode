@@ -226,17 +226,15 @@ Detection captures:
 
 ### LSP Detection
 
-The scanner checks for installed language server binaries and generates an `lsp` section in `opencode.jsonc`:
+The scanner checks for installed language server binaries and sets the `lsp` boolean in `opencode.jsonc`:
 
 ```jsonc
-"lsp": {
-  "typescript": { "enabled": true },    // typescript-language-server found
-  "css": { "enabled": true },           // always enabled (built into OpenCode)
-  "html": { "enabled": true },          // always enabled (built into OpenCode)
-  "json": { "enabled": true },          // always enabled (built into OpenCode)
-  "rust": { "enabled": true }           // rust-analyzer found on system
+{
+  "lsp": true   // Language servers detected on system
 }
 ```
+
+The `lsp` key is a boolean (`true`/`false`), not an object. Language servers are auto-detected by OpenCode at runtime.
 
 Supported LSPs by language:
 

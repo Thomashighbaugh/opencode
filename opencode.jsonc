@@ -36,34 +36,6 @@
                         "output": 131072
                     }
                 },
-                "glm-5:cloud": {
-                    "name": "glm-5:cloud",
-                    "limit": {
-                        "context": 202752,
-                        "output": 131072
-                    }
-                },
-                "kimi-k2.6:cloud": {
-                    "name": "kimi-k2.6:cloud",
-                    "limit": {
-                        "context": 262144,
-                        "output": 262144
-                    }
-                },
-                "minimax-m2.7:cloud": {
-                    "name": "minimax-m2.7:cloud",
-                    "limit": {
-                        "context": 204800,
-                        "output": 128000
-                    }
-                },
-                "qwen3.6:cloud": {
-                    "name": "qwen3.6:cloud",
-                    "limit": {
-                        "context": 262144,
-                        "output": 32768
-                    }
-                },
                 "nemotron-3-ultra:cloud": {
                     "name": "nemotron-3-ultra:cloud",
                     "limit": {
@@ -78,7 +50,17 @@
         "edit": {
             ".hubs/**": "allow",
             ".opencode/**": "allow"
-        }
+        },
+        "websearch": "allow",
+        "webfetch": "allow",
+        "lsp": "allow",
+        "bash": "allow",
+        "read": "allow",
+        "grep": "allow",
+        "glob": "allow",
+        "skill": "allow",
+        "todowrite": "allow",
+        "question": "allow"
     },
     "mcp": {
         "context7": {
@@ -91,7 +73,7 @@
         }
     },
     "plugin": [
-        "./plugins/hubs-plugin.ts",
+        "./plugins/core/hooks.ts",
         "./plugins/hubs-tui/index.js",
         "@opencode-plugins/env-protection",
         "@franlol/opencode-md-table-formatter@0.0.3"

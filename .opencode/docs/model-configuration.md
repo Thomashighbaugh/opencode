@@ -18,24 +18,28 @@ Hubs uses ollama cloud models by default, providing a balance of capability and 
 
 ## Default Models
 
-| Model | Context | Output | Best For | Notes |
-|-------|---------|--------|----------|-------|
-| **glm-5.1:cloud** | 202K | 131K | General purpose, most tasks | Default for most agents |
-| **kimi-k2.5:cloud** | 262K | 262K | Extended context, long documents | Same input/output context |
-| **minimax-m2.7:cloud** | 205K | 128K | High performance tasks | Balanced performance |
-| **qwen3.5:cloud** | 262K | 32K | Long document processing | Limited output |
+| Model | Context | Output | Tier | Best For | Notes |
+|-------|---------|--------|------|----------|-------|
+| **deepseek-v4-pro:cloud** | 1M | 131K | **Top** | Frontier reasoning, agentic tasks | Default for complex architecture |
+| **deepseek-v4-flash:cloud** | 1M | 131K | **Mid** | Fast efficient reasoning | Default for most agents |
+| **nemotron-3-ultra:cloud** | 256K | 131K | **Mid** | Agent orchestration, long-running agents | Parallel execution |
+| **glm-5.1:cloud** | 202K | 131K | **Fast** | General purpose, most tasks | Fast tier |
+| **kimi-k2.6:cloud** | 262K | 262K | — | Extended context, long documents | Same input/output context |
+| **minimax-m2.7:cloud** | 205K | 128K | — | High performance tasks | Balanced performance |
+| **qwen3.6:cloud** | 262K | 32K | — | Long document processing | Limited output |
 
 ### Model Selection by Task
 
-| Task Type | Recommended Model | Reason |
-|-----------|-------------------|--------|
-| Implementation | glm-5.1:cloud | Balanced, cost-effective |
-| Architecture | opus | Deep reasoning (override) |
-| Search/Explore | haiku | Fast, efficient |
-| Documentation | haiku | Simple generation |
-| Security Review | opus | Critical analysis (override) |
-| Long documents | kimi-k2.5:cloud | Extended context |
-| Complex analysis | minimax-m2.7:cloud | High performance |
+| Task Type | Tier | Recommended Model | Reason |
+|-----------|------|-------------------|--------|
+| Implementation | Mid | deepseek-v4-flash:cloud | Balanced, cost-effective |
+| Architecture | Top | deepseek-v4-pro:cloud | Deep reasoning |
+| Agent Orchestration | Mid | nemotron-3-ultra:cloud | Long-running agents |
+| Search/Explore | Fast | glm-5.1:cloud | Fast, efficient |
+| Documentation | Fast | glm-5.1:cloud | Simple generation |
+| Security Review | Top | deepseek-v4-pro:cloud | Critical analysis |
+| Long documents | — | kimi-k2.6:cloud | Extended context |
+| Complex analysis | Mid | minimax-m2.7:cloud | High performance |
 
 ## Model Properties
 
@@ -224,33 +228,25 @@ model: my-custom-model
 
 ### Tiered Model Strategy
 
-Configure different models for different agent types:
+Configured in `opencode.jsonc` under `hubs.modelTiering`:
 
 ```jsonc
 {
-  "provider": {
-    "ollama": {
-      "models": {
-        // Fast tier - reading, searching, simple generation
-        "fast-model": {
-          "limit": { "context": 50000, "output": 2000 },
-          "tier": "fast"
-        },
-        // Standard tier - most operations
-        "glm-5.1:cloud": {
-          "limit": { "context": 200000, "output": 100000 },
-          "tier": "standard"
-        },
-        // Deep tier - complex reasoning
-        "deep-model": {
-          "limit": { "context": 300000, "output": 20000 },
-          "tier": "deep"
-        }
-      }
+  "hubs": {
+    "modelTiering": {
+      "top": "ollama/deepseek-v4-pro:cloud",
+      "mid": ["ollama/deepseek-v4-flash:cloud", "ollama/nemotron-3-ultra:cloud"],
+      "fast": "ollama/glm-5.1:cloud"
     }
   }
 }
 ```
+
+| Tier | Models | Use Case |
+|------|--------|----------|
+| **Top** | deepseek-v4-pro:cloud | Complex architecture, security review, deep reasoning |
+| **Mid** | deepseek-v4-flash:cloud, nemotron-3-ultra:cloud | Implementation, agent orchestration, most tasks |
+| **Fast** | glm-5.1:cloud | Search, explore, documentation, simple generation |
 
 ### Model Routing
 

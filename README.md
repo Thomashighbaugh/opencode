@@ -2,7 +2,9 @@
 
 > Hub-Driven Multi-Agent Orchestration for OpenCode — Interactive Menus, Not Memorization.
 
-The name derives from the hub-and-spoke orchestration concept — a central operations hub that coordinates specialized units rather than trying to do everything itself. Each hub dispatches to a curated roster of 29 agents, 64 skills, and 6 commands through structured menus instead of requiring you to remember every capability's exact name.
+The name derives from the hub-and-spoke orchestration concept — a central operations hub that coordinates specialized units rather than trying to do everything itself. Each hub dispatches to a curated roster of 29 agents, 76 skills, 14 tools, and 2 commands through structured menus instead of requiring you to remember every capability's exact name.
+
+The codebase is continuously optimized — `getProjectRoot()` is cached to avoid redundant git forks, state directory scans are depth-limited to O(1), and the plugin system is split into focused modules (session, modes, keywords, hooks) for maintainability. Model tiering (top/mid/fast) provides intelligent routing across deepseek-v4-pro, deepseek-v4-flash, nemotron-3-ultra, and glm-5.1.
 
 ---
 
@@ -226,7 +228,7 @@ Natural language triggers that invoke subcommands directly, bypassing the menu. 
 
 ---
 
-## What\'s Inside
+## What's Inside
 
 ### Agents (29)
 
@@ -239,7 +241,7 @@ Natural language triggers that invoke subcommands directly, bypassing the menu. 
 | Workflow | @tracer, @git-master, @debugger, @config-orchestrator |
 | Specialized | @effort-estimator, @prompt-simplifier, @skill-creator, @requirements-analyzer, @commit-drafter |
 
-### Skills (64)
+### Skills (76)
 
 | Category | Key Skills |
 |----------|------------|
@@ -250,7 +252,7 @@ Natural language triggers that invoke subcommands directly, bypassing the menu. 
 | Setup | init-project, hubs-doctor, hubs-reference, mcp-setup |
 | Hubs | ideation, orchestrate, project, harvest-context |
 
-### Commands (6)
+### Commands (2)
 
 | Command | Purpose |
 |---------|---------|
@@ -261,7 +263,7 @@ Natural language triggers that invoke subcommands directly, bypassing the menu. 
 | `/project` | Project operations hub |
 | `/skill` | Manage workflow skills |
 
-### Tools (10)
+### Tools (14)
 
 | Tool | Description |
 |------|-------------|
@@ -275,6 +277,10 @@ Natural language triggers that invoke subcommands directly, bypassing the menu. 
 | `getSessionID` | Retrieve the current OpenCode session identifier |
 | `saveCommitMessage` | Persist a commit message for the current session |
 | `getCommitMessage` | Retrieve a previously saved commit message |
+| `hubMenu` | Hub menu router — parse subcommands, check state, route delegation |
+| `cache` | Multi-tier prompt cache management (tool, mcp, llm, agent, session) |
+| `agent-cache` | Tier 4 agent output cache — avoid re-executing identical subagent tasks |
+| `cache-utils` | Shared cache infrastructure — SHA-256 keying, TTL, disk+memory LRU |
 
 ---
 
@@ -282,16 +288,16 @@ Natural language triggers that invoke subcommands directly, bypassing the menu. 
 
 Default Ollama cloud models configured in `opencode.jsonc`:
 
-| Model | Context | Output | Best For |
-|-------|---------|--------|----------|
-| deepseek-v4-pro:cloud | 1M | 131K | Default — frontier reasoning, agentic tasks |
-| deepseek-v4-flash:cloud | 1M | 131K | Fast efficient reasoning |
-| nemotron-3-ultra:cloud | 256K | 131K | Agent orchestration, long-running agents |
-| glm-5.1:cloud | 202K | 131K | General purpose |
-| glm-5:cloud | 202K | 131K | General purpose |
-| kimi-k2.6:cloud | 262K | 262K | Extended context |
-| minimax-m2.7:cloud | 205K | 128K | High performance |
-| qwen3.6:cloud | 262K | 32K | Long documents |
+| Model | Context | Output | Tier | Best For |
+|-------|---------|--------|------|----------|
+| deepseek-v4-pro:cloud | 1M | 131K | **Top** | Frontier reasoning, agentic tasks |
+| deepseek-v4-flash:cloud | 1M | 131K | **Mid** | Fast efficient reasoning |
+| nemotron-3-ultra:cloud | 256K | 131K | **Mid** | Agent orchestration, long-running agents |
+| glm-5.1:cloud | 202K | 131K | **Fast** | General purpose |
+| glm-5:cloud | 202K | 131K | Fast | General purpose |
+| kimi-k2.6:cloud | 262K | 262K | — | Extended context |
+| minimax-m2.7:cloud | 205K | 128K | — | High performance |
+| qwen3.6:cloud | 262K | 32K | — | Long documents |
 
 ---
 
@@ -302,16 +308,23 @@ Default Ollama cloud models configured in `opencode.jsonc`:
 ├── opencode.jsonc          # Main configuration
 ├── AGENTS.md               # Project-level agent instructions
 ├── agents/                 # 29 agent definitions
-├── skills/                 # 64 workflow skills
-├── commands/               # 6 commands
-├── tools/                  # 10 TypeScript tools
-├── plugins/                # Hubs plugin + TUI
-├── rules/                  # 11 shared rules
+├── skills/                 # 76 workflow skills
+├── commands/               # 2 commands
+├── tools/                  # 14 TypeScript tools
+├── plugins/                # Hubs plugin system
+│   ├── hubs-plugin.ts      # Original monolith (preserved)
+│   └── core/               # Split into focused modules
+│       ├── session.ts      # Session lifecycle & stats
+│       ├── modes.ts        # Mode state CRUD
+│       ├── keywords.ts     # Magic keyword detection
+│       └── hooks.ts        # All hook handlers (entry point)
+├── rules/                  # 13 shared rules
 ├── templates/              # File templates
 ├── .opencode/              # Project-scoped config (committed)
 │   ├── state/              # Session state (gitignored)
 │   ├── context/            # Durable knowledge (committed)
-│   └── CHANGELOG.md        # Change log
+│   ├── cache/              # Multi-tier prompt cache (gitignored)
+│   └── docs/               # Reference documentation
 └── .documentation/         # Reference documentation
 ```
 

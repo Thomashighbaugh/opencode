@@ -1,6 +1,6 @@
 ---
 description: Strategic planning consultant with interview workflow (Opus)
-model: ollama/deepseek-v4-flash:cloud
+model: ollama/deepseek-v4-pro:cloud
 mode: subagent
 ---
 

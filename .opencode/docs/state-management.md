@@ -28,6 +28,12 @@ Hubs maintains state across sessions to enable:
 
 ## State Architecture
 
+### Performance Optimizations
+
+- **Depth-limited scans**: State directory traversal is capped at `MAX_SCAN_DEPTH=3` to prevent O(n) performance degradation on large state directories
+- **Index.json auto-updater**: After every state write, a lightweight index file is updated — subsequent reads use the index instead of a full directory scan
+- **`getProjectRoot()` cached**: The project root is resolved once via `git rev-parse` and cached for the session lifetime, avoiding redundant child process forks
+
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                     OpenCode Session                             │

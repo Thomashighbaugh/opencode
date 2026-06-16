@@ -41,7 +41,7 @@ fi
 
 ### Step 2: Generate opencode.jsonc
 
-Read language-specific template and generate:
+Read language-specific template and generate a valid OpenCode config. Only use keys from the official schema: `$schema`, `model`, `default_agent`, `provider`, `permission`, `mcp`, `plugin`, `instructions`, `skills`, `formatter`, `lsp`, `experimental`, `tool_output`, `compaction`. The `tools` key is NOT valid — tools are auto-discovered from the `tools/` directory.
 
 ```bash
 generate_opencode_jsonc() {
@@ -52,75 +52,34 @@ generate_opencode_jsonc() {
     cat > "$output" << 'JSONC_EOF'
 {
   "$schema": "https://opencode.ai/config.json",
+  "model": "ollama/deepseek-v4-flash:cloud",
+  "default_agent": "hubs",
+  "formatter": true,
+  "lsp": true,
   "provider": {
-    "opencode": { "options": {} },
     "ollama": {
+      "name": "Ollama",
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://127.0.0.1:11434/v1"
+      },
       "models": {
-        "glm-5.1:cloud": { "_launch": true, "limit": { "context": 202752, "output": 131072 } },
-        "kimi-k2.5:cloud": { "_launch": true, "limit": { "context": 262144, "output": 262144 } },
-        "minimax-m2.7:cloud": { "_launch": true, "limit": { "context": 204800, "output": 128000 } },
-        "qwen3.5:cloud": { "_launch": true, "limit": { "context": 262144, "output": 32768 } }
+        "deepseek-v4-pro:cloud": { "name": "deepseek-v4-pro:cloud", "limit": { "context": 1048576, "output": 131072 } },
+        "deepseek-v4-flash:cloud": { "name": "deepseek-v4-flash:cloud", "limit": { "context": 1048576, "output": 131072 } },
+        "glm-5.1:cloud": { "name": "glm-5.1:cloud", "limit": { "context": 202752, "output": 131072 } },
+        "nemotron-3-ultra:cloud": { "name": "nemotron-3-ultra:cloud", "limit": { "context": 262144, "output": 131072 } }
       }
     }
   },
   "permission": {
-    "edit": { ".opencode/state/**": "allow" }
+    "edit": { ".opencode/**": "allow" }
   },
   "mcp": {},
-JSONC_EOF
-
-    # Add language-specific tools
-    case "$lang" in
-        typescript|javascript)
-            cat >> "$output" << 'TOOLS_EOF'
-  "tools": {
-    "getSessionID": "./tools/getSessionID.ts",
-    "saveCommitMessage": "./tools/saveCommitMessage.ts",
-    "getCommitMessage": "./tools/getCommitMessage.ts",
-    "loadSkill": "./tools/loadSkill.ts",
-    "agentContext": "./tools/agentContext.ts",
-    "listAgents": "./tools/listAgents.ts",
-    "modeState": "./tools/modeState.ts",
-    "taskTodos": "./tools/taskTodos.ts",
-    "runSkillScript": "./tools/runSkillScript.ts",
-    "artifacts": "./tools/artifacts.ts"
-  },
-TOOLS_EOF
-            ;;
-        python)
-            cat >> "$output" << 'TOOLS_EOF'
-  "tools": {
-    "getSessionID": "./tools/getSessionID.ts",
-    "saveCommitMessage": "./tools/saveCommitMessage.ts",
-    "getCommitMessage": "./tools/getCommitMessage.ts",
-    "loadSkill": "./tools/loadSkill.ts",
-    "agentContext": "./tools/agentContext.ts",
-    "listAgents": "./tools/listAgents.ts",
-    "modeState": "./tools/modeState.ts",
-    "taskTodos": "./tools/taskTodos.ts",
-    "runSkillScript": "./tools/runSkillScript.ts",
-    "artifacts": "./tools/artifacts.ts"
-  },
-TOOLS_EOF
-            ;;
-        *)
-            cat >> "$output" << 'TOOLS_EOF'
-  "tools": {},
-TOOLS_EOF
-            ;;
-    esac
-
-    # Close JSON — only valid OpenCode config keys
-    # See https://opencode.ai/config.json schema:
-    #   skills   ✓ - { "paths": [...] } for additional skill directories
-    #   agents   ✗ - auto-discovered from agents/
-    #   commands ✗ - auto-discovered from commands/
-    cat >> "$output" << 'CLOSE_EOF'
   "plugin": ["./plugins/hubs-plugin.ts"],
   "instructions": ["AGENTS.md"],
   "skills": { "paths": ["./.opencode/skills"] }
 }
-CLOSE_EOF
+JSONC_EOF
 }
 ```
 

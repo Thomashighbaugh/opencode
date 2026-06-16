@@ -140,12 +140,7 @@ export default tool({
 })
 ```
 
-After creating, register in `opencode.jsonc`:
-```json
-"tools": {
-  "{tool-name}": "./tools/{tool-name}.ts"
-}
-```
+After creating, place in `.opencode/tools/`. Tools are auto-discovered from the `tools/` directory — no registration in `opencode.jsonc` is needed.
 
 Example project tools:
 - `lint-project.ts` — Run project-specific linting
@@ -249,13 +244,9 @@ Example project skills:
 If tools were created, add them to the tools block:
 
 ```bash
-# Add project tools to opencode.jsonc
-TOOLS_SECTION='  "tools": {
-    "project-lint": "./tools/project-lint.ts",
-    "generate-migration": "./tools/generate-migration.ts"
-  },'
-# Insert after the provider block
-sed -i '/^  "permission"/i\'"$TOOLS_SECTION" .opencode/opencode.jsonc
+# Tools are auto-discovered from .opencode/tools/ — no opencode.jsonc registration needed
+# Just ensure the tool files exist in the tools directory
+echo "  → Tools auto-discovered from .opencode/tools/"
 ```
 
 ## Output

@@ -7,9 +7,9 @@
 This project provides a comprehensive multi-agent orchestration system for OpenCode. It includes:
 
 - **29 specialized agents** for different task types
-- **67 workflow skills** for development tasks
-- **6 commands** for automation
-- **10 TypeScript tools** for session management
+- **76 workflow skills** for development tasks
+- **2 commands** for automation
+- **14 TypeScript tools** for session management
 - **Hook system plugin** for mode detection and state persistence
 - **Durable context storage** — knowledge compounds across sessions (StackMemory-inspired)
 
@@ -84,20 +84,23 @@ Natural language triggers for modes:
 ~/.config/opencode/
 ├── opencode.jsonc       # Main configuration
 ├── AGENTS.md            # Project-level instructions
+├── tui.json             # TUI configuration (keybinds, layout, presets)
 ├── agents/              # 29 agent definitions
-├── skills/              # 68 workflow skills (65 original + 3 new: agent-format-enforcer, config-sync, llm-cache)
-├── commands/            # 6 custom commands
+├── skills/              # 77 workflow skills
+├── commands/            # 2 custom commands (AGENTS.md, skill.md)
 ├── tools/               # 14 TypeScript tools (hubMenu, loadSkill, listAgents, cache-utils, cache, agent-cache, etc.)
 ├── plugins/             # Hook system + TUI plugins (hubs-plugin.ts, hubs-tui/)
 ├── rules/               # Shared rules (shell_strategy.md, context-strategy.md, hub-state.md, hub-routing.md, etc.)
 ├── templates/           # File templates
-├── .opencode/           # Durable knowledge store (committed: context/; gitignored: state/, cache/)
-│   ├── state/           # Session state (gitignored) — progress, checkpoints, sessions, project-memory.json
-│   ├── context/         # Durable knowledge (committed) — frameworks/, patterns/, research/, decisions.md, theory.md
-│   ├── cache/           # Multi-tier prompt cache (gitignored) — tool/, mcp/, llm/, agent/
-│   ├── CHANGELOG.md     # Auto-commit log (committed)
-│   └── .vector/         # Vector search index (gitignored)
-└── docs/                # Documentation
+└── .opencode/           # All project-scoped state, context, docs, and cache
+    ├── state/           # Session state (gitignored) — mode state, progress, checkpoints, project-memory.json, notepad.md, artifacts/
+    ├── context/         # Durable knowledge (committed) — frameworks/, patterns/, research/, decisions.md, theory.md
+    ├── cache/           # Multi-tier prompt cache (gitignored) — tool/, mcp/, llm/, agent/
+    ├── docs/            # Documentation (committed) — agents, skills, commands, execution modes, path conventions, etc.
+    ├── CHANGELOG.md     # Auto-commit log (committed)
+    ├── .gitignore       # Ignores node_modules/, package.json, package-lock.json, bun.lock
+    ├── node_modules/    # Hubs runtime deps (gitignored)
+    └── package.json     # Hubs runtime pkg (gitignored)
 ```
 
 ## State vs Context Separation
@@ -139,9 +142,9 @@ Session state lives in `.opencode/state/`:
 | Path | Purpose |
 |------|---------|
 | `~/.config/opencode/` | User-wide config (shared) |
-| `~/.config/opencode/skills/` | User-wide skills (64 skills) |
+| `~/.config/opencode/skills/` | User-wide skills (77 skills) |
 | `~/.agents/skills/` | External skills (context7-mcp) |
-| `.opencode/` | Project-level config |
+| `.opencode/` | Project-level config, state, context, docs, cache |
 | `.opencode/state/` | Session state (gitignored) |
 | `.opencode/context/` | Durable context (committed) |
 | `.opencode/context/frameworks/` | Architecture patterns, conventions |
@@ -149,6 +152,8 @@ Session state lives in `.opencode/state/`:
 | `.opencode/context/research/` | Web-extracted docs, papers, references |
 | `.opencode/context/decisions.md` | Architecture Decision Records (ADRs) |
 | `.opencode/context/theory.md` | Living documentation — THEORY.MD equivalent |
+| `.opencode/docs/` | Generated documentation (committed) |
+| `.opencode/cache/` | Multi-tier prompt cache (gitignored) |
 
 ## Plugin Hooks
 

@@ -1,8 +1,0 @@
-# OpenCode State Directory
-# This directory contains session state and is gitignored
-
-# Mode states
-*.json
-
-# Keep directory structure
-!.gitignore

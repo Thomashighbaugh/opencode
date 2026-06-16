@@ -1,11 +1,12 @@
 # Plugin System
 
-> Complete reference for the Hubs hook system plugin
+> Complete reference for the Hubs hook system plugin — now split into focused modules under `plugins/core/`
 
 ## Table of Contents
 
 - [Overview](#overview)
 - [Plugin Architecture](#plugin-architecture)
+- [Module Breakdown](#module-breakdown)
 - [Hook Types](#hook-types)
 - [Keyword Detection](#keyword-detection)
 - [State Management](#state-management-1)
@@ -17,37 +18,46 @@
 
 ## Overview
 
-The Hubs plugin (`hubs-plugin.ts`) provides the hook system that enables:
+The Hubs plugin system was refactored from a single 1711-line monolith (`hubs-plugin.ts`) into four focused modules under `plugins/core/`:
 
-- **Keyword detection**: Natural language triggers for modes
-- **State persistence**: Cross-session mode tracking
-- **Context injection**: Injecting context into LLM prompts
-- **Permission auto-approval**: Safe commands auto-approved
-- **Session restoration**: Restoring active modes on restart
+| Module | Lines | Responsibility |
+|--------|-------|----------------|
+| `session.ts` | 638 | Session lifecycle, stats tracking, file tracking, heartbeat, context messages |
+| `modes.ts` | 258 | Mode state CRUD, orphan detection, active mode caching |
+| `keywords.ts` | 230 | Magic keyword patterns, detection, conflict resolution, mode messages |
+| `hooks.ts` | 683 | All hook handlers — this is the plugin entry point |
+
+The original `plugins/hubs-plugin.ts` is preserved for reference.
+
+### Performance Optimizations
+
+- **`getProjectRoot()` cached** — avoids forking `git rev-parse` on every tool invocation
+- **State directory scans depth-limited** — `MAX_SCAN_DEPTH=3` prevents O(n) scans on large state directories
+- **Index.json auto-updater** — state writes update a lightweight index, avoiding full directory rescans
 
 ## Plugin Architecture
 
 ### Plugin Structure
 
+The plugin is now split into four modules under `plugins/core/`:
+
 ```typescript
-// .opencode/plugins/hubs-plugin.ts
+// plugins/core/session.ts — Session lifecycle, stats, file tracking
+export function readSessionStats(directory: string): SessionStats { ... }
+export function writeSessionStats(directory: string, stats: SessionStats): void { ... }
+export function getSessionRestoreMessages(directory: string, sessionId?: string): string[] { ... }
 
-import type { Plugin, Hooks } from "@opencode-ai/plugin"
-import type { Event } from "@opencode-ai/sdk"
+// plugins/core/modes.ts — Mode state CRUD
+export function readState(directory: string, stateName: string, sessionId?: string): ModeState | null { ... }
+export function writeState(directory: string, stateName: string, state: ModeState, sessionId?: string): void { ... }
+export function clearState(directory: string, stateName: string, sessionId?: string): void { ... }
 
-export const JocPlugin: Plugin = async ({ project, client, directory, worktree }) => {
-  // Initialize state
-  initializeJocState(directory)
-  
-  // Define hooks
-  const hooks: Hooks = {}
-  
-  // Hook implementations...
-  
-  return hooks
-}
+// plugins/core/keywords.ts — Magic keyword detection
+export function detectKeywords(prompt: string): KeywordMatch[] { ... }
+export function resolveConflicts(matches: KeywordMatch[]): KeywordMatch[] { ... }
 
-export default JocPlugin
+// plugins/core/hooks.ts — Plugin entry point (imports from the other three)
+export default JocPlugin: Plugin = async ({ project, client, directory, worktree }) => { ... }
 ```
 
 ### Hook Registration

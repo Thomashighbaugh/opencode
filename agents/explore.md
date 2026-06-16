@@ -1,6 +1,6 @@
 ---
 description: Codebase search specialist for finding files and code patterns
-model: ollama/deepseek-v4-flash:cloud
+model: ollama/glm-5.1:cloud
 mode: subagent
 disallowedTools: Write, Edit
 ---

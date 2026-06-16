@@ -1,6 +1,6 @@
 # Tools Reference
 
-> Complete reference for all 10 Hubs TypeScript tools
+> Complete reference for all 14 Hubs TypeScript tools
 
 ## Table of Contents
 
@@ -10,6 +10,7 @@
 - [Agent Context Tools](#agent-context-tools)
 - [Session Management Tools](#session-management-tools)
 - [Workflow State Tools](#workflow-state-tools)
+- [Cache & Routing Tools](#cache--routing-tools)
 - [Tool Development Guide](#tool-development-guide)
 - [Best Practices](#best-practices)
 
@@ -29,6 +30,10 @@ Hubs includes TypeScript tools that provide programmatic access to core function
 | **getSessionID** | Get current session ID |
 | **saveCommitMessage** | Save commit message for later |
 | **getCommitMessage** | Retrieve saved commit message |
+| **hubMenu** | Hub menu router — parse subcommands, check state, route delegation |
+| **cache** | Multi-tier prompt cache management (tool, mcp, llm, agent, session) |
+| **agent-cache** | Tier 4 agent output cache — avoid re-executing identical subagent tasks |
+| **cache-utils** | Shared cache infrastructure — SHA-256 keying, TTL, disk+memory LRU |
 
 ## Tool Architecture
 

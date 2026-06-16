@@ -1,6 +1,6 @@
 ---
 description: Evidence-driven causal tracing with competing hypotheses, evidence for/against, uncertainty tracking, and next-probe recommendations
-model: ollama/deepseek-v4-flash:cloud
+model: ollama/deepseek-v4-pro:cloud
 mode: subagent
 ---
 

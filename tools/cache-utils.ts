@@ -247,10 +247,16 @@ export function setProjectRoot(root: string): void {
 function getProjectRoot(): string {
   if (_projectRoot) return _projectRoot
   try {
-    return require('child_process').execSync('git rev-parse --show-toplevel 2>/dev/null', { encoding: 'utf-8' }).trim() || process.cwd()
+    const result = require('child_process').execSync('git rev-parse --show-toplevel 2>/dev/null', { encoding: 'utf-8' }).trim()
+    if (result) {
+      _projectRoot = result
+      return result
+    }
   } catch {
-    return process.cwd()
+    // Fallback to CWD if not a git repo
   }
+  _projectRoot = process.cwd()
+  return _projectRoot
 }
 
 // Lazy singleton instances

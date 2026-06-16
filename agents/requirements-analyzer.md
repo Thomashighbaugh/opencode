@@ -1,6 +1,6 @@
 ---
 description: Analyze feature requirements. Use when starting new features, reviewing specs, or breaking down tasks.
-model: ollama/deepseek-v4-flash:cloud
+model: ollama/deepseek-v4-pro:cloud
 mode: subagent
 permissions: 
     bash: deny
