@@ -449,7 +449,7 @@ hooks["experimental.session.compacting"] = async (input, output) => {
       : 0
     const subagentCalls = sessionStats?.tool_counts?.Task || 0
     
-    if (toolCalls > 50 || durationSec > 600 || subagentCalls > 3) {
+    if (toolCalls > 100 || durationSec > 1200 || subagentCalls > 6) {
       const artifact = {
         sessionId,
         compactedAt: new Date().toISOString(),
@@ -494,7 +494,7 @@ hooks["experimental.session.compacting"] = async (input, output) => {
 }
 ```
 
-**Long session threshold** — artifact saved only when any of: >50 tool calls, >10 min duration, or >3 subagent invocations. See [State Management](./state-management.md#compaction-artifacts) for full details.
+**Long session threshold** — artifact saved only when any of: >100 tool calls, >20 min duration, or >6 subagent invocations. See [State Management](./state-management.md#compaction-artifacts) for full details.
 
 ## Keyword Detection
 
