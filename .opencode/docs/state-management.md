@@ -464,6 +464,100 @@ grep "ERROR" .opencode/state/logs/*.log
 tail -100 .opencode/state/logs/$(date +%Y-%m-%d).log
 ```
 
+## Compaction Artifacts
+
+### Overview
+
+For long-running sessions, the plugin automatically saves a structured snapshot of session state when OpenCode compacts the context window (typically at ~70% capacity). This ensures work products survive context compression without any API calls.
+
+### Trigger
+
+The `experimental.session.compacting` hook fires automatically when OpenCode compacts the context window. The artifact is only saved for sessions that meet the "long session" threshold.
+
+### Long Session Threshold
+
+A session qualifies if **any** of these are true at compaction time:
+
+| Metric               | Threshold | Source                               |
+| -------------------- | --------- | ------------------------------------ |
+| Tool calls           | > 50      | `heartbeat.json` (tracked per-session) |
+| Session duration     | > 10 min  | `session-stats.json` (tracked globally) |
+| Subagent invocations | > 3       | Count of `Task` tool calls in session stats |
+
+### Artifact Location
+
+```
+.opencode/state/sessions/{sessionId}/
+├── heartbeat.json
+├── prompt-queue.json
+├── compaction-2026-06-20T14-30-00-000Z.json   ← compaction artifact
+└── compaction-2026-06-20T15-45-00-000Z.json   ← subsequent compaction
+```
+
+### Artifact Schema
+
+```json
+{
+  "sessionId": "ses_xxx",
+  "compactedAt": "2026-06-20T14:30:00.000Z",
+  "toolCalls": 87,
+  "durationSeconds": 1247,
+  "subagentInvocations": 5,
+  "modeState": {
+    "ralph": {
+      "active": true,
+      "iteration": 4,
+      "prompt": "fix all TypeScript errors"
+    },
+    "ultrawork": {
+      "active": true,
+      "originalPrompt": "implement auth in parallel",
+      "reinforcementCount": 2
+    }
+  },
+  "todoProgress": {
+    "completed": 12,
+    "remaining": 3,
+    "pending": 2,
+    "inProgress": 1
+  },
+  "recentTools": [
+    { "name": "Write", "time": "2026-06-20T14:29:55.000Z" },
+    { "name": "Bash", "time": "2026-06-20T14:29:50.000Z" },
+    { "name": "Task", "time": "2026-06-20T14:29:30.000Z" }
+  ],
+  "preservedContext": [
+    "## Ralph Loop State\n- Iteration: 4/10\n- Original Task: fix all TypeScript errors",
+    "## Pending Tasks\n[1 active, 2 pending]"
+  ]
+}
+```
+
+### Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `sessionId` | string | Session identifier |
+| `compactedAt` | ISO 8601 | When compaction occurred |
+| `toolCalls` | number | Total tool invocations in session |
+| `durationSeconds` | number | Session duration in seconds |
+| `subagentInvocations` | number | Number of `Task` tool calls (subagent spawns) |
+| `modeState` | object | Active mode states (ralph, ultrawork) — `null` if inactive |
+| `todoProgress` | object | Task completion stats from heartbeat |
+| `recentTools` | array | Last 10 tool invocations with timestamps |
+| `preservedContext` | string[] | Context blocks preserved through compaction |
+
+### API Cost
+
+**Zero.** The compaction hook fires automatically — the artifact save is pure file I/O. No LLM calls, no tool invocations, no network requests.
+
+### Lifecycle
+
+- **Created**: Automatically during context compaction for long sessions
+- **Accumulates**: Multiple artifacts per session (one per compaction event)
+- **Gitignored**: Entire `.opencode/state/` directory is gitignored
+- **Cleanup**: Manual — delete old artifacts when no longer needed
+
 ## State Persistence
 
 ### When State Is Written
@@ -477,6 +571,7 @@ tail -100 .opencode/state/logs/$(date +%Y-%m-%d).log
 | Memory update | `project-memory.json` |
 | Notepad update | `notepad.md` |
 | Artifact save | `artifacts/{skill}/{session}/{file}` |
+| Context compaction (long session) | `sessions/{sessionId}/compaction-{timestamp}.json` |
 | Tool invocation | Log file |
 | Session end | All state files |
 

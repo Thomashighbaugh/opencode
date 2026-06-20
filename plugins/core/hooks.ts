@@ -33,6 +33,7 @@ import {
   shouldCheckStall,
   generateStallNudge,
   getHeartbeatPath,
+  loadSessionStatsPruned,
   type StallStatus,
   type HeartbeatEntry,
 } from "./session"
@@ -583,6 +584,59 @@ ${notes ? `### Custom Notes:\n${notes}` : ''}
 `)
         }
       } catch {}
+    }
+
+    // ── Compaction Artifact Saving ──────────────────────────────────────
+    // For long sessions (>50 tool calls, >10 min, or >3 subagent invocations),
+    // save a structured artifact to disk so work products survive compaction.
+    // Zero API calls — pure file I/O on an already-triggered hook.
+    if (sessionId) {
+      try {
+        const hbPath = getHeartbeatPath(directory, sessionId)
+        const hb = readJsonFile<HeartbeatEntry>(hbPath)
+        const stats = loadSessionStatsPruned()
+        const sessionStats = stats.sessions[sessionId]
+
+        const toolCalls = hb?.toolCount || 0
+        const durationSec = sessionStats
+          ? ((sessionStats.updated_at || sessionStats.started_at) - sessionStats.started_at)
+          : 0
+        const subagentCalls = sessionStats?.tool_counts?.Task || 0
+
+        const isLongSession = toolCalls > 50 || durationSec > 600 || subagentCalls > 3
+
+        if (isLongSession) {
+          const artifact = {
+            sessionId,
+            compactedAt: new Date().toISOString(),
+            toolCalls,
+            durationSeconds: durationSec,
+            subagentInvocations: subagentCalls,
+            modeState: {
+              ralph: ralphState?.active ? {
+                active: true,
+                iteration: ralphState.iteration,
+                prompt: ralphState.prompt,
+              } : null,
+              ultrawork: ultraworkState?.active ? {
+                active: true,
+                originalPrompt: ultraworkState.original_prompt,
+                reinforcementCount: ultraworkState.reinforcement_count,
+              } : null,
+            },
+            todoProgress: hb?.todoProgress || null,
+            recentTools: hb?.recentTools?.slice(0, 10) || [],
+            preservedContext: output.context,
+          }
+          const artifactPath = join(
+            directory, '.opencode', 'state', 'sessions', sessionId,
+            `compaction-${new Date().toISOString().replace(/[:.]/g, '-')}.json`
+          )
+          writeJsonFile(artifactPath, artifact)
+        }
+      } catch {
+        // Best-effort artifact saving — never block compaction
+      }
     }
   }
 

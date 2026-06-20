@@ -385,7 +385,7 @@ hooks["experimental.chat.system.transform"] = async (input, output) => {
 
 #### experimental.session.compacting
 
-Called when session is compacted (context trimmed).
+Called when session is compacted (context trimmed). Preserves critical state in the compacted context and, for long sessions, saves a structured artifact to disk.
 
 ```typescript
 hooks["experimental.session.compacting"] = async (input, output) => {
@@ -433,8 +433,68 @@ hooks["experimental.session.compacting"] = async (input, output) => {
       `)
     }
   }
+
+  // ── Compaction Artifact Saving ──────────────────────────────────
+  // For long sessions (>50 tool calls, >10 min, or >3 subagent
+  // invocations), save a structured JSON artifact to disk so work
+  // products survive compaction. Zero API calls — pure file I/O.
+  if (sessionId) {
+    const hb = readJsonFile(getHeartbeatPath(directory, sessionId))
+    const stats = loadSessionStatsPruned()
+    const sessionStats = stats.sessions[sessionId]
+    
+    const toolCalls = hb?.toolCount || 0
+    const durationSec = sessionStats
+      ? ((sessionStats.updated_at || sessionStats.started_at) - sessionStats.started_at)
+      : 0
+    const subagentCalls = sessionStats?.tool_counts?.Task || 0
+    
+    if (toolCalls > 50 || durationSec > 600 || subagentCalls > 3) {
+      const artifact = {
+        sessionId,
+        compactedAt: new Date().toISOString(),
+        toolCalls,
+        durationSeconds: durationSec,
+        subagentInvocations: subagentCalls,
+        modeState: {
+          ralph: ralphState?.active ? { active: true, iteration: ralphState.iteration, prompt: ralphState.prompt } : null,
+          ultrawork: ultraworkState?.active ? { active: true, originalPrompt: ultraworkState.original_prompt, reinforcementCount: ultraworkState.reinforcement_count } : null,
+        },
+        todoProgress: hb?.todoProgress || null,
+        recentTools: hb?.recentTools?.slice(0, 10) || [],
+        preservedContext: output.context,
+      }
+      writeJsonFile(
+        join(directory, '.opencode', 'state', 'sessions', sessionId, `compaction-${new Date().toISOString().replace(/[:.]/g, '-')}.json`),
+        artifact
+      )
+    }
+  }
 }
 ```
+
+**Compaction Artifact Schema:**
+
+```json
+{
+  "sessionId": "ses_xxx",
+  "compactedAt": "2026-06-20T14:30:00.000Z",
+  "toolCalls": 87,
+  "durationSeconds": 1247,
+  "subagentInvocations": 5,
+  "modeState": {
+    "ralph": { "active": true, "iteration": 4, "prompt": "fix all TypeScript errors" },
+    "ultrawork": null
+  },
+  "todoProgress": { "completed": 12, "remaining": 3, "pending": 2, "inProgress": 1 },
+  "recentTools": [
+    { "name": "Write", "time": "2026-06-20T14:29:55.000Z" }
+  ],
+  "preservedContext": ["## Ralph Loop State\n...", "## Pending Tasks\n..."]
+}
+```
+
+**Long session threshold** — artifact saved only when any of: >50 tool calls, >10 min duration, or >3 subagent invocations. See [State Management](./state-management.md#compaction-artifacts) for full details.
 
 ## Keyword Detection
 
