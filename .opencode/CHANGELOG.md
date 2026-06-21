@@ -14,6 +14,21 @@
 
 - **chore(compact): session compaction artifact for ses_1172fb** — 110 tool calls, 6.5min duration, 5 modified files
 
+- **fix(hubs): remove invalid top-level key and fix model provider IDs** (`b231a98`)
+  - Removed invalid `hubs` top-level key from `opencode.jsonc` — not in OpenCode's schema, caused 4 of 6 startup requests to fail (config.providers, provider.list, app.agents, config.get)
+  - Stripped model definitions from built-in `opencode` provider — models are pre-loaded, explicit definitions conflicted
+  - Fixed all model ID references: `opencode/deepseek-v4-pro` → `opencode-go/deepseek-v4-pro`, `opencode/deepseek-v4-flash` → `opencode-go/deepseek-v4-flash`, `opencode/glm-5.1` → `opencode-go/glm-5.1`
+  - Fixed nemotron fallback: `opencode/nemotron-3-ultra` → `opencode/nemotron-3-ultra-free`
+  - Verified all 13 `opencode-go` model IDs against `opencode models opencode-go` output
+
+- **docs(readme): comprehensive feature list with implementation pointers** (`ac505a8`, `e88109b`)
+  - Expanded README features from 6 terse bullets to 10 thorough entries (4-6 lines each)
+  - Each entry now includes exact file paths to implementation code, behavioral details, and architectural rationale
+  - New entries: Per-Project Agent & Skill Genesis (Provisioning), Self-Learning Context Compounding (Harvest-Context), Poly-Pattern Execution Topology (30 `/orchestrate` patterns), Multi-Method Ideation Engine (26 `/ideation` methods), Organic Configuration Integration (native composition without plugins or agent renames)
+  - All entries given AI-buzzword names that actually explain what they mean
+
+- **chore(compact): second session compaction artifact for ses_1172fb** — 258 tool calls, 58.8min duration, 1 subagent invocation
+
 ## 2026-06-14
 
 - **feat(provision): LSP auto-detection and configuration** (`78fec7b`)
