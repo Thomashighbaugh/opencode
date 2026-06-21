@@ -309,7 +309,7 @@ Output: spec.md            Output: consensus-plan.md        Output: working code
 
 <Tool_Usage>
 - Use `AskUserQuestion` for lane confirmation (Phase 2) and each interview question (Phase 4)
-- Use `call_omo_agent(subagent_type="explore", model="haiku")` for brownfield codebase exploration (Phase 1)
+- Use `@explore(model="haiku")` for brownfield codebase exploration (Phase 1)
 - Use OpenCode built-in team mode for 3 parallel tracer lanes (Phase 3)
 - Use `state_write(mode="deep-interview")` with `state.source = "deep-dive"` for all state persistence
 - Use `state_read(mode="deep-interview")` for resume — check `state.source === "deep-dive"` to distinguish

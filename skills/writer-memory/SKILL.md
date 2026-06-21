@@ -235,8 +235,7 @@ Writer Memory integrates with `.opencode/state/notepad.md`:
 ### With Architect Agent
 For complex character analysis:
 ```
-call_omo_agent(subagent_type="architect",
-     model="opus",
+@architect(model="opus",
      prompt="Analyze 새랑's arc across all scenes...")
 ```
 

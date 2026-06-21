@@ -116,6 +116,179 @@ Parallel scientist agents for comprehensive analysis. Each agent investigates a 
 
 ---
 
+## Inline Patterns
+
+These patterns execute inline — no separate skill file needed. They are documented here for quick reference.
+
+### `/orchestrate state-machine` — State-Machine Orchestration
+
+**When to use:** Workflows with explicit states, transitions, and guards — agents move between states like a finite state machine.
+
+**Workflow:**
+1. Define states (e.g., Analyze → Build → Test → Deploy) with transition guards
+2. Each agent operates as a state, with explicit entry/exit conditions
+3. Guard conditions block invalid transitions; on failure, transition to error state
+
+---
+
+### `/orchestrate consensus` — Multi-Agent Consensus
+
+**When to use:** Decisions with multiple valid approaches — run agents independently, then resolve via voting.
+
+**Workflow:**
+1. Run 3+ agents independently on the same problem
+2. Collect outputs and identify areas of agreement/disagreement
+3. Resolve via majority vote, weighted scoring, or synthesis
+
+---
+
+### `/orchestrate evolutionary` — Evolutionary Delivery
+
+**When to use:** Incremental delivery where each generation must be independently valuable and validated.
+
+**Workflow:**
+1. Build the minimum viable generation (Gen 1)
+2. Validate fitness against acceptance criteria
+3. Evolve to next generation, preserving what works, discarding what doesn't
+
+---
+
+### `/orchestrate spec-driven` — Spec-First Development
+
+**When to use:** Requirements must be formalized and validated before implementation begins.
+
+**Workflow:**
+1. Formalize the spec from requirements (structured, testable)
+2. Validate spec for completeness, consistency, and testability
+3. Implement against the spec; verify each implementation step against it
+
+---
+
+### `/orchestrate react` — ReAct Pattern
+
+**When to use:** Open-ended problems where the path to solution isn't known upfront — interleave reasoning and acting.
+
+**Workflow:**
+1. **Think** — analyze current state and decide next action
+2. **Act** — execute the action (tool call, code change, query)
+3. **Observe** — evaluate the result, then loop back to Think until goal met
+
+---
+
+### `/orchestrate gsd` — Get Shit Done Pipeline
+
+**When to use:** End-to-end feature delivery with wave-based parallel execution and atomic commits.
+
+**Workflow:**
+1. **Discuss** — clarify requirements and scope
+2. **Plan** — break into independent waves
+3. **Execute** — run waves in parallel with fresh context per task
+4. **Verify** — validate each wave independently
+5. **Ship** — atomic commits per wave
+
+---
+
+### `/orchestrate self-assess` — Iterative Self-Evaluation
+
+**When to use:** Quality-critical work where the agent must self-critique and refine until thresholds are met.
+
+**Workflow:**
+1. Execute the task
+2. Critically evaluate output against quality thresholds
+3. Reflect on gaps, refine, and repeat until all targets are met
+
+---
+
+### `/orchestrate remediate` — CI/Build Auto-Remediation
+
+**When to use:** Build or CI pipeline failures — monitor, diagnose, fix, and re-run until green.
+
+**Workflow:**
+1. Detect failure and capture error output
+2. Analyze root cause from logs and error messages
+3. Apply targeted fix and re-run; loop until pipeline passes
+
+---
+
+### `/orchestrate devin` — Autonomous Dev Pipeline
+
+**When to use:** Full-stack feature development requiring plan → code → debug → deploy cycles.
+
+**Workflow:**
+1. **Plan** — decompose requirements into implementation steps
+2. **Code** — implement each step
+3. **Debug** — iterative debugging with root-cause analysis loops
+4. **Deploy** — ship when all tests pass
+
+---
+
+### `/orchestrate maestro` — Strict Role Separation
+
+**When to use:** Large features where role separation prevents bias — PMs, Architects, and Coders have distinct responsibilities.
+
+**Workflow:**
+1. **PM** gathers and formalizes requirements
+2. **Architect** designs the solution and reviews (never codes)
+3. **Coder** implements and tests (never self-reviews)
+
+---
+
+### `/orchestrate metaswarm` — Autonomous Issue-to-PR
+
+**When to use:** Full autonomous pipeline from issue to pull request with adversarial reviews.
+
+**Workflow:**
+1. 12 agents across 7 phases: analyze, plan, implement, test, review, refine, PR
+2. Adversarial reviews use fresh reviewers each round to block anchoring bias
+3. Each phase gates the next; rollback if quality thresholds aren't met
+
+---
+
+### `/orchestrate cc10x` — Intent-Detecting Router
+
+**When to use:** Mixed-mode tasks where the system must auto-detect whether to build, debug, review, or plan.
+
+**Workflow:**
+1. Intent detector classifies the request (BUILD/DEBUG/REVIEW/PLAN)
+2. Evidence-first validation checks confidence before dispatching
+3. Confidence gating routes to the appropriate workflow with fallback on low confidence
+
+---
+
+### `/orchestrate gastown` — Git-Backed Work Units
+
+**When to use:** Distributed or unreliable agent environments where work must be tracked and recoverable.
+
+**Workflow:**
+1. Each work unit is a git-backed commit/branch — atomic and traceable
+2. GUPP principle: "if work on your hook, YOU MUST RUN IT" — no handoffs without execution
+3. NDI (Non-Deterministic Isolation) ensures reliable outcomes from unreliable processes
+
+---
+
+### `/orchestrate ruflo` — Large-Scale Agent Swarm
+
+**When to use:** Maximum-scale orchestration with 60+ agents, Q-Learning routing, and hierarchical topologies.
+
+**Workflow:**
+1. Queen agents decompose work and assign to Worker agents
+2. Q-Learning smart routing optimizes agent-task matching over time
+3. 4 consensus protocols resolve conflicts at each hierarchy level
+
+---
+
+### `/orchestrate hive` — Agent Hive Execution
+
+**When to use:** Batched parallel execution with worktree isolation — Swarm Bee phase of the Hive methodology.
+
+**Workflow:**
+1. Decompose work into independent batches
+2. Execute each batch in parallel with isolated worktrees
+3. Best-effort worker verification; blocked workers trigger re-routing
+4. Orchestrator runs batch-level tests before merging
+
+---
+
 ## Shared Lifecycle
 
 Every subcommand follows this lifecycle:

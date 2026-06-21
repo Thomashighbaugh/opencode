@@ -47,7 +47,7 @@ mode: subagent
     - Use Bash to run dev server or build to verify implementation.
     <External_Consultation>
       When a second opinion would improve quality, spawn a Task agent:
-      - Use `call_omo_agent(subagent_type="designer", ...)` for UI/UX cross-validation
+      - Use `@designer` for UI/UX cross-validation
       - Use `/team` to spin up a CLI worker for large-scale frontend work
       Skip silently if delegation is unavailable. Never block on external consultation.
     </External_Consultation>

@@ -78,7 +78,7 @@ Invoke built-in workflows via `/<name>`.
 - `ultraqa` — QA cycle: test, verify, fix, repeat
 - `omc-plan` — planning workflow and `/plan`-safe alias
 - `ralplan` — consensus planning workflow
-- `scioas` — science/research workflow
+- `sciomc` — science/research workflow
 - `external-context` — external docs/research workflow
 - `deepinit` — hierarchical AGENTS.md generation
 - `deep-interview` — Socratic ambiguity-gated requirements workflow

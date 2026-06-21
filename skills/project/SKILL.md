@@ -43,6 +43,19 @@ Generate a comprehensive 8-type test suite for an OpenCode agent.
 
 ---
 
+### `/project create-tests` — Generate Test Suite
+
+**Delegates to:** inline execution
+
+Generate a comprehensive 8-type test suite for an OpenCode agent.
+
+**Reminder:**
+> Tests: Generate an 8-type test suite for an agent.
+
+**Usage:** `/project create-tests <agent-name>`
+
+---
+
 ### `/project commit` — Create Git Commit
 
 **Delegates to:** `conventional-commit` skill / `commit` command
@@ -87,12 +100,12 @@ Perform focused code review detecting smells and deep-diving concerns across sec
 
 ### `/project pr` — Pull Request Operations
 
-**Delegates to:** `pr` command
+**Delegates to:** `github-ops` skill
 
-Create, view, merge, and manage GitHub pull requests.
+Create, view, merge, and manage GitHub pull requests via GitHub CLI.
 
 **Reminder:**
-> PR: Pull request operations — create, view, diff, merge, list, or check status.
+> PR: Create, view, merge pull requests via GitHub CLI.
 
 **Usage:**
 - `/project pr create` — Create new PR from current branch
@@ -117,14 +130,27 @@ Full GitHub CLI operations — repos, issues, releases, workflows, code search.
 
 ---
 
-### `/project optimize` — Code Optimization
+### `/project git-stage-thread` — Stage Thread Changes
 
-**Delegates to:** `optimize` command
+**Delegates to:** inline execution
 
-Analyze code for performance issues, security vulnerabilities, and maintainability problems.
+Stage files modified in the current conversation thread.
 
 **Reminder:**
-> Optimize: Analyze code for performance bottlenecks, security vulnerabilities, and maintainability. I'll provide a prioritized report with fixes.
+> Stage: Stage all files modified in this conversation thread.
+
+**Usage:** `/project git-stage-thread`
+
+---
+
+### `/project optimize` — Code Optimization
+
+**Delegates to:** inline execution
+
+Analyze code for performance, security, and maintainability.
+
+**Reminder:**
+> Optimize: Analyze code for bottlenecks, vulnerabilities, and maintainability issues.
 
 **Usage:** `/project optimize [file or directory paths]` — if no paths, analyze current context
 
@@ -173,6 +199,19 @@ Analyze code patterns, architectural decisions, and codebase structure.
 > Analyze: Scan the codebase for patterns, anti-patterns, and architectural decisions. I'll provide a structured analysis.
 
 **Usage:** `/project analyze [paths or scope]`
+
+---
+
+### `/project analyze-patterns` — Analyze Codebase Patterns
+
+**Delegates to:** inline execution
+
+Analyze codebase patterns and anti-patterns.
+
+**Reminder:**
+> Analyze: Scan codebase for patterns, anti-patterns, and architectural decisions.
+
+**Usage:** `/project analyze-patterns [paths or scope]`
 
 ---
 

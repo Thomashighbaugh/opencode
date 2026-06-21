@@ -37,3 +37,7 @@ Capture a successful multi-step workflow as a concrete skill draft instead of re
 - Target location
 - Draft workflow structure
 - Open questions, if any
+
+## Related
+
+- `self-improve` skill — Autonomous evolutionary code improvement engine with tournament selection

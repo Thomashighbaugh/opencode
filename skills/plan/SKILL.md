@@ -94,8 +94,8 @@ Without cleanup, the stop hook blocks all subsequent stops with `[RALPLAN - CONS
    - **Request changes** — return to step 1 with user feedback incorporated
    - **Skip review** — go directly to final approval (step 7)
    If NOT running with `--interactive`, automatically proceed to review (step 3).
-3. **Architect** reviews for architectural soundness using `call_omo_agent(subagent_type="architect", ...)`. Architect review **MUST** include: strongest steelman counterargument (antithesis) against the favored option, at least one meaningful tradeoff tension, and (when possible) a synthesis path. In deliberate mode, Architect should explicitly flag principle violations. **Wait for this step to complete before proceeding to step 4.** Do NOT run steps 3 and 4 in parallel.
-4. **Critic** evaluates against quality criteria using `call_omo_agent(subagent_type="critic", ...)`. Critic **MUST** verify principle-option consistency, fair alternative exploration, risk mitigation clarity, testable acceptance criteria, and concrete verification steps. Critic **MUST** explicitly reject shallow alternatives, driver contradictions, vague risks, or weak verification. In deliberate mode, Critic **MUST** reject missing/weak pre-mortem or missing/weak expanded test plan. Run only after step 3 is complete.
+3. **Architect** reviews for architectural soundness using `@architect`. Architect review **MUST** include: strongest steelman counterargument (antithesis) against the favored option, at least one meaningful tradeoff tension, and (when possible) a synthesis path. In deliberate mode, Architect should explicitly flag principle violations. **Wait for this step to complete before proceeding to step 4.** Do NOT run steps 3 and 4 in parallel.
+4. **Critic** evaluates against quality criteria using `@critic`. Critic **MUST** verify principle-option consistency, fair alternative exploration, risk mitigation clarity, testable acceptance criteria, and concrete verification steps. Critic **MUST** explicitly reject shallow alternatives, driver contradictions, vague risks, or weak verification. In deliberate mode, Critic **MUST** reject missing/weak pre-mortem or missing/weak expanded test plan. Run only after step 3 is complete.
 5. **Re-review loop** (max 5 iterations): If Critic rejects, execute this closed loop:
    a. Collect all rejection feedback from Architect + Critic
    b. Pass feedback to Planner to produce a revised plan
@@ -124,7 +124,7 @@ Without cleanup, the stop hook blocks all subsequent stops with `[RALPLAN - CONS
 ### Review Mode (`--review`)
 
 1. Read plan file from `.opencode/state/plans/`
-2. Evaluate via Critic using `call_omo_agent(subagent_type="critic", ...)`
+2. Evaluate via Critic using `@critic`
 3. Return verdict: APPROVED, REVISE (with specific feedback), or REJECT (replanning required)
 
 ### Plan Output Format
@@ -146,9 +146,9 @@ Plans are saved to `.opencode/state/plans/`. Drafts go to `.opencode/state/draft
 - Use `AskUserQuestion` for preference questions (scope, priority, timeline, risk tolerance) -- provides clickable UI
 - Use plain text for questions needing specific values (port numbers, names, follow-up clarifications)
 - Use `explore` agent (Haiku, 30s timeout) to gather codebase facts before asking the user
-- Use `call_omo_agent(subagent_type="planner", ...)` for planning validation on large-scope plans
-- Use `call_omo_agent(subagent_type="analyst", ...)` for requirements analysis
-- Use `call_omo_agent(subagent_type="critic", ...)` for plan review in consensus and review modes
+- Use `@planner` for planning validation on large-scope plans
+- Use `@analyst` for requirements analysis
+- Use `@critic` for plan review in consensus and review modes
 - **CRITICAL — Consensus mode agent calls MUST be sequential, never parallel.** Always await the Architect Task result before issuing the Critic Task.
 - In consensus mode, default to RALPLAN-DR short mode; enable deliberate mode on `--deliberate` or explicit high-risk signals (auth/security, migrations, destructive changes, production incidents, compliance/PII, public API breakage)
 - In consensus mode with `--interactive`: use `AskUserQuestion` for the user feedback step (step 2) and the final approval step (step 7) -- never ask for approval in plain text. Without `--interactive`, skip both prompts and output the final plan.

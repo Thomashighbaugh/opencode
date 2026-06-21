@@ -165,15 +165,15 @@ When analyzing the diff, detect context and prioritize relevant smell categories
 ## Skill Loading
 
 Load relevant skills based on file types detected:
-- `.ts`, `.tsx` → `typescript-interface-vs-type`, `typescript-advanced-types`
+- `.ts`, `.tsx` → `typescript-interface-vs-type`
 - `.tsx`, `.jsx` → `react-key-prop`
-- `.css`, `.scss` → `css-container-queries`
-- Tailwind detected → `code-architecture-tailwind-v4-best-practices`
-- Any refactoring → `code-architecture-wrong-abstraction`
+- `.css`, `.scss` → use built-in CSS knowledge
+- Tailwind detected → use built-in Tailwind knowledge
+- Any refactoring → use built-in refactoring patterns
 
 **Example workflow:**
 1. Detect `.tsx` files in the diff
-2. Load `typescript-interface-vs-type` and `react-key-prop` skills
+2. Load `typescript-interface-vs-type` and `react-key-prop` skills if available
 3. Review code against smell tables AND skill-specific guidance
 4. Prioritize by context (React → check Accessibility + State smells)
 5. Include skill-based recommendations in output

@@ -73,9 +73,9 @@ Most non-trivial software tasks require coordinated phases: understanding requir
 </Steps>
 
 <Tool_Usage>
-- Use `call_omo_agent(subagent_type="architect", ...)` for Phase 4 architecture validation
-- Use `call_omo_agent(subagent_type="security-reviewer", ...)` for Phase 4 security review
-- Use `call_omo_agent(subagent_type="code-reviewer", ...)` for Phase 4 quality review
+- Use `@architect` for Phase 4 architecture validation
+- Use `@security-reviewer` for Phase 4 security review
+- Use `@code-reviewer` for Phase 4 quality review
 - Agents form their own analysis first, then spawn OpenCode Task agents for cross-validation
 - Never block on external tools; proceed with available agents if delegation fails
 </Tool_Usage>
@@ -188,3 +188,8 @@ When autopilot detects a ralplan consensus plan (`.opencode/state/plans/ralplan-
 
 Autopilot starts directly at Phase 2 (Execution via Ralph + Ultrawork).
 </Advanced>
+
+## Related
+
+- `ralph` skill — Self-referential loop until task completion with configurable verification reviewer
+- `ultrawork` skill — Parallel execution engine for high-throughput task completion

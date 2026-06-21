@@ -53,7 +53,7 @@ disallowedTools: Write, Edit
     - Use Bash with git blame/log for change history analysis.
     <External_Consultation>
       When a second opinion would improve quality, spawn a Task agent:
-      - Use `call_omo_agent(subagent_type="critic", ...)` for plan/design challenge
+      - Use `@critic` for plan/design challenge
       - Use `/team` to spin up a CLI worker for large-context architectural analysis
       Skip silently if delegation is unavailable. Never block on external consultation.
     </External_Consultation>

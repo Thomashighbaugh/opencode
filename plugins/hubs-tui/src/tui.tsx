@@ -16,6 +16,7 @@ const HUBS: Hub[] = [
     { label: "map-codebase", description: "Analyze brownfield codebase" },
     { label: "doctor", description: "Diagnostic health check" },
     { label: "reset", description: "Reset project state to clean slate" },
+    { label: "provision", description: "Analyze codebase and auto-generate project-specific agents, skills, tools, and rules in .opencode/" },
   ]},
   { name: "ideation", title: "Ideation", description: "Planning, research, and ideation hub", subs: [
     { label: "plan", description: "Strategic planning" },
@@ -42,6 +43,7 @@ const HUBS: Hub[] = [
     { label: "story-mapping", description: "User story mapping" },
     { label: "lean-canvas", description: "Lean business model canvas" },
     { label: "constitution", description: "Project governance" },
+    { label: "decomposition", description: "Decompose a task into actionable subtasks — break complex work into ordered, verifiable steps" },
     { label: "resume", description: "Resume last ideation session" },
     { label: "status", description: "Show ideation state" },
   ]},
@@ -97,6 +99,8 @@ const HUBS: Hub[] = [
     { label: "prune", description: "Stale context management" },
     { label: "export", description: "Export context as report" },
     { label: "diff", description: "Context diff since last harvest" },
+    { label: "rule", description: "Create a project rule (.opencode/rules/)" },
+    { label: "sweep", description: "Scan .opencode/ for files that should be gitignored but aren't — prevents bloat that breaks git push" },
   ]},
   { name: "project", title: "Project Ops", description: "Project operations — tests, git, optimization", subs: [
     { label: "tests", description: "Generate test suite" },
@@ -119,6 +123,7 @@ const HUBS: Hub[] = [
     { label: "audit", description: "Project health audit" },
     { label: "archive", description: "Archive stale branches/artifacts" },
     { label: "workspace", description: "Manage .opencode across projects" },
+    { label: "git-cleanup", description: "Fix orphaned CHANGELOG entries referencing commits not in git history after .git/ rebuild — preserves entries, removes bad refs" },
   ]},
 ]
 

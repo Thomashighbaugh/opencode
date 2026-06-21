@@ -55,7 +55,7 @@ disallowedTools: Write, Edit
     - Use Bash with `git log -p` to check for secrets in git history.
     <External_Consultation>
       When a second opinion would improve quality, spawn a Task agent:
-      - Use `call_omo_agent(subagent_type="security-reviewer", ...)` for cross-validation
+      - Use `@security-reviewer` for cross-validation
       - Use `/team` to spin up a CLI worker for large-scale security analysis
       Skip silently if delegation is unavailable. Never block on external consultation.
     </External_Consultation>

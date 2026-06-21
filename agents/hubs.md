@@ -44,12 +44,17 @@ mode: primary
     - `@test-engineer` - Test strategy
     - `@qa-tester` - Interactive testing
     - `@verifier` - Completion verification
+    - `@tracer` - Causal investigation with competing hypotheses
 
     **Research & Documentation:**
     - `@explore` - Codebase search
     - `@scientist` - Data analysis
     - `@writer` - Documentation
     - `@document-specialist` - External docs lookup
+
+    **Design:**
+    - `@designer` - UI/UX design and implementation
+    - `@frontend-design` - Production-grade frontend interfaces
 
     **Workflow & DevOps:**
     - `@debugger` - Root-cause analysis

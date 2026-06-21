@@ -106,7 +106,7 @@ By default, ralph operates in PRD mode. A scaffold `prd.json` is auto-generated 
 
 7.5 **Mandatory Deslop Pass** (runs unconditionally after Step 7 approval, unless `{{PROMPT}}` contains `--no-deslop`):
    - **Invoke the `ai-slop-cleaner` skill via the Skill tool: `Skill("ai-slop-cleaner")`.** Run in standard mode (not `--review`) on the files changed during the current Ralph session only.
-   - **ai-slop-cleaner is a SKILL, not an agent.** Do NOT call it via `call_omo_agent(subagent_type="ai-slop-cleaner")` — that subagent type does not exist and the call will fail with "Agent type not found". If you see that error, retry with the Skill tool — do NOT substitute a similarly-named agent like `code-simplifier` as a "closest match".
+   - **ai-slop-cleaner is a SKILL, not an agent.** Do NOT call it via `@ai-slop-cleaner` — that subagent type does not exist and the call will fail with "Agent type not found". If you see that error, retry with the Skill tool — do NOT substitute a similarly-named agent like `code-simplifier` as a "closest match".
    - Keep the scope bounded to the Ralph changed-file set; do not broaden the cleanup pass to unrelated files.
    - If the reviewer approved the implementation but the deslop pass introduces follow-up edits, keep those edits inside the same changed-file scope before proceeding.
 
@@ -122,13 +122,13 @@ By default, ralph operates in PRD mode. A scaffold `prd.json` is auto-generated 
 </Steps>
 
 <Tool_Usage>
-- Use `call_omo_agent(subagent_type="architect", ...)` for architect verification cross-checks when changes are security-sensitive, architectural, or involve complex multi-system integration
-- Use `call_omo_agent(subagent_type="critic", ...)` when `--critic=critic`
+- Use `@architect` for architect verification cross-checks when changes are security-sensitive, architectural, or involve complex multi-system integration
+- Use `@critic` when `--critic=critic`
 - Use `omc ask codex --agent-prompt critic "..."` when `--critic=codex`. Construct the prompt to include: (a) prd.json acceptance criteria, (b) files changed + related files, (c) explicit optimality question: "Is there a meaningfully simpler, faster, or more maintainable approach that achieves the same acceptance criteria?"
 - Skip architect consultation for simple feature additions, well-tested changes, or time-critical verification
 - Proceed with architect agent verification alone -- never block on unavailable tools
 - Use `state_write` / `state_read` for ralph mode state persistence between iterations
-- **Skill vs agent invocation**: `ai-slop-cleaner` is a skill, invoke via `Skill("ai-slop-cleaner")`. `architect`, `critic`, `executor` etc. are agents, invoke via `call_omo_agent(subagent_type="<name>")`. If you ever get "Agent type ... not found" for an identifier, the item is a skill — retry with the Skill tool. Do NOT substitute a similarly-named agent as a "closest match".
+- **Skill vs agent invocation**: `ai-slop-cleaner` is a skill, invoke via `Skill("ai-slop-cleaner")`. `architect`, `critic`, `executor` etc. are agents, invoke via `@<name>`. If you ever get "Agent type ... not found" for an identifier, the item is a skill — retry with the Skill tool. Do NOT substitute a similarly-named agent as a "closest match".
 </Tool_Usage>
 
 <Examples>
@@ -152,9 +152,9 @@ Why good: Generic criteria replaced with specific, testable criteria.
 <Good>
 Correct parallel delegation:
 ```
-call_omo_agent(subagent_type="executor", model="haiku", prompt="Add type export for UserConfig")
-call_omo_agent(subagent_type="executor", model="sonnet", prompt="Implement the caching layer for API responses")
-call_omo_agent(subagent_type="executor", model="opus", prompt="Refactor auth module to support OAuth2 flow")
+@executor(model="haiku", prompt="Add type export for UserConfig")
+@executor(model="sonnet", prompt="Implement the caching layer for API responses")
+@executor(model="opus", prompt="Refactor auth module to support OAuth2 flow")
 ```
 Why good: Three independent tasks fired simultaneously at appropriate tiers.
 </Good>
@@ -181,9 +181,9 @@ Why bad: Uses "should" and "look good" -- no fresh evidence, no story-by-story v
 <Bad>
 Sequential execution of independent tasks:
 ```
-call_omo_agent(executor, "Add type export") → wait →
-call_omo_agent(executor, "Implement caching") → wait →
-call_omo_agent(executor, "Refactor auth")
+@executor("Add type export") → wait →
+@executor("Implement caching") → wait →
+@executor("Refactor auth")
 ```
 Why bad: These are independent tasks that should run in parallel, not sequentially.
 </Bad>

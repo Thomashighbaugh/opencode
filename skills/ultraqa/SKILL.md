@@ -41,10 +41,10 @@ If no structured goal provided, interpret the argument as a custom goal.
    - `--custom`: Run appropriate command and check for pattern
    - `--interactive`: Use qa-tester for interactive CLI/service testing:
      ```
-     call_omo_agent(subagent_type="qa-tester", model="sonnet", prompt="TEST:
-     Goal: [describe what to verify]
-     Service: [how to start]
-     Test cases: [specific scenarios to verify]")
+      @qa-tester(model="sonnet", prompt="TEST:
+      Goal: [describe what to verify]
+      Service: [how to start]
+      Test cases: [specific scenarios to verify]")
      ```
 
 2. **CHECK RESULT**: Did the goal pass?
@@ -53,18 +53,18 @@ If no structured goal provided, interpret the argument as a custom goal.
 
 3. **ARCHITECT DIAGNOSIS**: Spawn architect to analyze failure
    ```
-   call_omo_agent(subagent_type="architect", model="opus", prompt="DIAGNOSE FAILURE:
-   Goal: [goal type]
-   Output: [test/build output]
-   Provide root cause and specific fix recommendations.")
+    @architect(model="opus", prompt="DIAGNOSE FAILURE:
+    Goal: [goal type]
+    Output: [test/build output]
+    Provide root cause and specific fix recommendations.")
    ```
 
 4. **FIX ISSUES**: Apply architect's recommendations
    ```
-   call_omo_agent(subagent_type="executor", model="sonnet", prompt="FIX:
-   Issue: [architect diagnosis]
-   Files: [affected files]
-   Apply the fix precisely as recommended.")
+    @executor(model="sonnet", prompt="FIX:
+    Issue: [architect diagnosis]
+    Files: [affected files]
+    Apply the fix precisely as recommended.")
    ```
 
 5. **REPEAT**: Go back to step 1
@@ -135,3 +135,7 @@ This ensures clean state for future sessions. Stale state files with `active: fa
 ---
 
 Begin ULTRAQA cycling now. Parse the goal and start cycle 1.
+
+## Related
+
+- `verify` skill — Lightweight verification for single changes without full QA cycling

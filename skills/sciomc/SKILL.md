@@ -64,13 +64,13 @@ Fire independent stages in parallel via Task tool:
 
 ```
 // Stage 1 - Simple data gathering
-call_omo_agent(subagent_type="scientist", model="haiku", prompt="[RESEARCH_STAGE:1] Investigate...")
+@scientist(model="haiku", prompt="[RESEARCH_STAGE:1] Investigate...")
 
 // Stage 2 - Standard analysis
-call_omo_agent(subagent_type="scientist", model="sonnet", prompt="[RESEARCH_STAGE:2] Analyze...")
+@scientist(model="sonnet", prompt="[RESEARCH_STAGE:2] Analyze...")
 
 // Stage 3 - Complex reasoning
-call_omo_agent(subagent_type="scientist", model="opus", prompt="[RESEARCH_STAGE:3] Deep analysis of...")
+@scientist(model="opus", prompt="[RESEARCH_STAGE:3] Deep analysis of...")
 ```
 
 ### Smart Model Routing
@@ -100,7 +100,7 @@ After parallel execution completes, verify findings:
 
 ```
 // Cross-validation stage
-call_omo_agent(subagent_type="scientist", model="sonnet", prompt="
+@scientist(model="sonnet", prompt="
 [RESEARCH_VERIFICATION]
 Cross-validate these findings for consistency:
 
@@ -181,9 +181,9 @@ When stages analyze different data sources:
 
 ```
 // All fire simultaneously
-call_omo_agent(subagent_type="scientist", model="haiku", prompt="[STAGE:1] Analyze src/api/...")
-call_omo_agent(subagent_type="scientist", model="haiku", prompt="[STAGE:2] Analyze src/utils/...")
-call_omo_agent(subagent_type="scientist", model="haiku", prompt="[STAGE:3] Analyze src/components/...")
+@scientist(model="haiku", prompt="[STAGE:1] Analyze src/api/...")
+@scientist(model="haiku", prompt="[STAGE:2] Analyze src/utils/...")
+@scientist(model="haiku", prompt="[STAGE:3] Analyze src/components/...")
 ```
 
 ### Hypothesis Battery (Parallel)
@@ -192,9 +192,9 @@ When testing multiple hypotheses:
 
 ```
 // Test hypotheses simultaneously
-call_omo_agent(subagent_type="scientist", model="sonnet", prompt="[HYPOTHESIS:A] Test if caching improves...")
-call_omo_agent(subagent_type="scientist", model="sonnet", prompt="[HYPOTHESIS:B] Test if batching reduces...")
-call_omo_agent(subagent_type="scientist", model="sonnet", prompt="[HYPOTHESIS:C] Test if lazy loading helps...")
+@scientist(model="sonnet", prompt="[HYPOTHESIS:A] Test if caching improves...")
+@scientist(model="sonnet", prompt="[HYPOTHESIS:B] Test if batching reduces...")
+@scientist(model="sonnet", prompt="[HYPOTHESIS:C] Test if lazy loading helps...")
 ```
 
 ### Cross-Validation (Sequential)
@@ -206,7 +206,7 @@ When verification depends on all findings:
 [stages complete]
 
 // Then sequential verification
-call_omo_agent(subagent_type="scientist", model="opus", prompt="
+@scientist(model="opus", prompt="
 [CROSS_VALIDATION]
 Validate consistency across all findings:
 - Finding 1: ...

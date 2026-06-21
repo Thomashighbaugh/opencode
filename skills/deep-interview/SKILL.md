@@ -402,7 +402,7 @@ Skipping any stage is possible but reduces quality assurance:
 
 <Tool_Usage>
 - Use `AskUserQuestion` for each interview question — provides clickable UI with contextual options
-- Use `call_omo_agent(subagent_type="explore", model="haiku")` for brownfield codebase exploration (run BEFORE asking user about codebase)
+- Use `@explore(model="haiku")` for brownfield codebase exploration (run BEFORE asking user about codebase)
 - Use opus model (temperature 0.1) for ambiguity scoring — consistency is critical
 - Use `state_write` / `state_read` for interview state persistence
 - Use `Write` tool to save the final spec to `.opencode/state/specs/`

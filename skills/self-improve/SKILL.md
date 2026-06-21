@@ -382,3 +382,7 @@ Every plan must be tagged with exactly one:
 | `testing` | Evaluation methodology changes |
 | `documentation` | Documentation-only changes |
 | `other` | Does not fit above — explain in evidence |
+
+## Related
+
+- `skillify` skill — Turn a repeatable workflow from the current session into a reusable OMC skill draft

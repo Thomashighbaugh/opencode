@@ -326,7 +326,7 @@ For tasks with dependencies, use `TaskUpdate` after creation:
 
 ### Phase 5: Spawn Teammates
 
-Spawn N teammates using `call_omo_agent` with `team_name` and `name` parameters. Each teammate gets the team worker preamble (see below) plus their specific assignment.
+Spawn N teammates using `@agent-name` with `team_name` and `name` parameters. Each teammate gets the team worker preamble (see below) plus their specific assignment.
 
 ```json
 {
@@ -476,7 +476,7 @@ If you cannot complete a task, report the failure to the lead:
 Do NOT mark the task as completed. Leave it in_progress so the lead can reassign.
 
 == RULES ==
-- NEVER spawn sub-agents or use the call_omo_agent tool
+- NEVER spawn sub-agents or use the @agent-name tool
 - NEVER run tmux pane/session orchestration commands (for example `tmux split-window`, `tmux new-session`)
 - NEVER run team spawning/orchestration skills or commands (for example `$team`, `$ultrawork`, `$autopilot`, `$ralph`, `omc team ...`, `omx team ...`)
 - ALWAYS use absolute file paths
@@ -597,7 +597,7 @@ Tasks are tagged with an execution mode during decomposition:
 
 | Execution Mode | Provider | Capabilities |
 |---------------|----------|-------------|
-| `ollama_worker` | OpenCode agent | Full OpenCode tool access (Read/Write/Edit/Bash/call_omo_agent). Best for tasks needing OpenCode's reasoning + iterative tool use. |
+| `ollama_worker` | OpenCode agent | Full OpenCode tool access (Read/Write/Edit/Bash/@agent-name). Best for tasks needing OpenCode's reasoning + iterative tool use. |
 | `ollama_worker` | Codex CLI (tmux pane) | Full filesystem access in working_directory. Runs autonomously via tmux pane. Best for code review, security analysis, refactoring, architecture. Requires `npm install -g @openai/codex`. |
 | `ollama_worker` | Gemini CLI (tmux pane) | Full filesystem access in working_directory. Runs autonomously via tmux pane. Best for UI/design work, documentation, large-context tasks. Requires `npm install -g @google/gemini-cli`. |
 
@@ -649,7 +649,7 @@ The lead runs #1 (Codex security analysis), then #2 and #3 in parallel (Codex re
 
 For large ambiguous tasks, run analysis before team creation:
 
-1. Spawn `call_omo_agent(subagent_type="planner", ...)` with task description + codebase context
+1. Spawn `@planner` with task description + codebase context
 2. Use the analysis to produce better task decomposition
 3. Create team and tasks with enriched context
 
@@ -743,7 +743,7 @@ This approach complements the existing `SendMessage`-based communication by prov
 1. Internal task for that teammate will show unexpected status
 2. Teammate disappears from `config.json` members
 3. Lead reassigns orphaned tasks to remaining workers
-4. If needed, spawn a replacement teammate with `call_omo_agent(team_name, name)`
+4. If needed, spawn a replacement teammate with `@agent-name(team_name, name)`
 
 ## Team + Ralph Composition
 

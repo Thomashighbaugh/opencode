@@ -35,3 +35,7 @@ Turn vague "it should work" claims into concrete evidence.
 - Which commands/tests were run
 - What passed
 - What failed or remains unverified
+
+## Related
+
+- `ultraqa` skill — Automated QA cycling workflow that runs verify, fix, repeat until goal met

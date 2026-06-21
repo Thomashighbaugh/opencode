@@ -44,8 +44,8 @@ function parseAgentFile(filePath: string): AgentMetadata | null {
 function getAgentPath(agentName: string, projectRoot: string): string | null {
   // Project-level first (takes precedence), then user-wide
   const searchPaths = [
-    path.join(projectRoot, '.opencode', 'agent', `${agentName}.md`),
-    path.join(USER_CONFIG_DIR, 'agent', `${agentName}.md`)
+    path.join(projectRoot, '.opencode', 'agents', `${agentName}.md`),
+    path.join(USER_CONFIG_DIR, 'agents', `${agentName}.md`)
   ]
   for (const p of searchPaths) {
     if (fs.existsSync(p)) return p

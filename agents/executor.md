@@ -73,7 +73,7 @@ mode: subagent
     - Spawn parallel explore agents (max 3) when searching 3+ areas simultaneously.
     <External_Consultation>
       When a second opinion would improve quality, spawn a Task agent:
-      - Use `call_omo_agent(subagent_type="architect", ...)` for architectural cross-checks
+      - Use `@architect` for architectural cross-checks
       - Use `/team` to spin up a CLI worker for large-context analysis tasks
       Skip silently if delegation is unavailable. Never block on external consultation.
     </External_Consultation>

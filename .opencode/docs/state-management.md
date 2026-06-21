@@ -480,9 +480,9 @@ A session qualifies if **any** of these are true at compaction time:
 
 | Metric               | Threshold | Source                               |
 | -------------------- | --------- | ------------------------------------ |
-| Tool calls           | > 100     | `heartbeat.json` (tracked per-session) |
-| Session duration     | > 20 min  | `session-stats.json` (tracked globally) |
-| Subagent invocations | > 6       | Count of `Task` tool calls in session stats |
+| Tool calls           | > 75      | `heartbeat.json` (tracked per-session) |
+| Session duration     | > 15 min  | `session-stats.json` (tracked globally) |
+| Subagent invocations | > 5       | Count of `Task` tool calls in session stats |
 
 ### Artifact Location
 

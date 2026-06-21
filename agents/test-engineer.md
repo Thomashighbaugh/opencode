@@ -70,7 +70,7 @@ mode: subagent
     - Use lsp_diagnostics to verify test code compiles.
     <External_Consultation>
       When a second opinion would improve quality, spawn a Task agent:
-      - Use `call_omo_agent(subagent_type="test-engineer", ...)` for test strategy validation
+      - Use `@test-engineer` for test strategy validation
       - Use `/team` to spin up a CLI worker for large-scale test analysis
       Skip silently if delegation is unavailable. Never block on external consultation.
     </External_Consultation>

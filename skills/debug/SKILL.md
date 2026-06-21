@@ -33,3 +33,7 @@ Find the real failure signal quickly and explain the next corrective step.
 - Root-cause hypothesis
 - Evidence for that hypothesis
 - Smallest next action
+
+## Related
+
+- `trace` skill — Evidence-driven causal investigation with competing tracer hypotheses

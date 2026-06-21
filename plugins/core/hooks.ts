@@ -587,11 +587,8 @@ ${notes ? `### Custom Notes:\n${notes}` : ''}
     }
 
     // ── Compaction Artifact Saving ──────────────────────────────────────
-    // For long sessions (>100 tool calls, >20 min, or >6 subagent invocations),
+    // For long sessions (>75 tool calls, >15 min, or >5 subagent invocations),
     // save a structured artifact to disk so work products survive compaction.
-    // Thresholds are doubled from the original design because modern models
-    // have huge context windows and the compaction hook already fires at ~70%
-    // capacity — we only want artifacts for sessions that did substantial work.
     // Zero API calls — pure file I/O on an already-triggered hook.
     if (sessionId) {
       try {
@@ -606,7 +603,7 @@ ${notes ? `### Custom Notes:\n${notes}` : ''}
           : 0
         const subagentCalls = sessionStats?.tool_counts?.Task || 0
 
-        const isLongSession = toolCalls > 100 || durationSec > 1200 || subagentCalls > 6
+        const isLongSession = toolCalls > 75 || durationSec > 900 || subagentCalls > 5
 
         if (isLongSession) {
           const artifact = {

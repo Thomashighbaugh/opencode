@@ -52,9 +52,9 @@ Sequential task execution wastes time when tasks are independent. Ultrawork enab
 </Steps>
 
 <Tool_Usage>
-- Use `call_omo_agent(subagent_type="executor", model="haiku", ...)` for simple changes
-- Use `call_omo_agent(subagent_type="executor", model="sonnet", ...)` for standard work
-- Use `call_omo_agent(subagent_type="executor", model="opus", ...)` for complex work
+- Use `@executor(model="haiku", ...)` for simple changes
+- Use `@executor(model="sonnet", ...)` for standard work
+- Use `@executor(model="opus", ...)` for complex work
 - Use `run_in_background: true` for package installs, builds, and test suites
 - Use foreground execution for quick status checks and file operations
 </Tool_Usage>
@@ -63,9 +63,9 @@ Sequential task execution wastes time when tasks are independent. Ultrawork enab
 <Good>
 Three independent tasks fired simultaneously:
 ```
-call_omo_agent(subagent_type="executor", model="haiku", prompt="Add missing type export for Config interface")
-call_omo_agent(subagent_type="executor", model="sonnet", prompt="Implement the /api/users endpoint with validation")
-call_omo_agent(subagent_type="executor", model="sonnet", prompt="Add integration tests for the auth middleware")
+@executor(model="haiku", prompt="Add missing type export for Config interface")
+@executor(model="sonnet", prompt="Implement the /api/users endpoint with validation")
+@executor(model="sonnet", prompt="Add integration tests for the auth middleware")
 ```
 Why good: Independent tasks at appropriate tiers, all fired at once.
 </Good>
@@ -73,8 +73,8 @@ Why good: Independent tasks at appropriate tiers, all fired at once.
 <Good>
 Correct use of background execution:
 ```
-call_omo_agent(subagent_type="executor", model="sonnet", prompt="npm install && npm run build", run_in_background=true)
-call_omo_agent(subagent_type="executor", model="haiku", prompt="Update the README with new API endpoints")
+@executor(model="sonnet", prompt="npm install && npm run build", run_in_background=true)
+@executor(model="haiku", prompt="Update the README with new API endpoints")
 ```
 Why good: Long build runs in background while short task runs in foreground.
 </Good>
@@ -82,9 +82,9 @@ Why good: Long build runs in background while short task runs in foreground.
 <Bad>
 Sequential execution of independent work:
 ```
-result1 = call_omo_agent(executor, "Add type export")  # wait...
-result2 = call_omo_agent(executor, "Implement endpoint")     # wait...
-result3 = call_omo_agent(executor, "Add tests")              # wait...
+result1 = @executor("Add type export")  # wait...
+result2 = @executor("Implement endpoint")     # wait...
+result3 = @executor("Add tests")              # wait...
 ```
 Why bad: These tasks are independent. Running them sequentially wastes time.
 </Bad>
@@ -92,7 +92,7 @@ Why bad: These tasks are independent. Running them sequentially wastes time.
 <Bad>
 Wrong tier selection:
 ```
-call_omo_agent(subagent_type="executor", model="opus", prompt="Add a missing semicolon")
+@executor(model="opus", prompt="Add a missing semicolon")
 ```
 Why bad: Opus is expensive overkill for a trivial fix. Use executor with Haiku instead.
 </Bad>
