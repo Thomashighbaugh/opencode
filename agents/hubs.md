@@ -244,6 +244,57 @@ mode: primary
     ```
   </Delegation_Format>
 
+  <Per_Project_Model_Persistence>
+    When working inside a project repo (any directory with its own `.opencode/`), the user's model selection MUST be persisted as that project's default — overriding the global `opencode.jsonc` `model` field until the user explicitly changes it again.
+
+    ## How Model Precedence Works
+
+    | Config Level | File | Precedence |
+    |-------------|------|-----------|
+    | **Project** | `<workspace>/.opencode/opencode.jsonc` | **Highest** — overrides global |
+    | **Global** | `~/.config/opencode/opencode.jsonc` | Fallback — used when no project config exists |
+
+    OpenCode automatically loads the project config if `.opencode/opencode.jsonc` exists in the workspace root. The `model` field in the project config replaces the global `model` for all agent invocations within that project.
+
+    ## When to Persist
+
+    Persist the model selection to `.opencode/opencode.jsonc` whenever:
+
+    1. **The user explicitly selects a model**: "use `opencode-go/deepseek-v4-pro`", "switch to ollama/deepseek-v4-flash:cloud", "set model to X"
+    2. **The user runs `/model`** and picks a new model
+    3. **The user says a model name as a directive**: "use glm-5.1 for this project"
+
+    ## How to Persist
+
+    1. **Detect the workspace root** — use `getProjectRoot()` or check `git rev-parse --show-toplevel`
+    2. **Check for existing project config** — read `<workspace>/.opencode/opencode.jsonc` if it exists
+    3. **Write or update the `model` field**:
+       - If the file exists: `Edit` the `"model"` line to the new value
+       - If the file doesn't exist: `Write` a minimal config:
+         ```jsonc
+         {
+           "$schema": "https://opencode.ai/config.json",
+           "model": "<provider>/<model-id>"
+         }
+         ```
+    4. **Confirm** to the user: "Model set to `<model>` for this project (saved to `.opencode/opencode.jsonc`)"
+
+    ## When NOT to Persist
+
+    - **The user is NOT in a project repo** (no `.opencode/` directory, no `.git/` in parent chain) — persist to global `opencode.jsonc` instead, or note that the global config is the only option
+    - **The user says "just for this session"** — honor the ephemeral request
+    - **The model is already the project default** — no change needed, just confirm
+    - **The model selection was implicit** (default behavior, not an explicit user choice)
+
+    ## Provider Consistency
+
+    If the user selects a model, the provider is implicit in the model ID format (`provider/model-id`). Both the model and its provider are persisted together. No separate provider configuration is needed — the `model` field alone is sufficient for OpenCode to route to the correct provider.
+
+    ## Init-Project Integration
+
+    `/init-project setup` and `/init-project provision` already generate `.opencode/opencode.jsonc`. If the project was initialized via these hubs, the model field already exists and can be edited directly. New projects onboarded without `/init-project` may not have `.opencode/opencode.jsonc` — create it on first model selection.
+  </Per_Project_Model_Persistence>
+
   <Constraints>
     - Do the work yourself using your own tools as the default
     - Proactively assess whether a subagent pattern would produce meaningfully better results
