@@ -4,22 +4,26 @@
 
 ## Model Tiers
 
-| Tier | Model | Context | Output | Best For |
-|------|-------|---------|--------|----------|
-| **Top** | `deepseek-v4-pro:cloud` | 1M | 131K | Complex reasoning, architecture, security review |
-| **Mid** | `deepseek-v4-flash:cloud` | 1M | 131K | Implementation, execution, general work |
-| **Mid** | `nemotron-3-ultra:cloud` | 256K | 131K | Orchestration, long-running agents |
-| **Fast** | `glm-5.1:cloud` | 202K | 131K | Exploration, documentation, simple tasks |
+| Tier | Primary Model (ollama) | Fallback Model (opencode-go) | Context | Output | Best For |
+|------|------------------------|------------------------------|---------|--------|----------|
+| **Top** | `deepseek-v4-pro:cloud` | `opencode/deepseek-v4-pro` | 1M | 131K | Complex reasoning, architecture, security review |
+| **Mid** | `deepseek-v4-flash:cloud` | `opencode/deepseek-v4-flash` | 1M | 131K | Implementation, execution, general work |
+| **Mid** | `nemotron-3-ultra:cloud` | `opencode/nemotron-3-ultra` | 256K | 131K | Orchestration, long-running agents |
+| **Fast** | `glm-5.1:cloud` | `opencode/glm-5.1` | 202K | 131K | Exploration, documentation, simple tasks |
 
-- **Top tier** agents need deep reasoning, nuanced analysis, or read-only review authority.
-- **Mid tier** agents implement, execute, or orchestrate — they need strong coding and moderate reasoning.
-- **Fast tier** agents search, summarize, draft, or estimate — they need speed over deep reasoning.
+- **Top tier** agents need deep reasoning, nuanced analysis, or read-only review authority. Fallback: `opencode/deepseek-v4-pro`.
+- **Mid tier** agents implement, execute, or orchestrate — they need strong coding and moderate reasoning. Fallback: `opencode/deepseek-v4-flash` or `opencode/nemotron-3-ultra`.
+- **Fast tier** agents search, summarize, draft, or estimate — they need speed over deep reasoning. Fallback: `opencode/glm-5.1`.
 
 The `nemotron-3-ultra:cloud` model is an alternative mid-tier option optimized for orchestration and long-running agent loops. Override to `nemotron-3-ultra:cloud` when an agent runs as a persistent orchestrator or needs sustained context across many turns.
 
+## Fallback Behavior
+
+When a subagent fails with a provider-level error (connection refused, model unavailable, timeout, 502/503/504), the orchestrating agent automatically retries using the fallback model from the opencode-go provider. After 3 fallback retries, the orchestrating agent escalates to the user via the `question` tool. Task-level errors (wrong output, incorrect implementation) do NOT trigger provider fallback — fix the task prompt instead.
+
 ## Agent-to-Tier Mapping
 
-### Top Tier — deepseek-v4-pro:cloud
+### Top Tier — deepseek-v4-pro:cloud (fallback: opencode/deepseek-v4-pro)
 
 Deep reasoning, architectural judgment, security analysis, and critical review.
 
@@ -36,7 +40,7 @@ Deep reasoning, architectural judgment, security analysis, and critical review.
 | **analyst** | `deepseek-v4-pro:cloud` | READ-ONLY pre-planning consultant. Catches requirement gaps, undefined guardrails, scope risks. Thoroughness demands strong reasoning. |
 | **critic** | `deepseek-v4-pro:cloud` | READ-ONLY final quality gate. Multi-perspective review, gap analysis, pre-commitment predictions. Maximum effort required. |
 
-### Mid Tier — deepseek-v4-flash:cloud
+### Mid Tier — deepseek-v4-flash:cloud (fallback: opencode/deepseek-v4-flash)
 
 Implementation, execution, configuration, and interactive testing.
 
@@ -55,7 +59,7 @@ Implementation, execution, configuration, and interactive testing.
 | **code-simplifier** | `deepseek-v4-flash:cloud` | Simplifies code for clarity and maintainability. Implementation-focused, needs practical coding skill. |
 | **qa-tester** | `deepseek-v4-flash:cloud` | Interactive CLI testing via tmux. Practical test execution, session management, output capture. |
 
-### Fast Tier — glm-5.1:cloud
+### Fast Tier — glm-5.1:cloud (fallback: opencode/glm-5.1)
 
 Search, summarization, drafting, estimation — speed over depth.
 
@@ -71,45 +75,74 @@ Search, summarization, drafting, estimation — speed over depth.
 
 ## Summary Table
 
-| Agent | Tier | Model | Role Category |
-|-------|------|-------|--------------|
-| architect | Top | `deepseek-v4-pro:cloud` | Strategic analysis (READ-ONLY) |
-| planner | Top | `deepseek-v4-pro:cloud` | Strategic planning |
-| code-reviewer | Top | `deepseek-v4-pro:cloud` | Quality review (READ-ONLY) |
-| security-reviewer | Top | `deepseek-v4-pro:cloud` | Security audit (READ-ONLY) |
-| scientist | Top | `deepseek-v4-pro:cloud` | Data analysis (READ-ONLY) |
-| deep-thinker | Top | `deepseek-v4-pro:cloud` | Complex reasoning |
-| requirements-analyzer | Top | `deepseek-v4-pro:cloud` | Requirements analysis (READ-ONLY) |
-| tracer | Top | `deepseek-v4-pro:cloud` | Causal investigation |
-| analyst | Top | `deepseek-v4-pro:cloud` | Gap analysis (READ-ONLY) |
-| critic | Top | `deepseek-v4-pro:cloud` | Quality gate (READ-ONLY) |
-| hubs | Mid | `deepseek-v4-flash:cloud` | Generalist primary |
-| executor | Mid | `deepseek-v4-flash:cloud` | Implementation |
-| debugger | Mid | `deepseek-v4-flash:cloud` | Debugging and build fixes |
-| test-engineer | Mid | `deepseek-v4-flash:cloud` | Test writing and TDD |
-| designer | Mid | `deepseek-v4-flash:cloud` | UI/UX implementation |
-| frontend-design | Mid | `deepseek-v4-flash:cloud` | Frontend interfaces |
-| git-master | Mid | `deepseek-v4-flash:cloud` | Git operations |
-| config-orchestrator | Mid | `deepseek-v4-flash:cloud` | Configuration management |
-| skill-creator | Mid | `deepseek-v4-flash:cloud` | Skill creation |
-| refactoring | Mid | `deepseek-v4-flash:cloud` | Code restructuring |
-| code-simplifier | Mid | `deepseek-v4-flash:cloud` | Code cleanup |
-| qa-tester | Mid | `deepseek-v4-flash:cloud` | Interactive testing |
-| writer | Fast | `glm-5.1:cloud` | Documentation |
-| verifier | Fast | `glm-5.1:cloud` | Completion verification |
-| document-specialist | Fast | `glm-5.1:cloud` | External docs lookup |
-| effort-estimator | Fast | `glm-5.1:cloud` | Effort estimation |
-| explore | Fast | `glm-5.1:cloud` | Codebase search (READ-ONLY) |
-| commit-drafter | Fast | `glm-5.1:cloud` | Commit message drafting |
-| prompt-simplifier | Fast | `glm-5.1:cloud` | Prompt analysis (READ-ONLY) |
+| Agent | Tier | Primary Model | Fallback Model | Role Category |
+|-------|------|---------------|----------------|--------------|
+| architect | Top | `deepseek-v4-pro:cloud` | `opencode/deepseek-v4-pro` | Strategic analysis (READ-ONLY) |
+| planner | Top | `deepseek-v4-pro:cloud` | `opencode/deepseek-v4-pro` | Strategic planning |
+| code-reviewer | Top | `deepseek-v4-pro:cloud` | `opencode/deepseek-v4-pro` | Quality review (READ-ONLY) |
+| security-reviewer | Top | `deepseek-v4-pro:cloud` | `opencode/deepseek-v4-pro` | Security audit (READ-ONLY) |
+| scientist | Top | `deepseek-v4-pro:cloud` | `opencode/deepseek-v4-pro` | Data analysis (READ-ONLY) |
+| deep-thinker | Top | `deepseek-v4-pro:cloud` | `opencode/deepseek-v4-pro` | Complex reasoning |
+| requirements-analyzer | Top | `deepseek-v4-pro:cloud` | `opencode/deepseek-v4-pro` | Requirements analysis (READ-ONLY) |
+| tracer | Top | `deepseek-v4-pro:cloud` | `opencode/deepseek-v4-pro` | Causal investigation |
+| analyst | Top | `deepseek-v4-pro:cloud` | `opencode/deepseek-v4-pro` | Gap analysis (READ-ONLY) |
+| critic | Top | `deepseek-v4-pro:cloud` | `opencode/deepseek-v4-pro` | Quality gate (READ-ONLY) |
+| hubs | Mid | `deepseek-v4-flash:cloud` | `opencode/deepseek-v4-flash` | Generalist primary |
+| executor | Mid | `deepseek-v4-flash:cloud` | `opencode/deepseek-v4-flash` | Implementation |
+| debugger | Mid | `deepseek-v4-flash:cloud` | `opencode/deepseek-v4-flash` | Debugging and build fixes |
+| test-engineer | Mid | `deepseek-v4-flash:cloud` | `opencode/deepseek-v4-flash` | Test writing and TDD |
+| designer | Mid | `deepseek-v4-flash:cloud` | `opencode/deepseek-v4-flash` | UI/UX implementation |
+| frontend-design | Mid | `deepseek-v4-flash:cloud` | `opencode/deepseek-v4-flash` | Frontend interfaces |
+| git-master | Mid | `deepseek-v4-flash:cloud` | `opencode/deepseek-v4-flash` | Git operations |
+| config-orchestrator | Mid | `deepseek-v4-flash:cloud` | `opencode/deepseek-v4-flash` | Configuration management |
+| skill-creator | Mid | `deepseek-v4-flash:cloud` | `opencode/deepseek-v4-flash` | Skill creation |
+| refactoring | Mid | `deepseek-v4-flash:cloud` | `opencode/deepseek-v4-flash` | Code restructuring |
+| code-simplifier | Mid | `deepseek-v4-flash:cloud` | `opencode/deepseek-v4-flash` | Code cleanup |
+| qa-tester | Mid | `deepseek-v4-flash:cloud` | `opencode/deepseek-v4-flash` | Interactive testing |
+| writer | Fast | `glm-5.1:cloud` | `opencode/glm-5.1` | Documentation |
+| verifier | Fast | `glm-5.1:cloud` | `opencode/glm-5.1` | Completion verification |
+| document-specialist | Fast | `glm-5.1:cloud` | `opencode/glm-5.1` | External docs lookup |
+| effort-estimator | Fast | `glm-5.1:cloud` | `opencode/glm-5.1` | Effort estimation |
+| explore | Fast | `glm-5.1:cloud` | `opencode/glm-5.1` | Codebase search (READ-ONLY) |
+| commit-drafter | Fast | `glm-5.1:cloud` | `opencode/glm-5.1` | Commit message drafting |
+| prompt-simplifier | Fast | `glm-5.1:cloud` | `opencode/glm-5.1` | Prompt analysis (READ-ONLY) |
 
 ## Tier Distribution
 
-| Tier | Count | Agents |
-|------|-------|--------|
-| **Top** | 10 | architect, planner, code-reviewer, security-reviewer, scientist, deep-thinker, requirements-analyzer, tracer, analyst, critic |
-| **Mid** | 12 | hubs, executor, debugger, test-engineer, designer, frontend-design, git-master, config-orchestrator, skill-creator, refactoring, code-simplifier, qa-tester |
-| **Fast** | 7 | writer, verifier, document-specialist, effort-estimator, explore, commit-drafter, prompt-simplifier |
+| Tier | Count | Primary Model | Fallback Model | Agents |
+|------|-------|---------------|----------------|--------|
+| **Top** | 10 | `deepseek-v4-pro:cloud` | `opencode/deepseek-v4-pro` | architect, planner, code-reviewer, security-reviewer, scientist, deep-thinker, requirements-analyzer, tracer, analyst, critic |
+| **Mid** | 12 | `deepseek-v4-flash:cloud` | `opencode/deepseek-v4-flash` | hubs, executor, debugger, test-engineer, designer, frontend-design, git-master, config-orchestrator, skill-creator, refactoring, code-simplifier, qa-tester |
+| **Fast** | 7 | `glm-5.1:cloud` | `opencode/glm-5.1` | writer, verifier, document-specialist, effort-estimator, explore, commit-drafter, prompt-simplifier |
+
+## Fallback Guidelines for Orchestrators
+
+When a subagent fails with a provider-level error (connection refused, model unavailable, timeout, 502/503/504, rate limit), the orchestrating agent follows this fallback chain:
+
+| Attempt | Provider | Model | Notes |
+|---------|----------|-------|-------|
+| 0 (initial) | ollama | `ollama/{model}:cloud` | Default from agent definition |
+| 1 (first retry) | opencode-go | `opencode/{model}` | Switch to fallback provider |
+| 2 (second retry) | opencode-go | `opencode/{model}` | Retry with same fallback |
+| 3 (third retry) | opencode-go | `opencode/{model}` | Final fallback attempt |
+| After 3 retries → | — | — | Escalate to user via `question` tool |
+
+### Error Classification
+
+| Error Type | Apply Fallback? | Action |
+|-----------|----------------|--------|
+| Provider connection refused / timeout | **Yes** | Retry with opencode-go fallback |
+| Model unavailable / 502/503/504 | **Yes** | Retry with opencode-go fallback |
+| Rate limit / quota exceeded | **Yes** | Retry with opencode-go fallback |
+| Wrong output / incorrect implementation | **No** | Fix the task prompt, re-invoke same agent |
+| File not found / permission denied | **No** | Fix the environmental issue |
+| Agent type not found | **Yes** | Retry with opencode-go fallback agent |
+
+### Retry Counter Rules
+
+- Counters are **per-subagent, per-workflow** — failures in `@executor` don't block `@verifier`
+- After 4 total attempts (1 primary + 3 fallback) for a single subagent, escalate to user
+- In parallel orchestration, other subagents continue normally while the stuck agent awaits user decision
 
 ## Override Guidance for Orchestrators
 

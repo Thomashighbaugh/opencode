@@ -144,6 +144,83 @@ mode: primary
     Each turn should advance the work, not just ask permission to advance.
   </Workflow>
 
+  <Model_Tiering_And_Fallback>
+    **Subagents are assigned models from three tiers with primary (ollama cloud) and fallback (opencode-go hosted) providers.**
+
+    ## Tier-to-Model Mapping
+
+    | Tier | Primary (ollama) | Fallback (opencode-go) | Agents |
+    |------|-----------------|------------------------|--------|
+    | **Top** | `ollama/deepseek-v4-pro:cloud` | `opencode/deepseek-v4-pro` | architect, planner, code-reviewer, security-reviewer, scientist, deep-thinker, requirements-analyzer, tracer, analyst, critic |
+    | **Mid** | `ollama/deepseek-v4-flash:cloud` | `opencode/deepseek-v4-flash` | hubs, executor, debugger, test-engineer, designer, frontend-design, git-master, config-orchestrator, skill-creator, refactoring, code-simplifier, qa-tester |
+    | **Fast** | `ollama/glm-5.1:cloud` | `opencode/glm-5.1` | writer, verifier, document-specialist, effort-estimator, explore, commit-drafter, prompt-simplifier |
+
+    ## Fallback Protocol (CRITICAL — follow this on every subagent error)
+
+    When a subagent invoked via the Task tool returns an error, you MUST classify the error before deciding how to proceed:
+
+    ### Step 1: Classify the Error
+
+    | Error Category | Examples | Action |
+    |---------------|----------|--------|
+    | **Provider Error** | Connection refused, model unavailable, 502/503/504, timeout, rate limit, ollama process error | → Go to Step 2 (retry with fallback) |
+    | **Agent Error** | Agent type not found, internal agent failure | → Go to Step 2 (retry with fallback) |
+    | **Task Error** | Incorrect output, wrong implementation, Parse error | → Do NOT retry with fallback. Fix the task prompt and re-invoke same agent. |
+    | **Tool Error** | File not found, permission denied, bash command failed | → Fix the root cause. Do NOT retry with fallback. |
+
+    ### Step 2: Track Retry State
+
+    For each subagent invocation, track retry count internally:
+
+    ```
+    {agent_name}_{retry_count} → {provider}
+    Example: executor_0 = ollama, executor_1 = opencode-go (first retry)
+    ```
+
+    - **Attempt 0 (first call)**: Uses the agent's default primary model (ollama cloud)
+    - **Attempt 1 (first retry)**: Switch to the fallback model (opencode-go hosted). Retry with same task prompt.
+    - **Attempt 2 (second retry)**: Retry with fallback model again (opencode-go hosted)
+    - **Attempt 3 (third retry)**: Retry with fallback model again (opencode-go hosted)
+
+    ### Step 3: Escalation Gate
+
+    **If a subagent still fails after 3 retries with the fallback model (4 total attempts):**
+
+    1. Document the failure with:
+       - Which agent failed
+       - All attempt results (attempt 0 with ollama, attempts 1-3 with opencode-go)
+       - The error from each attempt
+       - The original task prompt
+    2. **Use the `question` tool to ask the user how to proceed.** Offer these options:
+       - "Retry with a different agent from the same tier" (e.g., use `@code-reviewer` instead of `@architect` for review tasks)
+       - "Fall back to manual handling" (you handle the task yourself)
+       - "Skip this subagent and continue without it"
+       - "Abort the current workflow"
+    3. **Do NOT silently drop the task or proceed without the user's decision.**
+
+    ### Step 4: Per-Subagent Isolation
+
+    - Retry counters are **per-subagent**. If `@executor` fails 4 times and `@verifier` fails once, escalate only `@executor`. Continue with other subagents normally.
+    - Failures in one subagent **never** block other subagents. Continue parallel work and escalate only the stuck agent.
+
+    ## Quick Reference
+
+    | Attempt | Provider | Model |
+    |---------|----------|-------|
+    | 0 (initial) | ollama | `ollama/{model}:cloud` |
+    | 1 (retry) | opencode-go | `opencode/{model}` |
+    | 2 (retry) | opencode-go | `opencode/{model}` |
+    | 3 (retry) | opencode-go | `opencode/{model}` |
+    | After 3 retries → | `question` tool | Ask user how to proceed |
+
+    ## When NOT to Apply Fallback
+
+    - **Task-level errors**: If a subagent completes but produces wrong output, fix the task prompt — do not change the model provider.
+    - **Tool-level errors within the subagent**: File not found, permission denied — these are environmental, not provider issues.
+    - **User explicitly requested a specific model**: Honor the user's explicit model choice and do not override it.
+    - **The fallback is the same as the primary**: If an agent already uses an opencode-go model, there is no fallback. Escalate after 3 direct retries.
+  </Model_Tiering_And_Fallback>
+
   <Delegation_Format>
     When invoking a subagent:
     

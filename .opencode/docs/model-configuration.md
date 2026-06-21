@@ -8,25 +8,26 @@
 - [Default Models](#default-models)
 - [Model Properties](#model-properties)
 - [Provider Configuration](#provider-configuration)
+- [Model Tiering & Fallback](#model-tiering--fallback)
 - [Custom Models](#custom-models)
 - [Best Practices](#best-practices)
 - [Troubleshooting](#troubleshooting)
 
 ## Overview
 
-Hubs uses ollama cloud models by default, providing a balance of capability and cost-effectiveness. Models are configured in `opencode.jsonc`.
+Hubs uses ollama cloud models as the primary provider, with opencode-go hosted models as automatic fallback when the ollama provider errors out. Models are configured in `opencode.jsonc`.
 
 ## Default Models
 
-| Model | Context | Output | Tier | Best For | Notes |
-|-------|---------|--------|------|----------|-------|
-| **deepseek-v4-pro:cloud** | 1M | 131K | **Top** | Frontier reasoning, agentic tasks | Default for complex architecture |
-| **deepseek-v4-flash:cloud** | 1M | 131K | **Mid** | Fast efficient reasoning | Default for most agents |
-| **nemotron-3-ultra:cloud** | 256K | 131K | **Mid** | Agent orchestration, long-running agents | Parallel execution |
-| **glm-5.1:cloud** | 202K | 131K | **Fast** | General purpose, most tasks | Fast tier |
-| **kimi-k2.6:cloud** | 262K | 262K | — | Extended context, long documents | Same input/output context |
-| **minimax-m2.7:cloud** | 205K | 128K | — | High performance tasks | Balanced performance |
-| **qwen3.6:cloud** | 262K | 32K | — | Long document processing | Limited output |
+| Model | Context | Output | Tier | Best For | Fallback | Notes |
+|-------|---------|--------|------|----------|----------|-------|
+| **deepseek-v4-pro:cloud** | 1M | 131K | **Top** | Frontier reasoning, agentic tasks | `opencode/deepseek-v4-pro` | Default for complex architecture |
+| **deepseek-v4-flash:cloud** | 1M | 131K | **Mid** | Fast efficient reasoning | `opencode/deepseek-v4-flash` | Default for most agents |
+| **nemotron-3-ultra:cloud** | 256K | 131K | **Mid** | Agent orchestration, long-running agents | `opencode/nemotron-3-ultra` | Parallel execution |
+| **glm-5.1:cloud** | 202K | 131K | **Fast** | General purpose, most tasks | `opencode/glm-5.1` | Fast tier |
+| **kimi-k2.6:cloud** | 262K | 262K | — | Extended context, long documents | — | Same input/output context |
+| **minimax-m2.7:cloud** | 205K | 128K | — | High performance tasks | — | Balanced performance |
+| **qwen3.6:cloud** | 262K | 32K | — | Long document processing | — | Limited output |
 
 ### Model Selection by Task
 
@@ -148,6 +149,95 @@ The `_launch` property controls automatic model startup:
             "OLLAMA_HOST": "${OLLAMA_HOST}",
             "OLLAMA_API_KEY": "${OLLAMA_API_KEY}"
           }
+        }
+      }
+    }
+  }
+}
+```
+
+## Model Tiering & Fallback
+
+When the ollama cloud provider fails (connection errors, model unavailable, timeouts), Hubs automatically retries subagent tasks using the opencode-go hosted equivalent. This is configured in `opencode.jsonc` under `hubs.modelTiering`.
+
+### Tier-to-Fallback Mapping
+
+| Tier | Primary Provider | Fallback Provider |
+|------|-----------------|-------------------|
+| **Top** | `ollama/deepseek-v4-pro:cloud` | `opencode/deepseek-v4-pro` |
+| **Mid** | `ollama/deepseek-v4-flash:cloud` | `opencode/deepseek-v4-flash` |
+| **Fast** | `ollama/glm-5.1:cloud` | `opencode/glm-5.1` |
+
+### Configuration
+
+```jsonc
+{
+  "hubs": {
+    "modelTiering": {
+      "top": {
+        "primary": "ollama/deepseek-v4-pro:cloud",
+        "fallback": "opencode/deepseek-v4-pro"
+      },
+      "mid": {
+        "primary": "ollama/deepseek-v4-flash:cloud",
+        "fallback": "opencode/deepseek-v4-flash"
+      },
+      "fast": {
+        "primary": "ollama/glm-5.1:cloud",
+        "fallback": "opencode/glm-5.1"
+      },
+      "retry": {
+        "max_attempts_per_provider": 3,
+        "total_max_retries": 6
+      }
+    }
+  }
+}
+```
+
+### Fallback Protocol
+
+| Attempt | Provider | Model | Behavior |
+|---------|----------|-------|----------|
+| 0 (initial) | ollama | `ollama/{model}:cloud` | Default from agent definition |
+| 1 (first retry) | opencode-go | `opencode/{model}` | Switch to fallback provider |
+| 2 (second retry) | opencode-go | `opencode/{model}` | Retry with same fallback |
+| 3 (third retry) | opencode-go | `opencode/{model}` | Final fallback attempt |
+| After 3 retries | — | — | Escalate to user via `question` tool |
+
+### When Fallback Applies
+
+Fallback is triggered ONLY for provider-level errors:
+
+| Error Type | Apply Fallback? |
+|-----------|----------------|
+| Connection refused / timeout | **Yes** — retry with opencode-go |
+| Model unavailable / 502/503/504 | **Yes** — retry with opencode-go |
+| Rate limit / quota exceeded | **Yes** — retry with opencode-go |
+| Wrong output / incorrect implementation | **No** — fix the task prompt |
+| File not found / permission denied | **No** — fix environmental issue |
+
+### OpenCode-Go Provider Setup
+
+Add opencode-go models to the `opencode` provider in `opencode.jsonc`:
+
+```jsonc
+{
+  "provider": {
+    "opencode": {
+      "options": {},
+      "models": {
+        "deepseek-v4-pro": {
+          "name": "deepseek-v4-pro",
+          "limit": { "context": 1048576, "output": 131072 }
+        },
+        "deepseek-v4-flash": {
+          "name": "deepseek-v4-flash",
+          "limit": { "context": 1048576, "output": 131072 }
+        },
+        "glm-5.1": {
+          "name": "glm-5.1",
+          "limit": { "context": 202752, "output": 131072 }
         }
       }
     }

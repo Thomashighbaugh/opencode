@@ -2,6 +2,18 @@
 
 > Release log for the OpenCode Hubs configuration.
 
+## 2026-06-21
+
+- **feat(hubs): model tiering fallback — ollama → opencode-go provider switching**
+  - Added 4 opencode-go hosted models (`deepseek-v4-pro`, `deepseek-v4-flash`, `glm-5.1`, `nemotron-3-ultra`) to `opencode` provider in `opencode.jsonc`
+  - Added `hubs.modelTiering` config with primary/fallback chains for all three tiers (top/mid/fast) plus retry settings (`max_attempts_per_provider: 3`)
+  - Added `<Model_Tiering_And_Fallback>` protocol to Hubs agent (`agents/hubs.md`): 4-step error classification, retry state tracking per subagent, escalation gate after 4 total attempts
+  - Updated `docs/shared/agent-tiers.md`: all tables now include Fallback Model (opencode-go) columns, added Fallback Guidelines section
+  - Updated `.opencode/docs/model-configuration.md`: added Model Tiering & Fallback section with config reference and protocol table
+  - **Fallback behavior**: subagent errors classified as Provider/Agent → retry with opencode-go fallback (3 retries), then escalate to user via `question` tool. Task/Tool errors → fix prompt/environment, no provider switch.
+
+- **chore(compact): session compaction artifact for ses_1172fb** — 110 tool calls, 6.5min duration, 5 modified files
+
 ## 2026-06-14
 
 - **feat(provision): LSP auto-detection and configuration** (`78fec7b`)
