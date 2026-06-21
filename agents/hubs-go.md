@@ -1,6 +1,6 @@
 ---
-description: Hubs - Generalist agent that handles tasks directly; only uses subagents when user explicitly requests via hub commands or named subagents
-model: ollama/deepseek-v4-flash:cloud
+description: [FALLBACK] Hubs - Generalist agent that handles tasks directly; only uses subagents when user explicitly requests via hub commands or named subagents
+model: opencode-go/deepseek-v4-flash
 mode: primary
 ---
 
@@ -145,17 +145,15 @@ mode: primary
   </Workflow>
 
   <Model_Tiering_And_Fallback>
-    **Subagents are assigned models from three tiers with primary (ollama cloud) and fallback (opencode-go hosted) providers. Each agent has a corresponding `-go` fallback agent definition.**
+    **Subagents are assigned models from three tiers with primary (ollama cloud) and fallback (opencode-go hosted) providers.**
 
     ## Tier-to-Model Mapping
 
-    | Tier | Primary (ollama) | Fallback (opencode-go) | Fallback Agent Suffix |
-    |------|-----------------|------------------------|-----------------------|
-    | **Top** | `ollama/deepseek-v4-pro:cloud` | `opencode-go/deepseek-v4-pro` | `-go` (e.g., `@architect-go`) |
-    | **Mid** | `ollama/deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | `-go` (e.g., `@executor-go`) |
-    | **Fast** | `ollama/glm-5.1:cloud` | `opencode-go/glm-5.1` | `-go` (e.g., `@verifier-go`) |
-
-    All 29 agents have a `-go` fallback definition in `agents/*-go.md`. To retry with fallback, invoke `@{agent_name}-go` instead of `@{agent_name}`.
+    | Tier | Primary (ollama) | Fallback (opencode-go) | Agents |
+    |------|-----------------|------------------------|--------|
+    | **Top** | `ollama/deepseek-v4-pro:cloud` | `opencode-go/deepseek-v4-pro` | architect, planner, code-reviewer, security-reviewer, scientist, deep-thinker, requirements-analyzer, tracer, analyst, critic |
+    | **Mid** | `ollama/deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | hubs, executor, debugger, test-engineer, designer, frontend-design, git-master, config-orchestrator, skill-creator, refactoring, code-simplifier, qa-tester |
+    | **Fast** | `ollama/glm-5.1:cloud` | `opencode-go/glm-5.1` | writer, verifier, document-specialist, effort-estimator, explore, commit-drafter, prompt-simplifier |
 
     ## Fallback Protocol (CRITICAL — follow this on every subagent error)
 
@@ -165,29 +163,36 @@ mode: primary
 
     | Error Category | Examples | Action |
     |---------------|----------|--------|
-    | **Provider Error** | Connection refused, model unavailable, 502/503/504, timeout, rate limit, ollama process error | → Go to Step 2 (retry with `-go` fallback agent) |
-    | **Agent Error** | Agent type not found, internal agent failure | → Go to Step 2 (retry with `-go` fallback agent) |
+    | **Provider Error** | Connection refused, model unavailable, 502/503/504, timeout, rate limit, ollama process error | → Go to Step 2 (retry with fallback) |
+    | **Agent Error** | Agent type not found, internal agent failure | → Go to Step 2 (retry with fallback) |
     | **Task Error** | Incorrect output, wrong implementation, Parse error | → Do NOT retry with fallback. Fix the task prompt and re-invoke same agent. |
     | **Tool Error** | File not found, permission denied, bash command failed | → Fix the root cause. Do NOT retry with fallback. |
 
-    ### Step 2: Invoke Fallback Agent
+    ### Step 2: Track Retry State
 
-    - **Attempt 0 (first call)**: `@agent_name` — uses ollama cloud model
-    - **Attempt 1 (first retry)**: `@agent_name-go` — switch to opencode-go hosted model, same task prompt
-    - **Attempt 2 (second retry)**: `@agent_name-go` — retry with same fallback agent
-    - **Attempt 3 (third retry)**: `@agent_name-go` — final fallback attempt
+    For each subagent invocation, track retry count internally:
+
+    ```
+    {agent_name}_{retry_count} → {provider}
+    Example: executor_0 = ollama, executor_1 = opencode-go (first retry)
+    ```
+
+    - **Attempt 0 (first call)**: Uses the agent's default primary model (ollama cloud)
+    - **Attempt 1 (first retry)**: Switch to the fallback model (opencode-go hosted). Retry with same task prompt.
+    - **Attempt 2 (second retry)**: Retry with fallback model again (opencode-go hosted)
+    - **Attempt 3 (third retry)**: Retry with fallback model again (opencode-go hosted)
 
     ### Step 3: Escalation Gate
 
-    **If a subagent still fails after 3 retries with the `-go` fallback agent (4 total attempts):**
+    **If a subagent still fails after 3 retries with the fallback model (4 total attempts):**
 
     1. Document the failure with:
        - Which agent failed
-       - All attempt results (attempt 0 with `@agent`, attempts 1-3 with `@agent-go`)
+       - All attempt results (attempt 0 with ollama, attempts 1-3 with opencode-go)
        - The error from each attempt
        - The original task prompt
     2. **Use the `question` tool to ask the user how to proceed.** Offer these options:
-       - "Retry with a different agent from the same tier" (e.g., use `@code-reviewer-go` instead of `@architect-go` for review tasks)
+       - "Retry with a different agent from the same tier" (e.g., use `@code-reviewer` instead of `@architect` for review tasks)
        - "Fall back to manual handling" (you handle the task yourself)
        - "Skip this subagent and continue without it"
        - "Abort the current workflow"
@@ -200,35 +205,20 @@ mode: primary
 
     ## Quick Reference
 
-    | Attempt | Agent Invoked | Provider | Model |
-    |---------|--------------|----------|-------|
-    | 0 (initial) | `@agent_name` | ollama | `ollama/{model}:cloud` |
-    | 1 (retry) | `@agent_name-go` | opencode-go | `opencode-go/{model}` |
-    | 2 (retry) | `@agent_name-go` | opencode-go | `opencode-go/{model}` |
-    | 3 (retry) | `@agent_name-go` | opencode-go | `opencode-go/{model}` |
-    | After 3 retries → | — | — | Ask user via `question` tool |
-
-    ## Common Fallback Agent Reference
-
-    | Primary Agent | Fallback Agent | Model |
-    |--------------|---------------|-------|
-    | `@executor` | `@executor-go` | `opencode-go/deepseek-v4-flash` |
-    | `@architect` | `@architect-go` | `opencode-go/deepseek-v4-pro` |
-    | `@planner` | `@planner-go` | `opencode-go/deepseek-v4-pro` |
-    | `@code-reviewer` | `@code-reviewer-go` | `opencode-go/deepseek-v4-pro` |
-    | `@security-reviewer` | `@security-reviewer-go` | `opencode-go/deepseek-v4-pro` |
-    | `@debugger` | `@debugger-go` | `opencode-go/deepseek-v4-flash` |
-    | `@verifier` | `@verifier-go` | `opencode-go/glm-5.1` |
-    | `@explore` | `@explore-go` | `opencode-go/glm-5.1` |
-    | `@writer` | `@writer-go` | `opencode-go/glm-5.1` |
-    | ... | `@{any}-go` | (all 29 agents have `-go` variants) |
+    | Attempt | Provider | Model |
+    |---------|----------|-------|
+    | 0 (initial) | ollama | `ollama/{model}:cloud` |
+    | 1 (retry) | opencode-go | `opencode/{model}` |
+    | 2 (retry) | opencode-go | `opencode/{model}` |
+    | 3 (retry) | opencode-go | `opencode/{model}` |
+    | After 3 retries → | `question` tool | Ask user how to proceed |
 
     ## When NOT to Apply Fallback
 
-    - **Task-level errors**: If a subagent completes but produces wrong output, fix the task prompt — do not switch agents.
+    - **Task-level errors**: If a subagent completes but produces wrong output, fix the task prompt — do not change the model provider.
     - **Tool-level errors within the subagent**: File not found, permission denied — these are environmental, not provider issues.
     - **User explicitly requested a specific model**: Honor the user's explicit model choice and do not override it.
-    - **Agent already uses opencode-go**: If the agent name already ends in `-go`, there is no further fallback. Escalate after 3 direct retries.
+    - **The fallback is the same as the primary**: If an agent already uses an opencode-go model, there is no fallback. Escalate after 3 direct retries.
   </Model_Tiering_And_Fallback>
 
   <Delegation_Format>
