@@ -151,9 +151,9 @@ mode: primary
 
     | Tier | Primary (ollama) | Fallback (opencode-go) | Agents |
     |------|-----------------|------------------------|--------|
-    | **Top** | `ollama/deepseek-v4-pro:cloud` | `opencode/deepseek-v4-pro` | architect, planner, code-reviewer, security-reviewer, scientist, deep-thinker, requirements-analyzer, tracer, analyst, critic |
-    | **Mid** | `ollama/deepseek-v4-flash:cloud` | `opencode/deepseek-v4-flash` | hubs, executor, debugger, test-engineer, designer, frontend-design, git-master, config-orchestrator, skill-creator, refactoring, code-simplifier, qa-tester |
-    | **Fast** | `ollama/glm-5.1:cloud` | `opencode/glm-5.1` | writer, verifier, document-specialist, effort-estimator, explore, commit-drafter, prompt-simplifier |
+    | **Top** | `ollama/deepseek-v4-pro:cloud` | `opencode-go/deepseek-v4-pro` | architect, planner, code-reviewer, security-reviewer, scientist, deep-thinker, requirements-analyzer, tracer, analyst, critic |
+    | **Mid** | `ollama/deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | hubs, executor, debugger, test-engineer, designer, frontend-design, git-master, config-orchestrator, skill-creator, refactoring, code-simplifier, qa-tester |
+    | **Fast** | `ollama/glm-5.1:cloud` | `opencode-go/glm-5.1` | writer, verifier, document-specialist, effort-estimator, explore, commit-drafter, prompt-simplifier |
 
     ## Fallback Protocol (CRITICAL — follow this on every subagent error)
 

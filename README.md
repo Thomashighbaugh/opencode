@@ -4,7 +4,19 @@
 
 The name derives from the hub-and-spoke orchestration concept — a central operations hub that coordinates specialized units rather than trying to do everything itself. Each hub dispatches to a curated roster of 29 agents, 76 skills, 14 tools, and 2 commands through structured menus instead of requiring you to remember every capability's exact name.
 
-The codebase is continuously optimized — `getProjectRoot()` is cached to avoid redundant git forks, state directory scans are depth-limited to O(1), and the plugin system is split into focused modules (session, modes, keywords, hooks) for maintainability. Model tiering (top/mid/fast) provides intelligent routing across deepseek-v4-pro, deepseek-v4-flash, nemotron-3-ultra, and glm-5.1.
+The codebase evolves organically — each optimization emerges from actual usage: a missing facet surfaces mid-workflow, a previously overlooked edge case bites, and the configuration adapts. Rather than a grand upfront design, the system accretes capability patch by patch, responding to the real needs of orchestrating 29 agents across five hubs. Contributions, overlooked patterns, and pull requests are always welcome.
+
+- **Deterministic Root Path Memoization** — Single-source-of-truth project root resolution with in-memory caching, eliminating redundant `git rev-parse` forks. Implementation: `getProjectRoot()` caches the resolved path after first lookup, collapsing O(n) shell calls to O(1).
+
+- **Constant-Time State Topology Indexing** — State directory traversal bounded at constant depth regardless of session count, preventing unbounded recursion into `.opencode/state/` subtrees. Implementation: directory scans are depth-limited at the tool level, capping scan complexity at O(1) per invocation.
+
+- **Micro-Kernel Hook Decomposition Architecture** — Monolithic plugin refactored into focused, independently-loadable modules (session lifecycle, mode state CRUD, magic keyword detection, hook handler dispatch), each with a single responsibility boundary. Implementation: `plugins/core/` splits the original `hubs-plugin.ts` into `session.ts`, `modes.ts`, `keywords.ts`, and `hooks.ts`.
+
+- **Tiered Cognitive Model Orchestration** — 29 subagents classified into Top (deep reasoning), Mid (implementation), and Fast (search/summarization) tiers, each assigned to a model with matching capability profile. Implementation: agent definitions carry tier-appropriate model assignments (`deepseek-v4-pro:cloud` for architecture/security, `deepseek-v4-flash:cloud` for execution, `glm-5.1:cloud` for exploration).
+
+- **Cross-Provider Resilience Fabric with Automatic Failover** — When the primary Ollama cloud provider errors out on a subagent invocation (connection refused, timeout, 5xx), the orchestrating agent transparently switches to the equivalent OpenCode-Go hosted model, retrying up to three times before escalating to the user. Implementation: `hubs.modelTiering` in `opencode.jsonc` defines primary/fallback chains per tier with configurable retry caps.
+
+- **Emergent Need-Driven Configuration Evolution** — The system is not designed against a spec written in advance; it is continuously reshaped by the friction of real use. When a workflow breaks because a capability was assumed but missing, that gap gets filled. When an edge case that nobody anticipated finally triggers, it gets handled. The configuration is a living artifact that grows toward completeness through iterative, organic refinement — not a static blueprint.
 
 ---
 
@@ -286,18 +298,30 @@ Natural language triggers that invoke subcommands directly, bypassing the menu. 
 
 ## Model Configuration
 
-Default Ollama cloud models configured in `opencode.jsonc`:
+Default Ollama cloud models with OpenCode-Go hosted fallbacks, configured in `opencode.jsonc`:
 
-| Model | Context | Output | Tier | Best For |
-|-------|---------|--------|------|----------|
-| deepseek-v4-pro:cloud | 1M | 131K | **Top** | Frontier reasoning, agentic tasks |
-| deepseek-v4-flash:cloud | 1M | 131K | **Mid** | Fast efficient reasoning |
-| nemotron-3-ultra:cloud | 256K | 131K | **Mid** | Agent orchestration, long-running agents |
-| glm-5.1:cloud | 202K | 131K | **Fast** | General purpose |
-| glm-5:cloud | 202K | 131K | Fast | General purpose |
-| kimi-k2.6:cloud | 262K | 262K | — | Extended context |
-| minimax-m2.7:cloud | 205K | 128K | — | High performance |
-| qwen3.6:cloud | 262K | 32K | — | Long documents |
+| Model | Context | Output | Tier | Fallback | Best For |
+|-------|---------|--------|------|----------|----------|
+| deepseek-v4-pro:cloud | 1M | 131K | **Top** | `opencode-go/deepseek-v4-pro` | Frontier reasoning, agentic tasks |
+| deepseek-v4-flash:cloud | 1M | 131K | **Mid** | `opencode-go/deepseek-v4-flash` | Fast efficient reasoning |
+| nemotron-3-ultra:cloud | 256K | 131K | **Mid** | `opencode/nemotron-3-ultra-free` | Agent orchestration, long-running agents |
+| glm-5.1:cloud | 202K | 131K | **Fast** | `opencode-go/glm-5.1` | General purpose |
+| glm-5:cloud | 202K | 131K | Fast | — | General purpose |
+| kimi-k2.6:cloud | 262K | 262K | — | — | Extended context |
+| minimax-m2.7:cloud | 205K | 128K | — | — | High performance |
+| qwen3.6:cloud | 262K | 32K | — | — | Long documents |
+
+### Provider Fallback
+
+When an Ollama cloud model errors out on a subagent invocation (connection refused, timeout, 502/503/504), the orchestrating agent automatically retries with the equivalent OpenCode-Go hosted model. After 3 fallback retries, the user is asked how to proceed via the `question` tool. Task-level errors (wrong output) do not trigger provider switching — the task prompt is fixed instead.
+
+| Attempt | Provider | Behavior |
+|---------|----------|----------|
+| 0 (initial) | Ollama cloud | Default from agent definition |
+| 1–3 (retries) | OpenCode-Go | Automatic fallback, same task prompt |
+| After 3 retries | — | Escalate to user (retry, handle manually, skip, abort) |
+
+Configured under `hubs.modelTiering` in `opencode.jsonc`. See [Model Tiering & Fallback](./.opencode/docs/model-configuration.md#model-tiering--fallback) for full protocol details.
 
 ---
 

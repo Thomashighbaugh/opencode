@@ -6,37 +6,7 @@
     "lsp": true,
     "provider": {
         "opencode": {
-            "options": {},
-            "models": {
-                "deepseek-v4-pro": {
-                    "name": "deepseek-v4-pro",
-                    "limit": {
-                        "context": 1048576,
-                        "output": 131072
-                    }
-                },
-                "deepseek-v4-flash": {
-                    "name": "deepseek-v4-flash",
-                    "limit": {
-                        "context": 1048576,
-                        "output": 131072
-                    }
-                },
-                "glm-5.1": {
-                    "name": "glm-5.1",
-                    "limit": {
-                        "context": 202752,
-                        "output": 131072
-                    }
-                },
-                "nemotron-3-ultra": {
-                    "name": "nemotron-3-ultra",
-                    "limit": {
-                        "context": 262144,
-                        "output": 131072
-                    }
-                }
-            }
+            "options": {}
         },
         "ollama": {
             "name": "Ollama",
@@ -108,26 +78,6 @@
         "@opencode-plugins/env-protection",
         "@franlol/opencode-md-table-formatter@0.0.3"
     ],
-    "hubs": {
-        "modelTiering": {
-            "top": {
-                "primary": "ollama/deepseek-v4-pro:cloud",
-                "fallback": "opencode/deepseek-v4-pro"
-            },
-            "mid": {
-                "primary": "ollama/deepseek-v4-flash:cloud",
-                "fallback": "opencode/deepseek-v4-flash"
-            },
-            "fast": {
-                "primary": "ollama/glm-5.1:cloud",
-                "fallback": "opencode/glm-5.1"
-            },
-            "retry": {
-                "max_attempts_per_provider": 3,
-                "total_max_retries": 6
-            }
-        }
-    },
     "instructions": [
         "AGENTS.md",
         "./rules/*"

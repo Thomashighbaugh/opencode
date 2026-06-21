@@ -6,14 +6,14 @@
 
 | Tier | Primary Model (ollama) | Fallback Model (opencode-go) | Context | Output | Best For |
 |------|------------------------|------------------------------|---------|--------|----------|
-| **Top** | `deepseek-v4-pro:cloud` | `opencode/deepseek-v4-pro` | 1M | 131K | Complex reasoning, architecture, security review |
-| **Mid** | `deepseek-v4-flash:cloud` | `opencode/deepseek-v4-flash` | 1M | 131K | Implementation, execution, general work |
-| **Mid** | `nemotron-3-ultra:cloud` | `opencode/nemotron-3-ultra` | 256K | 131K | Orchestration, long-running agents |
-| **Fast** | `glm-5.1:cloud` | `opencode/glm-5.1` | 202K | 131K | Exploration, documentation, simple tasks |
+| **Top** | `deepseek-v4-pro:cloud` | `opencode-go/deepseek-v4-pro` | 1M | 131K | Complex reasoning, architecture, security review |
+| **Mid** | `deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | 1M | 131K | Implementation, execution, general work |
+| **Mid** | `nemotron-3-ultra:cloud` | `opencode/nemotron-3-ultra-free` | 256K | 131K | Orchestration, long-running agents |
+| **Fast** | `glm-5.1:cloud` | `opencode-go/glm-5.1` | 202K | 131K | Exploration, documentation, simple tasks |
 
-- **Top tier** agents need deep reasoning, nuanced analysis, or read-only review authority. Fallback: `opencode/deepseek-v4-pro`.
-- **Mid tier** agents implement, execute, or orchestrate — they need strong coding and moderate reasoning. Fallback: `opencode/deepseek-v4-flash` or `opencode/nemotron-3-ultra`.
-- **Fast tier** agents search, summarize, draft, or estimate — they need speed over deep reasoning. Fallback: `opencode/glm-5.1`.
+- **Top tier** agents need deep reasoning, nuanced analysis, or read-only review authority. Fallback: `opencode-go/deepseek-v4-pro`.
+- **Mid tier** agents implement, execute, or orchestrate — they need strong coding and moderate reasoning. Fallback: `opencode-go/deepseek-v4-flash` or `opencode/nemotron-3-ultra-free`.
+- **Fast tier** agents search, summarize, draft, or estimate — they need speed over deep reasoning. Fallback: `opencode-go/glm-5.1`.
 
 The `nemotron-3-ultra:cloud` model is an alternative mid-tier option optimized for orchestration and long-running agent loops. Override to `nemotron-3-ultra:cloud` when an agent runs as a persistent orchestrator or needs sustained context across many turns.
 
@@ -77,43 +77,43 @@ Search, summarization, drafting, estimation — speed over depth.
 
 | Agent | Tier | Primary Model | Fallback Model | Role Category |
 |-------|------|---------------|----------------|--------------|
-| architect | Top | `deepseek-v4-pro:cloud` | `opencode/deepseek-v4-pro` | Strategic analysis (READ-ONLY) |
-| planner | Top | `deepseek-v4-pro:cloud` | `opencode/deepseek-v4-pro` | Strategic planning |
-| code-reviewer | Top | `deepseek-v4-pro:cloud` | `opencode/deepseek-v4-pro` | Quality review (READ-ONLY) |
-| security-reviewer | Top | `deepseek-v4-pro:cloud` | `opencode/deepseek-v4-pro` | Security audit (READ-ONLY) |
-| scientist | Top | `deepseek-v4-pro:cloud` | `opencode/deepseek-v4-pro` | Data analysis (READ-ONLY) |
-| deep-thinker | Top | `deepseek-v4-pro:cloud` | `opencode/deepseek-v4-pro` | Complex reasoning |
-| requirements-analyzer | Top | `deepseek-v4-pro:cloud` | `opencode/deepseek-v4-pro` | Requirements analysis (READ-ONLY) |
-| tracer | Top | `deepseek-v4-pro:cloud` | `opencode/deepseek-v4-pro` | Causal investigation |
-| analyst | Top | `deepseek-v4-pro:cloud` | `opencode/deepseek-v4-pro` | Gap analysis (READ-ONLY) |
-| critic | Top | `deepseek-v4-pro:cloud` | `opencode/deepseek-v4-pro` | Quality gate (READ-ONLY) |
-| hubs | Mid | `deepseek-v4-flash:cloud` | `opencode/deepseek-v4-flash` | Generalist primary |
-| executor | Mid | `deepseek-v4-flash:cloud` | `opencode/deepseek-v4-flash` | Implementation |
-| debugger | Mid | `deepseek-v4-flash:cloud` | `opencode/deepseek-v4-flash` | Debugging and build fixes |
-| test-engineer | Mid | `deepseek-v4-flash:cloud` | `opencode/deepseek-v4-flash` | Test writing and TDD |
-| designer | Mid | `deepseek-v4-flash:cloud` | `opencode/deepseek-v4-flash` | UI/UX implementation |
-| frontend-design | Mid | `deepseek-v4-flash:cloud` | `opencode/deepseek-v4-flash` | Frontend interfaces |
-| git-master | Mid | `deepseek-v4-flash:cloud` | `opencode/deepseek-v4-flash` | Git operations |
-| config-orchestrator | Mid | `deepseek-v4-flash:cloud` | `opencode/deepseek-v4-flash` | Configuration management |
-| skill-creator | Mid | `deepseek-v4-flash:cloud` | `opencode/deepseek-v4-flash` | Skill creation |
-| refactoring | Mid | `deepseek-v4-flash:cloud` | `opencode/deepseek-v4-flash` | Code restructuring |
-| code-simplifier | Mid | `deepseek-v4-flash:cloud` | `opencode/deepseek-v4-flash` | Code cleanup |
-| qa-tester | Mid | `deepseek-v4-flash:cloud` | `opencode/deepseek-v4-flash` | Interactive testing |
-| writer | Fast | `glm-5.1:cloud` | `opencode/glm-5.1` | Documentation |
-| verifier | Fast | `glm-5.1:cloud` | `opencode/glm-5.1` | Completion verification |
-| document-specialist | Fast | `glm-5.1:cloud` | `opencode/glm-5.1` | External docs lookup |
-| effort-estimator | Fast | `glm-5.1:cloud` | `opencode/glm-5.1` | Effort estimation |
-| explore | Fast | `glm-5.1:cloud` | `opencode/glm-5.1` | Codebase search (READ-ONLY) |
-| commit-drafter | Fast | `glm-5.1:cloud` | `opencode/glm-5.1` | Commit message drafting |
-| prompt-simplifier | Fast | `glm-5.1:cloud` | `opencode/glm-5.1` | Prompt analysis (READ-ONLY) |
+| architect | Top | `deepseek-v4-pro:cloud` | `opencode-go/deepseek-v4-pro` | Strategic analysis (READ-ONLY) |
+| planner | Top | `deepseek-v4-pro:cloud` | `opencode-go/deepseek-v4-pro` | Strategic planning |
+| code-reviewer | Top | `deepseek-v4-pro:cloud` | `opencode-go/deepseek-v4-pro` | Quality review (READ-ONLY) |
+| security-reviewer | Top | `deepseek-v4-pro:cloud` | `opencode-go/deepseek-v4-pro` | Security audit (READ-ONLY) |
+| scientist | Top | `deepseek-v4-pro:cloud` | `opencode-go/deepseek-v4-pro` | Data analysis (READ-ONLY) |
+| deep-thinker | Top | `deepseek-v4-pro:cloud` | `opencode-go/deepseek-v4-pro` | Complex reasoning |
+| requirements-analyzer | Top | `deepseek-v4-pro:cloud` | `opencode-go/deepseek-v4-pro` | Requirements analysis (READ-ONLY) |
+| tracer | Top | `deepseek-v4-pro:cloud` | `opencode-go/deepseek-v4-pro` | Causal investigation |
+| analyst | Top | `deepseek-v4-pro:cloud` | `opencode-go/deepseek-v4-pro` | Gap analysis (READ-ONLY) |
+| critic | Top | `deepseek-v4-pro:cloud` | `opencode-go/deepseek-v4-pro` | Quality gate (READ-ONLY) |
+| hubs | Mid | `deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | Generalist primary |
+| executor | Mid | `deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | Implementation |
+| debugger | Mid | `deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | Debugging and build fixes |
+| test-engineer | Mid | `deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | Test writing and TDD |
+| designer | Mid | `deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | UI/UX implementation |
+| frontend-design | Mid | `deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | Frontend interfaces |
+| git-master | Mid | `deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | Git operations |
+| config-orchestrator | Mid | `deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | Configuration management |
+| skill-creator | Mid | `deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | Skill creation |
+| refactoring | Mid | `deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | Code restructuring |
+| code-simplifier | Mid | `deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | Code cleanup |
+| qa-tester | Mid | `deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | Interactive testing |
+| writer | Fast | `glm-5.1:cloud` | `opencode-go/glm-5.1` | Documentation |
+| verifier | Fast | `glm-5.1:cloud` | `opencode-go/glm-5.1` | Completion verification |
+| document-specialist | Fast | `glm-5.1:cloud` | `opencode-go/glm-5.1` | External docs lookup |
+| effort-estimator | Fast | `glm-5.1:cloud` | `opencode-go/glm-5.1` | Effort estimation |
+| explore | Fast | `glm-5.1:cloud` | `opencode-go/glm-5.1` | Codebase search (READ-ONLY) |
+| commit-drafter | Fast | `glm-5.1:cloud` | `opencode-go/glm-5.1` | Commit message drafting |
+| prompt-simplifier | Fast | `glm-5.1:cloud` | `opencode-go/glm-5.1` | Prompt analysis (READ-ONLY) |
 
 ## Tier Distribution
 
 | Tier | Count | Primary Model | Fallback Model | Agents |
 |------|-------|---------------|----------------|--------|
-| **Top** | 10 | `deepseek-v4-pro:cloud` | `opencode/deepseek-v4-pro` | architect, planner, code-reviewer, security-reviewer, scientist, deep-thinker, requirements-analyzer, tracer, analyst, critic |
-| **Mid** | 12 | `deepseek-v4-flash:cloud` | `opencode/deepseek-v4-flash` | hubs, executor, debugger, test-engineer, designer, frontend-design, git-master, config-orchestrator, skill-creator, refactoring, code-simplifier, qa-tester |
-| **Fast** | 7 | `glm-5.1:cloud` | `opencode/glm-5.1` | writer, verifier, document-specialist, effort-estimator, explore, commit-drafter, prompt-simplifier |
+| **Top** | 10 | `deepseek-v4-pro:cloud` | `opencode-go/deepseek-v4-pro` | architect, planner, code-reviewer, security-reviewer, scientist, deep-thinker, requirements-analyzer, tracer, analyst, critic |
+| **Mid** | 12 | `deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | hubs, executor, debugger, test-engineer, designer, frontend-design, git-master, config-orchestrator, skill-creator, refactoring, code-simplifier, qa-tester |
+| **Fast** | 7 | `glm-5.1:cloud` | `opencode-go/glm-5.1` | writer, verifier, document-specialist, effort-estimator, explore, commit-drafter, prompt-simplifier |
 
 ## Fallback Guidelines for Orchestrators
 

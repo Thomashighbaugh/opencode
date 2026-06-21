@@ -21,10 +21,10 @@ Hubs uses ollama cloud models as the primary provider, with opencode-go hosted m
 
 | Model | Context | Output | Tier | Best For | Fallback | Notes |
 |-------|---------|--------|------|----------|----------|-------|
-| **deepseek-v4-pro:cloud** | 1M | 131K | **Top** | Frontier reasoning, agentic tasks | `opencode/deepseek-v4-pro` | Default for complex architecture |
-| **deepseek-v4-flash:cloud** | 1M | 131K | **Mid** | Fast efficient reasoning | `opencode/deepseek-v4-flash` | Default for most agents |
-| **nemotron-3-ultra:cloud** | 256K | 131K | **Mid** | Agent orchestration, long-running agents | `opencode/nemotron-3-ultra` | Parallel execution |
-| **glm-5.1:cloud** | 202K | 131K | **Fast** | General purpose, most tasks | `opencode/glm-5.1` | Fast tier |
+| **deepseek-v4-pro:cloud** | 1M | 131K | **Top** | Frontier reasoning, agentic tasks | `opencode-go/deepseek-v4-pro` | Default for complex architecture |
+| **deepseek-v4-flash:cloud** | 1M | 131K | **Mid** | Fast efficient reasoning | `opencode-go/deepseek-v4-flash` | Default for most agents |
+| **nemotron-3-ultra:cloud** | 256K | 131K | **Mid** | Agent orchestration, long-running agents | `opencode/nemotron-3-ultra-free` | Parallel execution |
+| **glm-5.1:cloud** | 202K | 131K | **Fast** | General purpose, most tasks | `opencode-go/glm-5.1` | Fast tier |
 | **kimi-k2.6:cloud** | 262K | 262K | — | Extended context, long documents | — | Same input/output context |
 | **minimax-m2.7:cloud** | 205K | 128K | — | High performance tasks | — | Balanced performance |
 | **qwen3.6:cloud** | 262K | 32K | — | Long document processing | — | Limited output |
@@ -164,9 +164,9 @@ When the ollama cloud provider fails (connection errors, model unavailable, time
 
 | Tier | Primary Provider | Fallback Provider |
 |------|-----------------|-------------------|
-| **Top** | `ollama/deepseek-v4-pro:cloud` | `opencode/deepseek-v4-pro` |
-| **Mid** | `ollama/deepseek-v4-flash:cloud` | `opencode/deepseek-v4-flash` |
-| **Fast** | `ollama/glm-5.1:cloud` | `opencode/glm-5.1` |
+| **Top** | `ollama/deepseek-v4-pro:cloud` | `opencode-go/deepseek-v4-pro` |
+| **Mid** | `ollama/deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` |
+| **Fast** | `ollama/glm-5.1:cloud` | `opencode-go/glm-5.1` |
 
 ### Configuration
 
