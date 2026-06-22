@@ -15,10 +15,12 @@ Unified entry point for extracting, generating, and managing project context. Ea
 - When the codebase needs documentation (AGENTS.md hierarchy)
 - When session knowledge should become a reusable skill, agent, or rule
 - When project memory needs updating
+- When context needs compression, pruning, or diff against previous checkpoints
+- When you need to search or export project context as a report
 
 ## No-Argument Behavior
 
-When invoked without arguments (`/harvest-context`), list the subcommands as plain text and ask the user to choose. Do NOT call `hubMenu` or any other tool — just output the list directly. Available operations: session, codebase, skill, agent, rule, command, memory, docs, consume, decompose, context, compress, secondbrain, journal, sweep.
+When invoked without arguments (`/harvest-context`), list the subcommands as plain text and ask the user to choose. Do NOT call `hubMenu` or any other tool — just output the list directly. Available operations: session, codebase, skill, agent, rule, command, memory, docs, consume, decompose, context, compress, secondbrain, journal, search, prune, export, diff, sweep.
 
 ## With-Argument Behavior
 
@@ -289,6 +291,138 @@ Manage OpenCode context files for knowledge persistence and organization.
 
 ---
 
+### `/harvest-context compress` — Token Compression
+
+Apply multi-layer token compression strategies to reduce context window usage.
+
+**Process:**
+1. **Density filtering**: Remove low-information lines (whitespace, repeated logs, boilerplate)
+2. **Command output compression**: Truncate or summarize verbose command output
+3. **Library cache compression**: Cache expensive documentation lookups locally
+4. Report token savings for each layer applied
+
+**Usage:**
+- `/harvest-context compress` — Apply all compression layers
+- `/harvest-context compress file.md` — Compress a specific file
+
+**Output:** Compressed versions with token savings reported
+
+**Reminder:**
+> Compress: I'll apply token compression strategies — density filtering, command output compression, and library cache compression to reduce context usage.
+
+---
+
+### `/harvest-context secondbrain` — Local Knowledge Base
+
+Set up a privacy-first local knowledge base using markdown and Git, with role packs and self-healing cross-references.
+
+**Process:**
+1. Initialize or load the local knowledge base structure
+2. Organize content by role packs (developer, architect, PM, etc.)
+3. Maintain cross-references between related knowledge nodes
+4. Detect and repair broken references
+
+**Output:** Local knowledge base in `.opencode/context/` with role-based organization
+
+**Reminder:**
+> Secondbrain: I'll set up a privacy-first local knowledge base with markdown+Git, role packs, and self-healing cross-references.
+
+---
+
+### `/harvest-context journal` — Event-Sourced Journal
+
+Set up an event-sourced journal for orchestration runs with deterministic replay, time-travel debugging, and SHA-256 checksums.
+
+**Process:**
+1. Initialize journal database
+2. Record orchestration events with timestamps and checksums
+3. Enable deterministic replay of past runs
+4. Support time-travel debugging by navigating event history
+
+**Output:** Event-sourced journal in `.opencode/state/harvest/`
+
+**Reminder:**
+> Journal: I'll set up an event-sourced orchestration journal with deterministic replay and time-travel debugging.
+
+---
+
+### `/harvest-context search` — Semantic Search Across Context
+
+Semantic search across all context files in `.opencode/context/` — find decisions, patterns, and research matching a natural language query.
+
+**Process:**
+1. Index `.opencode/context/` files for semantic search
+2. Accept a natural language query
+3. Return ranked results with file paths, relevance scores, and matching excerpts
+4. Optionally load matched context into the current session
+
+**Usage:**
+- `/harvest-context search "auth patterns"` — Find context about auth
+- `/harvest-context search "database migration"` — Find context about DB migrations
+
+**Output:** Ranked search results with file paths and excerpts
+
+**Reminder:**
+> Search: I'll semantically search across all context files for decisions, patterns, and research matching your query.
+
+---
+
+### `/harvest-context prune` — Stale Context Management
+
+Identify old or superseded context files in `.opencode/context/` and archive or delete them to keep the context directory healthy.
+
+**Process:**
+1. Scan `.opencode/context/` for files by age and relevance
+2. Identify candidates: old timestamps, superseded patterns, duplicate content
+3. Present candidates with file paths, ages, and rationale
+4. Ask user: archive, delete, or keep each candidate
+
+**Output:** Cleaned-up `.opencode/context/` with stale files moved to archive or deleted
+
+**Reminder:**
+> Prune: I'll scan for old or superseded context files and help you archive or delete them.
+
+---
+
+### `/harvest-context export` — Export Context as Report
+
+Export project context as a readable summary, markdown bundle, or team report — share what the project knows.
+
+**Process:**
+1. Aggregate context from `.opencode/context/` and `.opencode/state/`
+2. Format as requested: summary, bundle, or report
+3. Include metadata (generated date, source scope, file count)
+4. Save to `.opencode/state/harvest/export-{timestamp}.md`
+
+**Usage:**
+- `/harvest-context export` — Default summary export
+- `/harvest-context export --format bundle` — Full markdown bundle
+- `/harvest-context export --format report` — Team report format
+
+**Output:** `.opencode/state/harvest/export-{timestamp}.md`
+
+**Reminder:**
+> Export: I'll create a readable summary, markdown bundle, or team report from your project context.
+
+---
+
+### `/harvest-context diff` — Context Diff
+
+Compare current context state to a previous checkpoint, showing new decisions, patterns, and changes since the last harvest.
+
+**Process:**
+1. Load the most recent context checkpoint
+2. Scan current `.opencode/context/` state
+3. Compare: new files, modified files, removed files
+4. Summarize additions, changes, and deletions
+
+**Output:** Diff report showing what's changed since last harvest
+
+**Reminder:**
+> Diff: I'll diff the current context against the last checkpoint, showing what's new, changed, or removed.
+
+---
+
 ### `/harvest-context sweep` — Sweep Bloated `.opencode/` Artifacts
 
 Proactively scan `.opencode/` for files and directories that should be gitignored but aren't. Prevents the `.opencode/` directory from swelling to sizes that break `git push`.
@@ -433,6 +567,13 @@ Write the output to the appropriate location:
 | `consume` | `.opencode/context/research/{name}.md` | **Yes — always** |
 | `decompose` | On screen, optionally `.opencode/context/` | Yes (if saving to context/) |
 | `context` | `.opencode/context/` organized by function | **Yes — always** |
+| `compress` | On screen, compressed output | No (computational) |
+| `secondbrain` | `.opencode/context/` organized by role pack | Yes (for context files) |
+| `journal` | `.opencode/state/harvest/journal/` | No (state, not committed) |
+| `search` | On screen (results only) | No (read-only) |
+| `prune` | `.opencode/context/` with archive staging | Yes (for archived context) |
+| `export` | `.opencode/state/harvest/export-{ts}.md` | Yes (may include sensitive content) |
+| `diff` | On screen, optionally `.opencode/state/harvest/` | Yes (if saved) |
 | `sweep` | `.opencode/state/harvest/sweep-{ts}.md` + `.gitignore` updates | No (sweep is about gitignore) |
 
 ### Step 5: Confirm and Print

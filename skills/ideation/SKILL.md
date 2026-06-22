@@ -20,7 +20,7 @@ Unified entry point for all planning and research methods. Each subcommand is a 
 
 ## No-Argument Behavior
 
-When invoked without arguments (`/ideation`), list the subcommands as plain text and ask the user to choose. Do NOT call `hubMenu` or any other tool — just output the list directly. Available methods: plan, brainstorm, decomposition, refine, overhaul, deep, graph, research, ralplan, ddd, event-storming, double-diamond, jtbd, impact-mapping, spiral, top-down, bottom-up, adversarial-debate, cleanroom, pwf, rpikit, hive, story-mapping, lean-canvas, constitution, quality, modularity, arch-prep.
+When invoked without arguments (`/ideation`), list the subcommands as plain text and ask the user to choose. Do NOT call `hubMenu` or any other tool — just output the list directly. Available methods: plan, brainstorm, decomposition, refine, overhaul, deep, graph, research, ralplan, ddd, event-storming, double-diamond, jtbd, impact-mapping, spiral, top-down, bottom-up, adversarial-debate, cleanroom, pwf, rpikit, hive, story-mapping, lean-canvas, constitution, quality, modularity, arch-prep, resume, status.
 
 ## With-Argument Behavior
 

@@ -16,7 +16,7 @@ Unified entry point for all execution and orchestration patterns. Each subcomman
 
 ## No-Argument Behavior
 
-When invoked without arguments (`/orchestrate`), list the subcommands as plain text and ask the user to choose. Do NOT call `hubMenu` or any other tool. Available patterns: ralph, team, deep, ccg, ultrawork, autopilot, sciomc, swarm, state-machine, consensus, evolutionary, spec-driven, react, plan-execute, hive, tdd, pair, pipeline, gsd, self-assess, remediate, devin, maestro, metaswarm, cc10x, gastown, ruflo, harden, brownfield, vibe-code.
+When invoked without arguments (`/orchestrate`), list the subcommands as plain text and ask the user to choose. Do NOT call `hubMenu` or any other tool. Available patterns: ralph, team, deep, ccg, ultrawork, autopilot, sciomc, swarm, state-machine, consensus, evolutionary, spec-driven, react, plan-execute, hive, tdd, pair, pipeline, gsd, self-assess, remediate, devin, maestro, metaswarm, cc10x, gastown, ruflo, harden, brownfield, vibe-code, resume, status.
 
 ## With-Argument Behavior
 

@@ -12,7 +12,7 @@ Unified project initialization hub with subcommand routing. Detects, scaffolds, 
 
 ## No-Argument Behavior
 
-When invoked without arguments (`/init-project`), list the subcommands as plain text and ask the user to choose. Do NOT call `hubMenu` or any other tool — just output the list directly. Available phases: setup, detect, docs, context, verify, refresh, status, map-codebase, doctor.
+When invoked without arguments (`/init-project`), list the subcommands as plain text and ask the user to choose. Do NOT call `hubMenu` or any other tool — just output the list directly. Available phases: setup, detect, docs, context, verify, refresh, status, map-codebase, doctor, reset, provision.
 
 ## With-Argument Behavior
 
@@ -28,8 +28,11 @@ Directly invoke the matching subcommand. Print the reminder, then delegate to th
 | `context` | 5 | `remember` + `wiki` | Capture session knowledge, promote insights |
 | `verify` | 7 | `verifier` agent | Validate configuration completeness and integrity, including .gitignore privacy protections |
 | `refresh` | 0-7 (merge) | self (all phases, merge mode) | Update existing config, preserve manual edits |
-| `provision` | Provision 1-7 | `provision` skill | Analyze codebase and auto-generate project-specific agents, skills, tools, and rules |
 | `status` | — | self (inline) | List state files and show checkpoint progress |
+| `map-codebase` | — | inline | Analyze existing codebase — spawn parallel agents to map stack, architecture, conventions |
+| `doctor` | — | inline | Run diagnostic health check — validate Hubs installation, config integrity, state consistency |
+| `reset` | — | inline | Reset project state — archive .opencode/state and .opencode/context, start fresh |
+| `provision` | Provision 1-7 | `provision` skill | Analyze codebase and auto-generate project-specific agents, skills, tools, and rules |
 
 ### Subcommand Behavior
 
@@ -51,8 +54,11 @@ Each subcommand follows the hub pattern:
 | `context` | Capturing session knowledge. I'll promote insights to project memory, notepad, and AGENTS.md. |
 | `verify` | Validating configuration. I'll check file existence, config syntax, parent refs, and gitignore. |
 | `refresh` | Updating existing config. I'll preserve your manual edits and merge new detections. |
-| `provision` | Provisioning project-aware agents, skills, tools, and rules. I'll analyze your codebase and generate tailored artifacts. |
 | `status` | Showing init state and checkpoint progress. |
+| `map-codebase` | Mapping existing codebase. I'll spawn parallel agents to analyze stack, architecture, and conventions. |
+| `doctor` | Running Hubs health diagnostics. I'll validate installation, config integrity, and state consistency. |
+| `reset` | Resetting project state. I'll archive .opencode/state and .opencode/context to a timestamped backup and start fresh. |
+| `provision` | Provisioning project-aware agents, skills, tools, and rules. I'll analyze your codebase and generate tailored artifacts. |
 
 ### Flag Parsing
 

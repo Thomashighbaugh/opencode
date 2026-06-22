@@ -24,7 +24,7 @@ Unified entry point for project operations. Each subcommand delegates to an exis
 
 ## No-Argument Behavior
 
-When invoked without arguments, list the subcommands as plain text and ask the user to choose. Do NOT call `hubMenu` or any other tool — just output the list directly. Available operations: tests, commit, stage, pr, gh, optimize, refactor, simplify, cleanup, modernize, icon, organize, analyze, changelog, converge, scan, sandbox, retrospect, purge, git-cleanup.
+When invoked without arguments, list the subcommands as plain text and ask the user to choose. Do NOT call `hubMenu` or any other tool — just output the list directly. Available operations: tests, commit, stage, pr, gh, optimize, refactor, simplify, cleanup, modernize, icon, organize, analyze, changelog, converge, scan, sandbox, retrospect, purge, release, review, audit, archive, workspace, git-cleanup.
 
 ## With-Argument Behavior
 
@@ -344,6 +344,82 @@ Repair CHANGELOG or `.opencode/CHANGELOG.md` files whose commit references no lo
 - `/project git-cleanup --fix` — Auto-repair all orphaned refs with date-based replacements
 - `/project git-cleanup --fix --option context` — Replace with [context: removed]
 - `/project git-cleanup --check-only` — Just report, don't fix
+
+---
+
+### `/project release` — Tag and Release
+
+**Delegates to:** inline execution
+
+Bump version, generate changelog, create GitHub release in one flow.
+
+**Reminder:**
+> Release: Tag, bump version, generate changelog, and create a GitHub release in one flow.
+
+**Usage:**
+- `/project release` — Interactive release workflow
+- `/project release patch` — Patch bump
+- `/project release minor` — Minor bump
+- `/project release major` — Major bump
+
+---
+
+### `/project review` — Code Review
+
+**Delegates to:** inline execution
+
+Full code review round — analyze recent changes, run security scan, check complexity, and produce a review report.
+
+**Reminder:**
+> Review: Full code review round — I'll analyze recent changes, scan for security issues, check complexity, and produce a structured report.
+
+**Usage:**
+- `/project review` — Review recent changes (git diff)
+- `/project review src/` — Review specific paths
+
+---
+
+### `/project audit` — Project Health Audit
+
+**Delegates to:** inline execution
+
+Comprehensive project health check — dependencies, security, code quality, test coverage, bundle size in one command.
+
+**Reminder:**
+> Audit: Comprehensive health check — I'll scan dependencies, security, code quality, test coverage, and bundle size.
+
+**Usage:**
+- `/project audit` — Full project health audit
+
+---
+
+### `/project archive` — Archive Stale Artifacts
+
+**Delegates to:** inline execution
+
+Move stale branches, old artifacts, and unused config to a timestamped archive — keep the working tree clean.
+
+**Reminder:**
+> Archive: I'll move stale branches, old artifacts, and unused config to a timestamped archive.
+
+**Usage:**
+- `/project archive` — Interactive archive workflow
+
+---
+
+### `/project workspace` — Manage Hubs Workspace
+
+**Delegates to:** inline execution
+
+Manage `.opencode` across projects — list Hubs-enabled projects, sync config, init `.opencode` in new directories, check health.
+
+**Reminder:**
+> Workspace: I'll manage Hubs workspace across projects — list, sync, init, and health check.
+
+**Usage:**
+- `/project workspace list` — List Hubs-enabled projects
+- `/project workspace sync` — Sync config across projects
+- `/project workspace init <path>` — Init .opencode in a directory
 
 ---
 
