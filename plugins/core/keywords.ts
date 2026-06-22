@@ -211,6 +211,15 @@ export function detectKeywords(prompt: string): KeywordMatch[] {
   return matches
 }
 
+/**
+ * Determine if mode activation requires user confirmation.
+ * All modes except 'cancel' require explicit user consent before activation.
+ * This prevents expensive multi-agent pipelines from auto-starting.
+ */
+export function shouldConfirmMode(matches: KeywordMatch[]): boolean {
+  return matches.some(m => m.name !== 'cancel')
+}
+
 export function resolveConflicts(matches: KeywordMatch[]): KeywordMatch[] {
   const names = matches.map(m => m.name)
 

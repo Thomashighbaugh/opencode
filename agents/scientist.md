@@ -1,6 +1,6 @@
 ---
 description: Data analysis and research execution specialist
-model: ollama/deepseek-v4-pro:cloud
+model: ollama/deepseek-v4-flash:cloud
 mode: subagent
 disallowedTools: Write, Edit
 ---

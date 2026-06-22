@@ -11,7 +11,7 @@ export default tool({
     key: tool.schema.string().optional().describe("Specific cache key to invalidate"),
   },
   async execute(args, context) {
-    const projectRoot = context.projectRoot || process.cwd()
+    const projectRoot = context.directory || process.cwd()
 
     switch (args.action) {
       case 'stats': {

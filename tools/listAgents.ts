@@ -4,8 +4,8 @@ import * as path from "path"
 import { homedir } from "os"
 
 // Path conventions:
-// - User-wide config: ~/.config/opencode/agent/ (shared agents across all projects)
-// - Project-level config: .opencode/agent/ (project-specific agents)
+// - User-wide config: ~/.config/opencode/agents/ (shared agents across all projects)
+// - Project-level config: .opencode/agents/ (project-specific agents)
 // - Agents are searched in both locations, project-level takes precedence
 
 const USER_CONFIG_DIR = process.env.OPENCODE_CONFIG_DIR || path.join(homedir(), '.config', 'opencode')
@@ -32,7 +32,7 @@ function parseAgentFile(filePath: string): AgentMetadata | null {
         if (key === 'permissions' || key === 'permission') {
           continue
         }
-        metadata[key.trim() as keyof AgentMetadata] = value
+        (metadata as any)[key.trim()] = value
       }
     }
     return metadata
@@ -63,16 +63,16 @@ export default tool({
     capability: tool.schema.string().optional().describe("Capability keyword to search for (e.g., 'review', 'test', 'debug', 'plan')")
   },
   async execute(args, context) {
-    const projectRoot = context.projectRoot || process.cwd()
+    const projectRoot = context.directory || process.cwd()
     
     switch (args.action) {
       case 'list': {
         const agentPaths = [
-          { type: 'project', path: path.join(projectRoot, '.opencode', 'agent') },
-          { type: 'user', path: path.join(USER_CONFIG_DIR, 'agent') }
+          { type: 'project', path: path.join(projectRoot, '.opencode', 'agents') },
+          { type: 'user', path: path.join(USER_CONFIG_DIR, 'agents') }
         ]
         
-        const agents: Array<{name: string; description: string; model?: string; mode?: string; path: string}> = []
+        const agents: Array<{name: string; description: string; model?: string; mode?: string; path: string; source: string}> = []
         const seen = new Set<string>()
         
         for (const agentDir of agentPaths) {
@@ -136,8 +136,8 @@ export default tool({
         if (!args.capability) return JSON.stringify({ error: 'Capability keyword required' })
         const keyword = args.capability.toLowerCase()
         const agentPaths = [
-          { type: 'project', path: path.join(projectRoot, '.opencode', 'agent') },
-          { type: 'user', path: path.join(USER_CONFIG_DIR, 'agent') }
+          { type: 'project', path: path.join(projectRoot, '.opencode', 'agents') },
+          { type: 'user', path: path.join(USER_CONFIG_DIR, 'agents') }
         ]
         
         const matches: Array<{name: string; description: string; matchReason: string}> = []

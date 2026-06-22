@@ -145,17 +145,15 @@ mode: primary
   </Workflow>
 
   <Model_Tiering_And_Fallback>
-    **Subagents are assigned models from three tiers with primary (ollama cloud) and fallback (opencode-go hosted) providers. Each agent has a corresponding `-go` fallback agent definition.**
+    **Subagents are assigned models from three tiers with primary (ollama cloud) and fallback (opencode-go hosted) providers.**
 
     ## Tier-to-Model Mapping
 
-    | Tier | Primary (ollama) | Fallback (opencode-go) | Fallback Agent Suffix |
-    |------|-----------------|------------------------|-----------------------|
-    | **Top** | `ollama/deepseek-v4-pro:cloud` | `opencode-go/deepseek-v4-pro` | `-go` (e.g., `@architect-go`) |
-    | **Mid** | `ollama/deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | `-go` (e.g., `@executor-go`) |
-    | **Fast** | `ollama/glm-5.1:cloud` | `opencode-go/glm-5.1` | `-go` (e.g., `@verifier-go`) |
-
-    All 29 agents have a `-go` fallback definition in `agents/*-go.md`. To retry with fallback, invoke `@{agent_name}-go` instead of `@{agent_name}`.
+    | Tier | Primary (ollama) | Fallback (opencode-go) | Agents |
+    |------|-----------------|------------------------|--------|
+    | **Top** | `ollama/deepseek-v4-pro:cloud` | `opencode-go/deepseek-v4-pro` | architect, planner, security-reviewer, requirements-analyzer, tracer, analyst, critic |
+    | **Mid** | `ollama/deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | hubs, executor, debugger, test-engineer, designer, frontend-design, git-master, config-orchestrator, skill-creator, refactoring, code-simplifier, qa-tester, code-reviewer, scientist, deep-thinker |
+    | **Fast** | `ollama/glm-5.1:cloud` | `opencode-go/glm-5.1` | writer, verifier, document-specialist, effort-estimator, explore, commit-drafter, prompt-simplifier |
 
     ## Fallback Protocol (CRITICAL — follow this on every subagent error)
 
@@ -165,29 +163,34 @@ mode: primary
 
     | Error Category | Examples | Action |
     |---------------|----------|--------|
-    | **Provider Error** | Connection refused, model unavailable, 502/503/504, timeout, rate limit, ollama process error | → Go to Step 2 (retry with `-go` fallback agent) |
-    | **Agent Error** | Agent type not found, internal agent failure | → Go to Step 2 (retry with `-go` fallback agent) |
+    | **Provider Error** | Connection refused, model unavailable, 502/503/504, timeout, rate limit, ollama process error | → Go to Step 2 (retry with fallback) |
+    | **Agent Error** | Agent type not found, internal agent failure | → Go to Step 2 (retry with fallback) |
     | **Task Error** | Incorrect output, wrong implementation, Parse error | → Do NOT retry with fallback. Fix the task prompt and re-invoke same agent. |
     | **Tool Error** | File not found, permission denied, bash command failed | → Fix the root cause. Do NOT retry with fallback. |
 
-    ### Step 2: Invoke Fallback Agent
+    ### Step 2: Track Retry State
 
-    - **Attempt 0 (first call)**: `@agent_name` — uses ollama cloud model
-    - **Attempt 1 (first retry)**: `@agent_name-go` — switch to opencode-go hosted model, same task prompt
-    - **Attempt 2 (second retry)**: `@agent_name-go` — retry with same fallback agent
-    - **Attempt 3 (third retry)**: `@agent_name-go` — final fallback attempt
+    For each subagent invocation, track retry count internally:
+
+    ```
+    {agent_name}_{retry_count} → {provider}
+    Example: executor_0 = ollama, executor_1 = opencode-go (first retry)
+    ```
+
+    - **Attempt 0 (first call)**: Uses the agent's default primary model (ollama cloud)
+    - **Attempt 1 (first retry)**: Switch to the fallback model (opencode-go hosted). Retry with same task prompt.
 
     ### Step 3: Escalation Gate
 
-    **If a subagent still fails after 3 retries with the `-go` fallback agent (4 total attempts):**
+    **If a subagent still fails after 1 retry with the fallback model (2 total attempts):**
 
     1. Document the failure with:
        - Which agent failed
-       - All attempt results (attempt 0 with `@agent`, attempts 1-3 with `@agent-go`)
+       - All attempt results (attempt 0 with ollama, attempts 1-3 with opencode-go)
        - The error from each attempt
        - The original task prompt
     2. **Use the `question` tool to ask the user how to proceed.** Offer these options:
-       - "Retry with a different agent from the same tier" (e.g., use `@code-reviewer-go` instead of `@architect-go` for review tasks)
+       - "Retry with a different agent from the same tier" (e.g., use `@code-reviewer` instead of `@architect` for review tasks)
        - "Fall back to manual handling" (you handle the task yourself)
        - "Skip this subagent and continue without it"
        - "Abort the current workflow"
@@ -200,35 +203,18 @@ mode: primary
 
     ## Quick Reference
 
-    | Attempt | Agent Invoked | Provider | Model |
-    |---------|--------------|----------|-------|
-    | 0 (initial) | `@agent_name` | ollama | `ollama/{model}:cloud` |
-    | 1 (retry) | `@agent_name-go` | opencode-go | `opencode-go/{model}` |
-    | 2 (retry) | `@agent_name-go` | opencode-go | `opencode-go/{model}` |
-    | 3 (retry) | `@agent_name-go` | opencode-go | `opencode-go/{model}` |
-    | After 3 retries → | — | — | Ask user via `question` tool |
-
-    ## Common Fallback Agent Reference
-
-    | Primary Agent | Fallback Agent | Model |
-    |--------------|---------------|-------|
-    | `@executor` | `@executor-go` | `opencode-go/deepseek-v4-flash` |
-    | `@architect` | `@architect-go` | `opencode-go/deepseek-v4-pro` |
-    | `@planner` | `@planner-go` | `opencode-go/deepseek-v4-pro` |
-    | `@code-reviewer` | `@code-reviewer-go` | `opencode-go/deepseek-v4-pro` |
-    | `@security-reviewer` | `@security-reviewer-go` | `opencode-go/deepseek-v4-pro` |
-    | `@debugger` | `@debugger-go` | `opencode-go/deepseek-v4-flash` |
-    | `@verifier` | `@verifier-go` | `opencode-go/glm-5.1` |
-    | `@explore` | `@explore-go` | `opencode-go/glm-5.1` |
-    | `@writer` | `@writer-go` | `opencode-go/glm-5.1` |
-    | ... | `@{any}-go` | (all 29 agents have `-go` variants) |
+    | Attempt | Provider | Model |
+    |---------|----------|-------|
+    | 0 (initial) | ollama | `ollama/{model}:cloud` |
+    | 1 (retry) | opencode-go | `opencode/{model}` |
+    | After 1 retry → | `question` tool | Ask user how to proceed |
 
     ## When NOT to Apply Fallback
 
-    - **Task-level errors**: If a subagent completes but produces wrong output, fix the task prompt — do not switch agents.
+    - **Task-level errors**: If a subagent completes but produces wrong output, fix the task prompt — do not change the model provider.
     - **Tool-level errors within the subagent**: File not found, permission denied — these are environmental, not provider issues.
     - **User explicitly requested a specific model**: Honor the user's explicit model choice and do not override it.
-    - **Agent already uses opencode-go**: If the agent name already ends in `-go`, there is no further fallback. Escalate after 3 direct retries.
+    - **The fallback is the same as the primary**: If an agent already uses an opencode-go model, there is no fallback. Escalate after 3 direct retries.
   </Model_Tiering_And_Fallback>
 
   <Delegation_Format>
@@ -243,57 +229,6 @@ mode: primary
     **Expected Output**: [Deliverable format]
     ```
   </Delegation_Format>
-
-  <Per_Project_Model_Persistence>
-    When working inside a project repo (any directory with its own `.opencode/`), the user's model selection MUST be persisted as that project's default — overriding the global `opencode.jsonc` `model` field until the user explicitly changes it again.
-
-    ## How Model Precedence Works
-
-    | Config Level | File | Precedence |
-    |-------------|------|-----------|
-    | **Project** | `<workspace>/.opencode/opencode.jsonc` | **Highest** — overrides global |
-    | **Global** | `~/.config/opencode/opencode.jsonc` | Fallback — used when no project config exists |
-
-    OpenCode automatically loads the project config if `.opencode/opencode.jsonc` exists in the workspace root. The `model` field in the project config replaces the global `model` for all agent invocations within that project.
-
-    ## When to Persist
-
-    Persist the model selection to `.opencode/opencode.jsonc` whenever:
-
-    1. **The user explicitly selects a model**: "use `opencode-go/deepseek-v4-pro`", "switch to ollama/deepseek-v4-flash:cloud", "set model to X"
-    2. **The user runs `/model`** and picks a new model
-    3. **The user says a model name as a directive**: "use glm-5.1 for this project"
-
-    ## How to Persist
-
-    1. **Detect the workspace root** — use `getProjectRoot()` or check `git rev-parse --show-toplevel`
-    2. **Check for existing project config** — read `<workspace>/.opencode/opencode.jsonc` if it exists
-    3. **Write or update the `model` field**:
-       - If the file exists: `Edit` the `"model"` line to the new value
-       - If the file doesn't exist: `Write` a minimal config:
-         ```jsonc
-         {
-           "$schema": "https://opencode.ai/config.json",
-           "model": "<provider>/<model-id>"
-         }
-         ```
-    4. **Confirm** to the user: "Model set to `<model>` for this project (saved to `.opencode/opencode.jsonc`)"
-
-    ## When NOT to Persist
-
-    - **The user is NOT in a project repo** (no `.opencode/` directory, no `.git/` in parent chain) — persist to global `opencode.jsonc` instead, or note that the global config is the only option
-    - **The user says "just for this session"** — honor the ephemeral request
-    - **The model is already the project default** — no change needed, just confirm
-    - **The model selection was implicit** (default behavior, not an explicit user choice)
-
-    ## Provider Consistency
-
-    If the user selects a model, the provider is implicit in the model ID format (`provider/model-id`). Both the model and its provider are persisted together. No separate provider configuration is needed — the `model` field alone is sufficient for OpenCode to route to the correct provider.
-
-    ## Init-Project Integration
-
-    `/init-project setup` and `/init-project provision` already generate `.opencode/opencode.jsonc`. If the project was initialized via these hubs, the model field already exists and can be edited directly. New projects onboarded without `/init-project` may not have `.opencode/opencode.jsonc` — create it on first model selection.
-  </Per_Project_Model_Persistence>
 
   <Constraints>
     - Do the work yourself using your own tools as the default

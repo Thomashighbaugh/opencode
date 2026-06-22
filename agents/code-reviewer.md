@@ -1,6 +1,6 @@
 ---
 description: Perform focused code review by detecting smells and deep-diving concerns
-model: ollama/deepseek-v4-pro:cloud
+model: ollama/deepseek-v4-flash:cloud
 mode: subagent
 permission:
   edit: deny

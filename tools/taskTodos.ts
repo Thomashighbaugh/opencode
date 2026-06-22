@@ -2,6 +2,9 @@ import { tool } from "@opencode-ai/plugin"
 import * as fs from "fs"
 import * as path from "path"
 
+type TodoStatus = 'pending' | 'in_progress' | 'completed' | 'cancelled'
+type TodoPriority = 'high' | 'medium' | 'low'
+
 interface TodoItem {
   content: string
   status: 'pending' | 'in_progress' | 'completed' | 'cancelled'
@@ -44,7 +47,7 @@ export default tool({
     index: tool.schema.number().optional().describe("Index for update action")
   },
   async execute(args, context) {
-    const projectRoot = context.projectRoot || process.cwd()
+    const projectRoot = context.directory || process.cwd()
     
     switch (args.action) {
       case 'create': {
@@ -62,15 +65,15 @@ export default tool({
         if (args.content) {
           todos.push({
             content: args.content,
-            status: args.status || 'pending',
-            priority: args.priority || 'medium'
+            status: (args.status || 'pending') as 'pending' | 'in_progress' | 'completed' | 'cancelled',
+            priority: (args.priority || 'medium') as 'high' | 'medium' | 'low'
           })
         } else if (args.items) {
           for (const item of args.items) {
             todos.push({
               content: typeof item === 'string' ? item : item.content,
-              status: item.status || 'pending',
-              priority: item.priority || 'medium'
+              status: (item.status || 'pending') as 'pending' | 'in_progress' | 'completed' | 'cancelled',
+              priority: (item.priority || 'medium') as 'high' | 'medium' | 'low'
             })
           }
         }
@@ -84,8 +87,8 @@ export default tool({
         
         if (idx === -1 || idx >= todos.length) return JSON.stringify({ error: 'Task not found' })
         
-        if (args.status) todos[idx].status = args.status
-        if (args.priority) todos[idx].priority = args.priority
+        if (args.status) todos[idx].status = args.status as 'pending' | 'in_progress' | 'completed' | 'cancelled'
+        if (args.priority) todos[idx].priority = args.priority as 'high' | 'medium' | 'low'
         
         writeTodos(projectRoot, todos)
         return JSON.stringify({ updated: idx, task: todos[idx] })

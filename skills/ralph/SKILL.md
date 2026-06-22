@@ -90,19 +90,18 @@ By default, ralph operates in PRD mode. A scaffold `prd.json` is auto-generated 
    b. If NOT all complete, loop back to Step 2 (pick next story)
    c. If ALL complete, proceed to Step 7 (architect verification)
 
-7. **Reviewer verification** (tiered, against acceptance criteria):
-   - <5 files, <100 lines with full tests: STANDARD tier minimum (architect-medium / Sonnet)
-   - Standard changes: STANDARD tier (architect-medium / Sonnet)
-   - >20 files or security/architectural changes: THOROUGH tier (architect / Opus)
-   - If `--critic=critic`, use the OpenCode `critic` agent for the approval pass
-   - If `--critic=codex`, run `omc ask codex --agent-prompt critic "..."` for the approval pass. The Codex critic prompt MUST include:
-     1. The full list of acceptance criteria from prd.json for verification
-     2. A directive to evaluate whether the implementation is **OPTIMAL** — not just correct, but whether there exists a meaningfully better approach (simpler, faster, more maintainable) that the implementation missed
-     3. A directive to review **all code related to the changes** (callers, callees, shared types, adjacent modules), not only the files directly modified
-     4. The list of files changed during the ralph session for context
-   - Ralph floor: always at least STANDARD, even for small changes
-   - The selected reviewer verifies against the SPECIFIC acceptance criteria from prd.json, not vague "is it done?"
-   - **On APPROVAL: immediately proceed to Step 7.5 in the same turn. Do NOT pause to report the verdict to the user — reporting happens only at Step 8 (`/cancel`) or on rejection (Step 9). Treating an approved verdict as a reporting checkpoint is a polite-stop anti-pattern.**
+7. **Reviewer verification** (tiered, escalating):
+    - <5 files, <100 lines with full tests: QUICK tier (`@verifier` / GLM-fast — free tier)
+    - Standard changes: STANDARD tier (`@verifier` first, escalate to `@architect` on failure)
+    - >20 files or security/architectural changes: DIRECT tier (`@architect` / Opus — skip verifier)
+    - If `--critic=critic`, use the OpenCode `critic` agent for the approval pass
+    - If `--critic=codex`, run `omc ask codex --agent-prompt critic "..."` for the approval pass. The Codex critic prompt MUST include:
+      1. The full list of acceptance criteria from prd.json for verification
+      2. A directive to evaluate whether the implementation is **OPTIMAL** — not just correct, but whether there exists a meaningfully better approach (simpler, faster, more maintainable) that the implementation missed
+      3. A directive to review **all code related to the changes** (callers, callees, shared types, adjacent modules), not only the files directly modified
+      4. The list of files changed during the ralph session for context
+    - The selected reviewer verifies against the SPECIFIC acceptance criteria from prd.json, not vague "is it done?"
+    - **On APPROVAL: immediately proceed to Step 7.5 in the same turn. Do NOT pause to report the verdict to the user — reporting happens only at Step 8 (`/cancel`) or on rejection (Step 9). Treating an approved verdict as a reporting checkpoint is a polite-stop anti-pattern.**
 
 7.5 **Mandatory Deslop Pass** (runs unconditionally after Step 7 approval, unless `{{PROMPT}}` contains `--no-deslop`):
    - **Invoke the `ai-slop-cleaner` skill via the Skill tool: `Skill("ai-slop-cleaner")`.** Run in standard mode (not `--review`) on the files changed during the current Ralph session only.
@@ -122,11 +121,13 @@ By default, ralph operates in PRD mode. A scaffold `prd.json` is auto-generated 
 </Steps>
 
 <Tool_Usage>
-- Use `@architect` for architect verification cross-checks when changes are security-sensitive, architectural, or involve complex multi-system integration
+- Use `@verifier` for QUICK tier verification (fast/GLM — free tier, use for simple changes)
+- Use `@architect` for complex/security/architectural verification (pro-tier — only when needed)
 - Use `@critic` when `--critic=critic`
 - Use `omc ask codex --agent-prompt critic "..."` when `--critic=codex`. Construct the prompt to include: (a) prd.json acceptance criteria, (b) files changed + related files, (c) explicit optimality question: "Is there a meaningfully simpler, faster, or more maintainable approach that achieves the same acceptance criteria?"
-- Skip architect consultation for simple feature additions, well-tested changes, or time-critical verification
-- Proceed with architect agent verification alone -- never block on unavailable tools
+- For QUICK/STANDARD tier: start with `@verifier`, only escalate to `@architect` if verifier flags issues
+- For DIRECT tier (>20 files, security, architectural): skip verifier, go straight to `@architect`
+- Proceed with available agents -- never block on unavailable tools
 - Use `state_write` / `state_read` for ralph mode state persistence between iterations
 - **Skill vs agent invocation**: `ai-slop-cleaner` is a skill, invoke via `Skill("ai-slop-cleaner")`. `architect`, `critic`, `executor` etc. are agents, invoke via `@<name>`. If you ever get "Agent type ... not found" for an identifier, the item is a skill — retry with the Skill tool. Do NOT substitute a similarly-named agent as a "closest match".
 </Tool_Usage>

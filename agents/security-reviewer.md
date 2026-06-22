@@ -1,6 +1,6 @@
 ---
 description: Security vulnerability detection specialist (OWASP Top 10, secrets, unsafe patterns)
-model: ollama/deepseek-v4-pro:cloud
+model: ollama/deepseek-v4-flash:cloud
 mode: subagent
 disallowedTools: Write, Edit
 ---

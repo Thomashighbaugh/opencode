@@ -165,9 +165,16 @@ export function updateToolStats(toolName: string, sessionId: string): number {
   return session.tool_counts[toolName]
 }
 
+// Prune throttling counter — only scans for old sessions every 20th call
+let _pruneCounter = 0
+
 /** Prune sessions older than 7 days on load to prevent unbounded file growth. */
 export function loadSessionStatsPruned(): SessionStats {
   const stats = loadSessionStats()
+  // Defer full-scan pruning to reduce I/O — only prune every 20th call
+  _pruneCounter++
+  if (_pruneCounter % 20 !== 0) return stats
+
   const now = Math.floor(Date.now() / 1000)
   const WEEK = 7 * 24 * 60 * 60
   let pruned = false
@@ -360,13 +367,7 @@ export function generatePreToolMessage(toolName: string, todoStatus: string, mod
     return ''
   }
 
-  // No pre-tool reminders in active mode — stall detection handles nudging
-  if (modeActive) return ''
-
-  // Only remind on TodoWrite (for task management discipline)
-  if (toolName === 'TodoWrite') {
-    return `${todoStatus}Keep task list current — mark in_progress before starting, completed after finishing.`
-  }
+  // No pre-tool reminders — stall detection handles nudging, agents own their task management
   return ''
 }
 
@@ -420,45 +421,35 @@ function detectBackgroundOperation(output: string): boolean {
 }
 
 export function generatePostToolMessage(toolName: string, toolOutput: string, toolCount: number): string {
-  let message = ''
+  // Skip function call overhead for tools that never produce reminders
+  // Only Bash/Edit/Write (failure detection) and Grep/Glob (empty results) need checking
+  const RELEVANT_TOOLS = new Set(['Bash', 'Edit', 'Write', 'Grep', 'Glob'])
+  if (!RELEVANT_TOOLS.has(toolName)) return ''
 
-  switch (toolName) {
-    case 'Bash':
-      if (detectBashFailure(toolOutput)) {
-        message = 'Command failed. Investigate and fix before continuing.'
-      }
-      break
-
-    case 'Edit':
-      if (detectWriteFailure(toolOutput)) {
-        message = 'Edit failed. Verify file exists and content matches.'
-      }
-      break
-
-    case 'Write':
-      if (detectWriteFailure(toolOutput)) {
-        message = 'Write failed. Check file permissions and directory.'
-      }
-      break
-
-    // Removed success reminders (TodoWrite, Read, success paths).
-    // These spam context without adding value. Stall detection handles
-    // "are you stuck?" while agents already know to verify their work.
-
-    case 'Grep':
-      if (QUIET_LEVEL === 0 && /^0$|no matches/i.test(toolOutput)) {
-        message = 'No matches found. Verify pattern syntax or try broader search.'
-      }
-      break
-
-    case 'Glob':
-      if (QUIET_LEVEL === 0 && (!toolOutput.trim() || /no files/i.test(toolOutput))) {
-        message = 'No files matched pattern. Verify glob syntax and directory.'
-      }
-      break
+  // Only check for failure on mutation tools — skip on success (no regex matching needed)
+  if (toolName === 'Bash' || toolName === 'Edit' || toolName === 'Write') {
+    const hasError = toolName === 'Bash'
+      ? /error:|failed|cannot|permission denied|command not found|no such file/i.test(toolOutput)
+      : /\berror:|\bfailed to\b|\boperation failed\b|permission denied/i.test(toolOutput)
+    if (hasError) {
+      return toolName === 'Bash'
+        ? 'Command failed. Investigate and fix before continuing.'
+        : 'Write/Edit failed. Verify file exists and content matches.'
+    }
+    return ''
   }
 
-  return message
+  // Grep/Glob: only remind on empty results at QUIET_LEVEL 0
+  if (QUIET_LEVEL === 0) {
+    if (toolName === 'Grep' && /^0$|no matches/i.test(toolOutput)) {
+      return 'No matches found. Verify pattern syntax or try broader search.'
+    }
+    if (toolName === 'Glob' && (!toolOutput.trim() || /no files/i.test(toolOutput))) {
+      return 'No files matched pattern. Verify glob syntax and directory.'
+    }
+  }
+
+  return ''
 }
 
 // ============================================================================
@@ -496,6 +487,9 @@ export const STALL_NUDGE_CACHE = new Map<string, { lastNudge: number; softCount:
 export function getHeartbeatPath(directory: string, sessionId: string): string {
   return join(directory, '.opencode', 'state', 'sessions', sessionId, 'heartbeat.json')
 }
+
+// Batched heartbeat write counter — write to disk every 5th call
+let _heartbeatCounter = 0
 
 export function recordHeartbeat(directory: string, sessionId: string, toolName: string, toolOutput: string, todoStatus: string): void {
   const hbPath = getHeartbeatPath(directory, sessionId)
@@ -537,7 +531,11 @@ export function recordHeartbeat(directory: string, sessionId: string, toolName: 
     },
   }
 
-  writeJsonFile(hbPath, entry)
+  // Batch writes to reduce disk I/O — write every 5th heartbeat
+  _heartbeatCounter++
+  if (_heartbeatCounter % 5 === 0) {
+    writeJsonFile(hbPath, entry)
+  }
 }
 
 export type StallStatus = 'ACTIVE' | 'SLOW_POSSIBLE' | 'STALLED_SOFT' | 'STALLED_HARD' | 'SESSION_RESET'

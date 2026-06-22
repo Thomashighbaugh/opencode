@@ -1,5 +1,5 @@
 /** @jsxImportSource @opentui/solid */
-import type { TuiPlugin, TuiPluginApi, PluginOptions, TuiPluginMeta, TuiDialogSelectOption } from '@opencode-ai/plugin/tui'
+import type { TuiPlugin, TuiPluginApi, TuiPluginMeta, TuiDialogSelectOption } from '@opencode-ai/plugin/tui'
 
 interface Sub { label: string; description: string }
 interface Hub { name: string; title: string; description: string; subs: Sub[] }
@@ -127,8 +127,8 @@ const HUBS: Hub[] = [
   ]},
 ]
 
-const tui: TuiPlugin = async (api: TuiPluginApi, _o: PluginOptions | undefined, _m: TuiPluginMeta) => {
-  api.command.register(() =>
+const tui: TuiPlugin = async (api: TuiPluginApi, _o: any, _m: TuiPluginMeta) => {
+  api.command!.register(() =>
     HUBS.map(h => {
       const opts: TuiDialogSelectOption<string>[] = h.subs.map(s => ({ title: s.label, value: s.label, description: s.description }))
       return {
@@ -144,7 +144,7 @@ const tui: TuiPlugin = async (api: TuiPluginApi, _o: PluginOptions | undefined, 
               const s = h.subs.find(x => x.label === sel.value)
               if (!s) return
               const cmd = `/${h.name} ${s.label}`
-              api.ui.toast({ title: cmd, message: cmd, timeout: 4000 })
+              api.ui.toast({ title: cmd, message: cmd })
               api.client.tui.appendPrompt({ text: cmd + " " }).catch(() => {})
             }
           }))

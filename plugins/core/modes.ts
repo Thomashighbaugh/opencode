@@ -218,7 +218,7 @@ export function activateModeState(directory: string, prompt: string, stateName: 
     state = {
       active: true,
       iteration: 1,
-      max_iterations: 100,
+      max_iterations: 10,
       started_at: now,
       prompt,
       session_id: sessionId,

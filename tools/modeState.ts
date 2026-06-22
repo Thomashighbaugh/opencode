@@ -63,7 +63,7 @@ export default tool({
     data: tool.schema.any().optional().describe("Additional state data for update action")
   },
   async execute(args, context) {
-    const projectRoot = context.projectRoot || process.cwd()
+    const projectRoot = context.directory || process.cwd()
     const sessionId = context.sessionID
     
     switch (args.action) {
@@ -82,7 +82,7 @@ export default tool({
           session_id: sessionId,
           project_path: projectRoot,
           last_checked_at: now,
-          ...(args.mode === 'ralph' ? { iteration: 1, max_iterations: 100 } : {}),
+          ...(args.mode === 'ralph' ? { iteration: 1, max_iterations: 10 } : {}),
           ...(args.mode === 'ultrawork' ? { reinforcement_count: 0 } : {})
         }
         
@@ -113,7 +113,7 @@ export default tool({
       case 'status': {
         if (!args.mode) return JSON.stringify({ error: 'Mode name required' })
         const state = readState(projectRoot, args.mode as ModeName)
-        return JSON.stringify(state ? { active: state.active, ...state } : { active: false, mode: args.mode })
+        return JSON.stringify(state ? { ...state, active: state.active } : { active: false, mode: args.mode })
       }
       
       case 'update': {

@@ -26,7 +26,6 @@ import {
   getTodoStatus,
   updateToolStats,
   flushSessionStats,
-  generatePreToolMessage,
   generatePostToolMessage,
   recordHeartbeat,
   classifyStall,
@@ -58,90 +57,9 @@ import {
 } from "./keywords"
 
 // ============================================================================
-// Prompt Queue — Only used in hooks (keep local)
+// Prompt Queue — Auto-submit REMOVED (manual-only). Keeping only LLM-busy
+// detection helpers. Queue infrastructure removed to reduce token overhead.
 // ============================================================================
-
-interface QueuedPrompt {
-  id: string
-  text: string
-  timestamp: string
-  status: 'queued' | 'submitted' | 'completed' | 'failed'
-  error?: string
-}
-
-interface PromptQueue {
-  items: QueuedPrompt[]
-  lastSubmittedId?: string
-  lastSubmittedAt?: string
-  paused: boolean
-  pausedReason?: string
-}
-
-const PROMPT_QUEUE_FILE = 'prompt-queue.json'
-
-function getQueuePath(directory: string, sessionId: string): string {
-  return join(directory, '.opencode', 'state', 'sessions', sessionId, PROMPT_QUEUE_FILE)
-}
-
-function readQueue(directory: string, sessionId: string): PromptQueue {
-  const path = getQueuePath(directory, sessionId)
-  return readJsonFile<PromptQueue>(path) || { items: [], paused: false }
-}
-
-function writeQueue(directory: string, sessionId: string, queue: PromptQueue): void {
-  writeJsonFile(getQueuePath(directory, sessionId), queue)
-}
-
-function enqueuePrompt(directory: string, sessionId: string, text: string): QueuedPrompt {
-  const queue = readQueue(directory, sessionId)
-  const entry: QueuedPrompt = {
-    id: `q-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-    text,
-    timestamp: new Date().toISOString(),
-    status: 'queued',
-  }
-  queue.items.push(entry)
-  writeQueue(directory, sessionId, queue)
-  return entry
-}
-
-function dequeueNext(directory: string, sessionId: string): QueuedPrompt | null {
-  const queue = readQueue(directory, sessionId)
-  const idx = queue.items.findIndex(i => i.status === 'queued')
-  if (idx === -1) return null
-  queue.items[idx].status = 'submitted'
-  queue.items[idx].timestamp = new Date().toISOString()
-  queue.lastSubmittedId = queue.items[idx].id
-  queue.lastSubmittedAt = queue.items[idx].timestamp
-  writeQueue(directory, sessionId, queue)
-  return queue.items[idx]
-}
-
-function markQueueItem(directory: string, sessionId: string, id: string, status: QueuedPrompt['status'], error?: string): void {
-  const queue = readQueue(directory, sessionId)
-  const item = queue.items.find(i => i.id === id)
-  if (!item) return
-  item.status = status
-  if (error) item.error = error
-  writeQueue(directory, sessionId, queue)
-}
-
-function getQueueStatus(directory: string, sessionId: string): { queued: number; submitted: number; completed: number; failed: number; paused: boolean } {
-  const queue = readQueue(directory, sessionId)
-  return {
-    queued: queue.items.filter(i => i.status === 'queued').length,
-    submitted: queue.items.filter(i => i.status === 'submitted').length,
-    completed: queue.items.filter(i => i.status === 'completed').length,
-    failed: queue.items.filter(i => i.status === 'failed').length,
-    paused: queue.paused,
-  }
-}
-
-function clearCompletedQueueItems(directory: string, sessionId: string): void {
-  const queue = readQueue(directory, sessionId)
-  queue.items = queue.items.filter(i => i.status === 'queued' || i.status === 'submitted')
-  writeQueue(directory, sessionId, queue)
-}
 
 /**
  * Determine if the LLM is currently busy processing a task.
@@ -180,54 +98,6 @@ function isTaskComplete(directory: string, sessionId: string): boolean {
   return false
 }
 
-/**
- * Try to submit the next queued prompt.
- * Returns the prompt text if submitted, null if nothing to submit or LLM is busy.
- */
-function trySubmitNextQueued(directory: string, sessionId: string): string | null {
-  const queue = readQueue(directory, sessionId)
-  if (queue.paused) return null
-  if (queue.items.filter(i => i.status === 'queued').length === 0) return null
-
-  // Don't submit if LLM is still busy
-  if (isLlmBusy(directory, sessionId)) return null
-
-  // Don't submit if there's already a submitted item waiting
-  if (queue.items.some(i => i.status === 'submitted')) return null
-
-  const next = dequeueNext(directory, sessionId)
-  return next?.text || null
-}
-
-/**
- * Generate a queue status context message for the LLM.
- * Injected when there are queued prompts waiting.
- */
-function generateQueueContext(directory: string, sessionId: string): string | null {
-  const status = getQueueStatus(directory, sessionId)
-  if (status.queued === 0 && status.submitted === 0) return null
-
-  const queue = readQueue(directory, sessionId)
-  const queuedItems = queue.items.filter(i => i.status === 'queued').slice(0, 5)
-  const submittedItem = queue.items.find(i => i.status === 'submitted')
-
-  let msg = `<prompt-queue>\n`
-  if (submittedItem) {
-    msg += `Current: "${submittedItem.text.substring(0, 100)}"\n`
-  }
-  if (queuedItems.length > 0) {
-    msg += `Queued (${status.queued}):\n`
-    for (const item of queuedItems) {
-      msg += `  - "${item.text.substring(0, 80)}"\n`
-    }
-  }
-  if (status.completed > 0) {
-    msg += `Completed: ${status.completed}\n`
-  }
-  msg += `</prompt-queue>`
-  return msg
-}
-
 // ============================================================================
 // Plugin Entry Point
 // ============================================================================
@@ -262,7 +132,8 @@ export const JocPlugin: Plugin = async ({ project, client, directory, worktree }
             if (existsSync(hubStateDir)) {
               const entries = readdirSync(hubStateDir, { recursive: true })
                 .filter(e => typeof e === 'string' && !(e as string).endsWith('index.json'))
-              if (entries.length > 0) {
+              // Skip state summary if too many files (would waste context)
+              if (entries.length > 0 && entries.length < 20) {
                 stateItems.push(`- /${dir === 'orchestration' ? 'orchestrate' : dir === 'init' ? 'init-project' : dir === 'harvest' ? 'harvest-context' : dir}: ${entries.length} file(s)`)
               }
             }
@@ -300,27 +171,12 @@ export const JocPlugin: Plugin = async ({ project, client, directory, worktree }
 
       case 'tui.prompt.append': {
         const prompt = event.properties.text || ''
+        const sessionId = (event.properties as any).info?.id || ''
 
         if (!prompt.trim()) return
 
-        // ── Smart Prompt Queue ──────────────────────────────────────────
-        // If the LLM is actively working (tool calls happening, todos advancing),
-        // queue the user's prompt instead of submitting it. When the current
-        // task completes, the next queued prompt is auto-submitted.
-        //
-        // This only applies to substantive user prompts — NOT to "continue" or
-        // "..." prompts which are handled by stall detection.
-        const isContinuePrompt = /^(\.\.\.|continue|go on|proceed)$/i.test(prompt.trim())
-        const sessionIdForQueue = (event.properties as any).info?.id || ''
-
-        if (!isContinuePrompt && sessionIdForQueue && isLlmBusy(directory, sessionIdForQueue)) {
-          enqueuePrompt(directory, sessionIdForQueue, prompt)
-          return  // Don't process further — prompt is queued
-        }
-
-        // ── Normal keyword detection (only for non-queued prompts) ──────
+        // ── Keyword detection (no auto-mode-activation without confirmation) ──
         const matches = detectKeywords(prompt)
-
         if (matches.length === 0) return
 
         const seen = new Set<string>()
@@ -329,7 +185,6 @@ export const JocPlugin: Plugin = async ({ project, client, directory, worktree }
           seen.add(m.name)
           return true
         })
-
         const resolved = resolveConflicts(uniqueMatches)
 
         if (resolved.length > 0 && resolved[0].name === 'cancel') {
@@ -337,18 +192,8 @@ export const JocPlugin: Plugin = async ({ project, client, directory, worktree }
           return
         }
 
-        for (const mode of resolved.filter(m =>
-          ['ralph', 'autopilot', 'ultrawork', 'ralplan'].includes(m.name)
-        )) {
-          activateModeState(directory, prompt, mode.name)
-        }
-
-        if (resolved.some(m => m.name === 'ralph')) {
-          activateModeState(directory, prompt, 'ultrawork')
-        }
-
+        // Do NOT auto-activate modes — require user confirmation via the agent
         const additionalContext: string[] = []
-
         for (const [keywordName, message] of Object.entries(MODE_MESSAGES)) {
           const index = resolved.findIndex(m => m.name === keywordName)
           if (index !== -1) {
@@ -357,20 +202,17 @@ export const JocPlugin: Plugin = async ({ project, client, directory, worktree }
           }
         }
 
-        if (resolved.length > 0) {
-          const skillNames = resolved.map(m => m.name.toUpperCase()).join(', ')
-          additionalContext.push(`[MAGIC KEYWORDS DETECTED: ${skillNames}]
-Invoke the corresponding skill/command to activate the mode:
-${resolved.map(m => `- ${m.name}: Use /${m.name === 'ralph' ? 'ralph-loop' : m.name}`).join('\n')}`)
+        if (resolved.length > 0 && sessionId) {
+          const names = resolved.map(m => m.name).join(', ')
+          queueContextMessage(sessionId, `<mode-detected names="${names}">
+Magic keywords detected: ${names}. Mode activation requires explicit user confirmation.
+Propose the mode to the user and ask before activating.
+</mode-detected>`)
         }
 
         // Hub command pre-resolution — detect /hub subcommand patterns
-        // (regex only, no API calls)
         const hubPattern = /^\/(init-project|ideation|orchestrate|harvest-context|project)\s+(\S+)/
         const hubMatch = prompt.match(hubPattern)
-        if (hubMatch) {
-          // Pattern detected — routing handled by agent instructions
-        }
         break
       }
     }
@@ -393,9 +235,7 @@ ${resolved.map(m => `- ${m.name}: Use /${m.name === 'ralph' ? 'ralph-loop' : m.n
         const args = (input as any).args || {}
         const key = CacheManager.key(toolName, JSON.stringify(args))
         const cached = mcpCache.get<string>(key)
-        if (cached && sessionId) {
-          queueContextMessage(sessionId, `<mcp-cache-hit tool="${toolName}">\nUsing cached MCP response (7-day TTL).\n${cached.substring(0, 2000)}\n</mcp-cache-hit>`)
-        }
+        if (cached) { /* cache hit — use silently, no context message */ }
       } catch {}
     }
 
@@ -411,19 +251,27 @@ ${resolved.map(m => `- ${m.name}: Use /${m.name === 'ralph' ? 'ralph-loop' : m.n
         const args = (input as any).args || {}
         const key = CacheManager.key(toolName, JSON.stringify(args))
         const cached = toolCache.get<string>(key)
-        if (cached && sessionId) {
-          queueContextMessage(sessionId, `<tool-cache-hit tool="${toolName}">\nUsing cached result (30s TTL).\n${cached.substring(0, 1000)}\n</tool-cache-hit>`)
-        }
+        if (cached) { /* cache hit — use silently, no context message */ }
       } catch {}
     }
 
-    const modeActive = hasActiveMode(directory, sessionId)
-    const todoStatus = getTodoStatus(directory)
-    const message = generatePreToolMessage(toolName, todoStatus, modeActive)
-
-    if (message && sessionId) {
-      queueContextMessage(sessionId, `<pre-tool-reminder tool="${toolName}">\n${message}\n</pre-tool-reminder>`)
+    // ── Tier 4: Agent output cache check (Task tool) ──────────────────
+    // Cache subagent task results to avoid re-executing identical tasks.
+    if (toolName === 'Task' && sessionId) {
+      try {
+        const agentCache = getCache('agent')
+        const args = (input as any).args || {}
+        const taskDesc = args.description || ''
+        const taskPrompt = args.prompt || ''
+        const agentType = args.subagent_type || 'general'
+        const cacheKey = CacheManager.key(agentType, taskDesc, taskPrompt.substring(0, 100))
+        const cached = agentCache.get<string>(cacheKey)
+        if (cached) { /* cache hit — use silently, no context message */ }
+      } catch {}
     }
+
+    // Pre-tool reminders removed — generatePreToolMessage always returns '' after consolidation.
+    // Stall detection handles nudging; agents own their task management.
 
     if (toolName === 'Skill' || toolName === 'skill') {
       const skillName = (output.args as Record<string, unknown>)?.skill as string || ''
@@ -436,9 +284,7 @@ ${resolved.map(m => `- ${m.name}: Use /${m.name === 'ralph' ? 'ralph-loop' : m.n
         }
         writeState(directory, 'skill-active', state, sessionId)
 
-        if (sessionId) {
-          queueContextMessage(sessionId, `<skill-activated name="${skillName}">\nSkill ${skillName} is now active. Follow its instructions.\n</skill-activated>`)
-        }
+        /* skill activation noted — no context message needed */
       }
     }
   }
@@ -480,9 +326,22 @@ ${resolved.map(m => `- ${m.name}: Use /${m.name === 'ralph' ? 'ralph-loop' : m.n
       } catch {}
     }
 
+    // ── Tier 4: Cache agent (Task) outputs ────────────────────────────
+    if (toolName === 'Task' && toolOutput && sessionId) {
+      try {
+        const agentCache = getCache('agent')
+        const args = (input as any).args || {}
+        const taskDesc = args.description || ''
+        const taskPrompt = args.prompt || ''
+        const agentType = args.subagent_type || 'general'
+        const cacheKey = CacheManager.key(agentType, taskDesc, taskPrompt.substring(0, 100))
+        agentCache.set(cacheKey, toolOutput, 1_800_000) // 30 min TTL
+      } catch {}
+    }
+
     // ── End caching ───────────────────────────────────────────────────
 
-    // NEW: Record heartbeat for stall detection (silent, no context message)
+    // Record heartbeat for stall detection (silent, no context message)
     if (sessionId) {
       const todoStatus = getTodoStatus(directory)
       recordHeartbeat(directory, sessionId, toolName, toolOutput, todoStatus)
@@ -522,11 +381,7 @@ ${resolved.map(m => `- ${m.name}: Use /${m.name === 'ralph' ? 'ralph-loop' : m.n
 
     const messages = consumeContextMessages(sessionId)
 
-    // NEW: Inject prompt queue status so the LLM knows about queued prompts
-    const queueCtx = generateQueueContext(directory, sessionId)
-    if (queueCtx) {
-      messages.push(queueCtx)
-    }
+    // Prompt queue auto-submit removed. Queue context no longer injected.
 
     if (messages.length === 0) return
 
@@ -560,16 +415,7 @@ ${resolved.map(m => `- ${m.name}: Use /${m.name === 'ralph' ? 'ralph-loop' : m.n
       output.context.push(`## Pending Tasks\n${todoStatus}\n`)
     }
 
-    // NEW: Preserve prompt queue state across context compression
-    if (sessionId) {
-      const queueStatus = getQueueStatus(directory, sessionId)
-      if (queueStatus.queued > 0 || queueStatus.submitted > 0) {
-        const queueCtx = generateQueueContext(directory, sessionId)
-        if (queueCtx) {
-          output.context.push(`## Prompt Queue\n${queueCtx}\n`)
-        }
-      }
-    }
+    // Prompt queue auto-submit removed. No queue state preservation needed.
 
     const projectMemoryPath = join(directory, '.opencode', 'state', 'project-memory.json')
     if (existsSync(projectMemoryPath)) {
@@ -603,7 +449,9 @@ ${notes ? `### Custom Notes:\n${notes}` : ''}
           : 0
         const subagentCalls = sessionStats?.tool_counts?.Task || 0
 
-        const isLongSession = toolCalls > 75 || durationSec > 900 || subagentCalls > 5
+        // Only save compaction artifacts every 5th compaction to reduce disk I/O
+        const compactionCount = toolCalls > 75 ? Math.floor(toolCalls / 75) : 0
+        const isLongSession = (toolCalls > 75 && compactionCount % 5 === 0) || durationSec > 900 || subagentCalls > 5
 
         if (isLongSession) {
           const artifact = {
@@ -714,21 +562,14 @@ Original task: ${ultraworkState.original_prompt}
       }
       writeState(directory, command === 'ralph-loop' ? 'ralph' : 'ultrawork', state, sessionId)
 
-      if (sessionId) {
-        queueContextMessage(sessionId, `<mode-activated mode="${command}">
-${command} mode is now active. Follow the mode's workflow instructions.
-</mode-activated>`)
-      }
+      /* mode activation noted — no context message needed (command already tells the agent) */
     }
 
     if (command === 'cancel-ralph' || command === 'stop-continuation') {
       clearModeStates(directory, ['ralph', 'autopilot', 'ultrawork', 'ralplan'], sessionId)
-
-      if (sessionId) {
-        queueContextMessage(sessionId, `<mode-cancelled>
-All active modes have been cancelled. You may proceed normally.
-</mode-cancelled>`)
-      }
+      // Invalidate agent output cache on mode cancel — prevents stale cache reuse
+      try { getCache('agent').clear() } catch { /* best effort */ }
+      /* mode cancellation noted — no context message needed */
     }
   }
 

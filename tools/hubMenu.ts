@@ -172,11 +172,10 @@ const HUBS: HubDefinition[] = [
   }
 ]
 
-// ─── Persistent Route Cache ────────────────────────────────────────────
-// Uses the shared cache-utils system for disk-backed, TTL-aware caching.
-// Key: `${hub}:${subcommand}` — TTL: 30s (tool cache default)
-// Invalidated by process restart OR explicit cache clear.
-const _routeCache = getCache("tool")
+// ─── In-Memory Route Cache ─────────────────────────────────────────────
+// Routes are session-static (hub definitions never change mid-session).
+// No TTL needed — use a simple Map instead of the TTL-based tool cache.
+const _routeCache = new Map<string, string>()
 
 // Cache the project root to avoid forking git on every call
 let _cachedProjectRoot: string | null = null
@@ -367,10 +366,10 @@ export default tool({
   },
   async execute(args, context) {
     if (!VALID_ACTIONS.includes(args.action as ActionName)) {
-      return { error: `Invalid action '${args.action}'. Valid: ${VALID_ACTIONS.join(', ')}` }
+      return JSON.stringify({ error: `Invalid action '${args.action}'. Valid: ${VALID_ACTIONS.join(', ')}` })
     }
     if (args.hub && !VALID_HUBS.includes(args.hub as HubName)) {
-      return { error: `Invalid hub '${args.hub}'. Valid: ${VALID_HUBS.join(', ')}` }
+      return JSON.stringify({ error: `Invalid hub '${args.hub}'. Valid: ${VALID_HUBS.join(', ')}` })
     }
     switch (args.action) {
       case 'list': {
@@ -422,6 +421,7 @@ export default tool({
         const cached = _routeCache.get(cacheKey)
         if (cached) return cached
 
+        // Only read state/checkpoint on cache miss — routes are session-static
         const stateInfo = getStateInfo(hub)
         const checkpoint = getLatestCheckpoint(hub)
 

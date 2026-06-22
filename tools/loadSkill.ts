@@ -96,7 +96,7 @@ export default tool({
     section: tool.schema.string().optional().describe("Optional section to extract (e.g., 'workflow', 'heuristics', 'examples')"),
   },
   async execute(args, context) {
-    const projectRoot = context.projectRoot || process.cwd()
+    const projectRoot = context.directory || process.cwd()
     const skillLocation = findSkill(args.skill, projectRoot)
     
     if (!skillLocation) {

@@ -76,7 +76,7 @@ export default tool({
     mode: tool.schema.string().optional().describe("Mode name for get-state or clear-mode actions")
   },
   async execute(args, context) {
-    const projectRoot = context.projectRoot || process.cwd()
+    const projectRoot = context.directory || process.cwd()
     const paths = getContextPaths(projectRoot)
     
     switch (args.action) {

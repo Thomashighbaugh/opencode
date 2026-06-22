@@ -32,7 +32,7 @@ export default tool({
     limit: tool.schema.number().optional().describe("Max items for list action")
   },
   async execute(args, context) {
-    const projectRoot = context.projectRoot || process.cwd()
+    const projectRoot = context.directory || process.cwd()
     
     switch (args.action) {
       case 'save': {

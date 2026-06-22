@@ -1,8 +1,13 @@
 import { tool } from "@opencode-ai/plugin"
 import * as fs from "fs"
 import * as path from "path"
-import { execSync } from "child_process"
+import { execSync, spawn } from "child_process"
 import { homedir } from "os"
+
+// ── Async Process Throttle ──────────────────────────────────────────────
+// Cap concurrent async subprocesses at 5 to prevent resource exhaustion.
+const MAX_ASYNC_PROCS = 5
+const _activeAsyncProcs = new Set<string>()
 
 // Path conventions:
 // - User-wide skills: ~/.config/opencode/skills/ (shared across all projects)
@@ -50,13 +55,13 @@ function listSkillScripts(projectRoot: string, skillName?: string): Array<{skill
   ]
   
   for (const basePath of searchPaths) {
-    if (!fs.existsSync(basePath)) continue
-    const skills = skillName ? [skillName] : fs.readdirSync(basePath).filter(d => 
-      fs.existsSync(path.join(basePath, d, 'scripts'))
+    if (!fs.existsSync(basePath.path)) continue
+    const skills = skillName ? [skillName] : fs.readdirSync(basePath.path).filter(d => 
+      fs.existsSync(path.join(basePath.path, d, 'scripts'))
     )
     
     for (const skill of skills) {
-      const scriptsDir = path.join(basePath, skill, 'scripts')
+      const scriptsDir = path.join(basePath.path, skill, 'scripts')
       if (!fs.existsSync(scriptsDir)) continue
       
       const scripts = fs.readdirSync(scriptsDir)
@@ -83,7 +88,7 @@ export default tool({
     async: tool.schema.boolean().optional().describe("Run in background (for run action)")
   },
   async execute(args, context) {
-    const projectRoot = context.projectRoot || process.cwd()
+    const projectRoot = context.directory || process.cwd()
     
     switch (args.action) {
       case 'list': {
@@ -134,8 +139,19 @@ export default tool({
         
         try {
           if (args.action === 'run-async') {
-            execSync(`${cmd} &`, { encoding: 'utf-8', timeout: 5000 })
-            return JSON.stringify({ launched: true, command: args.script, skill: args.skill })
+            // Check concurrent process limit before launching
+            if (_activeAsyncProcs.size >= MAX_ASYNC_PROCS) {
+              return JSON.stringify({ error: `Max async processes (${MAX_ASYNC_PROCS}) reached. Try again later.`, active: _activeAsyncProcs.size })
+            }
+            const procId = `${args.skill}:${args.script}`
+            _activeAsyncProcs.add(procId)
+            const child = spawn('bash', [scriptPath, ...(args.args || [])], {
+              stdio: 'ignore',
+              detached: true,
+            })
+            child.unref()
+            child.on('exit', () => { _activeAsyncProcs.delete(procId) })
+            return JSON.stringify({ launched: true, command: args.script, skill: args.skill, activeProcs: _activeAsyncProcs.size })
           } else {
             const output = execSync(cmd, { encoding: 'utf-8', timeout: 30000 })
             return JSON.stringify({

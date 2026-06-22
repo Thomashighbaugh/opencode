@@ -5,9 +5,6 @@
     "formatter": true,
     "lsp": true,
     "provider": {
-        "opencode": {
-            "options": {}
-        },
         "ollama": {
             "name": "Ollama",
             "npm": "@ai-sdk/openai-compatible",
@@ -80,6 +77,13 @@
     ],
     "instructions": [
         "AGENTS.md",
-        "./rules/*"
+        "./rules/shell_strategy.md",
+        "./rules/context-strategy.md",
+        "./rules/artifact-placement.md",
+        "./rules/security.md",
+        "./rules/karpathy-guidelines.md",
+        "./rules/hub-state.md",
+        "./rules/hub-routing.md",
+        "./rules/hub-description-directive.md"
     ]
 }

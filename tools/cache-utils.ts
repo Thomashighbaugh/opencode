@@ -34,7 +34,7 @@ export interface CacheStats {
 // ─── Default Configs ───────────────────────────────────────────────────
 
 export const CACHE_CONFIGS: Record<string, CacheConfig> = {
-  "tool":     { namespace: "tool",     defaultTTL: 30_000,  maxHotEntries: 200, persist: true },
+  "tool":     { namespace: "tool",     defaultTTL: 900_000, maxHotEntries: 200, persist: true },  // 15 min
   "mcp":      { namespace: "mcp",      defaultTTL: 604_800_000, maxHotEntries: 50, persist: true },  // 7 days
   "llm":      { namespace: "llm",      defaultTTL: 3_600_000, maxHotEntries: 100, persist: true },  // 1 hour
   "agent":    { namespace: "agent",    defaultTTL: 1_800_000, maxHotEntries: 50, persist: true },   // 30 min
