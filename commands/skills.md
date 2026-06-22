@@ -9,7 +9,7 @@ Unified command for managing OpenCode Hubs skills. Covers CRUD, search, sync, pa
 
 ## Subcommands
 
-### /skill list
+### /skills list
 
 Show all available skills organized by scope.
 
@@ -31,10 +31,10 @@ BUILT-IN SKILLS (64 bundled):
 PLUGIN SKILL CATEGORIES (opencode-skills-collection):
 | Category                    | Skills | Hub Access              |
 |------------------------------|--------|-------------------------|
-| development                  | 136    | /project, /skill        |
-| security                     | 73     | /project, /skill        |
-| workflow                     | 53     | /orchestrate, /skill    |
-| ai-ml                        | 103    | /skill                  |
+| development                  | 136    | /project, /skills        |
+| security                     | 73     | /project, /skills        |
+| workflow                     | 53     | /orchestrate, /skills    |
+| ai-ml                        | 103    | /skills                  |
 | ...                          | ...    | ...                     |
 
 USER SKILLS (~/.config/opencode/skills/omc-learned/):
@@ -55,14 +55,14 @@ PROJECT SKILLS (.opencode/state/skills/):
 - `/orchestrate` → workflow, automation, agent-orchestration categories
 - `/harvest-context` → meta, memory, content categories
 - `/project` → development, devops, testing, security categories
-- `/skill` → all categories (universal access)
+- `/skills` → all categories (universal access)
 
 **Fallback:** If quality/usage stats not available, show "N/A"
 **Note:** Built-in skills are discoverable/readable but cannot be removed or edited. Plugin skills are loaded on demand and don't add `/` command completions.
 
 ---
 
-### /skill add [name]
+### /skills add [name]
 
 Interactive wizard for creating a new skill.
 
@@ -79,11 +79,11 @@ Interactive wizard for creating a new skill.
    - Write SKILL.md with frontmatter and workflow
    - Add bundled resources (scripts/, references/, assets/) as needed
 7. **Report success** with file path
-8. **Suggest:** `/skill edit <name>` to customize
+8. **Suggest:** `/skills edit <name>` to customize
 
 ---
 
-### /skill remove <name>
+### /skills remove <name>
 
 Remove a skill by name.
 
@@ -91,13 +91,13 @@ Remove a skill by name.
 1. Search for skill in user and project scopes
 2. If found: display info, ask for confirmation
 3. If confirmed: delete entire skill directory
-4. If not found: report error with suggestion to use `/skill search`
+4. If not found: report error with suggestion to use `/skills search`
 
 **Safety:** Never delete without explicit user confirmation.
 
 ---
 
-### /skill edit <name>
+### /skills edit <name>
 
 Edit an existing skill interactively.
 
@@ -111,7 +111,7 @@ Edit an existing skill interactively.
 
 ---
 
-### /skill search <query>
+### /skills search <query>
 
 Search skills by content, triggers, name, or description.
 
@@ -122,7 +122,7 @@ Search skills by content, triggers, name, or description.
 
 ---
 
-### /skill info <name>
+### /skills info <name>
 
 Show detailed information about a skill.
 
@@ -133,7 +133,7 @@ Show detailed information about a skill.
 
 ---
 
-### /skill create <name>
+### /skills create <name>
 
 Create a new skill using the full `skill-creator` workflow (deeper than `add`).
 
@@ -148,7 +148,7 @@ Use `create` for complex skills requiring bundled resources. Use `add` for quick
 
 ---
 
-### /skill update <name>
+### /skills update <name>
 
 Update an existing skill using the `skill-creator` iteration workflow.
 
@@ -160,7 +160,7 @@ Update an existing skill using the `skill-creator` iteration workflow.
 
 ---
 
-### /skill package <name>
+### /skills package <name>
 
 Package skill for distribution.
 
@@ -170,7 +170,7 @@ Package skill for distribution.
 
 ---
 
-### /skill validate <name>
+### /skills validate <name>
 
 Validate skill structure without packaging.
 
@@ -180,7 +180,7 @@ Validate skill structure without packaging.
 
 ---
 
-### /skill sync
+### /skills sync
 
 Sync skills between user and project scopes.
 
@@ -194,7 +194,7 @@ Sync skills between user and project scopes.
 
 ---
 
-### /skill setup
+### /skills setup
 
 Interactive wizard for setting up skill directories and managing local skills.
 
@@ -205,7 +205,7 @@ Interactive wizard for setting up skill directories and managing local skills.
 
 ---
 
-### /skill scan
+### /skills scan
 
 Quick scan of both skill directories (non-interactive version of setup Step 2).
 
@@ -327,19 +327,19 @@ All commands must handle:
 ## Examples
 
 ```
-/skill list                           # List all skills
-/skill add my-custom-skill            # Quick-add a skill
-/skill create github-ops              # Full creation workflow
-/skill update changelog-generator     # Update existing skill
-/skill edit error-handler             # Edit skill interactively
-/skill remove old-skill               # Remove a skill
-/skill search typescript error        # Search for skills
-/skill info my-custom-skill           # Show skill details
-/skill package github-ops             # Package for distribution
-/skill validate my-skill              # Validate structure
-/skill sync                           # Sync between scopes
-/skill setup                          # Setup wizard
-/skill scan                           # Quick scan
+/skills list                           # List all skills
+/skills add my-custom-skill            # Quick-add a skill
+/skills create github-ops              # Full creation workflow
+/skills update changelog-generator     # Update existing skill
+/skills edit error-handler             # Edit skill interactively
+/skills remove old-skill               # Remove a skill
+/skills search typescript error        # Search for skills
+/skills info my-custom-skill           # Show skill details
+/skills package github-ops             # Package for distribution
+/skills validate my-skill              # Validate structure
+/skills sync                           # Sync between scopes
+/skills setup                          # Setup wizard
+/skills scan                           # Quick scan
 ```
 
 ## Related

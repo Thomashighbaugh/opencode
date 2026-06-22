@@ -1,6 +1,6 @@
 ---
 name: project
-description: Project operations hub — test creation, git workflows, code review, optimization, icons, and file organization
+description: Project operations hub — test creation, git workflows, code review, code refactoring, optimization, icons, and file organization
 level: 2
 ---
 
@@ -15,6 +15,8 @@ Unified entry point for project operations. Each subcommand delegates to an exis
 - Creating or managing pull requests
 - Reviewing code quality, security, and architecture
 - Analyzing or optimizing code
+- Refactoring, simplifying, and modernizing code
+- Cleaning up AI-generated code slop
 - Generating icon assets
 - Organizing files and finding duplicates
 - Analyzing code patterns
@@ -22,7 +24,7 @@ Unified entry point for project operations. Each subcommand delegates to an exis
 
 ## No-Argument Behavior
 
-When invoked without arguments, list the subcommands as plain text and ask the user to choose. Do NOT call `hubMenu` or any other tool — just output the list directly. Available operations: tests, commit, stage, pr, gh, optimize, icon, organize, analyze, changelog, converge, scan, sandbox, retrospect, purge, git-cleanup.
+When invoked without arguments, list the subcommands as plain text and ask the user to choose. Do NOT call `hubMenu` or any other tool — just output the list directly. Available operations: tests, commit, stage, pr, gh, optimize, refactor, simplify, cleanup, modernize, icon, organize, analyze, changelog, converge, scan, sandbox, retrospect, purge, git-cleanup.
 
 ## With-Argument Behavior
 
@@ -153,6 +155,92 @@ Analyze code for performance, security, and maintainability.
 > Optimize: Analyze code for bottlenecks, vulnerabilities, and maintainability issues.
 
 **Usage:** `/project optimize [file or directory paths]` — if no paths, analyze current context
+
+---
+
+### `/project refactor` — Code Refactoring
+
+**Delegates to:** `@refactoring` agent
+
+Restructure existing code without changing its behavior. Extracts functions, splits oversized modules, reduces coupling, and improves maintainability. The `@refactoring` agent plans the refactoring strategy and implements it step by step.
+
+**Reminder:**
+> Refactor: I'll plan and implement behavior-preserving code restructuring. Extract, split, reduce coupling, and clean up.
+
+**Usage:**
+- `/project refactor src/components/` — Refactor a directory
+- `/project refactor src/utils.ts` — Refactor a specific file
+- `/project refactor src/ --extract-module "validation"` — Extract a module
+
+**Process:**
+1. Analyze the target code for refactoring opportunities (long functions, high cyclomatic complexity, tight coupling, mixed concerns)
+2. Present a refactoring plan with specific changes
+3. Implement changes one at a time, verifying correctness after each
+4. Run existing tests to confirm no behavior change
+
+---
+
+### `/project simplify` — Code Simplification
+
+**Delegates to:** `@code-simplifier` agent
+
+Reduce code complexity — flatten deeply nested conditionals, simplify complex expressions, clarify naming, eliminate redundant abstractions. Focuses on making code more readable and maintainable without changing its behavior.
+
+**Reminder:**
+> Simplify: I'll reduce complexity, flatten nesting, clarify naming, and remove unnecessary abstractions.
+
+**Usage:**
+- `/project simplify src/complex.ts` — Simplify a specific file
+- `/project simplify src/ --max-complexity 5` — Simplify all files above a cyclomatic complexity threshold
+
+**Process:**
+1. Scan target code for complexity hotspots (deep nesting, long conditionals, high cyclomatic complexity)
+2. For each hotspot, apply simplifications: guard clauses, early returns, decomposition, ternary reduction
+3. Verify each change preserves behavior
+
+---
+
+### `/project cleanup` — Clean Up AI Slop
+
+**Delegates to:** `ai-slop-cleaner` skill
+
+Regression-safe cleanup of AI-generated code artifacts — dead code, unused exports, redundant comments, hallucinated imports, and boilerplate that doesn't belong. Uses the `ai-slop-cleaner` skill's deletion-first workflow: identify, verify unused, delete, confirm nothing broke.
+
+**Reminder:**
+> Cleanup: I'll safely remove AI-generated slop — dead code, unused exports, redundant comments — using deletion-first verification.
+
+**Usage:**
+- `/project cleanup src/` — Clean up a directory
+- `/project cleanup --review-only` — Review-only mode, no deletions
+- `/project cleanup src/app.ts` — Clean a specific file
+
+**Process:**
+1. Scan for AI slop patterns: unused exports, dead code paths, redundant JSDoc, hallucinated imports, empty catch blocks, tautological comments
+2. For each finding, verify it's truly unused (cross-reference imports, usages, and call sites)
+3. Delete or clean up with confirmation for ambiguous cases
+4. Run tests to verify nothing broke
+
+---
+
+### `/project modernize` — Code Modernization
+
+**Delegates to:** `@refactoring` agent
+
+Update code patterns to modern language and framework conventions while preserving behavior. Examples: ES6+ syntax upgrades, framework API migrations, replacing deprecated patterns, adopting newer language features.
+
+**Reminder:**
+> Modernize: I'll update code patterns to modern language/framework conventions — behavior-preserving, targeted modernization.
+
+**Usage:**
+- `/project modernize src/` — Modernize all code in a directory
+- `/project modernize src/ --target es2022` — Target specific language version
+- `/project modernize --dry-run` — Preview changes without applying
+
+**Process:**
+1. Detect the target code's language version and patterns
+2. Identify modernization opportunities (e.g., `var` → `const`/`let`, promise chains → async/await, class components → hooks, CommonJS → ESM)
+3. Present the modernization plan with expected changes
+4. Apply changes incrementally, running tests between batches
 
 ---
 

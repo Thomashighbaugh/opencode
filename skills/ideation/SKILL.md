@@ -13,11 +13,14 @@ Unified entry point for all planning and research methods. Each subcommand is a 
 - Starting a new feature, project, or task and need to plan before building
 - Researching a topic before committing to an approach
 - Refining a vague idea into an actionable plan
+- Deep-dive code quality analysis before starting a refactor
+- Analyzing module boundaries and planning modularity improvements
+- Designing architecture runway for upcoming features
 - Any situation where "think before you code" applies
 
 ## No-Argument Behavior
 
-When invoked without arguments (`/ideation`), list the subcommands as plain text and ask the user to choose. Do NOT call `hubMenu` or any other tool — just output the list directly. Available methods: plan, brainstorm, decomposition, refine, overhaul, deep, graph, research, ralplan, ddd, event-storming, double-diamond, jtbd, impact-mapping, spiral, top-down, bottom-up, adversarial-debate, cleanroom, pwf, rpikit, hive, story-mapping, lean-canvas, constitution.
+When invoked without arguments (`/ideation`), list the subcommands as plain text and ask the user to choose. Do NOT call `hubMenu` or any other tool — just output the list directly. Available methods: plan, brainstorm, decomposition, refine, overhaul, deep, graph, research, ralplan, ddd, event-storming, double-diamond, jtbd, impact-mapping, spiral, top-down, bottom-up, adversarial-debate, cleanroom, pwf, rpikit, hive, story-mapping, lean-canvas, constitution, quality, modularity, arch-prep.
 
 ## With-Argument Behavior
 
@@ -126,6 +129,87 @@ Consensus-planning gate. Auto-gates vague requests before execution. Good for en
 > Ralplan: Consensus planning gate. I'll validate that your plan is concrete enough to execute, and if not, run an interview to sharpen it first.
 
 **Delegates to:** `ralplan` skill
+
+---
+
+### `/ideation quality` — Code Quality Audit
+
+**Method:** `quality`
+
+Deep-dive code quality analysis across the codebase. Identifies complexity hotspots, duplication clusters, naming violations, error handling gaps, and dead code. More focused than a full `overhaul` — zeroes in on code quality dimensions specifically.
+
+**Reminder shown to user:**
+> Quality: Deep-dive code quality audit. I'll scan for complexity hotspots, duplication, naming issues, and error handling gaps across your codebase.
+
+**Delegates to:** inline (executed directly)
+
+**Process:**
+1. Scan the codebase using static analysis techniques
+2. Identify and categorize findings: complexity (high cyclomatic complexity, deep nesting), duplication (similar code blocks across files), naming (inconsistencies, unclear names), error handling (empty catches, swallowed errors, missing validation), dead code (unused exports, orphaned files, stale comments)
+3. For each finding, provide file paths, severity, and concrete improvement suggestions
+4. Prioritize findings into quick wins vs. larger efforts
+5. Output a structured quality report saved to `.opencode/state/ideation/work-products/`
+6. Can be handed off to `/project simplify`, `/project refactor`, or `/orchestrate` for execution
+
+---
+
+### `/ideation modularity` — Modularity Analysis
+
+**Method:** `modularity`
+
+Analyze module boundaries, coupling, and cohesion across the codebase. Detects circular dependencies, mixed concerns, god modules, and suggests reorganization for cleaner module isolation. Uses the `@architect` agent for structural analysis.
+
+**Reminder shown to user:**
+> Modularity: I'll analyze module boundaries, coupling, and cohesion. I'll detect circular dependencies, god modules, and suggest a reorganization plan.
+
+**Delegates to:** `@architect` agent
+
+**Process:**
+1. Map the codebase's module/directory structure
+2. Analyze import/export graphs to quantify coupling between modules
+3. Detect circular dependencies, god modules (files >800 lines or importing from too many places), mixed concerns (e.g., data access mixed with UI logic), leaky abstractions
+4. Produce a modularity report with: coupling graph (text-based), problem modules ranked by severity, recommended boundary changes, step-by-step migration plan
+5. Output saved to `.opencode/state/ideation/work-products/`
+
+**Output example:**
+```markdown
+## Modularity Report
+
+### Coupling Summary
+- Module A → depends on 12 other modules (highly coupled)
+- Module B → has no clear boundary (mixes concerns)
+- Circular dependency: utils ←→ helpers
+
+### Recommendations
+1. Extract `validation` from `utils.ts` → new `validation/` module
+2. Split `components/BigComponent.tsx` (1200 lines) into 4 focused components
+3. Break circular dependency by introducing a shared types module
+```
+
+---
+
+### `/ideation arch-prep` — Architecture Preparation
+
+**Method:** `arch-prep`
+
+Architecture preparation for upcoming features. Before writing code for a new feature, use this to design the architecture runway: identify extension points, plan module additions, anticipate what needs refactoring, and produce a blueprint. Uses the `@architect` agent for structural design.
+
+**Reminder shown to user:**
+> Arch-prep: I'll design the architecture runway for your upcoming feature. Extension points, module plan, refactoring needs, and implementation order.
+
+**Delegates to:** `@architect` agent
+
+**Process:**
+1. Understand the upcoming feature requirements (take user description as input)
+2. Analyze the current codebase architecture for integration points
+3. Design the architectural changes needed: where new modules/functions slot in, what refactoring is required first, what interfaces/abstractions to introduce
+4. Identify potential risks and trade-offs
+5. Produce an architecture blueprint with: system context (how the feature fits), module plan (new/modified modules), refactoring runway (what must change first), extension points (interfaces, hooks, plug-in points), implementation order (what to build in what sequence)
+6. Output saved to `.opencode/state/ideation/work-products/`
+
+**Usage:**
+- `/ideation arch-prep "multi-tenant auth"` — Prep architecture for adding multi-tenant authentication
+- `/ideation arch-prep "real-time notifications"` — Prep architecture for adding WebSocket-based notifications
 
 ---
 

@@ -73,6 +73,9 @@ const HUBS: HubDefinition[] = [
       { label: "story-mapping", description: "User story mapping — arrange features along a user journey spine, prioritize by release for iterative delivery", inline: true, reminder: "Map features along user journey." },
       { label: "lean-canvas", description: "Lean business model canvas — one-page framework for problem, solution, key metrics, and competitive advantage", inline: true, reminder: "One-page lean business model canvas." },
       { label: "constitution", description: "Establish project governance — code quality, UX, performance, and security principles as input to spec-driven work", inline: true, reminder: "Establish project governance principles." },
+      { label: "quality", description: "Deep-dive code quality audit — complexity hotspots, duplication clusters, naming violations, error handling gaps across the codebase", inline: true, reminder: "Deep-dive code quality analysis across the codebase." },
+      { label: "modularity", description: "Analyze module boundaries, coupling and cohesion — detect circular dependencies, suggest reorganization for cleaner module isolation", agent: "architect", reminder: "Analyze module boundaries and coupling." },
+      { label: "arch-prep", description: "Architecture preparation for upcoming features — design extension points, plan module additions, anticipate refactoring runway before coding", agent: "architect", reminder: "Design architecture to accommodate upcoming features." },
       { label: "resume", description: "Resume last ideation session", inline: true, reminder: "Resume last ideation session." },
       { label: "status", description: "Show current ideation state", inline: true, reminder: "Show ideation state." }
     ]
@@ -144,7 +147,7 @@ const HUBS: HubDefinition[] = [
   },
   {
     name: "project",
-    description: "Project operations hub — tests, git workflows, optimization, icons, changelogs, and file organization",
+    description: "Project operations hub — tests, git workflows, code refactoring, optimization, icons, changelogs, and file organization",
     stateDir: "",
     subcommands: [
       { label: "tests", description: "Generate comprehensive 8-type test suite", command: "create-tests", reminder: "Generate comprehensive 8-type test suite." },
@@ -153,6 +156,10 @@ const HUBS: HubDefinition[] = [
       { label: "pr", description: "Create, view, merge, or manage pull requests", command: "pr", reminder: "Manage pull requests via GitHub CLI." },
       { label: "gh", description: "Full GitHub CLI operations via gh", skill: "github-ops", reminder: "Run GitHub CLI operations." },
       { label: "optimize", description: "Analyze and optimize code for performance/security", command: "optimize", reminder: "Optimize code performance and security." },
+      { label: "refactor", description: "Restructure code without changing behavior — extract functions, split modules, reduce coupling via @refactoring agent", agent: "refactoring", reminder: "Restructure code without changing behavior." },
+      { label: "simplify", description: "Reduce code complexity — flatten nesting, simplify conditionals, clarify naming via @code-simplifier agent", agent: "code-simplifier", reminder: "Reduce code complexity and improve clarity." },
+      { label: "cleanup", description: "Regression-safe cleanup of AI-generated slop — dead code, redundant comments, unused exports via ai-slop-cleaner skill", skill: "ai-slop-cleaner", reminder: "Clean up AI-generated code slop safely." },
+      { label: "modernize", description: "Update code patterns to modern language/framework conventions — targeted, behavior-preserving modernization via @refactoring agent", agent: "refactoring", reminder: "Modernize code patterns and conventions." },
       { label: "icon", description: "Generate web/PWA/UE icon assets from source image", skill: "icon-generator", reminder: "Generate icon assets from source image." },
       { label: "organize", description: "Find duplicates, suggest structures, automate cleanup", skill: "file-organizer", reminder: "Find duplicates and organize files." },
       { label: "analyze", description: "Analyze code patterns in the codebase", command: "analyze-patterns", reminder: "Analyze codebase patterns and anti-patterns." },
