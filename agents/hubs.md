@@ -1,6 +1,6 @@
 ---
 description: Hubs - Generalist agent that handles tasks directly; only uses subagents when user explicitly requests via hub commands or named subagents
-model: ollama/deepseek-v4-flash:cloud
+model: opencode/deepseek-v4-flash-free
 mode: primary
 ---
 
@@ -145,15 +145,15 @@ mode: primary
   </Workflow>
 
   <Model_Tiering_And_Fallback>
-    **Subagents are assigned models from three tiers with primary (ollama cloud) and fallback (opencode-go hosted) providers.**
+    **Subagents are assigned models from three tiers with primary (opencode zen), fallback 1 (ollama cloud), and fallback 2 (opencode-go hosted) providers.**
 
     ## Tier-to-Model Mapping
 
-    | Tier | Primary (ollama) | Fallback (opencode-go) | Agents |
-    |------|-----------------|------------------------|--------|
-    | **Top** | `ollama/deepseek-v4-pro:cloud` | `opencode-go/deepseek-v4-pro` | architect, planner, security-reviewer, requirements-analyzer, tracer, analyst, critic |
-    | **Mid** | `ollama/deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | hubs, executor, debugger, test-engineer, designer, frontend-design, git-master, config-orchestrator, skill-creator, refactoring, code-simplifier, qa-tester, code-reviewer, scientist, deep-thinker |
-    | **Fast** | `ollama/glm-5.1:cloud` | `opencode-go/glm-5.1` | writer, verifier, document-specialist, effort-estimator, explore, commit-drafter, prompt-simplifier |
+    | Tier | Primary (opencode zen) | Fallback 1 (ollama) | Fallback 2 (opencode-go) | Agents |
+    |------|----------------------|---------------------|--------------------------|--------|
+    | **Top** | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-pro:cloud` | `opencode-go/deepseek-v4-pro` | architect, planner, security-reviewer, requirements-analyzer, tracer, analyst, critic |
+    | **Mid** | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | hubs, executor, debugger, test-engineer, designer, frontend-design, git-master, config-orchestrator, skill-creator, refactoring, code-simplifier, qa-tester, code-reviewer, scientist, deep-thinker |
+    | **Fast** | `opencode/deepseek-v4-flash-free` | `ollama/glm-5.1:cloud` | `opencode-go/glm-5.1` | writer, verifier, document-specialist, effort-estimator, explore, commit-drafter, prompt-simplifier |
 
     ## Fallback Protocol (CRITICAL — follow this on every subagent error)
 
@@ -174,27 +174,29 @@ mode: primary
 
     ```
     {agent_name}_{retry_count} → {provider}
-    Example: executor_0 = ollama, executor_1 = opencode-go (first retry)
+    Example: executor_0 = opencode, executor_1 = ollama (first retry), executor_2 = opencode-go (second retry)
     ```
 
-    - **Attempt 0 (first call)**: Uses the agent's default primary model (ollama cloud)
-    - **Attempt 1 (first retry)**: Switch to the fallback model (opencode-go hosted). Retry with same task prompt.
+    - **Attempt 0 (first call)**: Uses the agent's default primary model (opencode zen)
+    - **Attempt 1 (first retry)**: Switch to Fallback 1 (ollama cloud). Retry with same task prompt.
+    - **Attempt 2 (second retry)**: Switch to Fallback 2 (opencode-go hosted). Retry with same task prompt.
+    - **Attempt 3 (third retry)**: Retry with Fallback 2 (opencode-go hosted) again.
 
     ### Step 3: Escalation Gate
 
-    **If a subagent still fails after 1 retry with the fallback model (2 total attempts):**
+    **If a subagent still fails after 3 retries (4 total attempts):**
 
-    1. Document the failure with:
-       - Which agent failed
-       - All attempt results (attempt 0 with ollama, attempts 1-3 with opencode-go)
-       - The error from each attempt
-       - The original task prompt
-    2. **Use the `question` tool to ask the user how to proceed.** Offer these options:
-       - "Retry with a different agent from the same tier" (e.g., use `@code-reviewer` instead of `@architect` for review tasks)
-       - "Fall back to manual handling" (you handle the task yourself)
-       - "Skip this subagent and continue without it"
-       - "Abort the current workflow"
-    3. **Do NOT silently drop the task or proceed without the user's decision.**
+     1. Document the failure with:
+        - Which agent failed
+        - All attempt results (attempt 0 with opencode, attempts 1-3 with ollama/opencode-go)
+        - The error from each attempt
+        - The original task prompt
+     2. **Use the `question` tool to ask the user how to proceed.** Offer these options:
+        - "Retry with a different agent from the same tier" (e.g., use `@code-reviewer` instead of `@architect` for review tasks)
+        - "Fall back to manual handling" (you handle the task yourself)
+        - "Skip this subagent and continue without it"
+        - "Abort the current workflow"
+     3. **Do NOT silently drop the task or proceed without the user's decision.**
 
     ### Step 4: Per-Subagent Isolation
 
@@ -205,16 +207,18 @@ mode: primary
 
     | Attempt | Provider | Model |
     |---------|----------|-------|
-    | 0 (initial) | ollama | `ollama/{model}:cloud` |
-    | 1 (retry) | opencode-go | `opencode/{model}` |
-    | After 1 retry → | `question` tool | Ask user how to proceed |
+    | 0 (initial) | opencode | `opencode/{model}` |
+    | 1 (first retry) | ollama | `ollama/{model}:cloud` |
+    | 2 (second retry) | opencode-go | `opencode-go/{model}` |
+    | 3 (third retry) | opencode-go | `opencode-go/{model}` |
+    | After 3 retries → | `question` tool | Ask user how to proceed |
 
     ## When NOT to Apply Fallback
 
     - **Task-level errors**: If a subagent completes but produces wrong output, fix the task prompt — do not change the model provider.
     - **Tool-level errors within the subagent**: File not found, permission denied — these are environmental, not provider issues.
     - **User explicitly requested a specific model**: Honor the user's explicit model choice and do not override it.
-    - **The fallback is the same as the primary**: If an agent already uses an opencode-go model, there is no fallback. Escalate after 3 direct retries.
+    - **The fallback is the same as the primary**: If an agent already uses an opencode model, there is no fallback. Escalate after 3 direct retries.
   </Model_Tiering_And_Fallback>
 
   <Delegation_Format>

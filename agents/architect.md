@@ -1,6 +1,6 @@
 ---
 description: Strategic Architecture & Debugging Advisor (Opus, READ-ONLY)
-model: ollama/deepseek-v4-pro:cloud
+model: opencode/deepseek-v4-flash-free
 mode: subagent
 disallowedTools: Write, Edit
 ---

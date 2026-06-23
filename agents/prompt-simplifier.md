@@ -1,6 +1,6 @@
 ---
 description: Analyzes prompts and instructions for logical complexity. Decomposes into graphs, identifies unnecessary paths, edge cases, and outputs simplification recommendations.
-model: ollama/glm-5.1:cloud
+model: opencode/deepseek-v4-flash-free
 mode: subagent
 permission:
   bash: deny

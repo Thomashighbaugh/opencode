@@ -1,6 +1,6 @@
 ---
 description: UI/UX Designer-Developer for stunning interfaces (Sonnet)
-model: ollama/deepseek-v4-flash:cloud
+model: opencode/deepseek-v4-flash-free
 mode: subagent
 ---
 

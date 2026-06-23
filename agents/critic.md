@@ -1,6 +1,6 @@
 ---
 description: Work plan and code review expert — thorough, structured, multi-perspective (Opus)
-model: ollama/deepseek-v4-pro:cloud
+model: opencode/deepseek-v4-flash-free
 mode: subagent
 disallowedTools: Write, Edit
 ---

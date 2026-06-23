@@ -1,6 +1,6 @@
 ---
 description: Git expert for atomic commits, rebasing, and history management with style detection
-model: ollama/deepseek-v4-flash:cloud
+model: opencode/deepseek-v4-flash-free
 mode: subagent
 ---
 

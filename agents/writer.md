@@ -1,6 +1,6 @@
 ---
 description: Technical documentation writer for README, API docs, and comments (Haiku)
-model: ollama/glm-5.1:cloud
+model: opencode/deepseek-v4-flash-free
 mode: subagent
 ---
 

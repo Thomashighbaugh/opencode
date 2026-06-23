@@ -12,9 +12,9 @@ The codebase evolves organically — each optimization emerges from actual usage
 
 - **Micro-Kernel Hook Decomposition Architecture** — Monolithic plugin (`hubs-plugin.ts`) refactored into focused, independently-loadable modules, each with a single responsibility boundary and zero cross-module imports except through a shared types interface. Session lifecycle management, mode state CRUD, magic keyword detection, and hook handler dispatch live in separate files that can fail independently without taking down the entire plugin system. Implementation: `plugins/core/` contains `session.ts` (lifecycle + stats), `modes.ts` (state machine), `keywords.ts` (regex-based intent extraction), and `hooks.ts` (unified handler entry point), orchestrated through `plugins/core/hooks.ts` which is the single plugin entry registered in `opencode.jsonc`.
 
-- **Tiered Cognitive Model Orchestration** — 29 subagents classified into three capability tiers — Top (`deepseek-v4-pro:cloud` for architecture, security review, causal tracing), Mid (`deepseek-v4-flash:cloud` for implementation, debugging, git operations), and Fast (`glm-5.1:cloud` for exploration, documentation, estimation) — with each agent definition carrying its tier-appropriate model assignment. Orchestration skills (`ralph`, `ultrawork`, `autopilot`, `team`) consult the agent tiers reference at `docs/shared/agent-tiers.md` to match task complexity to model capability before delegation, preventing both over-provisioning (wasting Top-tier on trivial lookups) and under-provisioning (handing critical security review to Fast-tier). Implementation: tier assignments live in each agent's YAML frontmatter (`agents/*.md`), with override guidance documented in `docs/shared/agent-tiers.md` for orchestrators to upgrade/downgrade based on task stakes.
+- **Tiered Cognitive Model Orchestration** — 29 subagents classified into three capability tiers — Top (architecture, security review, causal tracing), Mid (implementation, debugging, git operations), and Fast (exploration, documentation, estimation) — with all agents using `opencode/deepseek-v4-flash-free` as the primary model and tier-appropriate ollama fallbacks. Orchestration skills (`ralph`, `ultrawork`, `autopilot`, `team`) consult the agent tiers reference at `docs/shared/agent-tiers.md` to match task complexity to model capability before delegation, preventing both over-provisioning (wasting Top-tier on trivial lookups) and under-provisioning (handing critical security review to Fast-tier). Implementation: tier assignments live in each agent's YAML frontmatter (`agents/*.md`), with override guidance documented in `docs/shared/agent-tiers.md` for orchestrators to upgrade/downgrade based on task stakes.
 
-- **Cross-Provider Resilience Fabric with Automatic Failover** — When the primary Ollama cloud provider errors out on a subagent invocation (connection refused, 502/503/504, timeout, rate limit), the orchestrating agent classifies the error, maps the failed model to its OpenCode-Go hosted equivalent via tier, and retries up to three times on the fallback provider before escalating to the user via the `question` tool with actionable options (retry with different agent, handle manually, skip, abort). Task-level errors (wrong output, parse failure) never trigger provider switching — the prompt gets fixed instead. Retry counters are per-subagent, so a stuck `@executor` never blocks a healthy `@verifier` running in parallel. Implementation: the complete fallback protocol lives in the Hubs agent's instruction block at `agents/hubs.md` in `<Model_Tiering_And_Fallback>`, with provider-to-tier mappings referencing the live model registry (`opencode models opencode-go`).
+- **Cross-Provider Resilience Fabric with Automatic Failover** — When the primary Opencode Zen provider errors out on a subagent invocation (connection refused, 502/503/504, timeout, rate limit), the orchestrating agent classifies the error, maps the failed model to its Ollama cloud equivalent (Fallback 1) via tier, then to Opencode-Go (Fallback 2), retrying up to three times before escalating to the user via the `question` tool with actionable options (retry with different agent, handle manually, skip, abort). Task-level errors (wrong output, parse failure) never trigger provider switching — the prompt gets fixed instead. Retry counters are per-subagent, so a stuck `@executor` never blocks a healthy `@verifier` running in parallel. Implementation: the complete fallback protocol lives in the Hubs agent's instruction block at `agents/hubs.md` in `<Model_Tiering_And_Fallback>`, with provider-to-tier mappings referencing the live model registry (`opencode models`).
 
 - **Per-Project Agent & Skill Genesis (Provisioning)** — Rather than one-size-fits-all agents, `/init-project provision` analyzes a target codebase — its language, framework, test runner, linter, directory conventions, domain vocabulary — and auto-generates project-specific agents, skills, tools, and rules into `.opencode/`. These project wrappers inherit from global agents but inject deep project context (convention files, architecture patterns, dependency manifests) so that subagents working on that project already know its naming conventions, test patterns, and import style without re-discovering them on every invocation. A newly provisioned Next.js project gets a `nextjs-executor` that understands App Router conventions, Server Components boundaries, and `prisma` schema patterns — not a generic executor guessing from scratch. Implementation: `skills/provision/SKILL.md` orchestrates multi-pass codebase scanning, with the provisioning script at `skills/provision/scripts/provision.mjs` generating the artifact files into `.opencode/agents/`, `.opencode/skills/`, `.opencode/tools/`, and `.opencode/rules/`.
 
@@ -306,30 +306,25 @@ Natural language triggers that invoke subcommands directly, bypassing the menu. 
 
 ## Model Configuration
 
-Default Ollama cloud models with OpenCode-Go hosted fallbacks, configured in `opencode.jsonc`:
+Default Opencode Zen models with Ollama cloud (1st fallback) and Opencode-Go hosted (2nd fallback), configured in `opencode.jsonc`:
 
-| Model | Context | Output | Tier | Fallback | Best For |
-|-------|---------|--------|------|----------|----------|
-| deepseek-v4-pro:cloud | 1M | 131K | **Top** | `opencode-go/deepseek-v4-pro` | Frontier reasoning, agentic tasks |
-| deepseek-v4-flash:cloud | 1M | 131K | **Mid** | `opencode-go/deepseek-v4-flash` | Fast efficient reasoning |
-| nemotron-3-ultra:cloud | 256K | 131K | **Mid** | `opencode/nemotron-3-ultra-free` | Agent orchestration, long-running agents |
-| glm-5.1:cloud | 202K | 131K | **Fast** | `opencode-go/glm-5.1` | General purpose |
-| glm-5:cloud | 202K | 131K | Fast | — | General purpose |
-| kimi-k2.6:cloud | 262K | 262K | — | — | Extended context |
-| minimax-m2.7:cloud | 205K | 128K | — | — | High performance |
-| qwen3.6:cloud | 262K | 32K | — | — | Long documents |
+| Model | Context | Output | Provider | Fallback 1 | Fallback 2 | Best For |
+|-------|---------|--------|----------|------------|------------|----------|
+| deepseek-v4-flash-free | 1M | 131K | **Opc-Zen** | `ollama/deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | All agents (primary) |
 
 ### Provider Fallback
 
-When an Ollama cloud model errors out on a subagent invocation (connection refused, timeout, 502/503/504), the orchestrating agent automatically retries with the equivalent OpenCode-Go hosted model. After 3 fallback retries, the user is asked how to proceed via the `question` tool. Task-level errors (wrong output) do not trigger provider switching — the task prompt is fixed instead.
+When an Opencode Zen model errors out on a subagent invocation (connection refused, timeout, 502/503/504), the orchestrating agent retries with the Ollama cloud equivalent (Fallback 1), then with Opencode-Go (Fallback 2). After 3 fallback retries, the user is asked how to proceed via the `question` tool. Task-level errors (wrong output) do not trigger provider switching — the task prompt is fixed instead.
 
 | Attempt | Provider | Behavior |
 |---------|----------|----------|
-| 0 (initial) | Ollama cloud | Default from agent definition |
-| 1–3 (retries) | OpenCode-Go | Automatic fallback, same task prompt |
+| 0 (initial) | Opencode Zen | Default from agent definition |
+| 1 (first retry) | Ollama cloud | Automatic fallback 1, same task prompt |
+| 2 (second retry) | Opencode-Go | Automatic fallback 2, same task prompt |
+| 3 (third retry) | Opencode-Go | Retry fallback 2 |
 | After 3 retries | — | Escalate to user (retry, handle manually, skip, abort) |
 
-Configured under `hubs.modelTiering` in `opencode.jsonc`. See [Model Tiering & Fallback](./.opencode/docs/model-configuration.md#model-tiering--fallback) for full protocol details.
+Configured in `opencode.jsonc`. See [Model Configuration](./.opencode/docs/model-configuration.md) for full protocol details.
 
 ---
 

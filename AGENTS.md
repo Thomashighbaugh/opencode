@@ -40,11 +40,11 @@ Magic keywords (`ralph`, `autopilot`, `ultrawork`, `build me`, `create me`, etc.
 
 | Tier | Model | Agents |
 |------|-------|--------|
-| **Top** (pro) | `deepseek-v4-pro:cloud` | architect, planner, security-reviewer, requirements-analyzer, tracer, analyst, critic |
-| **Mid** (flash) | `deepseek-v4-flash:cloud` | hubs, executor, debugger, test-engineer, designer, frontend-design, git-master, config-orchestrator, skill-creator, refactoring, code-simplifier, qa-tester, code-reviewer, scientist, deep-thinker |
-| **Fast** (glm) | `glm-5.1:cloud` | writer, verifier, document-specialist, effort-estimator, explore, commit-drafter, prompt-simplifier |
+| **Top** | `opencode/deepseek-v4-flash-free` | architect, planner, security-reviewer, requirements-analyzer, tracer, analyst, critic |
+| **Mid** | `opencode/deepseek-v4-flash-free` | hubs, executor, debugger, test-engineer, designer, frontend-design, git-master, config-orchestrator, skill-creator, refactoring, code-simplifier, qa-tester, code-reviewer, scientist, deep-thinker |
+| **Fast** | `opencode/deepseek-v4-flash-free` | writer, verifier, document-specialist, effort-estimator, explore, commit-drafter, prompt-simplifier |
 
-**Fallback:** 1 retry on opencode-go, then escalate via `question` tool.
+**Fallback:** 1 retry on ollama (same model variant), 2 more on opencode-go, then escalate via `question` tool.
 
 ## Hub Commands
 

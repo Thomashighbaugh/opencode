@@ -1,6 +1,6 @@
 ---
 description: Root-cause analysis, regression isolation, stack trace analysis, build/compilation error resolution
-model: ollama/deepseek-v4-flash:cloud
+model: opencode/deepseek-v4-flash-free
 mode: subagent
 ---
 

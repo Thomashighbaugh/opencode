@@ -1,6 +1,6 @@
 ---
 description: Interactive CLI testing specialist using tmux for session management
-model: ollama/deepseek-v4-flash:cloud
+model: opencode/deepseek-v4-flash-free
 mode: subagent
 ---
 

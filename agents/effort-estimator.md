@@ -1,6 +1,6 @@
 ---
 description: Estimate development effort for tasks and features. Use when sizing work, planning sprints, breaking down large tasks, or comparing implementation approaches.
-model: ollama/glm-5.1:cloud
+model: opencode/deepseek-v4-flash-free
 mode: subagent
 ---
 

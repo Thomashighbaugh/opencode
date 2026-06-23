@@ -1,6 +1,6 @@
 ---
 description: Test strategy, integration/e2e coverage, flaky test hardening, TDD workflows
-model: ollama/deepseek-v4-flash:cloud
+model: opencode/deepseek-v4-flash-free
 mode: subagent
 ---
 

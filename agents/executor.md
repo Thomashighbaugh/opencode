@@ -1,6 +1,6 @@
 ---
 description: Focused task executor for implementation work (Sonnet)
-model: ollama/deepseek-v4-flash:cloud
+model: opencode/deepseek-v4-flash-free
 mode: subagent
 ---
 

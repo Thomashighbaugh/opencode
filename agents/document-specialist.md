@@ -1,6 +1,6 @@
 ---
 description: External Documentation & Reference Specialist
-model: ollama/glm-5.1:cloud
+model: opencode/deepseek-v4-flash-free
 mode: subagent
 disallowedTools: Write, Edit
 ---
