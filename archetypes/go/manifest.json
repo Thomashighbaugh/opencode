@@ -1,0 +1,23 @@
+{
+  "name": "go",
+  "version": "1.0.0",
+  "description": "Go application or service — HTTP servers, CLI tools, microservices, with Nix flake for reproducible toolchain",
+  "tags": ["go", "golang", "backend", "api", "cli", "nix"],
+  "languages": ["go"],
+  "frameworks": [],
+  "stacks": ["go-api", "go-cli", "go-service"],
+  "extends": null,
+  "recommended_skills": ["naming-cheatsheet"],
+  "recommended_agents": ["test-engineer", "code-reviewer"],
+  "recommended_rules": ["coding-style.md", "testing.md", "security.md"],
+  "default_model": "opencode/deepseek-v4-flash-free",
+  "resource_tags": {
+    "include": ["go", "golang", "cli"],
+    "exclude": ["typescript", "react", "nextjs", "python", "rust"]
+  },
+  "nix": {
+    "flake": true,
+    "channels": ["nixpkgs-unstable"],
+    "packages": ["go", "gopls", "gotools", "golangci-lint", "goreleaser"]
+  }
+}

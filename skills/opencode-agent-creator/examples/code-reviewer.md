@@ -1,7 +1,7 @@
 ---
 description: Reviews code for best practices and potential issues
 mode: subagent
-model: ollama/glm-5.1:cloud
+model: ollama/glm-5.2:cloud
 temperature: 0.1
 tools:
   write: false

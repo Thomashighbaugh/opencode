@@ -75,10 +75,11 @@ By default, ralph operates in PRD mode. A scaffold `prd.json` is auto-generated 
    - If during implementation you discover sub-tasks, add them as new stories to `prd.json`
    - Run long operations in background: Builds, installs, test suites use `run_in_background: true`
 
-4. **Verify the current story's acceptance criteria**:
+4. **Self-verify the current story's acceptance criteria** (executor verifies own work):
    a. For EACH acceptance criterion in the story, verify it is met with fresh evidence
    b. Run relevant checks (test, build, lint, typecheck) and read the output
    c. If any criterion is NOT met, continue working -- do NOT mark the story as complete
+   d. **Self-verification pass**: If all criteria pass AND the change is small (<5 files, <100 lines), skip the reviewer step (Step 7) for this story. Mark it complete and proceed to Step 5.
 
 5. **Mark story complete**:
    a. When ALL acceptance criteria are verified, set `passes: true` for this story in `prd.json`
@@ -202,6 +203,7 @@ Why bad: Did not refine scaffold criteria into task-specific ones. This is PRD t
 - Continue working when the hook system sends "The boulder never stops" -- this means the iteration continues
 - If the selected reviewer rejects verification, fix the issues and re-verify (do not stop)
 - If the same issue recurs across 3+ iterations, report it as a potential fundamental problem
+- **Early exit**: If 3 consecutive iterations show no progress (no stories marked complete, no new code), stop and escalate to user
 - **Do NOT stop after Step 7 approval.** The boulder continues through 7 → 7.5 → 7.6 → 8 in the same turn as a single chain. Step 7 is a checkpoint inside the loop, not a reporting moment. Treating an architect/critic APPROVED verdict as "time to summarise and wait for user acknowledgment" is a polite-stop anti-pattern — the only reporting moments in Ralph are Step 8 (successful cancel) or Step 9 (rejection).
 </Escalation_And_Stop_Conditions>
 

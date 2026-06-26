@@ -8,11 +8,11 @@
 |------|----------------------|---------------------|--------------------------|---------|--------|----------|
 | **Top** | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-pro:cloud` | `opencode-go/deepseek-v4-pro` | 1M | 131K | Complex reasoning, architecture, security review |
 | **Mid** | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | 1M | 131K | Implementation, execution, general work |
-| **Fast** | `opencode/deepseek-v4-flash-free` | `ollama/glm-5.1:cloud` | `opencode-go/glm-5.1` | 202K | 131K | Exploration, documentation, simple tasks |
+| **Fast** | `opencode/deepseek-v4-flash-free` | `ollama/glm-5.2:cloud` | `opencode-go/glm-5.2` | 202K | 131K | Exploration, documentation, simple tasks |
 
 - **Top tier** agents need deep reasoning, nuanced analysis, or read-only review authority. Fallback 1: `ollama/deepseek-v4-pro:cloud`. Fallback 2: `opencode-go/deepseek-v4-pro`.
 - **Mid tier** agents implement, execute, or orchestrate — they need strong coding and moderate reasoning. Fallback 1: `ollama/deepseek-v4-flash:cloud`. Fallback 2: `opencode-go/deepseek-v4-flash`.
-- **Fast tier** agents search, summarize, draft, or estimate — they need speed over deep reasoning. Fallback 1: `ollama/glm-5.1:cloud`. Fallback 2: `opencode-go/glm-5.1`.
+- **Fast tier** agents search, summarize, draft, or estimate — they need speed over deep reasoning. Fallback 1: `ollama/glm-5.2:cloud`. Fallback 2: `opencode-go/glm-5.2`.
 
 ## Fallback Behavior
 
@@ -56,7 +56,7 @@ Implementation, execution, configuration, and interactive testing.
 | **code-simplifier** | `opencode/deepseek-v4-flash-free` | Simplifies code for clarity and maintainability. Implementation-focused, needs practical coding skill. |
 | **qa-tester** | `opencode/deepseek-v4-flash-free` | Interactive CLI testing via tmux. Practical test execution, session management, output capture. |
 
-### Fast Tier — opencode/deepseek-v4-flash-free (fallback 1: ollama/glm-5.1:cloud, fallback 2: opencode-go/glm-5.1)
+### Fast Tier — opencode/deepseek-v4-flash-free (fallback 1: ollama/glm-5.2:cloud, fallback 2: opencode-go/glm-5.2)
 
 Search, summarization, drafting, estimation — speed over depth.
 
@@ -96,13 +96,13 @@ Search, summarization, drafting, estimation — speed over depth.
 | refactoring | Mid | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | Code restructuring |
 | code-simplifier | Mid | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | Code cleanup |
 | qa-tester | Mid | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | Interactive testing |
-| writer | Fast | `opencode/deepseek-v4-flash-free` | `ollama/glm-5.1:cloud` | `opencode-go/glm-5.1` | Documentation |
-| verifier | Fast | `opencode/deepseek-v4-flash-free` | `ollama/glm-5.1:cloud` | `opencode-go/glm-5.1` | Completion verification |
-| document-specialist | Fast | `opencode/deepseek-v4-flash-free` | `ollama/glm-5.1:cloud` | `opencode-go/glm-5.1` | External docs lookup |
-| effort-estimator | Fast | `opencode/deepseek-v4-flash-free` | `ollama/glm-5.1:cloud` | `opencode-go/glm-5.1` | Effort estimation |
-| explore | Fast | `opencode/deepseek-v4-flash-free` | `ollama/glm-5.1:cloud` | `opencode-go/glm-5.1` | Codebase search (READ-ONLY) |
-| commit-drafter | Fast | `opencode/deepseek-v4-flash-free` | `ollama/glm-5.1:cloud` | `opencode-go/glm-5.1` | Commit message drafting |
-| prompt-simplifier | Fast | `opencode/deepseek-v4-flash-free` | `ollama/glm-5.1:cloud` | `opencode-go/glm-5.1` | Prompt analysis (READ-ONLY) |
+| writer | Fast | `opencode/deepseek-v4-flash-free` | `ollama/glm-5.2:cloud` | `opencode-go/glm-5.2` | Documentation |
+| verifier | Fast | `opencode/deepseek-v4-flash-free` | `ollama/glm-5.2:cloud` | `opencode-go/glm-5.2` | Completion verification |
+| document-specialist | Fast | `opencode/deepseek-v4-flash-free` | `ollama/glm-5.2:cloud` | `opencode-go/glm-5.2` | External docs lookup |
+| effort-estimator | Fast | `opencode/deepseek-v4-flash-free` | `ollama/glm-5.2:cloud` | `opencode-go/glm-5.2` | Effort estimation |
+| explore | Fast | `opencode/deepseek-v4-flash-free` | `ollama/glm-5.2:cloud` | `opencode-go/glm-5.2` | Codebase search (READ-ONLY) |
+| commit-drafter | Fast | `opencode/deepseek-v4-flash-free` | `ollama/glm-5.2:cloud` | `opencode-go/glm-5.2` | Commit message drafting |
+| prompt-simplifier | Fast | `opencode/deepseek-v4-flash-free` | `ollama/glm-5.2:cloud` | `opencode-go/glm-5.2` | Prompt analysis (READ-ONLY) |
 
 ## Tier Distribution
 
@@ -110,7 +110,7 @@ Search, summarization, drafting, estimation — speed over depth.
 |------|-------|---------------|---------------------|--------------------------|--------|
 | **Top** | 10 | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-pro:cloud` | `opencode-go/deepseek-v4-pro` | architect, planner, code-reviewer, security-reviewer, scientist, deep-thinker, requirements-analyzer, tracer, analyst, critic |
 | **Mid** | 12 | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | hubs, executor, debugger, test-engineer, designer, frontend-design, git-master, config-orchestrator, skill-creator, refactoring, code-simplifier, qa-tester |
-| **Fast** | 7 | `opencode/deepseek-v4-flash-free` | `ollama/glm-5.1:cloud` | `opencode-go/glm-5.1` | writer, verifier, document-specialist, effort-estimator, explore, commit-drafter, prompt-simplifier |
+| **Fast** | 7 | `opencode/deepseek-v4-flash-free` | `ollama/glm-5.2:cloud` | `opencode-go/glm-5.2` | writer, verifier, document-specialist, effort-estimator, explore, commit-drafter, prompt-simplifier |
 
 ## Fallback Guidelines for Orchestrators
 

@@ -2,7 +2,8 @@ import { tool } from "@opencode-ai/plugin"
 import * as fs from "fs"
 import * as path from "path"
 import { homedir } from "os"
-import { getCache, CacheManager } from "./cache-utils"
+import { getCache, CacheManager, withToolCache } from "./cache-utils"
+import { scanDir } from "./state-utils"
 
 const USER_CONFIG_DIR = process.env.OPENCODE_CONFIG_DIR || path.join(homedir(), '.config', 'opencode')
 
@@ -24,23 +25,29 @@ interface HubDefinition {
   subcommands: HubSubcommand[]
 }
 
-const HUBS: HubDefinition[] = [
+export const HUBS: HubDefinition[] = [
   {
     name: "init-project",
     description: "Initialize or refine project setup",
     stateDir: "init",
     subcommands: [
       { label: "setup", description: "Full project setup — global Hubs verify, detection, scaffold, provision agents/tools, docs, context, routing, verify", skill: "init-project", reminder: "Full project init: verify, detect, scaffold, docs, validate.", phases: "0-8" },
-      { label: "detect", description: "Detect language, framework, build tools, and key directories", agent: "explore", reminder: "Detect language, framework, and build tools.", phases: "0-1" },
+      { label: "detect", description: "Deep stack detection — analyze codebase for languages, frameworks, build tools, testing, ORM, CSS, CI/CD, etc. via @stack-detector agent", agent: "stack-detector", reminder: "Detect full tech stack via @stack-detector agent.", phases: "0-1" },
+      { label: "recommend", description: "Recommend global resources for detected stack — maps stack fingerprint to relevant skills, agents, rules, and archetype via stack-recommender skill", skill: "stack-recommender", reminder: "Recommend global resources matching the detected stack." },
       { label: "docs", description: "Generate hierarchical AGENTS.md documentation across the codebase", skill: "deepinit", reminder: "Generate hierarchical AGENTS.md documentation.", phases: "4" },
       { label: "context", description: "Capture session knowledge, promote insights to project memory and docs", skill: "remember", reminder: "Capture session knowledge for project memory.", phases: "5" },
       { label: "verify", description: "Validate configuration completeness, file existence, and reference integrity", agent: "verifier", reminder: "Validate configuration completeness and integrity.", phases: "7" },
-      { label: "refresh", description: "Update existing configuration — preserve manual edits, merge new detections", skill: "init-project", reminder: "Update config preserving manual edits.", phases: "0-8 (merge)" },
+      { label: "refresh", description: "Update existing configuration — preserve manual edits, merge new detections, rerun recommend+provision", skill: "init-project", reminder: "Update config preserving manual edits.", phases: "0-8 (merge)" },
       { label: "status", description: "Show current initialization state and checkpoint progress", inline: true, reminder: "Show init state and checkpoint progress." },
       { label: "map-codebase", description: "Analyze existing brownfield codebase — spawn parallel agents to map stack, architecture, conventions, and integration points before init", inline: true, reminder: "Map codebase via parallel agent analysis." },
       { label: "doctor", description: "Run diagnostic health check — validate Hubs installation, config integrity, state consistency, and hook status", inline: true, reminder: "Run Hubs health diagnostics." },
       { label: "reset", description: "Reset project state — archive .opencode/state and .opencode/context, start fresh with clean slate", inline: true, reminder: "Reset project state with clean slate." },
-      { label: "provision", description: "Analyze codebase and auto-generate project-specific agents, skills, tools, and rules in .opencode/", skill: "provision", reminder: "Provision project-aware agents, skills, tools, and rules from codebase analysis." }
+      { label: "provision", description: "Provision project config via project-config-composer — auto-generate .opencode/opencode.jsonc, project rules, and agent wrappers from stack fingerprint + recommendations", skill: "project-config-composer", reminder: "Auto-generate .opencode/ config from stack analysis." },
+      { label: "tag", description: "Audit and fix resource tags on global skills, agents, rules, and archetypes for resource_tags filtering — scan, classify, suggest, and apply tags via tag-resources skill", skill: "tag-resources", reminder: "Audit and fix resource tags for filtering." },
+      { label: "find-skills", description: "Discover skills relevant to the current project by searching across skill registries (skills.sh, GitHub) — fetches candidates, security-scans top results, presents recommendations for installation. Used by setup/refresh to find per-repo skills", skill: "find-skills", reminder: "Search registries for relevant project skills." },
+      { label: "find-agents", description: "Discover agents relevant to the current project by searching across agent registries and GitHub — finds specialized subagents for detected tech stack. Used by setup/refresh to find per-repo agents", skill: "find-agents", reminder: "Search registries for relevant project agents." },
+      { label: "find-tools", description: "Discover TypeScript tools relevant to the current project by searching registries (GitHub, npm) and local template catalog — finds project-specific automation tools. Used by setup/refresh to find per-repo tools", skill: "find-tools", reminder: "Search registries for relevant project tools." },
+      { label: "find-rules", description: "Discover OpenCode rules relevant to the current project by searching registries (GitHub, skills.sh) and local template catalog — finds project-specific conventions and guidelines. Used by setup/refresh to find per-repo rules", skill: "find-rules", reminder: "Search registries for relevant project rules." }
     ]
   },
   {
@@ -74,6 +81,9 @@ const HUBS: HubDefinition[] = [
       { label: "lean-canvas", description: "Lean business model canvas — one-page framework for problem, solution, key metrics, and competitive advantage", inline: true, reminder: "One-page lean business model canvas." },
       { label: "constitution", description: "Establish project governance — code quality, UX, performance, and security principles as input to spec-driven work", inline: true, reminder: "Establish project governance principles." },
       { label: "quality", description: "Deep-dive code quality audit — complexity hotspots, duplication clusters, naming violations, error handling gaps across the codebase", inline: true, reminder: "Deep-dive code quality analysis across the codebase." },
+      { label: "architecture", description: "Analyze codebase for architectural friction, propose module-deepening refactors via John Ousterhout's deep module principle — parallel sub-agents explore, generate candidate refactors, produce markdown tables for comparison, then grill through your pick", skill: "improve-codebase-architecture", reminder: "Surface deepening opportunities with markdown comparison tables." },
+      { label: "redesign", description: "Audit and upgrade existing websites/apps to premium design standards — scan codebase, diagnose generic AI patterns (overused gradients, Lucide icons, centered card columns), apply targeted upgrades without breaking functionality", skill: "redesign-existing-projects", reminder: "Audit and upgrade to premium design standards." },
+      { label: "grill", description: "Stress-test a plan or design via relentless one-at-a-time questioning — walk down each branch of the design tree, resolve dependencies between decisions, provide recommended answers. Use before building to surface hidden assumptions", skill: "grilling", reminder: "Grill plans relentlessly until shared understanding." },
       { label: "modularity", description: "Analyze module boundaries, coupling and cohesion — detect circular dependencies, suggest reorganization for cleaner module isolation", agent: "architect", reminder: "Analyze module boundaries and coupling." },
       { label: "arch-prep", description: "Architecture preparation for upcoming features — design extension points, plan module additions, anticipate refactoring runway before coding", agent: "architect", reminder: "Design architecture to accommodate upcoming features." },
       { label: "resume", description: "Resume last ideation session", inline: true, reminder: "Resume last ideation session." },
@@ -113,6 +123,7 @@ const HUBS: HubDefinition[] = [
       { label: "gastown", description: "GUPP principle — 'if work on your hook, YOU MUST RUN IT' with git-backed work units and NDI for reliable outcomes from unreliable processes", inline: true, reminder: "Git-backed work units with GUPP principle." },
       { label: "ruflo", description: "60+ agent swarm with Q-Learning smart routing, 4 consensus protocols, and Queen/Worker hierarchical topologies", inline: true, reminder: "60+ agent swarm with Q-Learning." },
       { label: "harden", description: "Composable robustness — safeTask (error+deviation tracking), circuitBreaker (halt on failure rate), verificationGate (block downstream until verified)", inline: true, reminder: "Wrap workflow with robustness composables." },
+      { label: "subagent-driven", description: "Execute implementation plans via fresh subagent per task with automated review gates — spec compliance + code quality after each task, broad final review. Includes hub-to-hub handoff protocol for bridging ideation→orchestration→harvest-context", skill: "subagent-driven-development", reminder: "Dispatch subagents per task with automated review gates." },
       { label: "brownfield", description: "Feature addition to existing codebase — analyze system, identify integration points, validate strategy before implementation", inline: true, reminder: "Analyze and integrate into existing codebase." },
       { label: "vibe-code", description: "Conversational rapid prototyping — describe app in natural language, generate full-stack, iterate with feedback through conversational rounds", inline: true, reminder: "Conversational rapid prototyping." },
       { label: "resume", description: "Resume last orchestration session", inline: true, reminder: "Resume last orchestration session." },
@@ -176,6 +187,26 @@ const HUBS: HubDefinition[] = [
       { label: "git-cleanup", description: "Fix orphaned CHANGELOG entries referencing commits not in git history after .git/ rebuild — preserves entries, removes bad refs", inline: true, reminder: "Clean up orphaned commit references in CHANGELOG." },
       { label: "workspace", description: "Manage .opencode across projects — list Hubs-enabled projects, sync config, init .opencode in new directories, check health", inline: true, reminder: "Manage Hubs workspace across projects." }
     ]
+  },
+  {
+    name: "skills",
+    description: "Skill manager — CRUD, search, sync, package, and validate OpenCode skills across user, project, and built-in scopes",
+    stateDir: "",
+    subcommands: [
+      { label: "list", description: "List all available skills organized by scope — built-in, user (~/.config/opencode/skills/omc-learned/), and project (.opencode/state/skills/) — parse frontmatter, show quality/usage stats", inline: true, reminder: "List all skills by scope with metadata." },
+      { label: "add", description: "Interactive wizard for quick skill creation — prompts for name, description, triggers, scope (user or project), writes SKILL.md with frontmatter", inline: true, reminder: "Quick-add a skill via interactive wizard." },
+      { label: "create", description: "Full skill creation workflow with bundled resources — gather requirements, plan scripts/references/assets, run skill-creator workflow, package if ready", skill: "skill-creator", reminder: "Full skill creation with bundled resources." },
+      { label: "remove", description: "Remove a skill by name — searches user and project scopes, confirms before deleting, warns if not found", inline: true, reminder: "Delete a skill after confirmation." },
+      { label: "edit", description: "Edit an existing skill interactively — find by name, display current values, change description/triggers/content/rename, write back", inline: true, reminder: "Edit skill metadata or content interactively." },
+      { label: "search", description: "Search skills by content, triggers, name, or description — case-insensitive matching across all scopes, ranked by relevance", inline: true, reminder: "Search skills by name, triggers, or content." },
+      { label: "info", description: "Show detailed information about a skill — find by name, parse YAML frontmatter, display complete details and full content", inline: true, reminder: "Show full skill details and content." },
+      { label: "update", description: "Update an existing skill using skill-creator iteration workflow — read current skill, identify improvements, apply changes, validate structure", inline: true, reminder: "Update skill content and resources." },
+      { label: "package", description: "Package a skill for distribution — validate structure, create distributable zip if validation passes", inline: true, reminder: "Validate and package skill for distribution." },
+      { label: "validate", description: "Validate a skill's structure without packaging — run structure checks, report errors, suggest fixes", inline: true, reminder: "Validate skill structure and metadata." },
+      { label: "sync", description: "Sync skills between user and project scopes — scan both, categorize, display diff opportunities, copy or merge with confirmation", inline: true, reminder: "Sync skills across user and project scopes." },
+      { label: "setup", description: "Interactive setup wizard — create skill directories, scan inventory, offer actions (add, list, scan conversation, import, done)", inline: true, reminder: "Set up skill directories and inventory." },
+      { label: "scan", description: "Quick scan of skill directories — non-interactive inventory of both user and project scopes, reports counts and paths", inline: true, reminder: "Quick inventory scan of all skill directories." }
+    ]
   }
 ]
 
@@ -236,39 +267,20 @@ function getStateInfo(hub: HubDefinition): Record<string, unknown> {
     } catch {}
   }
 
-  // Fallback: limited-depth scan (only if no index file)
-  // Uses depth-first traversal capped at 3 levels to avoid O(n) on large dirs
-  const files: Array<{name: string; modified: string; size: number}> = []
-  const MAX_SCAN_DEPTH = 3
-  function scanDir(dir: string, depth: number = 0): void {
-    if (depth > MAX_SCAN_DEPTH) return
-    try {
-      const entries = fs.readdirSync(dir, { withFileTypes: true })
-      for (const entry of entries) {
-        const entryPath = path.join(dir, entry.name)
-        const relPath = path.relative(stateDir, entryPath)
-        if (entry.isDirectory()) {
-          scanDir(entryPath, depth + 1)
-        } else if (entry.isFile() && !entry.name.endsWith('index.json')) {
-          try {
-            const stat = fs.statSync(entryPath)
-            files.push({ name: relPath, modified: stat.mtime.toISOString(), size: stat.size })
-          } catch {
-            // Race condition: file deleted between readdir and stat
-          }
-        }
-      }
-    } catch {
-      // Permission or not-found — skip silently
-    }
-  }
-  scanDir(stateDir)
+  // Fallback: flat scan (only if no index file)
+  const entries = scanDir(stateDir)
+    .filter(f => !f.name.endsWith('index.json'))
+    .map(f => ({
+      name: f.name,
+      modified: f.mtime.toISOString(),
+      size: 0
+    }))
 
   return {
-    hasState: files.length > 0,
+    hasState: entries.length > 0,
     path: stateDir,
-    files: files.sort((a, b) => b.modified.localeCompare(a.modified)),
-    count: files.length
+    files: entries,
+    count: entries.length
   }
 }
 
@@ -277,30 +289,16 @@ function getStateInfo(hub: HubDefinition): Record<string, unknown> {
 function updateStateIndex(stateDir: string): void {
   if (!stateDir || !fs.existsSync(stateDir)) return
   try {
-    const files: Array<{name: string; modified: string; size: number}> = []
-    const MAX_SCAN_DEPTH = 3
-    function scanDir(dir: string, depth: number = 0): void {
-      if (depth > MAX_SCAN_DEPTH) return
-      const entries = fs.readdirSync(dir, { withFileTypes: true })
-      for (const entry of entries) {
-        const entryPath = path.join(dir, entry.name)
-        if (entry.isDirectory()) {
-          scanDir(entryPath, depth + 1)
-        } else if (entry.isFile() && !entry.name.endsWith('index.json')) {
-          try {
-            const stat = fs.statSync(entryPath)
-            files.push({ name: path.relative(stateDir, entryPath), modified: stat.mtime.toISOString(), size: stat.size })
-          } catch {
-            // Race: file deleted between readdir and stat
-          }
-        }
-      }
-    }
-    scanDir(stateDir)
-    const sorted = files.sort((a, b) => b.modified.localeCompare(a.modified))
+    const files = scanDir(stateDir)
+      .filter(f => !f.name.endsWith('index.json'))
+      .map(f => ({
+        name: f.name,
+        modified: f.mtime.toISOString(),
+        size: 0
+      }))
     fs.writeFileSync(path.join(stateDir, 'index.json'), JSON.stringify({
-      count: sorted.length,
-      files: sorted,
+      count: files.length,
+      files,
       updated: new Date().toISOString()
     }, null, 2))
   } catch {}
@@ -356,13 +354,34 @@ function getLatestCheckpoint(hub: HubDefinition): Record<string, unknown> | null
   return null
 }
 
+// ─── Delegation Exclusivity ────────────────────────────────────────────
+interface DelegationInfo {
+    type: 'skill' | 'agent' | 'command' | 'inline'
+    target: string | undefined
+}
+
+export function getDelegation(sub: HubSubcommand): DelegationInfo {
+    const types = ['skill', 'agent', 'command', 'inline'] as const
+    const set = types.filter(t => !!sub[t as keyof HubSubcommand])
+
+    if (set.length === 0) {
+        return { type: 'inline', target: undefined }
+    }
+    if (set.length > 1) {
+        console.warn(`Warning: Subcommand '${sub.label}' has multiple delegation types: ${set.join(', ')}. Using '${set[0]}'.`)
+    }
+
+    const type = set[0] as 'skill' | 'agent' | 'command' | 'inline'
+    return { type, target: sub[type as keyof HubSubcommand] as string | undefined }
+}
+
 const VALID_ACTIONS = ['menu', 'route', 'status', 'resume', 'list'] as const
-const VALID_HUBS = ['init-project', 'ideation', 'orchestrate', 'harvest-context', 'project'] as const
+const VALID_HUBS = ['init-project', 'ideation', 'orchestrate', 'harvest-context', 'project', 'skills'] as const
 type ActionName = typeof VALID_ACTIONS[number]
 type HubName = typeof VALID_HUBS[number]
 
 export default tool({
-  description: "Hub menu router — parse subcommands, check state, and provide routing for hub commands (/init-project, /ideation, /orchestrate, /harvest-context, /project). Use 'route' to get delegation info for a subcommand. Use 'status' or 'resume' for state queries. Do NOT use 'menu' action — list subcommands as plain text instead (saves an LLM request).",
+  description: "Hub menu router — parse subcommands, check state, and provide routing for hub commands (/init-project, /ideation, /orchestrate, /harvest-context, /project, /skills). Use 'route' to get delegation info for a subcommand. Use 'status' or 'resume' for state queries. Do NOT use 'menu' action — list subcommands as plain text instead (saves an LLM request).",
   args: {
     action: tool.schema.string().describe(
       `Action: 'menu' returns interactive menu JSON, 'route' parses args and returns routing, 'status' shows hub state, 'resume' gets latest checkpoint, 'list' lists all hubs. Valid: ${VALID_ACTIONS.join(', ')}`
@@ -380,35 +399,39 @@ export default tool({
     }
     switch (args.action) {
       case 'list': {
-        return JSON.stringify({
-          hubs: HUBS.map(h => ({
-            name: h.name,
-            description: h.description,
-            subcommandCount: h.subcommands.length,
-            subcommands: h.subcommands.map(s => s.label),
-            hasState: !!h.stateDir
-          }))
+        return withToolCache("hubMenu", args, () => {
+          return JSON.stringify({
+            hubs: HUBS.map(h => ({
+              name: h.name,
+              description: h.description,
+              subcommandCount: h.subcommands.length,
+              subcommands: h.subcommands.map(s => s.label),
+              hasState: !!h.stateDir
+            }))
+          })
         })
       }
 
       case 'menu': {
-        if (!args.hub) return JSON.stringify({ error: "Hub name required for menu action. Available: init-project, ideation, orchestrate, harvest-context, project" })
-        const hub = HUBS.find(h => h.name === args.hub)
-        if (!hub) return JSON.stringify({ error: `Unknown hub: ${args.hub}` })
+        return withToolCache("hubMenu", args, () => {
+          if (!args.hub) return JSON.stringify({ error: "Hub name required for menu action. Available: init-project, ideation, orchestrate, harvest-context, project" })
+          const hub = HUBS.find(h => h.name === args.hub)
+          if (!hub) return JSON.stringify({ error: `Unknown hub: ${args.hub}` })
 
-        const stateInfo = getStateInfo(hub)
-        
-        const menuOptions = hub.subcommands.map(s => ({
-          label: s.label,
-          description: s.description
-        }))
+          const stateInfo = getStateInfo(hub)
+          
+          const menuOptions = hub.subcommands.map(s => ({
+            label: s.label,
+            description: s.description
+          }))
 
-        return JSON.stringify({
-          hub: hub.name,
-          description: hub.description,
-          options: menuOptions,
-          state: stateInfo
-        })
+          return JSON.stringify({
+            hub: hub.name,
+            description: hub.description,
+            options: menuOptions,
+            state: stateInfo
+          })
+        }, 86_400_000) // 24h — routing table is static
       }
 
       case 'route': {
@@ -438,10 +461,7 @@ export default tool({
           description: sub.description,
           reminder: sub.reminder,
           phases: sub.phases || null,
-          delegation: {
-            type: sub.skill ? 'skill' : sub.agent ? 'agent' : sub.command ? 'command' : 'inline',
-            target: sub.skill || sub.agent || sub.command || 'inline'
-          },
+          delegation: getDelegation(sub),
           flags: args.flags || null,
           state: stateInfo,
           checkpoint: checkpoint,
@@ -452,51 +472,54 @@ export default tool({
       }
 
       case 'status': {
-        if (!args.hub) return JSON.stringify({ error: "Hub name required for status action" })
-        const hub = HUBS.find(h => h.name === args.hub)
-        if (!hub) return JSON.stringify({ error: `Unknown hub: ${args.hub}` })
+        return withToolCache("hubMenu", args, () => {
+          if (!args.hub) return JSON.stringify({ error: "Hub name required for status action" })
+          const hub = HUBS.find(h => h.name === args.hub)
+          if (!hub) return JSON.stringify({ error: `Unknown hub: ${args.hub}` })
 
-        const stateInfo = getStateInfo(hub)
-        const checkpoint = getLatestCheckpoint(hub)
+          const stateInfo = getStateInfo(hub)
+          const checkpoint = getLatestCheckpoint(hub)
 
-        return JSON.stringify({
-          hub: hub.name,
-          state: stateInfo,
-          checkpoint: checkpoint,
-          subcommands: hub.subcommands.map(s => ({
-            label: s.label,
-            delegationType: s.skill ? 'skill' : s.agent ? 'agent' : s.command ? 'command' : 'inline',
-            target: s.skill || s.agent || s.command || 'inline'
-          }))
-        })
+          return JSON.stringify({
+            hub: hub.name,
+            state: stateInfo,
+            checkpoint: checkpoint,
+            subcommands: hub.subcommands.map(s => ({
+              label: s.label,
+              ...getDelegation(s)
+            }))
+          })
+        }, 86_400_000)
       }
 
       case 'resume': {
-        if (!args.hub) return JSON.stringify({ error: "Hub name required for resume action" })
-        const hub = HUBS.find(h => h.name === args.hub)
-        if (!hub) return JSON.stringify({ error: `Unknown hub: ${args.hub}` })
-        
-        if (!hub.stateDir) return JSON.stringify({ error: `${hub.name} is stateless — no resume available` })
+        return withToolCache("hubMenu", args, () => {
+          if (!args.hub) return JSON.stringify({ error: "Hub name required for resume action" })
+          const hub = HUBS.find(h => h.name === args.hub)
+          if (!hub) return JSON.stringify({ error: `Unknown hub: ${args.hub}` })
+          
+          if (!hub.stateDir) return JSON.stringify({ error: `${hub.name} is stateless — no resume available` })
 
-        const checkpoint = getLatestCheckpoint(hub)
-        if (!checkpoint) {
-          const stateInfo = getStateInfo(hub)
+          const checkpoint = getLatestCheckpoint(hub)
+          if (!checkpoint) {
+            const stateInfo = getStateInfo(hub)
+            return JSON.stringify({
+              resumable: false,
+              hub: hub.name,
+              statePath: getStateDir(hub),
+              message: `No checkpoint found for ${hub.name}. Start a new session with a subcommand.`,
+              stateFiles: stateInfo
+            })
+          }
+
           return JSON.stringify({
-            resumable: false,
+            resumable: true,
             hub: hub.name,
+            checkpoint: checkpoint,
             statePath: getStateDir(hub),
-            message: `No checkpoint found for ${hub.name}. Start a new session with a subcommand.`,
-            stateFiles: stateInfo
+            message: `Resuming ${hub.name} from checkpoint: ${checkpoint.file}`
           })
-        }
-
-        return JSON.stringify({
-          resumable: true,
-          hub: hub.name,
-          checkpoint: checkpoint,
-          statePath: getStateDir(hub),
-          message: `Resuming ${hub.name} from checkpoint: ${checkpoint.file}`
-        })
+        }, 86_400_000)
       }
 
       default:

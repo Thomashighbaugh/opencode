@@ -1,0 +1,16 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": [
+    "AGENTS.md",
+    "./rules/go-conventions.md",
+    "./rules/testing-conventions.md"
+  ],
+  "resource_tags": {
+    "include": ["go", "golang"],
+    "exclude": ["typescript", "react", "nextjs", "python", "rust"]
+  },
+  "permission": {
+    "edit": "allow",
+    "bash": { "git *": "allow", "go *": "allow", "nix *": "allow", "*": "ask" }
+  }
+}

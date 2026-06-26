@@ -113,7 +113,7 @@ temperature: 0.3-0.5
 ### High-Precision Agent
 ```yaml
 temperature: 0.1-0.2
-model: ollama/glm-5.1:cloud
+model: ollama/glm-5.2:cloud
 ```
 
 ## Tips

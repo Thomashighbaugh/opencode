@@ -84,7 +84,7 @@ Add to `opencode.jsonc`:
     "agent-name": {
       "description": "Brief description",
       "mode": "primary",
-      "model": "ollama/glm-5.1:cloud",
+      "model": "ollama/glm-5.2:cloud",
       "prompt": "{file:./prompts/agent.txt}",
       "temperature": 0.3,
       "maxSteps": 10,
@@ -217,7 +217,7 @@ Look for:
 ---
 description: Reviews code for best practices and potential issues
 mode: subagent
-model: ollama/glm-5.1:cloud
+model: ollama/glm-5.2:cloud
 temperature: 0.1
 tools:
   write: false
@@ -360,6 +360,6 @@ This will:
 - Markdown filename determines agent name
 - Custom agents can work alongside built-in agents
 - Agent changes require OpenCode restart
-- Model format: `provider/model-id` (e.g., `ollama/glm-5.1:cloud`)
+- Model format: `provider/model-id` (e.g., `ollama/glm-5.2:cloud`)
 - Hidden subagents (`hidden: true`) don't appear in autocomplete but can still be invoked programmatically
 - Task permissions control which subagents an agent can invoke

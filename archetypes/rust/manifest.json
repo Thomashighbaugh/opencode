@@ -1,0 +1,23 @@
+{
+  "name": "rust",
+  "version": "1.0.0",
+  "description": "Rust application — CLI tools, services, libraries, with Nix flake for reproducible rust toolchain",
+  "tags": ["rust", "backend", "cli", "library", "systems", "nix"],
+  "languages": ["rust"],
+  "frameworks": ["axum", "actix", "tokio"],
+  "stacks": ["rust-cli", "rust-api", "rust-library", "rust-service"],
+  "extends": null,
+  "recommended_skills": ["naming-cheatsheet"],
+  "recommended_agents": ["test-engineer", "code-reviewer"],
+  "recommended_rules": ["coding-style.md", "testing.md", "security.md"],
+  "default_model": "opencode/deepseek-v4-flash-free",
+  "resource_tags": {
+    "include": ["rust", "systems", "cli"],
+    "exclude": ["typescript", "react", "nextjs", "python", "go"]
+  },
+  "nix": {
+    "flake": true,
+    "channels": ["nixpkgs-unstable"],
+    "packages": ["cargo", "rustc", "rust-analyzer", "clippy", "rustfmt", "cargo-nextest", "cargo-audit", "cargo-edit", "cargo-watch"]
+  }
+}

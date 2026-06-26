@@ -8,7 +8,7 @@
     "build": {
       "mode": "primary",
       "description": "Full development agent with all tools enabled",
-      "model": "ollama/glm-5.1:cloud",
+      "model": "ollama/glm-5.2:cloud",
       "temperature": 0.3,
       "tools": {
         "write": true,
@@ -40,7 +40,7 @@
     "code-reviewer": {
       "mode": "subagent",
       "description": "Reviews code for best practices and potential issues",
-      "model": "ollama/glm-5.1:cloud",
+      "model": "ollama/glm-5.2:cloud",
       "temperature": 0.1,
       "prompt": "{file:./prompts/code-review.txt}",
       "tools": {
@@ -61,7 +61,7 @@
     "orchestrator": {
       "mode": "subagent",
       "description": "Coordinates multiple specialized agents",
-      "model": "ollama/glm-5.1:cloud",
+      "model": "ollama/glm-5.2:cloud",
       "maxSteps": 20,
       "permission": {
         "task": {
@@ -101,7 +101,7 @@
     "docs": {
       "mode": "subagent",
       "description": "Writes and maintains project documentation",
-      "model": "ollama/glm-5.1:cloud",
+      "model": "ollama/glm-5.2:cloud",
       "temperature": 0.4,
       "tools": {
         "bash": false
@@ -112,7 +112,7 @@
     "security": {
       "mode": "subagent",
       "description": "Performs security audits and identifies vulnerabilities",
-      "model": "ollama/glm-5.1:cloud",
+      "model": "ollama/glm-5.2:cloud",
       "temperature": 0.1,
       "tools": {
         "write": false,
@@ -130,7 +130,7 @@
       "mode": "subagent",
       "description": "Experimental agent (currently disabled)",
       "disable": true,
-      "model": "ollama/glm-5.1:cloud"
+      "model": "ollama/glm-5.2:cloud"
     }
   },
   

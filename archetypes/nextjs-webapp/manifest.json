@@ -1,0 +1,29 @@
+{
+  "name": "nextjs-webapp",
+  "version": "1.0.0",
+  "description": "Full-stack Next.js web application with TypeScript, Tailwind CSS, and modern tooling",
+  "tags": ["typescript", "react", "nextjs", "tailwind", "webapp", "fullstack", "nix"],
+  "languages": ["typescript", "javascript"],
+  "frameworks": ["nextjs"],
+  "stacks": ["ts-fullstack"],
+  "extends": null,
+  "recommended_skills": [
+    "react-key-prop",
+    "typescript-interface-vs-type",
+    "naming-cheatsheet",
+    "context7-docs",
+    "mui"
+  ],
+  "recommended_agents": ["test-engineer", "code-reviewer"],
+  "recommended_rules": ["coding-style.md", "testing.md", "security.md"],
+  "default_model": "opencode/deepseek-v4-flash-free",
+  "resource_tags": {
+    "include": ["typescript", "react", "nextjs", "tailwind", "vitest", "prisma"],
+    "exclude": ["python", "rust", "go", "python-api"]
+  },
+  "nix": {
+    "flake": true,
+    "channels": ["nixpkgs-unstable"],
+    "packages": ["nodejs", "pnpm", "typescript", "tailwindcss-language-server", "just"]
+  }
+}

@@ -205,18 +205,28 @@ const SUBCMDS = [
   }
 ];
 
+// ─── Helper: escape regex special characters ──────────────────────────────
+
+function escapeRegex(str) {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 function classify(text) {
   const lower = text.toLowerCase();
 
   const results = SUBCMDS.map(scmd => {
     let score = 0;
 
-    // Keyword matches
+    // Keyword matches (strong signal) — word-boundary regex
     for (const kw of scmd.keywords) {
-      if (lower.includes(kw)) score += 0.15;
+      const kwRegex = new RegExp('\\b' + escapeRegex(kw) + '\\b', 'i');
+      if (kwRegex.test(lower)) score += 0.15;
     }
+
+    // Anti-keyword penalty — word-boundary regex
     for (const akw of scmd.antiKeywords) {
-      if (lower.includes(akw)) score -= 0.1;
+      const akwRegex = new RegExp('\\b' + escapeRegex(akw) + '\\b', 'i');
+      if (akwRegex.test(lower)) score -= 0.1;
     }
 
     // Intent signals
@@ -277,16 +287,52 @@ async function main() {
   const results = classify(query);
   const top = results[0];
 
+  const MIN_CONFIDENCE = 0.3; // Minimum score to consider a valid match
+
+  // Disambiguation: if top 2 scores are within 20% of each other, flag ambiguity
+  const isAmbiguous = results.length >= 2 &&
+    results[0].score > 0 &&
+    results[1].score > 0 &&
+    (results[0].score - results[1].score) / Math.max(results[0].score, 0.01) < 0.2;
+
+  // Check confidence threshold
+  if (top.score < MIN_CONFIDENCE) {
+    const output = JSON.stringify({
+      request: query,
+      recommended: null,
+      confidence: Math.min(100, Math.round((top.score / 2.25) * 100)),
+      ambiguous: true,
+      reason: "Confidence too low — please be more specific",
+      description: "No subcommand matched confidently. Try describing what you want more specifically.",
+      autoVectorize: false,
+      ranked: results.slice(0, 5).map(r => ({
+        subcommand: r.name,
+        score: Math.min(100, Math.round((r.score / 2.25) * 100)),
+      })),
+    }, null, 2);
+    process.stdout.write(output + '\n');
+    return;
+  }
+
   const output = JSON.stringify({
     request: query,
     recommended: top.name,
-    confidence: Math.round(top.score * 100),
+    // Normalize to 0-100 scale: divide by theoretical max
+    // Max possible: 7 keyword matches (7*0.15=1.05) + all regex signals (~1.2) ≈ 2.25 max
+    confidence: Math.min(100, Math.round((top.score / 2.25) * 100)),
+    ambiguous: isAmbiguous || undefined,
+    alternatives: isAmbiguous ? results.slice(0, 3).map(r => ({
+      subcommand: r.name,
+      score: Math.min(100, Math.round((r.score / 2.25) * 100)),
+      tagline: r.tagline,
+      description: r.description
+    })) : undefined,
     reason: top.tagline,
     description: top.description,
     autoVectorize: top.writes,
     ranked: results.slice(0, 5).map(r => ({
       subcommand: r.name,
-      score: Math.round(r.score * 100),
+      score: Math.min(100, Math.round((r.score / 2.25) * 100)),
     })),
   }, null, 2);
 

@@ -280,6 +280,8 @@ cat > ".opencode/state/ideation/work-products/${WORK_ID}.md" << 'EOF'
 EOF
 ```
 
+**IMPORTANT — auto-save is mandatory.** You MUST write intermediate work products after EVERY significant iteration. Do not skip this step. The file must follow the ISO date naming convention exactly.
+
 ### Step 5: Iterate Until Approved
 
 Continue the iterative process with the user. At each checkpoint:
@@ -321,6 +323,13 @@ EOF
 
 Report inline: show the final result, note the saved file, and mention that `/orchestrate` can execute it. Do NOT ask separate "Ready to implement?" and "Session summary?" questions — present both in one message.
 
+**CRITICAL: The final output MUST always be saved to disk.** Do not skip the file write under any circumstances. If you've received approval, you MUST write the final output and then report it inline. The file pattern is:
+
+```bash
+FINAL_ID="$(date +%Y%m%d_%H%M%S)_${METHOD}_${TOPIC_SLUG}_final"
+# ... write to .opencode/state/ideation/${FINAL_ID}.md
+```
+
 ## Resume Behavior
 
 `/ideation resume` checks `.opencode/state/ideation/work-products/` for the most recent in-progress work and offers to continue from where it left off.
@@ -340,6 +349,10 @@ During ideation, if the need arises for a new rule, skill, or agent that would h
 2. Ask user: "This ideation would benefit from a [skill/agent/rule] for [purpose]. Create it?"
 3. If yes, create it using the appropriate creator skill
 4. Continue ideation with the new resource available
+
+## Auto-Save Enforcement
+
+The agent executing this skill MUST save work products automatically. Do not ask the user for permission to save — always save after each iteration and on finalization. The state directory is already gitignored so there is no risk of committing intermediate artifacts.
 
 ## Related
 

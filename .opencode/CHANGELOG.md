@@ -5,7 +5,7 @@
 ## 2026-06-21
 
 - **feat(hubs): model tiering fallback — ollama → opencode-go provider switching**
-  - Added 4 opencode-go hosted models (`deepseek-v4-pro`, `deepseek-v4-flash`, `glm-5.1`, `nemotron-3-ultra`) to `opencode` provider in `opencode.jsonc`
+  - Added 4 opencode-go hosted models (`deepseek-v4-pro`, `deepseek-v4-flash`, `glm-5.2`, `nemotron-3-ultra`) to `opencode` provider in `opencode.jsonc`
   - Added `hubs.modelTiering` config with primary/fallback chains for all three tiers (top/mid/fast) plus retry settings (`max_attempts_per_provider: 3`)
   - Added `<Model_Tiering_And_Fallback>` protocol to Hubs agent (`agents/hubs.md`): 4-step error classification, retry state tracking per subagent, escalation gate after 4 total attempts
   - Updated `docs/shared/agent-tiers.md`: all tables now include Fallback Model (opencode-go) columns, added Fallback Guidelines section
@@ -17,7 +17,7 @@
 - **fix(hubs): remove invalid top-level key and fix model provider IDs** (`b231a98`)
   - Removed invalid `hubs` top-level key from `opencode.jsonc` — not in OpenCode's schema, caused 4 of 6 startup requests to fail (config.providers, provider.list, app.agents, config.get)
   - Stripped model definitions from built-in `opencode` provider — models are pre-loaded, explicit definitions conflicted
-  - Fixed all model ID references: `opencode/deepseek-v4-pro` → `opencode-go/deepseek-v4-pro`, `opencode/deepseek-v4-flash` → `opencode-go/deepseek-v4-flash`, `opencode/glm-5.1` → `opencode-go/glm-5.1`
+  - Fixed all model ID references: `opencode/deepseek-v4-pro` → `opencode-go/deepseek-v4-pro`, `opencode/deepseek-v4-flash` → `opencode-go/deepseek-v4-flash`, `opencode/glm-5.2` → `opencode-go/glm-5.2`
   - Fixed nemotron fallback: `opencode/nemotron-3-ultra` → `opencode/nemotron-3-ultra-free`
   - Verified all 13 `opencode-go` model IDs against `opencode models opencode-go` output
 

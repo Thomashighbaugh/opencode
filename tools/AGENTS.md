@@ -4,7 +4,7 @@
 # tools
 
 ## Purpose
-TypeScript tool implementations (14 tools) that extend the OpenCode runtime. Tools provide structured APIs for session management, state persistence, agent listing, skill loading, hub menu routing, and multi-tier prompt caching.
+TypeScript tool implementations (19 tools) that extend the OpenCode runtime. Tools provide structured APIs for session management, state persistence, agent listing, skill loading, hub menu routing, multi-tier prompt caching, and file editing.
 
 ## Key Files
 
@@ -24,6 +24,11 @@ TypeScript tool implementations (14 tools) that extend the OpenCode runtime. Too
 | `cache-utils.ts` | Shared multi-tier cache infrastructure — SHA256 keying, TTL, disk+memory LRU, 5 namespaces |
 | `cache.ts` | Cache management tool — view stats, clear caches, invalidate entries across all tiers |
 | `agent-cache.ts` | Tier 4 agent output cache — save/load/invalidate subagent outputs by agent type + task hash |
+| `regex-edit.ts` | Edit text files using regex patterns and line operations — replace, insert, delete lines. No scripts needed. |
+| `json-edit.ts` | Edit JSON/JSONC by JSON Path — get, set, delete, merge, array ops. No jq pipelines. |
+| `yaml-edit.ts` | Edit YAML by dot-path — get, set, delete, merge, array ops. No yq or sed-on-YAML. |
+| `conf-edit.ts` | Edit config files (.env, INI, key=value) — get, set, delete, comment/uncomment. No sed. |
+| `multi-edit.ts` | Batch operations across files by glob — find, replace. No find+xargs+sed. |
 
 ## For AI Agents
 

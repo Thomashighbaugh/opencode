@@ -39,6 +39,9 @@ export const CACHE_CONFIGS: Record<string, CacheConfig> = {
   "llm":      { namespace: "llm",      defaultTTL: 3_600_000, maxHotEntries: 100, persist: true },  // 1 hour
   "agent":    { namespace: "agent",    defaultTTL: 1_800_000, maxHotEntries: 50, persist: true },   // 30 min
   "session":  { namespace: "session",  defaultTTL: 86_400_000, maxHotEntries: 20, persist: false }, // 24h, memory only
+  "stable":   { namespace: "stable",   defaultTTL: 86_400_000, maxHotEntries: 100, persist: true },  // 24h — agent defs, skill content, routing tables
+  "context7": { namespace: "context7", defaultTTL: 604_800_000, maxHotEntries: 100, persist: true },  // 7 days — Context7 doc results
+  "file":     { namespace: "file",     defaultTTL: 86_400_000, maxHotEntries: 200, persist: false }, // 24h, memory only — file read cache
 }
 
 // ─── Cache Manager ─────────────────────────────────────────────────────

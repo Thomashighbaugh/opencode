@@ -11,7 +11,7 @@ Usage:
 Examples:
     ./create-command.py test --description "Run tests" --global
     ./create-command.py component --agent code --template "Create component $ARGUMENTS"
-    ./create-command.py review --subtask --model "ollama/glm-5.1:cloud"
+    ./create-command.py review --subtask --model "ollama/glm-5.2:cloud"
 """
 
 import argparse
@@ -103,7 +103,7 @@ def main() -> int:
 Examples:
   %(prog)s test --description "Run tests" --global
   %(prog)s component --agent code --template "Create component $ARGUMENTS"
-  %(prog)s review --subtask --model "ollama/glm-5.1:cloud"
+  %(prog)s review --subtask --model "ollama/glm-5.2:cloud"
         """,
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
@@ -135,7 +135,7 @@ Examples:
     parser.add_argument(
         "-m",
         "--model",
-        help="Model override (e.g., ollama/glm-5.1:cloud)",
+        help="Model override (e.g., ollama/glm-5.2:cloud)",
     )
 
     parser.add_argument(

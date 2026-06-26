@@ -23,7 +23,7 @@ Agents are specialized subagents that handle specific task types. Each agent has
 
 - **Name**: Unique identifier
 - **Description**: What the agent does
-- **Model**: The AI model used (opus, sonnet, haiku, glm-5.1:cloud, etc.)
+- **Model**: The AI model used (opus, sonnet, haiku, glm-5.2:cloud, etc.)
 - **Mode**: Always `subagent` for Hubs agents
 - **Permissions**: Tool access restrictions
 
@@ -115,7 +115,7 @@ The user wants to implement a new feature. You should use the executor agent to:
 
 | Property | Value |
 |----------|-------|
-| **Model** | glm-5.1:cloud |
+| **Model** | glm-5.2:cloud |
 | **Mode** | subagent |
 | **Description** | Simplifies and refines code for clarity, consistency, and maintainability while preserving all functionality |
 
@@ -135,7 +135,7 @@ The user wants to implement a new feature. You should use the executor agent to:
 
 | Property | Value |
 |----------|-------|
-| **Model** | glm-5.1:cloud |
+| **Model** | glm-5.2:cloud |
 | **Mode** | subagent |
 | **Description** | Plans and implements code refactoring with intelligent skill loading |
 
@@ -241,7 +241,7 @@ Agents focused on system design and planning.
 
 | Property | Value |
 |----------|-------|
-| **Model** | glm-5.1:cloud |
+| **Model** | glm-5.2:cloud |
 | **Mode** | subagent |
 | **Description** | Structured thinking partner for complex problems |
 
@@ -285,7 +285,7 @@ Agents focused on code quality and verification.
 
 | Property | Value |
 |----------|-------|
-| **Model** | glm-5.1:cloud |
+| **Model** | glm-5.2:cloud |
 | **Mode** | subagent |
 | **Description** | Perform focused code review by detecting smells and deep-diving concerns |
 
@@ -553,7 +553,7 @@ Agents focused on workflows and debugging.
 
 | Property | Value |
 |----------|-------|
-| **Model** | glm-5.1:cloud |
+| **Model** | glm-5.2:cloud |
 | **Mode** | subagent |
 | **Description** | Orchestrate OpenCode configurations |
 
@@ -577,7 +577,7 @@ Agents with specific domain expertise.
 
 | Property | Value |
 |----------|-------|
-| **Model** | glm-5.1:cloud |
+| **Model** | glm-5.2:cloud |
 | **Mode** | subagent |
 | **Description** | Estimate development effort for tasks and features |
 
@@ -597,7 +597,7 @@ Agents with specific domain expertise.
 
 | Property | Value |
 |----------|-------|
-| **Model** | glm-5.1:cloud |
+| **Model** | glm-5.2:cloud |
 | **Mode** | subagent |
 | **Description** | Analyzes prompts for logical complexity and outputs simplification recommendations |
 
@@ -617,7 +617,7 @@ Agents with specific domain expertise.
 
 | Property | Value |
 |----------|-------|
-| **Model** | glm-5.1:cloud |
+| **Model** | glm-5.2:cloud |
 | **Mode** | subagent |
 | **Description** | Create custom skills with proper structure and metadata |
 
@@ -637,7 +637,7 @@ Agents with specific domain expertise.
 
 | Property | Value |
 |----------|-------|
-| **Model** | glm-5.1:cloud |
+| **Model** | glm-5.2:cloud |
 | **Mode** | subagent |
 | **Description** | Analyze feature requirements and break down tasks |
 
@@ -657,7 +657,7 @@ Agents with specific domain expertise.
 
 | Property | Value |
 |----------|-------|
-| **Model** | glm-5.1:cloud |
+| **Model** | glm-5.2:cloud |
 | **Mode** | subagent |
 | **Description** | Structures conventional commit messages based on user intent |
 
@@ -743,7 +743,7 @@ When invoked with "Implement user authentication":
 | **opus** | Complex reasoning, architecture, security | Variable | Variable |
 | **sonnet** | Balanced performance, implementation | 200K | 8K |
 | **haiku** | Fast, simple tasks, search | 200K | 8K |
-| **glm-5.1:cloud** | Cost-effective, most tasks | 202K | 131K |
+| **glm-5.2:cloud** | Cost-effective, most tasks | 202K | 131K |
 | **kimi-k2.5:cloud** | Extended context | 262K | 262K |
 | **minimax-m2.7:cloud** | High performance | 205K | 128K |
 | **qwen3.5:cloud** | Long documents | 262K | 32K |
@@ -757,7 +757,7 @@ When invoked with "Implement user authentication":
 | Search | haiku | Fast, efficient |
 | Documentation | haiku | Simple generation |
 | Security | opus | Critical analysis |
-| Review | glm-5.1:cloud | Cost-effective |
+| Review | glm-5.2:cloud | Cost-effective |
 
 ## Creating Custom Agents
 

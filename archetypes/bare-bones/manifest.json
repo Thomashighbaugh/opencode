@@ -1,0 +1,15 @@
+{
+  "name": "bare-bones",
+  "version": "1.0.0",
+  "description": "Minimal per-project config — everything comes from global. Best starting point for unusual or polyglot stacks.",
+  "tags": ["minimal", "generic", "starter"],
+  "languages": [],
+  "frameworks": [],
+  "stacks": [],
+  "extends": null,
+  "recommended_skills": ["naming-cheatsheet"],
+  "recommended_agents": [],
+  "recommended_rules": ["coding-style.md"],
+  "default_model": null,
+  "resource_tags": {}
+}

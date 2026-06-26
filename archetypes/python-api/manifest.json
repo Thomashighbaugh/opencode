@@ -1,0 +1,23 @@
+{
+  "name": "python-api",
+  "version": "1.0.0",
+  "description": "Python API service with FastAPI or Django REST, SQLAlchemy, Pytest, type hints, uv package management, Nix flake for reproducible toolchain",
+  "tags": ["python", "api", "fastapi", "django", "pytest", "backend", "uv", "nix"],
+  "languages": ["python"],
+  "frameworks": ["fastapi", "django", "flask"],
+  "stacks": ["python-api"],
+  "extends": null,
+  "recommended_skills": ["naming-cheatsheet"],
+  "recommended_agents": ["test-engineer", "code-reviewer"],
+  "recommended_rules": ["coding-style.md", "testing.md", "security.md"],
+  "default_model": "opencode/deepseek-v4-flash-free",
+  "resource_tags": {
+    "include": ["python", "pytest", "api", "backend", "uv"],
+    "exclude": ["typescript", "react", "nextjs", "rust", "go"]
+  },
+  "nix": {
+    "flake": true,
+    "channels": ["nixpkgs-unstable"],
+    "packages": ["uv", "python311", "ruff", "mypy", "pytest", "poetry"]
+  }
+}

@@ -137,4 +137,8 @@ Load skills based on detected patterns:
 - Over-refactor for minimal gains
 - Skip verification steps
   </Role>
+
+  <Token_Budget>
+    Max response: 1200 tokens. Report changes with before/after. Be concise.
+  </Token_Budget>
 </Agent_Prompt>

@@ -68,7 +68,7 @@ Use user-wide configuration for:
 ---
 name: my-global-agent
 description: Agent I use everywhere
-model: ollama/glm-5.1:cloud
+model: ollama/glm-5.2:cloud
 mode: subagent
 ---
 
@@ -129,7 +129,7 @@ Use project configuration for:
 ---
 name: project-building-agent
 description: Agent specific to this project's build system
-model: ollama/glm-5.1:cloud
+model: ollama/glm-5.2:cloud
 mode: subagent
 ---
 
@@ -247,7 +247,7 @@ Main configuration file with JSON5 syntax (comments allowed).
   "provider": {
     "ollama": {
       "models": {
-        "glm-5.1:cloud": { "_launch": true }
+        "glm-5.2:cloud": { "_launch": true }
       }
     }
   },
@@ -268,7 +268,7 @@ Main configuration file with JSON5 syntax (comments allowed).
   "provider": {
     "ollama": {
       "models": {
-        "glm-5.1:cloud": { "_launch": true },
+        "glm-5.2:cloud": { "_launch": true },
         "kimi-k2.5:cloud": { "_launch": true }
       }
     }
@@ -354,7 +354,7 @@ export OLLAMA_API_KEY="your-key"
   "provider": {
     "ollama": {
       "models": {
-        "glm-5.1:cloud": {
+        "glm-5.2:cloud": {
           "_launch": true,
           "env": {
             "OLLAMA_HOST": "${OLLAMA_HOST}",

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": [
+    "AGENTS.md",
+    "./rules/cli-conventions.md"
+  ],
+  "resource_tags": {
+    "include": ["cli"],
+    "exclude": ["react", "nextjs", "python-api", "frontend"]
+  },
+  "permission": {
+    "edit": "allow",
+    "bash": { "git *": "allow", "cargo *": "allow", "go *": "allow", "npm *": "allow", "nix *": "allow", "*": "ask" }
+  }
+}

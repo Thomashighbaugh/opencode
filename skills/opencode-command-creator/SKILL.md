@@ -45,7 +45,7 @@ and other prompt content.
 ---
 description: Run tests with coverage
 agent: build
-model: ollama/glm-5.1:cloud
+model: ollama/glm-5.2:cloud
 ---
 
 Run the full test suite with coverage report and show any failures.
@@ -153,7 +153,7 @@ Review these changes and suggest improvements.
 ---
 description: Full code review
 agent: reviewer
-model: ollama/glm-5.1:cloud
+model: ollama/glm-5.2:cloud
 subtask: true
 ---
 

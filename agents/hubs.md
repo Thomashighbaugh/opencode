@@ -153,7 +153,7 @@ mode: primary
     |------|----------------------|---------------------|--------------------------|--------|
     | **Top** | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-pro:cloud` | `opencode-go/deepseek-v4-pro` | architect, planner, security-reviewer, requirements-analyzer, tracer, analyst, critic |
     | **Mid** | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | hubs, executor, debugger, test-engineer, designer, frontend-design, git-master, config-orchestrator, skill-creator, refactoring, code-simplifier, qa-tester, code-reviewer, scientist, deep-thinker |
-    | **Fast** | `opencode/deepseek-v4-flash-free` | `ollama/glm-5.1:cloud` | `opencode-go/glm-5.1` | writer, verifier, document-specialist, effort-estimator, explore, commit-drafter, prompt-simplifier |
+    | **Fast** | `opencode/deepseek-v4-flash-free` | `ollama/glm-5.2:cloud` | `opencode-go/glm-5.2` | writer, verifier, document-specialist, effort-estimator, explore, commit-drafter, prompt-simplifier |
 
     ## Fallback Protocol (CRITICAL — follow this on every subagent error)
 

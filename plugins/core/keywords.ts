@@ -38,6 +38,14 @@ export const KEYWORD_PATTERNS = {
   deepsearch: /\b(deepsearch)\b/i,
   analyze: /\b(deep[\s-]?analyze|deepanalyze)\b/i,
   newAgent: /\b(create[\s-]?agent|new[\s-]?agent|agent[\s-]?creator)\b/i,
+  swarm: /\b(architect[\s-]?led|quality\s+pipeline|gated\s+pipeline|swarm)\b/i,
+  vibeCode: /\b(vibe[\s-]?code|prototype|rapid\s+app|conversational\s+prototyping)\b/i,
+  brownfield: /\b(existing\s+codebase|brownfield|legacy\s+project|add\s+feature)\b/i,
+  remediate: /\b(fix\s+build|ci\s+fail|build\s+fail|pipeline\s+broken|remediate)\b/i,
+  planExecute: /\b(plan\s+first|design\s+then\s+build|structured\s+approach|plan[\s-]?execute)\b/i,
+  pair: /\b(pair\s+program|pairing|driver\s+navigator|pair)\b/i,
+  commitProject: /\b(commit\s+changes|stage\s+files|git\s+commit)\b/i,
+  harvestSession: /\b(save\s+session|harvest\s+context|extract\s+knowledge|session\s+memory)\b/i,
 }
 
 // ============================================================================
@@ -208,6 +216,38 @@ export function detectKeywords(prompt: string): KeywordMatch[] {
     matches.push({ name: 'new-agent', args: '' })
   }
 
+  if (hasActionableKeyword(cleanPrompt, KEYWORD_PATTERNS.swarm)) {
+    matches.push({ name: 'swarm', args: '' })
+  }
+
+  if (hasActionableKeyword(cleanPrompt, KEYWORD_PATTERNS.vibeCode)) {
+    matches.push({ name: 'vibe-code', args: '' })
+  }
+
+  if (hasActionableKeyword(cleanPrompt, KEYWORD_PATTERNS.brownfield)) {
+    matches.push({ name: 'brownfield', args: '' })
+  }
+
+  if (hasActionableKeyword(cleanPrompt, KEYWORD_PATTERNS.remediate)) {
+    matches.push({ name: 'remediate', args: '' })
+  }
+
+  if (hasActionableKeyword(cleanPrompt, KEYWORD_PATTERNS.planExecute)) {
+    matches.push({ name: 'plan-execute', args: '' })
+  }
+
+  if (hasActionableKeyword(cleanPrompt, KEYWORD_PATTERNS.pair)) {
+    matches.push({ name: 'pair', args: '' })
+  }
+
+  if (hasActionableKeyword(cleanPrompt, KEYWORD_PATTERNS.commitProject)) {
+    matches.push({ name: '/project commit', args: '' })
+  }
+
+  if (hasActionableKeyword(cleanPrompt, KEYWORD_PATTERNS.harvestSession)) {
+    matches.push({ name: '/harvest-context session', args: '' })
+  }
+
   return matches
 }
 
@@ -228,9 +268,12 @@ export function resolveConflicts(matches: KeywordMatch[]): KeywordMatch[] {
   }
 
   const priorityOrder = [
-    'cancel', 'ralph', 'autopilot', 'ultrawork', 'ralplan',
+    'cancel', 'ralph',
+    'swarm', 'vibe-code', 'brownfield', 'remediate', 'plan-execute', 'pair',
+    'autopilot', 'ultrawork', 'ralplan',
     'deep-interview', 'ai-slop-cleaner', 'tdd', 'code-review',
-    'security-review', 'ultrathink', 'deepsearch', 'analyze', 'new-agent'
+    'security-review', 'ultrathink', 'deepsearch', 'analyze', 'new-agent',
+    '/project commit', '/harvest-context session'
   ]
 
   const resolved = [...matches]

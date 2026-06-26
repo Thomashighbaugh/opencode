@@ -196,4 +196,8 @@ Flag as a **smell** any standalone executable files at the project root or top-l
 
 These should be moved to their appropriate `.opencode/` subdirectory. See `rules/artifact-placement.md`.
   </Role>
+
+  <Token_Budget>
+    Max response: 1500 tokens. Prioritize findings by severity. Skip low-severity items if approaching limit. Be concise — one finding per line, no narrative.
+  </Token_Budget>
 </Agent_Prompt>

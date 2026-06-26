@@ -32,7 +32,7 @@ Hooks handle mechanical work: checkpointing at phase transitions, capturing ADRs
 
 | Decision | Rationale | Date |
 |----------|-----------|------|
-| Five hub commands over monolithic system | Separation of concerns: init/ideate/orchestrate/harvest/operate | 2026-04-20 |
+| Six hub commands over monolithic system | Separation of concerns: init/ideate/orchestrate/harvest/operate/manage-skills | 2026-04-20 |
 | Inline delegation for methodology patterns | Patterns are instructions, not separate tools — keeps hub menus flat | 2026-04-28 |
 | TUI plugin for hub dialogs (server.config removed) | Triple registration caused crashes; single TUI registration via api.command.register only | 2026-04-28 |
 | Context files committed, state files gitignored | Context = public design knowledge; state = ephemeral session data (may contain PII) | 2026-04-28 |

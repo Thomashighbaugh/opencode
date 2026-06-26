@@ -12,7 +12,7 @@ Unified project initialization hub with subcommand routing. Detects, scaffolds, 
 
 ## No-Argument Behavior
 
-When invoked without arguments (`/init-project`), list the subcommands as plain text and ask the user to choose. Do NOT call `hubMenu` or any other tool — just output the list directly. Available phases: setup, detect, docs, context, verify, refresh, status, map-codebase, doctor, reset, provision.
+When invoked without arguments (`/init-project`), list the subcommands as plain text and ask the user to choose. Do NOT call `hubMenu` or any other tool — just output the list directly. Available subcommands: setup, detect, recommend, docs, context, verify, refresh, status, map-codebase, doctor, reset, provision, tag, find-skills, find-agents, find-tools, find-rules.
 
 ## With-Argument Behavior
 
@@ -22,17 +22,23 @@ Directly invoke the matching subcommand. Print the reminder, then delegate to th
 
 | Subcommand | Phases | Skill/Delegate | What It Does |
 |------------|--------|----------------|--------------|
-| `setup` | 0-7 | self (all phases) | Full project initialization from scratch |
-| `detect` | 0-1 | `explore` agent | Verify global Hubs + detect language, framework, tooling |
+| `setup` | 0-8 | self (all phases) | Full project initialization from scratch |
+| `detect` | 0-1 | `stack-detector` agent | Deep stack detection — languages, frameworks, build tools, testing, ORM, CSS, CI/CD, infra |
+| `recommend` | 2 | `stack-recommender` skill | Map stack fingerprint to recommended global resources (skills, agents, rules, archetype) |
 | `docs` | 4 | `deepinit` skill | Regenerate hierarchical AGENTS.md documentation |
 | `context` | 5 | `remember` + `wiki` | Capture session knowledge, promote insights |
 | `verify` | 7 | `verifier` agent | Validate configuration completeness and integrity, including .gitignore privacy protections |
-| `refresh` | 0-7 (merge) | self (all phases, merge mode) | Update existing config, preserve manual edits |
+| `refresh` | 0-8 (merge) | self (all phases, merge mode) | Update existing config, preserve manual edits, rerun detect→recommend→provision |
 | `status` | — | self (inline) | List state files and show checkpoint progress |
 | `map-codebase` | — | inline | Analyze existing codebase — spawn parallel agents to map stack, architecture, conventions |
 | `doctor` | — | inline | Run diagnostic health check — validate Hubs installation, config integrity, state consistency |
 | `reset` | — | inline | Reset project state — archive .opencode/state and .opencode/context, start fresh |
-| `provision` | Provision 1-7 | `provision` skill | Analyze codebase and auto-generate project-specific agents, skills, tools, and rules |
+| `provision` | 3 | `project-config-composer` skill | Auto-generate .opencode/opencode.jsonc, project rules, and agent wrappers from stack fingerprint + recommendations |
+| `tag` | — | `tag-resources` skill | Audit and fix resource tags on global skills, agents, rules, and archetypes |
+| `find-skills` | — | `find-skills` skill | Search skill registries for relevant per-repo skills |
+| `find-agents` | — | `find-agents` skill | Search agent registries for relevant per-repo agents |
+| `find-tools` | — | `find-tools` skill | Search registries and local template catalog for relevant TypeScript tools |
+| `find-rules` | — | `find-rules` skill | Search registries and local template catalog for relevant OpenCode rules |
 
 ### Subcommand Behavior
 
@@ -49,7 +55,8 @@ Each subcommand follows the hub pattern:
 | Subcommand | Reminder on Invoke |
 |------------|-------------------|
 | `setup` | Full init from scratch. I'll verify global Hubs, detect your stack, scaffold config, generate docs, and validate. |
-| `detect` | Detecting your project stack. I'll identify language, framework, package manager, build system, and CI. |
+| `detect` | Deep stack detection via @stack-detector. I'll analyze languages, frameworks, build tools, testing, ORM, CSS, CI/CD, and more. |
+| `recommend` | Recommending global resources via stack-recommender. I'll map your detected stack to relevant skills, agents, rules, and an archetype. |
 | `docs` | Generating codebase documentation. I'll create hierarchical AGENTS.md files across your directories. |
 | `context` | Capturing session knowledge. I'll promote insights to project memory, notepad, and AGENTS.md. |
 | `verify` | Validating configuration. I'll check file existence, config syntax, parent refs, and gitignore. |
@@ -58,7 +65,12 @@ Each subcommand follows the hub pattern:
 | `map-codebase` | Mapping existing codebase. I'll spawn parallel agents to analyze stack, architecture, and conventions. |
 | `doctor` | Running Hubs health diagnostics. I'll validate installation, config integrity, and state consistency. |
 | `reset` | Resetting project state. I'll archive .opencode/state and .opencode/context to a timestamped backup and start fresh. |
-| `provision` | Provisioning project-aware agents, skills, tools, and rules. I'll analyze your codebase and generate tailored artifacts. |
+| `provision` | Auto-generating .opencode/ config via project-config-composer. I'll create opencode.jsonc, project rules, and agent wrappers from your stack analysis. |
+| `tag` | Auditing global resource tags via tag-resources. I'll scan skills, agents, rules, and archetypes for missing or incomplete tags. |
+| `find-skills` | Searching skill registries for relevant skills for this project. |
+| `find-agents` | Searching agent registries for relevant agents for this project. |
+| `find-tools` | Searching registries and local template catalog for relevant TypeScript tools for this project. |
+| `find-rules` | Searching registries and local template catalog for relevant OpenCode rules for this project. |
 
 ### Flag Parsing
 
@@ -74,6 +86,56 @@ Flags modify subcommand behavior and are passed through:
 | `--no-docs` | Skip Phase 4 | `setup`, `refresh` |
 
 Default (no flags, `setup` subcommand): Phases 0-5 (full scaffold + provision + docs, no context/routing).
+
+## Detection-to-Provision Pipeline
+
+The three new subcommands — `detect`, `recommend`, `provision` — form a sequential pipeline for intelligent project config generation:
+
+```mermaid
+flowchart LR
+    A[detect] --> B[Stack Fingerprint JSON]
+    B --> C[recommend]
+    C --> D[Resource Recommendations]
+    D --> E[provision]
+    E --> F[.opencode/ config files]
+```
+
+### Step-by-step flow
+
+1. **`/init-project detect`** — runs `@stack-detector` agent, analyzes every tech dimension (language, framework, build, test, ORM, CSS, CI/CD, infra, etc.), outputs a structured JSON fingerprint saved to `.opencode/state/init/stack-fingerprint.json`
+2. **`/init-project recommend`** — runs `stack-recommender` skill, maps the fingerprint to recommended global resources (skills, agents, rules, archetype), outputs recommendations saved to `.opencode/state/init/stack-recommendations.json`
+3. **`/init-project provision`** — runs `project-config-composer` skill, takes the fingerprint + recommendations, auto-generates `.opencode/opencode.jsonc`, project-specific rules, and optional agent wrappers
+
+### Running the full pipeline
+
+```bash
+/init-project detect && /init-project recommend && /init-project provision
+```
+
+Or when running `setup` or `refresh`, the pipeline runs automatically:
+- `setup` → detect → recommend → provision (if no existing config) or refresh (merge into existing)
+- `refresh` → detect → recommend → provision (merges into existing, preserves manual edits)
+
+### Tagging support
+
+`/init-project tag` can run before `recommend` to ensure all global resources have complete tags:
+
+```bash
+/init-project tag && /init-project recommend && /init-project provision
+```
+
+This ensures the stack-recommender's mapping tables are complete and no resources are missed due to missing tags.
+
+### Tool and Rule Discovery
+
+After `provision`, if the composer reports missing tool or rule templates, run discovery:
+
+```bash
+/init-project find-tools   # Search registries for missing TypeScript tools
+/init-project find-rules   # Search registries for missing OpenCode rules
+```
+
+These can also run standalone to discover resources for any project, independent of the detection pipeline.
 
 ## State Management
 

@@ -1,0 +1,23 @@
+{
+  "name": "cli-tool",
+  "version": "1.0.0",
+  "description": "Command-line interface tool — Rust, Go, or Node.js CLI with argument parsing, testing, and CI",
+  "tags": ["cli", "rust", "go", "node", "command-line", "nix"],
+  "languages": ["rust", "go", "typescript"],
+  "frameworks": [],
+  "stacks": ["cli-binary", "cli-tool"],
+  "extends": null,
+  "recommended_skills": ["naming-cheatsheet"],
+  "recommended_agents": [],
+  "recommended_rules": ["coding-style.md", "testing.md", "security.md"],
+  "default_model": "opencode/deepseek-v4-flash-free",
+  "resource_tags": {
+    "include": ["cli", "rust", "go"],
+    "exclude": ["react", "nextjs", "python-api", "frontend"]
+  },
+  "nix": {
+    "flake": true,
+    "channels": ["nixpkgs-unstable"],
+    "packages": ["nodejs", "just", "shellcheck", "typos", "actionlint"]
+  }
+}

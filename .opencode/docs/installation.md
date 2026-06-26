@@ -233,7 +233,7 @@ ls ~/.config/opencode/tools/*.ts | wc -l        # Should be 10
   "provider": {
     "ollama": {
       "models": {
-        "glm-5.1:cloud": { "_launch": true },
+        "glm-5.2:cloud": { "_launch": true },
         "kimi-k2.5:cloud": { "_launch": true }
       }
     }

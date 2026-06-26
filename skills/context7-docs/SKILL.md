@@ -79,10 +79,53 @@ Get documentation for a library, optionally filtered by topic.
 
 This skill encodes the Context7 two-step workflow:
 
-1. **Resolve Library ID**: Converts human-readable library name to Context7 ID
-2. **Fetch Documentation**: Gets documentation using the resolved ID
+1. **Check ID cache first**: Before calling `resolve-library-id`, check `.opencode/context/research/_library-ids.json` for a cached library ID. If found and less than 30 days old, skip the resolve step entirely.
+2. **Check doc cache**: Check `.opencode/context/research/{library-slug}/` for existing cached docs matching the library and query. If a cached result exists and is less than 7 days old, use it directly — skip the API call entirely.
+3. **Resolve Library ID** (if not cached): Converts human-readable library name to Context7 ID
+4. **Fetch Documentation** (if not cached): Gets documentation using the resolved ID
+5. **Cache both**: After resolving, save the library ID to `_library-ids.json`. After fetching, save results to `.opencode/context/research/{library-slug}/{query-hash}.md`.
 
-This is handled automatically by the `docs` action.
+### ID Cache Format
+
+`.opencode/context/research/_library-ids.json`:
+```json
+{
+  "react": { "id": "/npm/react", "resolved": "2026-06-26T00:00:00Z" },
+  "next.js": { "id": "/vercel/next.js", "resolved": "2026-06-26T00:00:00Z" },
+  "tailwindcss": { "id": "/tailwindlabs/tailwindcss", "resolved": "2026-06-26T00:00:00Z" }
+}
+```
+
+**ID cache TTL**: 30 days. Library IDs rarely change.
+
+### Cache Structure
+
+```
+.opencode/context/research/
+├── react/
+│   ├── hooks-abc123.md
+│   ├── server-components-def456.md
+│   └── _index.json          # maps query → file + timestamp
+├── nextjs/
+│   ├── app-router-ghi789.md
+│   └── _index.json
+└── tailwindcss/
+    └── ...
+```
+
+**Cache format** (`_index.json`):
+```json
+{
+  "hooks-abc123": { "file": "hooks-abc123.md", "query": "React hooks", "fetched": "2026-06-26T00:00:00Z", "ttl": "7d" }
+}
+```
+
+**Cache check logic:**
+1. Compute `library-slug` from the library name (lowercase, hyphens, no special chars)
+2. Compute `query-hash` from the query string (first 8 chars of SHA256)
+3. Check `.opencode/context/research/{library-slug}/_index.json` for a matching entry
+4. If found and `fetched + 7d > now`, read the cached file and return its content
+5. If not found or expired, proceed with the API call, then save the result
 
 ## Supported Libraries
 

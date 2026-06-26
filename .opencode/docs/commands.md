@@ -123,7 +123,7 @@ Creates project-specific configuration with language detection and framework set
     "opencode": { "options": {} },
     "ollama": {
       "models": {
-        "glm-5.1:cloud": { "_launch": true }
+        "glm-5.2:cloud": { "_launch": true }
       }
     }
   },

@@ -1,0 +1,16 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": [
+    "AGENTS.md",
+    "./rules/nextjs-conventions.md",
+    "./rules/testing-conventions.md"
+  ],
+  "resource_tags": {
+    "include": ["typescript", "react", "nextjs", "tailwind"],
+    "exclude": ["python", "rust", "go"]
+  },
+  "permission": {
+    "edit": "allow",
+    "bash": { "git *": "allow", "npm *": "allow", "pnpm *": "allow", "npx *": "allow", "nix *": "allow", "*": "ask" }
+  }
+}
