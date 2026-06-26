@@ -185,7 +185,8 @@ export const HUBS: HubDefinition[] = [
       { label: "audit", description: "Comprehensive project health check — dependencies, security, code quality, test coverage, bundle size in one command", inline: true, reminder: "Run comprehensive project health audit." },
       { label: "archive", description: "Move stale branches, old artifacts, unused config to timestamped archive — keep working tree clean", inline: true, reminder: "Archive stale branches and artifacts." },
       { label: "git-cleanup", description: "Fix orphaned CHANGELOG entries referencing commits not in git history after .git/ rebuild — preserves entries, removes bad refs", inline: true, reminder: "Clean up orphaned commit references in CHANGELOG." },
-      { label: "workspace", description: "Manage .opencode across projects — list Hubs-enabled projects, sync config, init .opencode in new directories, check health", inline: true, reminder: "Manage Hubs workspace across projects." }
+      { label: "workspace", description: "Manage .opencode across projects — list Hubs-enabled projects, sync config, init .opencode in new directories, check health", inline: true, reminder: "Manage Hubs workspace across projects." },
+      { label: "readme", description: "Update README to reflect current codebase state — scans agents, skills, tools, rules, commands; preserves tone, links, and structure; SEO-optimized output via readme-updater skill", skill: "readme-updater", reminder: "Update README with current codebase state." }
     ]
   },
   {

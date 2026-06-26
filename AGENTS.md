@@ -71,13 +71,19 @@ Magic keywords (`ralph`, `autopilot`, `ultrawork`, `build me`, `create me`, etc.
 
 ## Agent Model Tiers
 
-| Tier | Model | Agents |
-|------|-------|--------|
-| **Top** | `opencode/deepseek-v4-flash-free` | architect, planner, security-reviewer, requirements-analyzer, tracer, analyst, critic |
-| **Mid** | `opencode/deepseek-v4-flash-free` | hubs, executor, debugger, test-engineer, designer, frontend-design, git-master, config-orchestrator, skill-creator, refactoring, code-simplifier, qa-tester, code-reviewer, scientist, deep-thinker |
-| **Fast** | `opencode/deepseek-v4-flash-free` | writer, verifier, document-specialist, effort-estimator, explore, commit-drafter, prompt-simplifier, convention-extractor |
+Each tier has a failover chain for subagent dispatch. Primary → Fallback 1 → Fallback 2 → (Fallback 3 if available). Stop on first success.
 
-**Fallback:** 1 retry on ollama (same model variant), 2 more on opencode-go, then escalate via `question` tool.
+| Tier | Primary | Fallback 1 | Fallback 2 | Fallback 3 | Agents |
+|------|---------|------------|------------|------------|--------|
+| **Pro** | `ollama/deepseek-v4-pro:cloud` | `opencode-go/deepseek-v4-pro` | `opencode/deepseek-v4-flash-free` | _(NVIDIA NIM if cfg)_ | architect, planner, security-reviewer, requirements-analyzer, tracer, analyst, critic |
+| **Default** | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | _(NVIDIA NIM if cfg)_ | hubs, executor, debugger, test-engineer, designer, frontend-design, git-master, config-orchestrator, skill-creator, refactoring, code-simplifier, qa-tester, code-reviewer, scientist, deep-thinker |
+| **Fast** | `opencode/deepseek-v4-flash-free` | `ollama/glm-5.2:cloud` | `opencode-go/glm-5.2` | — | writer, verifier, document-specialist, effort-estimator, explore, commit-drafter, prompt-simplifier, convention-extractor |
+
+**Task-to-Tier Routing:** Pro for complex reasoning (architecture, security, planning). Default for implementation, testing, debugging, design. Fast for documentation, verification, search.
+
+**Session model** is set in `agents/hubs.md` frontmatter. Currently: `ollama/deepseek-v4-flash:cloud`.
+
+**Failover:** Provider/agent errors advance the chain after 60s. Task errors do not advance — fix the prompt and retry. Exhausting all models in the chain → escalate via `question` tool.
 
 ### Subagent Timeout
 **Subagents have a max-turn limit.** If a subagent hasn't produced output after 5 turns, terminate and escalate to the user. Subagents that loop or hang waste API requests. A subagent that can't complete in 5 turns needs a better prompt or a different approach.

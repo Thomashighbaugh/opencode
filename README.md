@@ -2,9 +2,9 @@
 
 > Hub-Driven Multi-Agent Orchestration for OpenCode — Interactive Menus, Not Memorization.
 
-The name derives from the hub-and-spoke orchestration concept — a central operations hub that coordinates specialized units rather than trying to do everything itself. Each hub dispatches to a curated roster of 29 agents, 76 skills, 14 tools, and 2 commands through structured menus instead of requiring you to remember every capability's exact name.
+The name derives from the hub-and-spoke orchestration concept — a central operations hub that coordinates specialized units rather than trying to do everything itself. Each hub dispatches to a curated roster of **31 agents, 101 skills, 24 tools, 17 rules, and 7 project archetypes** through structured menus instead of requiring you to remember every capability's exact name.
 
-The codebase evolves organically — each optimization emerges from actual usage: a missing facet surfaces mid-workflow, a previously overlooked edge case bites, and the configuration adapts. Rather than a grand upfront design, the system accretes capability patch by patch, responding to the real needs of orchestrating 29 agents across five hubs. Contributions, overlooked patterns, and pull requests are always welcome.
+The codebase evolves organically — each optimization emerges from actual usage: a missing facet surfaces mid-workflow, a previously overlooked edge case bites, and the configuration adapts. Rather than a grand upfront design, the system accretes capability patch by patch, responding to the real needs of orchestrating 31 agents across five hubs. Contributions, overlooked patterns, and pull requests are always welcome.
 
 - **Deterministic Root Path Memoization** — Single-source-of-truth project root resolution with in-memory caching, eliminating redundant `git rev-parse` forks that would otherwise fire on every agent context lookup. The cached result is invalidated only on directory change, collapsing O(n) shell invocations per session to exactly one. Implementation: `getProjectRoot()` in the plugin core (`plugins/core/session.ts`) resolves once via `git rev-parse --show-toplevel` and stores the result in module scope, served through a lazy accessor that never re-forks.
 
@@ -12,9 +12,9 @@ The codebase evolves organically — each optimization emerges from actual usage
 
 - **Micro-Kernel Hook Decomposition Architecture** — Monolithic plugin (`hubs-plugin.ts`) refactored into focused, independently-loadable modules, each with a single responsibility boundary and zero cross-module imports except through a shared types interface. Session lifecycle management, mode state CRUD, magic keyword detection, and hook handler dispatch live in separate files that can fail independently without taking down the entire plugin system. Implementation: `plugins/core/` contains `session.ts` (lifecycle + stats), `modes.ts` (state machine), `keywords.ts` (regex-based intent extraction), and `hooks.ts` (unified handler entry point), orchestrated through `plugins/core/hooks.ts` which is the single plugin entry registered in `opencode.jsonc`.
 
-- **Tiered Cognitive Model Orchestration** — 29 subagents classified into three capability tiers — Top (architecture, security review, causal tracing), Mid (implementation, debugging, git operations), and Fast (exploration, documentation, estimation) — with all agents using `opencode/deepseek-v4-flash-free` as the primary model and tier-appropriate ollama fallbacks. Orchestration skills (`ralph`, `ultrawork`, `autopilot`, `team`) consult the agent tiers reference at `docs/shared/agent-tiers.md` to match task complexity to model capability before delegation, preventing both over-provisioning (wasting Top-tier on trivial lookups) and under-provisioning (handing critical security review to Fast-tier). Implementation: tier assignments live in each agent's YAML frontmatter (`agents/*.md`), with override guidance documented in `docs/shared/agent-tiers.md` for orchestrators to upgrade/downgrade based on task stakes.
+- **Tiered Cognitive Model Orchestration** — 31 subagents classified into three capability tiers — Pro (architecture, security review, causal tracing), Default (implementation, debugging, git operations), and Fast (exploration, documentation, estimation) — with all agents using `opencode/deepseek-v4-flash-free` as the primary model, `ollama/deepseek-v4-flash:cloud` as Fallback 1, and `opencode-go/deepseek-v4-flash` as Fallback 2. Orchestration skills (`ralph`, `ultrawork`, `autopilot`, `team`) consult the agent tiers reference to match task complexity to model capability before delegation, preventing both over-provisioning (wasting Pro-tier on trivial lookups) and under-provisioning (handing critical security review to Fast-tier). Implementation: tier assignments live in each agent's YAML frontmatter (`agents/*.md`), with the complete failover protocol in the Hubs agent's instruction block at `agents/hubs.md` in `<Model_Tiering_And_Fallback>`.
 
-- **Cross-Provider Resilience Fabric with Automatic Failover** — When the primary Opencode Zen provider errors out on a subagent invocation (connection refused, 502/503/504, timeout, rate limit), the orchestrating agent classifies the error, maps the failed model to its Ollama cloud equivalent (Fallback 1) via tier, then to Opencode-Go (Fallback 2), retrying up to three times before escalating to the user via the `question` tool with actionable options (retry with different agent, handle manually, skip, abort). Task-level errors (wrong output, parse failure) never trigger provider switching — the prompt gets fixed instead. Retry counters are per-subagent, so a stuck `@executor` never blocks a healthy `@verifier` running in parallel. Implementation: the complete fallback protocol lives in the Hubs agent's instruction block at `agents/hubs.md` in `<Model_Tiering_And_Fallback>`, with provider-to-tier mappings referencing the live model registry (`opencode models`).
+- **Cross-Provider Resilience Fabric with Automatic Failover** — When the primary Opencode Zen provider errors out on a subagent invocation (connection refused, 502/503/504, timeout, rate limit), the orchestrating agent classifies the error, maps the failed model to its Ollama cloud equivalent (Fallback 1) via tier, then to Opencode-Go (Fallback 2), retrying up to three times before escalating to the user via the `question` tool with actionable options (retry with different agent, handle manually, skip, abort). Task-level errors (wrong output, parse failure) never trigger provider switching — the prompt gets fixed instead. Retry counters are per-subagent, so a stuck `@executor` never blocks a healthy `@verifier` running in parallel. Subagents have a 5-turn max limit — if they haven't produced output after 5 turns, they're terminated and escalated. Implementation: the complete fallback protocol lives in the Hubs agent's instruction block at `agents/hubs.md` in `<Model_Tiering_And_Fallback>`, with provider-to-tier mappings in `opencode.jsonc` referencing `ollama` (local/cloud proxy at `http://127.0.0.1:11434/v1`) and `opencode-go` (hosted inference).
 
 - **Per-Project Agent & Skill Genesis (Provisioning)** — Rather than one-size-fits-all agents, `/init-project provision` analyzes a target codebase — its language, framework, test runner, linter, directory conventions, domain vocabulary — and auto-generates project-specific agents, skills, tools, and rules into `.opencode/`. These project wrappers inherit from global agents but inject deep project context (convention files, architecture patterns, dependency manifests) so that subagents working on that project already know its naming conventions, test patterns, and import style without re-discovering them on every invocation. A newly provisioned Next.js project gets a `nextjs-executor` that understands App Router conventions, Server Components boundaries, and `prisma` schema patterns — not a generic executor guessing from scratch. Implementation: `skills/provision/SKILL.md` orchestrates multi-pass codebase scanning, with the provisioning script at `skills/provision/scripts/provision.mjs` generating the artifact files into `.opencode/agents/`, `.opencode/skills/`, `.opencode/tools/`, and `.opencode/rules/`.
 
@@ -24,7 +24,17 @@ The codebase evolves organically — each optimization emerges from actual usage
 
 - **Multi-Method Ideation Engine** — The `/ideation` hub provides 26 structured thinking methodologies, spanning strategic planning (`plan` — interview-driven work breakdown with acceptance criteria), domain-driven design (`ddd` — bounded context modeling, aggregate root identification), event storming (`event-storming` — domain event exploration, command/aggregate/bounded-context mapping), Socratic deep-dive (`deep` — mathematical ambiguity gating before autonomous execution), design thinking (`double-diamond` — divergent exploration followed by convergent synthesis), jobs-to-be-done framing (`jtbd` — reframe requirements around user progress rather than feature lists), adversarial debate (`adversarial-debate` — steelman antithesis before committing to a direction), impact mapping (`impact-mapping` — trace deliverables to measurable outcomes), spiral risk targeting (`spiral` — address highest-risk decisions first, iterate outward), lean canvas modeling (`lean-canvas` — product strategy on one page), and formal correctness verification (`cleanroom` — verify correctness before implementation). Methods are not just names; each is a fully-scripted workflow that gates output quality before handing off to `/orchestrate`. Implementation: each method is a self-contained skill under `skills/` (e.g., `skills/ideation/SKILL.md` dispatches, `skills/plan/SKILL.md` drives the interview workflow, `skills/deep-interview/SKILL.md` runs the Socratic loop), with intent routing through `skills/orchestrate-router/scripts/route-ideation.mjs` for unstructured requests.
 
-- **Organic Configuration Integration (No Plugins, No Renames)** — The Hubs system is not a plugin you install or a theme you apply. It is a configuration — 29 agent definitions, 76 skill files, 14 tools, and 2 commands that live in `~/.config/opencode/` and compose with OpenCode's native agent, skill, and command systems through standard `opencode.jsonc` fields (`instructions`, `agent`, `command`, `plugin`). There are no wrapper scripts that rename primary agents after kitsch Greco-Roman mythological figures, no monolithic plugin that overrides OpenCode's internal behavior, and no configuration layer that requires memorizing a parallel vocabulary. The `hubs` primary agent is a regular agent definition (`agents/hubs.md`) set as `default_agent`, the hub commands (`/init-project`, `/ideation`, `/orchestrate`, `/harvest-context`, `/project`) are standard OpenCode commands registered in `opencode.jsonc`, and the TUI menu dialog at `plugins/hubs-tui/` is the only plugin component — and it's optional. Everything else is load-on-demand skills and invoked-on-demand agents, composed through OpenCode's own delegation and tool systems rather than bypassing them.
+- **Organic Configuration Integration (No Plugins, No Renames)** — The Hubs system is not a plugin you install or a theme you apply. It is a configuration — 31 agent definitions, 101 skill files, 24 tools, 17 rules, and 7 project archetypes that live in `~/.config/opencode/` and compose with OpenCode's native agent, skill, and command systems through standard `opencode.jsonc` fields (`instructions`, `agent`, `command`, `plugin`). There are no wrapper scripts that rename primary agents after kitsch Greco-Roman mythological figures, no monolithic plugin that overrides OpenCode's internal behavior, and no configuration layer that requires memorizing a parallel vocabulary. The `hubs` primary agent is a regular agent definition (`agents/hubs.md`) set as `default_agent`, the hub commands (`/init-project`, `/ideation`, `/orchestrate`, `/harvest-context`, `/project`, `/skills`) are standard OpenCode commands registered in `opencode.jsonc`, and the TUI menu dialog at `plugins/hubs-tui/` is the only plugin component — and it's optional. Everything else is load-on-demand skills and invoked-on-demand agents, composed through OpenCode's own delegation and tool systems rather than bypassing them.
+
+- **Per-Project Model Persistence** — When a user selects a different model during a session (via OpenCode's model picker), that selection is automatically saved to `.opencode/opencode.jsonc` in the project directory. Subsequent sessions in the same project load the saved model preference, eliminating the need to re-select the model on every session start. Implementation: the plugin's session lifecycle hooks detect model changes and persist them to the project-scoped config file, with fallback to the global default if no project override exists.
+
+- **Smart Prompt Queue & Stall Detection** — A non-interrupting prompt queue sequences user prompts when the LLM is busy, auto-submitting them on task completion without generating synthetic prompts. The queue persists to disk across sessions. Complementing this, a heartbeat-based 5-tier stall classification system (ACTIVE → SLOW_POSSIBLE → STALLED_SOFT → STALLED_HARD → SESSION_RESET) detects when the agent has gone silent, with anti-spam protection (90s cooldown, max 1 soft + 3 hard nudges per session) and session recovery on reconnect. Implementation: `plugins/core/session.ts` manages the prompt queue, while stall detection runs in the hook handler at `plugins/core/hooks.ts`.
+
+- **LSP Auto-Detection & Configuration** — The `/init-project provision` subcommand detects installed language servers (TypeScript, rust-analyzer, gopls, pyright, etc.) and configures them in the project's `opencode.jsonc` for instant type checking. No more running build commands just to see type errors — diagnostics stream in as you edit. Implementation: the provision scanner at `skills/provision/scripts/provision.mjs` checks for common LSP binaries and generates the appropriate `lsp` config section.
+
+- **Privacy-First Context Scanning** — Before any context is committed to durable storage or version control, the `privacy-scan` skill (`skills/privacy-scan/SKILL.md`) scans files for secrets, API keys, tokens, credentials, PII, and privacy-compromising content. Used by both `/init-project` and `/harvest-context` hubs as a mandatory pre-commit gate. Implementation: regex-based pattern matching across common secret formats, with gitignore protections for chat history and session transcripts.
+
+- **Project Archetype Templates** — 7 pre-built project archetypes (`archetypes/`) provide opinionated starter configurations for common project types: bare-bones, CLI tool, Go, Next.js webapp, Python API, React library, and Rust. Each archetype includes tailored agent definitions, skill recommendations, rules, and tool configurations. Used by `/init-project setup` to bootstrap new projects with zero configuration overhead. Implementation: each archetype is a directory under `archetypes/` with its own `opencode.jsonc` template, agent wrappers, and rule set.
 
 ---
 
@@ -32,13 +42,14 @@ The codebase evolves organically — each optimization emerges from actual usage
 
 | Hub | Subcommands | Purpose |
 |-----|-------------|---------|
-| `/init-project` | 10 | Project initialization, detection, validation, and diagnostics |
-| `/ideation` | 26 | Planning, research, and structured thinking — 24 methodologies |
+| `/init-project` | 16 | Project initialization, detection, validation, provisioning, and diagnostics |
+| `/ideation` | 30 | Planning, research, and structured thinking — 30 methodologies |
 | `/orchestrate` | 32 | Execution patterns — from persistent loops to multi-stage pipelines |
-| `/harvest-context` | 18 | Knowledge extraction and artifact management |
-| `/project` | 20 | Git operations, code quality, release management, file organization |
+| `/harvest-context` | 19 | Knowledge extraction and artifact management |
+| `/project` | 26 | Git operations, code quality, release management, file organization, README updates |
+| `/skills` | 13 | Skill CRUD, search, sync, package, and validation |
 
-No arguments on any hub produces an interactive menu. Supply a subcommand directly to skip the menu: `/orchestrate ralph`, `/project commit`, `/harvest-context session`.
+No arguments on any hub produces an interactive menu. Supply a subcommand directly to skip the menu: `/orchestrate ralph`, `/project commit`, `/harvest-context session`, `/project readme`.
 
 ---
 
@@ -46,24 +57,31 @@ No arguments on any hub produces an interactive menu. Supply a subcommand direct
 
 ### `/init-project` — Project Initialization Hub
 
-10 subcommands for first-time setup, detection, and diagnostics.
+16 subcommands for first-time setup, detection, provisioning, and diagnostics.
 
 | Subcommand | Delegates To | Description |
 |------------|-------------|-------------|
-| `setup` | inline | Full initialization from scratch (phases 0–7). Add `--full` for context capture. |
-| `detect` | inline | Auto-detect language, framework, test framework, and linter |
-| `docs` | inline | Regenerate AGENTS.md hierarchy from source |
-| `context` | inline | Capture session knowledge into durable context |
-| `verify` | inline | Validate configuration, paths, and file integrity |
-| `refresh` | inline | Update existing setup while preserving manual edits |
+| `setup` | inline | Full initialization from scratch (phases 0–8). Add `--full` for context capture. |
+| `detect` | `@stack-detector` agent | Deep stack detection — analyze codebase for languages, frameworks, build tools, testing, ORM, CSS, CI/CD |
+| `recommend` | `stack-recommender` skill | Recommend global resources matching detected stack fingerprint |
+| `docs` | `deepinit` skill | Regenerate hierarchical AGENTS.md documentation from source |
+| `context` | `remember` skill | Capture session knowledge into durable context |
+| `verify` | `@verifier` agent | Validate configuration, paths, and file integrity |
+| `refresh` | inline | Update existing setup while preserving manual edits, merge new detections |
 | `status` | inline | Show init state, checkpoints, and completion status |
 | `map-codebase` | inline | Analyze brownfield codebase structure before initialization |
 | `doctor` | inline | Run diagnostic health check for common configuration issues |
-| `reset` | inline | Factory reset — wipe state and start fresh |
+| `reset` | inline | Factory reset — archive state and context, start fresh |
+| `provision` | `project-config-composer` skill | Auto-generate `.opencode/` config from stack analysis — agents, skills, tools, rules |
+| `tag` | `tag-resources` skill | Audit and fix resource tags on global skills, agents, rules, and archetypes |
+| `find-skills` | `find-skills` skill | Discover relevant skills across registries (skills.sh, GitHub) |
+| `find-agents` | `find-agents` skill | Discover relevant agents across registries and GitHub |
+| `find-tools` | `find-tools` skill | Discover TypeScript tools from registries and local template catalog |
+| `find-rules` | `find-rules` skill | Discover OpenCode rules from registries and local template catalog |
 
 ### `/ideation` — Planning, Research, And Ideation Hub
 
-26 subcommands spanning strategic planning, domain modeling, task decomposition, and creative exploration.
+30 subcommands spanning strategic planning, domain modeling, task decomposition, and creative exploration.
 
 | Subcommand | Delegates To | Description |
 |------------|-------------|-------------|
@@ -71,6 +89,7 @@ No arguments on any hub produces an interactive menu. Supply a subcommand direct
 | `brainstorm` | inline | Divergent idea generation around a topic |
 | `decomposition` | inline | Break complex tasks into ordered, actionable subtasks with dependencies |
 | `refine` | `idea-refine` skill | Convergent/divergent refinement of raw concepts |
+| `overhaul` | `overhaul` skill | Analyze project across 8 refinement dimensions, produce phased improvement plan |
 | `deep` | `deep-interview` skill | Socratic interview with mathematical ambiguity gating |
 | `graph` | `graph-thinking` skill | Map complex relationships as dependency/flow graphs |
 | `research` | `ccg` skill | Multi-model consultation for balanced analysis |
@@ -86,11 +105,17 @@ No arguments on any hub produces an interactive menu. Supply a subcommand direct
 | `adversarial-debate` | inline | Structured critique validating design decisions |
 | `cleanroom` | inline | Formal correctness verification of specifications |
 | `pwf` | inline | Plan-With-Files: persistent file-backed planning |
-| `rpikit` | inline | Rapid prototyping and iterative kit development |
+| `rpikit` | inline | Research-Plan-Implement with stakes-based rigor scaling |
 | `hive` | inline | Multi-agent hive methodology planning |
 | `story-mapping` | inline | User journey planning along a narrative spine |
 | `lean-canvas` | inline | One-page business model and product strategy |
 | `constitution` | inline | Define operating principles and decision-making rules |
+| `quality` | inline | Deep-dive code quality audit — complexity, duplication, naming, error handling |
+| `architecture` | `improve-codebase-architecture` skill | Analyze architectural friction, propose module-deepening refactors |
+| `redesign` | `redesign-existing-projects` skill | Audit and upgrade existing UIs to premium design standards |
+| `grill` | `grilling` skill | Stress-test plans via relentless one-at-a-time questioning |
+| `modularity` | `@architect` agent | Analyze module boundaries, coupling, and cohesion |
+| `arch-prep` | `@architect` agent | Architecture preparation for upcoming features |
 | `resume` | — | Resume the most recent ideation session |
 | `status` | — | Show all ideation work products with timestamps |
 
@@ -135,7 +160,7 @@ No arguments on any hub produces an interactive menu. Supply a subcommand direct
 
 ### `/harvest-context` — Context And Artifact Hub
 
-18 subcommands for extracting, generating, and managing project knowledge.
+19 subcommands for extracting, generating, and managing project knowledge.
 
 | Subcommand | Delegates To | Description |
 |------------|-------------|-------------|
@@ -157,10 +182,11 @@ No arguments on any hub produces an interactive menu. Supply a subcommand direct
 | `prune` | inline | Clean stale entries from the context store |
 | `export` | inline | Generate team-readable reports from harvested context |
 | `diff` | inline | Show changes between current and previous context state |
+| `sweep` | inline | Scan `.opencode/` for files that should be gitignored but aren't |
 
 ### `/project` — Project Operations Hub
 
-20 subcommands for git, quality, security, and release management.
+26 subcommands for git, quality, security, release management, and README updates.
 
 | Subcommand | Delegates To | Description |
 |------------|-------------|-------------|
@@ -170,28 +196,34 @@ No arguments on any hub produces an interactive menu. Supply a subcommand direct
 | `pr` | inline | Create, view, merge, and manage pull requests via GitHub CLI |
 | `gh` | `github-ops` skill | Full GitHub CLI operations: repos, issues, releases, workflows |
 | `optimize` | inline | Performance, security, and maintainability analysis |
+| `refactor` | `@refactoring` agent | Restructure code without changing behavior — extract, split, reduce coupling |
+| `simplify` | `@code-simplifier` agent | Reduce code complexity — flatten nesting, simplify conditionals, clarify naming |
+| `cleanup` | `ai-slop-cleaner` skill | Regression-safe cleanup of AI-generated code artifacts |
+| `modernize` | `@refactoring` agent | Update code patterns to modern language/framework conventions |
 | `icon` | `icon-generator` skill | Generate favicon, apple-touch-icon, and PWA icons from source |
 | `organize` | `file-organizer` skill | Find duplicates, suggest structure improvements, automate cleanup |
 | `analyze` | inline | Code pattern and architecture analysis across the codebase |
 | `changelog` | `changelog-generator` skill | User-facing changelog from git history |
-| `converge` | inline | Quality gate pipeline: run all checks until criteria are met |
+| `converge` | inline | 5-gate quality convergence — tests, lint, types, security, performance |
 | `scan` | inline | Security vulnerability scan across dependencies and code |
 | `sandbox` | inline | Enforce tool execution policies and resource constraints |
 | `retrospect` | inline | Analyze a completed orchestration run for process improvements |
 | `purge` | inline | Clean stale orchestration state, checkpoints, and artifacts |
 | `release` | inline | Tag versions, generate changelogs, and publish releases |
-| `review` | `code-reviewer` agent | Multi-perspective code review: smells, security, architecture |
+| `review` | inline | Full code review round — analyze recent changes, security, complexity |
 | `audit` | inline | Full project health audit: config, dependencies, security, coverage |
 | `archive` | inline | Move stale branches and inactive components to archive storage |
+| `git-cleanup` | inline | Fix orphaned CHANGELOG entries after `.git/` rebuild |
 | `workspace` | inline | Worktree-first dev environment management with tmux sessions |
+| `readme` | `readme-updater` skill | Update README to reflect current codebase state |
 
 ---
 
 ## Overview
 
-OpenCode Hubs solves a problem of scale. A configuration that accumulates 29 agents, 64 skills, and 6 commands over time becomes a burden of memory rather than a toolbox. The natural response — "I hope what I need exists somewhere" — is not a workflow.
+OpenCode Hubs solves a problem of scale. A configuration that accumulates 31 agents, 101 skills, 24 tools, 17 rules, and 7 archetypes over time becomes a burden of memory rather than a toolbox. The natural response — "I hope what I need exists somewhere" — is not a workflow.
 
-The five hubs (`/init-project`, `/ideation`, `/orchestrate`, `/harvest-context`, `/project`) give every capability a discoverable home, ordered by the project development lifecycle. Each hub offers a menu when invoked without arguments, listing subcommands with descriptions. For experienced users, direct invocation skips the menu entirely: `/orchestrate ralph fix all TypeScript errors`.
+The six hubs (`/init-project`, `/ideation`, `/orchestrate`, `/harvest-context`, `/project`, `/skills`) give every capability a discoverable home, ordered by the project development lifecycle. Each hub offers a menu when invoked without arguments, listing subcommands with descriptions. For experienced users, direct invocation skips the menu entirely: `/orchestrate ralph fix all TypeScript errors`.
 
 ### Architecture
 
@@ -250,29 +282,32 @@ Natural language triggers that invoke subcommands directly, bypassing the menu. 
 
 ## What's Inside
 
-### Agents (29)
+### Agents (31)
 
 | Category | Agents |
 |----------|--------|
 | Implementation | @executor, @code-simplifier, @refactoring, @frontend-design |
 | Architecture | @architect, @planner, @analyst, @deep-thinker, @designer |
 | Review | @code-reviewer, @security-reviewer, @critic, @verifier, @qa-tester, @test-engineer |
-| Research | @scientist, @explore, @writer, @document-specialist |
-| Workflow | @tracer, @git-master, @debugger, @config-orchestrator |
-| Specialized | @effort-estimator, @prompt-simplifier, @skill-creator, @requirements-analyzer, @commit-drafter |
+| Research | @scientist, @explore, @writer, @document-specialist, @convention-extractor |
+| Workflow | @tracer, @git-master, @debugger, @config-orchestrator, @stack-detector |
+| Specialized | @effort-estimator, @prompt-simplifier, @skill-creator, @requirements-analyzer, @commit-drafter, @general |
 
-### Skills (76)
+### Skills (101)
 
 | Category | Key Skills |
 |----------|------------|
-| Execution Modes | ralph, autopilot, ultrawork, team, ultraqa, cancel |
-| Planning | plan, ralplan, deep-interview, deep-dive, sciomc |
-| Quality | ai-slop-cleaner, self-improve, verify, visual-verdict |
-| Development | deepinit, changelog-generator, skillify, learner |
-| Setup | init-project, hubs-doctor, hubs-reference, mcp-setup |
-| Hubs | ideation, orchestrate, project, harvest-context |
+| Execution Modes | ralph, autopilot, ultrawork, team, ultraqa, cancel, swarm, pipeline, pair, tdd |
+| Planning | plan, ralplan, deep-interview, deep-dive, sciomc, graph-thinking, idea-refine |
+| Quality | ai-slop-cleaner, self-improve, verify, visual-verdict, systematic-debugging |
+| Development | deepinit, changelog-generator, skillify, learner, subagent-driven-development |
+| Setup | init-project, hubs-doctor, hubs-reference, mcp-setup, provision, config-sync |
+| Hubs | ideation, orchestrate, project, harvest-context, orchestrate-router |
+| Docs | crafting-effective-readmes, readme-updater, naming-cheatsheet, professional-communication |
+| External | context7-docs, external-context, mcp-setup, autoresearch-agent |
+| Meta | self-improve, learner, agent-md-refactor, agent-format-enforcer, hubs-teams |
 
-### Commands (2)
+### Commands (6)
 
 | Command | Purpose |
 |---------|---------|
@@ -281,9 +316,9 @@ Natural language triggers that invoke subcommands directly, bypassing the menu. 
 | `/orchestrate` | Execution hub |
 | `/harvest-context` | Context and artifact hub |
 | `/project` | Project operations hub |
-| `/skill` | Manage workflow skills |
+| `/skills` | Manage workflow skills — CRUD, search, sync, package, validate |
 
-### Tools (14)
+### Tools (24)
 
 | Tool | Description |
 |------|-------------|
@@ -301,6 +336,16 @@ Natural language triggers that invoke subcommands directly, bypassing the menu. 
 | `cache` | Multi-tier prompt cache management (tool, mcp, llm, agent, session) |
 | `agent-cache` | Tier 4 agent output cache — avoid re-executing identical subagent tasks |
 | `cache-utils` | Shared cache infrastructure — SHA-256 keying, TTL, disk+memory LRU |
+| `regex-edit` | Edit text files using regex patterns — replace, insert, delete lines |
+| `json-edit` | Edit JSON/JSONC by JSON Path — get, set, delete, merge, array ops |
+| `yaml-edit` | Edit YAML by dot-path — get, set, delete, merge, array ops |
+| `conf-edit` | Edit config files (.env, INI, key=value) — get, set, delete, comment |
+| `multi-edit` | Batch operations across files by glob — find, replace |
+| `skill-categories` | Browse and search skills grouped by functional category |
+| `state-utils` | State directory scanning and path resolution utilities |
+| `validate-delegation` | Validate delegation targets in hubMenu.ts |
+| `gen-routing-docs` | Generate hub routing documentation from hubMenu.ts data |
+| `todowrite` | Create and maintain structured task lists for coding sessions |
 
 ---
 
@@ -334,25 +379,30 @@ Configured in `opencode.jsonc`. See [Model Configuration](./.opencode/docs/model
 ~/.config/opencode/
 ├── opencode.jsonc          # Main configuration
 ├── AGENTS.md               # Project-level agent instructions
-├── agents/                 # 29 agent definitions
-├── skills/                 # 76 workflow skills
-├── commands/               # 2 commands
-├── tools/                  # 14 TypeScript tools
+├── agents/                 # 31 agent definitions
+├── skills/                 # 101 workflow skills
+├── commands/               # 1 command (skills.md)
+├── tools/                  # 24 TypeScript tools
 ├── plugins/                # Hubs plugin system
-│   ├── hubs-plugin.ts      # Original monolith (preserved)
-│   └── core/               # Split into focused modules
-│       ├── session.ts      # Session lifecycle & stats
-│       ├── modes.ts        # Mode state CRUD
-│       ├── keywords.ts     # Magic keyword detection
-│       └── hooks.ts        # All hook handlers (entry point)
-├── rules/                  # 13 shared rules
+│   ├── core/               # Split into focused modules
+│   │   ├── session.ts      # Session lifecycle & stats
+│   │   ├── modes.ts        # Mode state CRUD
+│   │   ├── keywords.ts     # Magic keyword detection
+│   │   └── hooks.ts        # All hook handlers (entry point)
+│   └── hubs-tui/           # Optional TUI menu dialog
+├── rules/                  # 17 shared rules
+├── archetypes/             # 7 project archetype templates
 ├── templates/              # File templates
-├── .opencode/              # Project-scoped config (committed)
-│   ├── state/              # Session state (gitignored)
-│   ├── context/            # Durable knowledge (committed)
-│   ├── cache/              # Multi-tier prompt cache (gitignored)
-│   └── docs/               # Reference documentation
-└── .documentation/         # Reference documentation
+├── rule-templates/         # Rule generation templates
+├── tool-templates/         # Tool generation templates
+├── docs/                   # Generated documentation
+└── .opencode/              # Project-scoped config (committed)
+    ├── state/              # Session state (gitignored)
+    ├── context/            # Durable knowledge (committed)
+    │   └── research/       # Cached Context7 documentation
+    ├── cache/              # Multi-tier prompt cache (gitignored)
+    ├── docs/               # Reference documentation (13 files)
+    └── CHANGELOG.md        # Auto-commit log
 ```
 
 ---
@@ -372,16 +422,16 @@ The separation is deliberate. State is transient and compaction-safe. Context ac
 
 | File | Description |
 |------|-------------|
-| [installation.md](./.documentation/installation.md) | Installation methods, configuration, upgrading |
-| [execution-modes.md](./.documentation/execution-modes.md) | Ralph, autopilot, ultrawork, team, ultraqa |
-| [agents.md](./.documentation/agents.md) | All 29 agents with descriptions and usage |
-| [skills.md](./.documentation/skills.md) | All 64 skills organized by category |
-| [commands.md](./.documentation/commands.md) | All 6 commands with examples |
-| [tools.md](./.documentation/tools.md) | TypeScript tools API reference |
-| [model-configuration.md](./.documentation/model-configuration.md) | Model setup and routing |
-| [state-management.md](./.documentation/state-management.md) | Session state persistence |
-| [plugin-system.md](./.documentation/plugin-system.md) | Hook system and keyword detection |
-| [path-conventions.md](./.documentation/path-conventions.md) | File and directory structure |
+| [installation.md](./.opencode/docs/installation.md) | Installation methods, configuration, upgrading |
+| [execution-modes.md](./.opencode/docs/execution-modes.md) | Ralph, autopilot, ultrawork, team, ultraqa |
+| [agents.md](./.opencode/docs/agents.md) | All 31 agents with descriptions and usage |
+| [skills.md](./.opencode/docs/skills.md) | All 101 skills organized by category |
+| [commands.md](./.opencode/docs/commands.md) | All 6 commands with examples |
+| [tools.md](./.opencode/docs/tools.md) | TypeScript tools API reference |
+| [model-configuration.md](./.opencode/docs/model-configuration.md) | Model setup, tiering, and failover routing |
+| [state-management.md](./.opencode/docs/state-management.md) | Session state persistence |
+| [plugin-system.md](./.opencode/docs/plugin-system.md) | Hook system and keyword detection |
+| [path-conventions.md](./.opencode/docs/path-conventions.md) | File and directory structure |
 
 ---
 

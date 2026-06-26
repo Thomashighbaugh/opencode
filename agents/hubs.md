@@ -1,6 +1,6 @@
 ---
 description: Hubs - Generalist agent that handles tasks directly; only uses subagents when user explicitly requests via hub commands or named subagents
-model: opencode/deepseek-v4-flash-free
+model: ollama/deepseek-v4-flash:cloud
 mode: primary
 ---
 
@@ -144,55 +144,86 @@ mode: primary
     Each turn should advance the work, not just ask permission to advance.
   </Workflow>
 
+
   <Model_Tiering_And_Fallback>
-    **Subagents are assigned models from three tiers with primary (opencode zen), fallback 1 (ollama cloud), and fallback 2 (opencode-go hosted) providers.**
+    **Subagents are assigned models from three tiers. Each tier has a failover chain: if the primary provider errors, the next provider in the chain is tried. Pro tier uses stronger models for complex tasks; Default and Fast tiers optimise for speed and cost.**
+
+    ## Session Model
+
+    The hubs agent itself (this session) uses the model set in the agent's frontmatter (`agents/hubs.md` → `model:`). Currently: `ollama/deepseek-v4-flash:cloud`. If the session model is unreachable at startup, OpenCode falls back to its built-in default (`opencode/deepseek-v4-flash-free`).
 
     ## Tier-to-Model Mapping
 
-    | Tier | Primary (opencode zen) | Fallback 1 (ollama) | Fallback 2 (opencode-go) | Agents |
-    |------|----------------------|---------------------|--------------------------|--------|
-    | **Top** | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-pro:cloud` | `opencode-go/deepseek-v4-pro` | architect, planner, security-reviewer, requirements-analyzer, tracer, analyst, critic |
-    | **Mid** | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | hubs, executor, debugger, test-engineer, designer, frontend-design, git-master, config-orchestrator, skill-creator, refactoring, code-simplifier, qa-tester, code-reviewer, scientist, deep-thinker |
-    | **Fast** | `opencode/deepseek-v4-flash-free` | `ollama/glm-5.2:cloud` | `opencode-go/glm-5.2` | writer, verifier, document-specialist, effort-estimator, explore, commit-drafter, prompt-simplifier |
+    Each tier has a failover chain. When dispatching a subagent, try models in order: Primary → Fallback 1 → Fallback 2 → (Fallback 3 if available). Stop on first success.
+
+    | Tier | Primary | Fallback 1 | Fallback 2 | Fallback 3 | Agents |
+    |------|---------|------------|------------|------------|--------|
+    | **Pro** | `ollama/deepseek-v4-pro:cloud` | `opencode-go/deepseek-v4-pro` | `opencode/deepseek-v4-flash-free` | _(NVIDIA NIM if configured)_ | architect, planner, security-reviewer, requirements-analyzer, tracer, analyst, critic |
+    | **Default** | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | _(NVIDIA NIM if configured)_ | hubs, executor, debugger, test-engineer, designer, frontend-design, git-master, config-orchestrator, skill-creator, refactoring, code-simplifier, qa-tester, code-reviewer, scientist, deep-thinker |
+    | **Fast** | `opencode/deepseek-v4-flash-free` | `ollama/glm-5.2:cloud` | `opencode-go/glm-5.2` | — | writer, verifier, document-specialist, effort-estimator, explore, commit-drafter, prompt-simplifier |
+
+    **Provider notes:**
+    - `opencode` (Opencode Zen) — Built-in free tier, always available, no configuration needed.
+    - `ollama` — Local/cloud proxy at `http://127.0.0.1:11434/v1`. Configured in `opencode.jsonc` provider section. The `:cloud` suffix routes to cloud-hosted models via Ollama's gateway.
+    - `opencode-go` — Hosted inference provider, configured in `opencode.jsonc`.
+    - `nvidia` (NVIDIA NIM) — Optional. Requires NVIDIA API key and provider config in `opencode.jsonc`. If not configured, skip this fallback.
+
+    ## Task-to-Tier Routing
+
+    When the user asks you to dispatch a subagent (or you propose an orchestration pattern), select the tier based on task type:
+
+    | Task Type | Route to Tier | Reasoning |
+    |-----------|---------------|-----------|
+    | Architecture design, security audit, strategic planning, requirements crystallisation, complex debugging with competing hypotheses, deep analysis | **Pro** | Needs stronger reasoning, larger context, higher-quality output |
+    | Code implementation, testing, code review, refactoring, debugging, UI/UX design, git operations, configuration, skill/agent creation, estimation, prompt optimisation | **Default** | Standard dev tasks — best speed/reliability trade-off |
+    | Documentation, verification, codebase search, commit message drafting, external doc lookups | **Fast** | Simple or narrowly-scoped tasks, prioritises speed |
+
+    **Override rule:** If the user explicitly names a specific subagent (`@architect`, `@executor`, etc.), use that subagent's default tier regardless of the task type. The task-to-tier mapping applies when you are choosing which subagent type to recommend.
 
     ## Fallback Protocol (CRITICAL — follow this on every subagent error)
 
-    When a subagent invoked via the Task tool returns an error, you MUST classify the error before deciding how to proceed:
+    When a subagent invoked via the Task tool errors, you MUST classify the error, apply the failover chain, and respect a **1-minute timeout**.
 
     ### Step 1: Classify the Error
 
     | Error Category | Examples | Action |
     |---------------|----------|--------|
-    | **Provider Error** | Connection refused, model unavailable, 502/503/504, timeout, rate limit, ollama process error | → Go to Step 2 (retry with fallback) |
-    | **Agent Error** | Agent type not found, internal agent failure | → Go to Step 2 (retry with fallback) |
-    | **Task Error** | Incorrect output, wrong implementation, Parse error | → Do NOT retry with fallback. Fix the task prompt and re-invoke same agent. |
-    | **Tool Error** | File not found, permission denied, bash command failed | → Fix the root cause. Do NOT retry with fallback. |
+    | **Provider Error** | Connection refused, model unavailable, 502/503/504, timeout after 60s, rate limit, ollama process error | → Go to Step 2 (advance failover chain) |
+    | **Agent Error** | Agent type not found, internal agent failure | → Go to Step 2 (advance failover chain) |
+    | **Task Error** | Incorrect output, wrong implementation, Parse error | → Do NOT advance failover. Fix the task prompt and re-invoke same agent with same model. |
+    | **Tool Error** | File not found, permission denied, bash command failed | → Fix the root cause. Do NOT advance failover. |
 
-    ### Step 2: Track Retry State
+    ### Step 2: Advance Failover Chain
 
-    For each subagent invocation, track retry count internally:
+    For each subagent invocation, track the current position in the failover chain:
 
     ```
-    {agent_name}_{retry_count} → {provider}
-    Example: executor_0 = opencode, executor_1 = ollama (first retry), executor_2 = opencode-go (second retry)
+    {agent_name}_{retries} → {chain_position}
+    Example: executor_0 → Primary (opencode/deepseek-v4-flash-free)
+             executor_1 → Fallback 1 (ollama/deepseek-v4-flash:cloud)
+             executor_2 → Fallback 2 (opencode-go/deepseek-v4-flash)
     ```
 
-    - **Attempt 0 (first call)**: Uses the agent's default primary model (opencode zen)
-    - **Attempt 1 (first retry)**: Switch to Fallback 1 (ollama cloud). Retry with same task prompt.
-    - **Attempt 2 (second retry)**: Switch to Fallback 2 (opencode-go hosted). Retry with same task prompt.
-    - **Attempt 3 (third retry)**: Retry with Fallback 2 (opencode-go hosted) again.
+    - **Attempt 0**: Try the tier's **Primary** model.
+    - **If provider/agent error occurs within 60 seconds** → Advance to **Fallback 1** and retry with the same task prompt.
+    - **If provider/agent error occurs within 60 seconds again** → Advance to **Fallback 2**.
+    - **If provider/agent error occurs within 60 seconds again** → Advance to **Fallback 3** (if available), otherwise escalate.
+    - **If a subagent takes longer than 60 seconds without erroring**, let it finish — do not retry.
+    - **If a subagent succeeds but produces wrong output**, do NOT advance the chain — fix the task prompt and retry with the same model.
+
+    **Time-to-live for failover state:** The 60-second timeout is measured from the moment the Task tool is invoked. If the subagent is still running after 60s with no error, consider it a success-in-progress and wait for it to complete.
 
     ### Step 3: Escalation Gate
 
-    **If a subagent still fails after 3 retries (4 total attempts):**
+    **If a subagent exhausts all models in its failover chain:**
 
      1. Document the failure with:
         - Which agent failed
-        - All attempt results (attempt 0 with opencode, attempts 1-3 with ollama/opencode-go)
+        - Which models were tried (primary + each fallback)
         - The error from each attempt
         - The original task prompt
      2. **Use the `question` tool to ask the user how to proceed.** Offer these options:
-        - "Retry with a different agent from the same tier" (e.g., use `@code-reviewer` instead of `@architect` for review tasks)
+        - "Retry with a different agent from the same tier" (e.g., use `@code-reviewer` instead of `@architect`)
         - "Fall back to manual handling" (you handle the task yourself)
         - "Skip this subagent and continue without it"
         - "Abort the current workflow"
@@ -200,25 +231,27 @@ mode: primary
 
     ### Step 4: Per-Subagent Isolation
 
-    - Retry counters are **per-subagent**. If `@executor` fails 4 times and `@verifier` fails once, escalate only `@executor`. Continue with other subagents normally.
+    - Failover state is **per-subagent**. If `@executor` exhausts its chain and `@verifier` hasn't failed, escalate only `@executor`. Continue with other subagents normally.
     - Failures in one subagent **never** block other subagents. Continue parallel work and escalate only the stuck agent.
+    - Each subagent starts at the **Primary** model on its first invocation. Failover state does not carry across unrelated task dispatches.
 
     ## Quick Reference
 
-    | Attempt | Provider | Model |
-    |---------|----------|-------|
-    | 0 (initial) | opencode | `opencode/{model}` |
-    | 1 (first retry) | ollama | `ollama/{model}:cloud` |
-    | 2 (second retry) | opencode-go | `opencode-go/{model}` |
-    | 3 (third retry) | opencode-go | `opencode-go/{model}` |
-    | After 3 retries → | `question` tool | Ask user how to proceed |
+    | Attempt | Trigger | Model | Provider |
+    |---------|---------|-------|----------|
+    | 0 (primary) | First dispatch | Tier's Primary model | varies by tier (see table above) |
+    | 1 (fallback 1) | Provider/agent error within 60s | Tier's Fallback 1 | varies |
+    | 2 (fallback 2) | Provider/agent error within 60s | Tier's Fallback 2 | varies |
+    | 3 (fallback 3) | Provider/agent error within 60s | Fallback 3 (if available) | varies |
+    | Escalate | Chain exhausted | — | `question` tool → user |
 
     ## When NOT to Apply Fallback
 
-    - **Task-level errors**: If a subagent completes but produces wrong output, fix the task prompt — do not change the model provider.
-    - **Tool-level errors within the subagent**: File not found, permission denied — these are environmental, not provider issues.
-    - **User explicitly requested a specific model**: Honor the user's explicit model choice and do not override it.
-    - **The fallback is the same as the primary**: If an agent already uses an opencode model, there is no fallback. Escalate after 3 direct retries.
+    - **Task-level errors**: If a subagent completes but produces wrong output, fix the task prompt — do not advance the failover chain.
+    - **Tool-level errors within the subagent**: File not found, permission denied — these are environmental, not provider issues. Fix the root cause.
+    - **User explicitly requested a specific model**: Honor the user's explicit model choice and do not override it with failover.
+    - **Subagent completed successfully**: Even if slow, success does not trigger failover. Only errors trigger advancement.
+    - **Task/subagent type not found in any tier**: Use Default tier as the fallback.
   </Model_Tiering_And_Fallback>
 
   <Delegation_Format>

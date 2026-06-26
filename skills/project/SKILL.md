@@ -407,6 +407,21 @@ Move stale branches, old artifacts, and unused config to a timestamped archive �
 
 ---
 
+### `/project readme` — Update README
+
+**Delegates to:** `readme-updater` skill
+
+Update the project README to reflect the current codebase state — scans agents, skills, tools, rules, commands, and archetypes; preserves existing tone, documentation links, and section structure; produces SEO-optimized, technically proficient output.
+
+**Reminder:**
+> Readme: I'll scan the codebase, read the existing README, and update all resource counts, feature descriptions, and links to match the current state.
+
+**Usage:**
+- `/project readme` — Update README with current codebase state
+- `/project readme --dry-run` — Preview changes without writing
+
+---
+
 ### `/project workspace` — Manage Hubs Workspace
 
 **Delegates to:** inline execution
