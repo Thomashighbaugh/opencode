@@ -1,5 +1,5 @@
 import { tool } from "@opencode-ai/plugin"
-import { HUBS, getDelegation } from "./hubMenu"
+import { loadAllHubs, getDelegation } from "./hub-data"
 import * as fs from "fs"
 
 function generateRoutingDocs(): string {
@@ -13,7 +13,8 @@ function generateRoutingDocs(): string {
     "|-----|-----------|------------|--------|"
   ]
 
-  for (const hub of HUBS) {
+  const hubs = loadAllHubs()
+  for (const hub of hubs) {
     for (const sub of hub.subcommands) {
       const { type, target } = getDelegation(sub)
       const targetStr = target || (type === 'inline' ? '—' : '—')

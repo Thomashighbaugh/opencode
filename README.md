@@ -2,7 +2,7 @@
 
 > Hub-Driven Multi-Agent Orchestration for OpenCode — Interactive Menus, Not Memorization.
 
-The name derives from the hub-and-spoke orchestration concept — a central operations hub that coordinates specialized units rather than trying to do everything itself. Each hub dispatches to a curated roster of **31 agents, 101 skills, 24 tools, 17 rules, and 7 project archetypes** through structured menus instead of requiring you to remember every capability's exact name.
+The name derives from the hub-and-spoke orchestration concept — a central operations hub that coordinates specialized units rather than trying to do everything itself. Each hub dispatches to a curated roster of **31 agents, 104 skills, 24 tools, 17 rules, and 7 project archetypes** through structured menus instead of requiring you to remember every capability's exact name.
 
 The codebase evolves organically — each optimization emerges from actual usage: a missing facet surfaces mid-workflow, a previously overlooked edge case bites, and the configuration adapts. Rather than a grand upfront design, the system accretes capability patch by patch, responding to the real needs of orchestrating 31 agents across five hubs. Contributions, overlooked patterns, and pull requests are always welcome.
 
@@ -43,8 +43,8 @@ The codebase evolves organically — each optimization emerges from actual usage
 | Hub | Subcommands | Purpose |
 |-----|-------------|---------|
 | `/init-project` | 16 | Project initialization, detection, validation, provisioning, and diagnostics |
-| `/ideation` | 30 | Planning, research, and structured thinking — 30 methodologies |
-| `/orchestrate` | 32 | Execution patterns — from persistent loops to multi-stage pipelines |
+| `/ideation` | 32 | Planning, research, and structured thinking — 32 methodologies |
+| `/orchestrate` | 33 | Execution patterns — from persistent loops to multi-stage pipelines |
 | `/harvest-context` | 19 | Knowledge extraction and artifact management |
 | `/project` | 26 | Git operations, code quality, release management, file organization, README updates |
 | `/skills` | 13 | Skill CRUD, search, sync, package, and validation |
@@ -81,7 +81,7 @@ No arguments on any hub produces an interactive menu. Supply a subcommand direct
 
 ### `/ideation` — Planning, Research, And Ideation Hub
 
-30 subcommands spanning strategic planning, domain modeling, task decomposition, and creative exploration.
+32 subcommands spanning strategic planning, domain modeling, task decomposition, creative exploration, prompt optimization, and branching exploration.
 
 | Subcommand | Delegates To | Description |
 |------------|-------------|-------------|
@@ -116,6 +116,8 @@ No arguments on any hub produces an interactive menu. Supply a subcommand direct
 | `grill` | `grilling` skill | Stress-test plans via relentless one-at-a-time questioning |
 | `modularity` | `@architect` agent | Analyze module boundaries, coupling, and cohesion |
 | `arch-prep` | `@architect` agent | Architecture preparation for upcoming features |
+| `tree-of-thoughts` | `tree-of-thoughts` skill | ⚠️ EXPENSIVE: Explore multiple solution branches in parallel (~10× cost). Warns user and asks for confirmation before proceeding |
+| `opro` | `opro` skill | ⚠️ EXPENSIVE: Generate prompt variations and test each against a benchmark (~many× cost). Warns user and asks for confirmation before proceeding |
 | `resume` | — | Resume the most recent ideation session |
 | `status` | — | Show all ideation work products with timestamps |
 
@@ -221,7 +223,7 @@ No arguments on any hub produces an interactive menu. Supply a subcommand direct
 
 ## Overview
 
-OpenCode Hubs solves a problem of scale. A configuration that accumulates 31 agents, 101 skills, 24 tools, 17 rules, and 7 archetypes over time becomes a burden of memory rather than a toolbox. The natural response — "I hope what I need exists somewhere" — is not a workflow.
+OpenCode Hubs solves a problem of scale. A configuration that accumulates 31 agents, 104 skills, 24 tools, 17 rules, and 7 archetypes over time becomes a burden of memory rather than a toolbox. The natural response — "I hope what I need exists somewhere" — is not a workflow.
 
 The six hubs (`/init-project`, `/ideation`, `/orchestrate`, `/harvest-context`, `/project`, `/skills`) give every capability a discoverable home, ordered by the project development lifecycle. Each hub offers a menu when invoked without arguments, listing subcommands with descriptions. For experienced users, direct invocation skips the menu entirely: `/orchestrate ralph fix all TypeScript errors`.
 
@@ -293,11 +295,12 @@ Natural language triggers that invoke subcommands directly, bypassing the menu. 
 | Workflow | @tracer, @git-master, @debugger, @config-orchestrator, @stack-detector |
 | Specialized | @effort-estimator, @prompt-simplifier, @skill-creator, @requirements-analyzer, @commit-drafter, @general |
 
-### Skills (101)
+### Skills (104)
 
 | Category | Key Skills |
 |----------|------------|
 | Execution Modes | ralph, autopilot, ultrawork, team, ultraqa, cancel, swarm, pipeline, pair, tdd |
+| Reasoning | self-consistency (user-gated consensus), tree-of-thoughts (branching exploration, user-gated), opro (prompt optimization, user-gated) |
 | Planning | plan, ralplan, deep-interview, deep-dive, sciomc, graph-thinking, idea-refine |
 | Quality | ai-slop-cleaner, self-improve, verify, visual-verdict, systematic-debugging |
 | Development | deepinit, changelog-generator, skillify, learner, subagent-driven-development |
@@ -393,6 +396,10 @@ Configured in `opencode.jsonc`. See [Model Configuration](./.opencode/docs/model
 ├── rules/                  # 17 shared rules
 ├── archetypes/             # 7 project archetype templates
 ├── templates/              # File templates
+│   ├── agent-template.md   # Agent definition template
+│   ├── context-template.md # Context document template
+│   ├── agent-tests/        # Agent test templates
+│   └── reasoning/          # CoT reasoning templates (referenced by agent defs)
 ├── rule-templates/         # Rule generation templates
 ├── tool-templates/         # Tool generation templates
 ├── docs/                   # Generated documentation

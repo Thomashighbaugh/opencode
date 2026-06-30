@@ -2,7 +2,7 @@ import { tool } from "@opencode-ai/plugin"
 import * as fs from "fs"
 import * as path from "path"
 import { homedir } from "os"
-import { HUBS } from './hubMenu'
+import { loadAllHubs } from './hub-data'
 
 const USER_CONFIG_DIR = process.env.OPENCODE_CONFIG_DIR || path.join(homedir(), '.config', 'opencode')
 
@@ -95,7 +95,7 @@ export default tool({
       let missing = 0
       let warnings = 0
 
-      for (const hub of HUBS) {
+      for (const hub of loadAllHubs()) {
         for (const sub of hub.subcommands) {
           total++
 
@@ -132,7 +132,7 @@ export default tool({
     if (action === 'validate') {
       const results: ValidationResult[] = []
 
-      for (const hub of HUBS) {
+      for (const hub of loadAllHubs()) {
         for (const sub of hub.subcommands) {
           // Collect all delegation types set on this subcommand
           const types: string[] = []

@@ -255,6 +255,10 @@ mode: subagent
 
 ## Workflow
 
+### Step 0: Parse Flags
+
+Check for `--minimal` flag: when present, generate only `opencode.jsonc` with `resource_tags` and `extends` — skip rules, tools, agents, and instructions. Produces a ~10-line config instead of a full scaffold. Use for quick project setup where per-project rules aren't needed yet.
+
 ### Step 1: Prepare Output Directory
 
 ```bash

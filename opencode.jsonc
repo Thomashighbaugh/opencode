@@ -115,6 +115,7 @@
     "./rules/security.md",
     "./rules/karpathy-guidelines.md",
     "./rules/hub-description-directive.md",
-    "./rules/script-elimination.md"
+    "./rules/script-elimination.md",
+    "./rules/completion-guardrail.md"
   ]
 }

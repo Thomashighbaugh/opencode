@@ -32,6 +32,38 @@ Before implementing:
 - [ ] Use appropriate data structures
 - [ ] Cache expensive computations
 
+## Examples
+
+### BAD: Premature optimization
+```typescript
+// BAD: Optimizing before measuring
+const optimizedUserMap = new Map(users.map(u => [u.id, u]));
+// vs a simple loop, when users.length is always < 50
+```
+
+### GOOD: Measure first, optimize based on data
+```typescript
+// GOOD: Start simple, profile, then optimize if needed
+function findUser(users: User[], id: string) {
+  return users.find(u => u.id === id);
+}
+// If profiling shows this is a bottleneck, then optimize
+```
+
+### BAD: N+1 in loops
+```typescript
+// BAD: Database query in a loop
+for (const user of users) {
+  const posts = await db.posts.findByUserId(user.id); // N queries
+}
+```
+
+### GOOD: Batch queries
+```typescript
+// GOOD: Single batch query
+const posts = await db.posts.findByUserIds(users.map(u => u.id));
+```
+
 ## [CUSTOMIZE] Project-Specific Performance
 
 Add your project-specific performance requirements here:

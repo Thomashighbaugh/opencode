@@ -52,6 +52,7 @@ Every turn, every subagent invocation, every verification round costs an API req
 | `script-elimination.md` | Use file-editing tools, not inline scripts |
 | `hub-description-directive.md` | Hub subcommand description conventions |
 | `security.md` | Security rules — mandatory checks, secret management |
+| `completion-guardrail.md` | **MANDATORY STOP** after planning/analysis — no auto-implementation |
 
 **On-demand rules** (load via tool when needed): `hub-routing.md`, `resource-tags.md`, `global-reference.md`, `hub-state.md`
 
@@ -71,29 +72,29 @@ Magic keywords (`ralph`, `autopilot`, `ultrawork`, `build me`, `create me`, etc.
 
 ## Agent Model Tiers
 
-Each tier has a failover chain for subagent dispatch. Primary → Fallback 1 → Fallback 2 → (Fallback 3 if available). Stop on first success.
+Each tier has a failover chain: Primary → F1 → F2 → (F3). Stop on first success. Model key: `o=`ollama, `og=`opencode-go, `oc=`opencode (free).
 
-| Tier | Primary | Fallback 1 | Fallback 2 | Fallback 3 | Agents |
-|------|---------|------------|------------|------------|--------|
-| **Pro** | `ollama/deepseek-v4-pro:cloud` | `opencode-go/deepseek-v4-pro` | `opencode/deepseek-v4-flash-free` | _(NVIDIA NIM if cfg)_ | architect, planner, security-reviewer, requirements-analyzer, tracer, analyst, critic |
-| **Default** | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | _(NVIDIA NIM if cfg)_ | hubs, executor, debugger, test-engineer, designer, frontend-design, git-master, config-orchestrator, skill-creator, refactoring, code-simplifier, qa-tester, code-reviewer, scientist, deep-thinker |
-| **Fast** | `opencode/deepseek-v4-flash-free` | `ollama/glm-5.2:cloud` | `opencode-go/glm-5.2` | — | writer, verifier, document-specialist, effort-estimator, explore, commit-drafter, prompt-simplifier, convention-extractor |
+| Tier | Primary | F1 | F2 | F3 | Agents |
+|------|---------|----|----|----|--------|
+| **Pro** | `o/dsv4-pro:cloud` | `og/dsv4-pro` | `oc/dsv4-flash-free` | _(NVIDIA)_ | architect, planner, security-reviewer, requirements-analyzer, tracer, analyst, critic |
+| **Default** | `oc/dsv4-flash-free` | `o/dsv4-flash:cloud` | `og/dsv4-flash` | _(NVIDIA)_ | hubs, executor, debugger, test-engineer, designer, frontend-design, git-master, config-orchestrator, skill-creator, refactoring, code-simplifier, qa-tester, code-reviewer, scientist, deep-thinker |
+| **Fast** | `oc/dsv4-flash-free` | `o/glm-5.2:cloud` | `og/glm-5.2` | — | writer, verifier, document-specialist, effort-estimator, explore, commit-drafter, prompt-simplifier, convention-extractor |
 
-**Task-to-Tier Routing:** Pro for complex reasoning (architecture, security, planning). Default for implementation, testing, debugging, design. Fast for documentation, verification, search.
+**Routing:** Pro → complex reasoning. Default → implementation/testing/debugging/design. Fast → docs/verification/search.
 
-**Session model** is set in `agents/hubs.md` frontmatter. Currently: `ollama/deepseek-v4-flash:cloud`.
+**Session model:** `o/dsv4-flash:cloud` (set in `agents/hubs.md` frontmatter).
 
-**Failover:** Provider/agent errors advance the chain after 60s. Task errors do not advance — fix the prompt and retry. Exhausting all models in the chain → escalate via `question` tool.
+**Failover:** Provider errors advance chain after 60s. Task errors → fix prompt, don't advance. Chain exhausted → escalate via `question` tool.
 
 ### Subagent Timeout
-**Subagents have a max-turn limit.** If a subagent hasn't produced output after 5 turns, terminate and escalate to the user. Subagents that loop or hang waste API requests. A subagent that can't complete in 5 turns needs a better prompt or a different approach.
+Max 5 turns per subagent. If no output after 5 turns, terminate and escalate. Looping/hanging subagents waste API requests — needs a better prompt or different approach.
 
 ## Hub Commands
 
 | Command | Purpose | Subcommands |
 |---------|---------|-------------|
 | `/init-project` | Project init | setup, detect, recommend, docs, context, verify, refresh, status, map-codebase, doctor, reset, provision, tag, find-skills, find-agents, find-tools, find-rules |
-| `/ideation` | Planning/research | plan, brainstorm, decomposition, refine, overhaul, deep, graph, research, ralplan, ddd, event-storming, double-diamond, jtbd, impact-mapping, spiral, top-down, bottom-up, adversarial-debate, cleanroom, pwf, rpikit, hive, story-mapping, lean-canvas, constitution |
+| `/ideation` | Planning/research | plan, brainstorm, decomposition, refine, overhaul, deep, graph, research, ralplan, ddd, event-storming, double-diamond, jtbd, impact-mapping, spiral, top-down, bottom-up, adversarial-debate, cleanroom, pwf, rpikit, hive, story-mapping, lean-canvas, constitution, quality, modularity, arch-prep, web-research, tech-eval, competitive-analysis, tree-of-thoughts, opro |
 | `/orchestrate` | Execution | ralph, team, deep, ccg, ultrawork, autopilot, sciomc, swarm, state-machine, consensus, evolutionary, spec-driven, react, plan-execute, hive, tdd, pair, pipeline, gsd, self-assess, remediate, devin, maestro, metaswarm, cc10x, gastown, ruflo, harden, brownfield, vibe-code |
 | `/harvest-context` | Context mgmt | session, codebase, skill, agent, rule, command, memory, docs, decompose, context, consume, compress, secondbrain, journal, search, prune, export, diff, sweep |
 | `/project` | Project ops | tests, commit, stage, pr, gh, optimize, icon, organize, analyze, changelog, converge, scan, sandbox, retrospect, purge, release, review, audit, archive, git-cleanup, workspace |

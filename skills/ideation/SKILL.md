@@ -20,7 +20,7 @@ Unified entry point for all planning and research methods. Each subcommand is a 
 
 ## No-Argument Behavior
 
-When invoked without arguments (`/ideation`), list the subcommands as plain text and ask the user to choose. Do NOT call `hubMenu` or any other tool — just output the list directly. Available methods: plan, brainstorm, decomposition, refine, overhaul, deep, graph, research, ralplan, ddd, event-storming, double-diamond, jtbd, impact-mapping, spiral, top-down, bottom-up, adversarial-debate, cleanroom, pwf, rpikit, hive, story-mapping, lean-canvas, constitution, quality, modularity, arch-prep, resume, status.
+When invoked without arguments (`/ideation`), list the subcommands as plain text and ask the user to choose. Do NOT call `hubMenu` or any other tool — just output the list directly. Available methods: plan, brainstorm, decomposition, refine, overhaul, deep, graph, research, ralplan, ddd, event-storming, double-diamond, jtbd, impact-mapping, spiral, top-down, bottom-up, adversarial-debate, cleanroom, pwf, rpikit, hive, story-mapping, lean-canvas, constitution, quality, modularity, arch-prep, web-research, tech-eval, competitive-analysis, tree-of-thoughts, opro, resume, status.
 
 ## With-Argument Behavior
 
@@ -213,6 +213,114 @@ Architecture preparation for upcoming features. Before writing code for a new fe
 
 ---
 
+### `/ideation web-research` — Multi-Source Web Research
+
+**Method:** `web-research`
+
+Multi-source web research using `websearch` + `webfetch`. Searches multiple queries in parallel, fetches top results, and synthesizes findings into a structured research report. Good for investigating topics, gathering current information, or exploring unfamiliar domains.
+
+**Reminder shown to user:**
+> Web Research: I'll search multiple queries in parallel, fetch top results, and synthesize findings into a structured research report saved to `.opencode/state/ideation/work-products/`.
+
+**Delegates to:** inline (executed directly)
+
+**Process:**
+1. Accept a research topic or question from the user
+2. Decompose the topic into 3-5 parallel search queries covering different angles
+3. Execute all searches simultaneously via `websearch`
+4. Fetch the top 2-3 results per query via `webfetch` (parallel fetches)
+5. Synthesize findings into a structured report with:
+   - Executive summary
+   - Key findings organized by theme
+   - Source citations with URLs
+   - Contradictions or disagreements found
+   - Gaps in available information
+   - Recommendations or conclusions
+6. Save report to `.opencode/state/ideation/work-products/{timestamp}_web-research_{topic-slug}.md`
+7. Present summary to user with option to refine, expand, or export
+
+**Usage:**
+- `/ideation web-research "best practices for micro-frontend architecture"` — Research a topic
+- `/ideation web-research "React Server Components vs traditional SSR"` — Compare approaches
+
+---
+
+### `/ideation tech-eval` — Technology Evaluation
+
+**Method:** `tech-eval`
+
+Research and evaluate a library, framework, or tool via `websearch` + `webfetch`. Compares against alternatives and produces a structured evaluation with pros, cons, and recommendations. Good for making technology decisions.
+
+**Reminder shown to user:**
+> Tech Eval: I'll research your technology candidate, compare it against alternatives, and produce a structured evaluation with pros/cons/recommendations.
+
+**Delegates to:** inline (executed directly)
+
+**Process:**
+1. Accept a technology name and optionally alternatives to compare against
+2. Research the primary technology: docs, GitHub, npm/PyPI stats, community, blog posts
+3. Research 2-3 alternatives (or use user-specified ones)
+4. For each technology, fetch via `webfetch`:
+   - Official documentation / landing page
+   - GitHub repository (stars, issues, activity)
+   - Package registry (downloads, version, maintenance)
+   - Recent blog posts or comparison articles
+5. Produce a structured evaluation report with:
+   - Overview and description of each option
+   - Feature comparison matrix
+   - Performance benchmarks (if available)
+   - Community health (stars, contributors, activity, maintenance)
+   - Learning curve and DX assessment
+   - Integration complexity
+   - Security considerations
+   - Pros and cons per option
+   - Recommendation with rationale
+6. Save report to `.opencode/state/ideation/work-products/{timestamp}_tech-eval_{topic-slug}.md`
+7. Present to user with option to refine or export
+
+**Usage:**
+- `/ideation tech-eval "Prisma vs Drizzle ORM"` — Compare two ORMs
+- `/ideation tech-eval "Bun"` — Evaluate Bun runtime (auto-discovers alternatives like Node.js, Deno)
+
+---
+
+### `/ideation competitive-analysis` — Competitive Landscape Analysis
+
+**Method:** `competitive-analysis`
+
+Research competitors and produce a structured competitive analysis with feature comparison matrix. Uses `websearch` to discover competitors and `webfetch` to gather detailed product information. Good for product planning and market positioning.
+
+**Reminder shown to user:**
+> Competitive Analysis: I'll research your competitive landscape, discover competitors, and produce a structured analysis with feature comparison matrix.
+
+**Delegates to:** inline (executed directly)
+
+**Process:**
+1. Accept a product, market, or domain to analyze
+2. Discover competitors via `websearch` (multiple queries: "alternatives to X", "X competitors", "X vs")
+3. For each competitor (up to 5-6), fetch via `webfetch`:
+   - Product landing page and feature list
+   - Pricing page
+   - Documentation or product overview
+   - Review sites or comparison articles
+4. Produce a structured competitive analysis report with:
+   - Market overview and landscape map
+   - Competitor profiles (name, description, target audience, pricing model)
+   - Feature comparison matrix (rows = features, columns = competitors)
+   - Pricing comparison
+   - Strengths and weaknesses per competitor
+   - Market positioning analysis
+   - Gaps and opportunities
+   - Strategic recommendations
+5. Save report to `.opencode/state/ideation/work-products/{timestamp}_competitive-analysis_{topic-slug}.md`
+6. Present to user with option to refine, expand, or export
+
+**Usage:**
+- `/ideation competitive-analysis "project management tools for developers"` — Analyze a market
+- `/ideation competitive-analysis "AI code assistants"` — Competitive landscape for AI coding tools
+
+---
+
 ## Shared Lifecycle
 
 Every subcommand follows this lifecycle:
@@ -222,6 +330,10 @@ Every subcommand follows this lifecycle:
 ```bash
 mkdir -p .opencode/state/ideation/work-products
 ```
+
+### Step 0a: Parse Flags
+
+Check for `--quiet` flag: when present, suppress all inline progress narration. Only print the final result and any errors. Saves tokens on long-running research tasks where intermediate status is not needed.
 
 ### Step 1: Check Prior Work
 
@@ -322,6 +434,8 @@ EOF
 ```
 
 Report inline: show the final result, note the saved file, and mention that `/orchestrate` can execute it. Do NOT ask separate "Ready to implement?" and "Session summary?" questions — present both in one message.
+
+**⚠️ COMPLETION GUARDRAIL: After reporting the result, STOP. Do NOT offer to implement. Do NOT start coding. Do NOT dispatch executor agents. The user must explicitly say "go ahead" or "implement it" before any code is written. See `rules/completion-guardrail.md`.**
 
 **CRITICAL: The final output MUST always be saved to disk.** Do not skip the file write under any circumstances. If you've received approval, you MUST write the final output and then report it inline. The file pattern is:
 

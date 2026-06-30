@@ -2042,29 +2042,299 @@
     "ses_0fa632554ffevKpnFMupkMTR0x": {
       "tool_counts": {
         "grep": 4,
-        "read": 12,
-        "bash": 42,
+        "read": 14,
+        "bash": 50,
         "todowrite": 4,
         "write": 4,
-        "edit": 12
+        "edit": 22
       },
       "last_tool": "edit",
-      "total_calls": 78,
+      "total_calls": 98,
       "started_at": 1782505598,
-      "updated_at": 1782506416
+      "updated_at": 1782535982
     },
     "ses_0fb06ede3ffeF5vcCtBCRjHyJJ": {
       "tool_counts": {
-        "edit": 11,
-        "read": 32,
+        "edit": 5,
+        "read": 30,
         "bash": 6,
-        "write": 4,
-        "grep": 4
+        "write": 4
+      },
+      "last_tool": "bash",
+      "total_calls": 45,
+      "started_at": 1782506429,
+      "updated_at": 1782511824
+    },
+    "ses_0fa034aa4ffeGjWg3Dpr940hAJ": {
+      "tool_counts": {
+        "todowrite": 12,
+        "read": 20,
+        "task": 11,
+        "edit": 3,
+        "json-edit": 22,
+        "lorebook-refresh-refs": 2,
+        "glob": 2,
+        "build-png-card": 3,
+        "bash": 14,
+        "extract-png-card": 2
+      },
+      "last_tool": "task",
+      "total_calls": 91,
+      "started_at": 1782511881,
+      "updated_at": 1782531331
+    },
+    "ses_0fa026c6dffenU1iQAtz79Jbiv": {
+      "tool_counts": {
+        "read": 2,
+        "grep": 4,
+        "bash": 2,
+        "write": 2
+      },
+      "last_tool": "write",
+      "total_calls": 10,
+      "started_at": 1782511937,
+      "updated_at": 1782511995
+    },
+    "ses_0fa026c43ffeE6Hm9TdWBJF5vh": {
+      "tool_counts": {
+        "read": 18,
+        "grep": 14,
+        "todowrite": 4
+      },
+      "last_tool": "todowrite",
+      "total_calls": 36,
+      "started_at": 1782511938,
+      "updated_at": 1782512067
+    },
+    "ses_0f9fd7e97ffeZ3vC6B4k51brb0": {
+      "tool_counts": {
+        "read": 4,
+        "glob": 2,
+        "grep": 8,
+        "bash": 20,
+        "todowrite": 2
+      },
+      "last_tool": "todowrite",
+      "total_calls": 36,
+      "started_at": 1782512261,
+      "updated_at": 1782512423
+    },
+    "ses_0f9fd7eb3ffeTb3OqMzbZQR4KL": {
+      "tool_counts": {
+        "read": 16,
+        "loadSkill": 6,
+        "bash": 12
+      },
+      "last_tool": "bash",
+      "total_calls": 34,
+      "started_at": 1782512262,
+      "updated_at": 1782512427
+    },
+    "ses_0f8dc966cffeNZgjQJPdAlAs2x": {
+      "tool_counts": {
+        "todowrite": 6,
+        "read": 16
+      },
+      "last_tool": "todowrite",
+      "total_calls": 22,
+      "started_at": 1782531199,
+      "updated_at": 1782531274
+    },
+    "ses_0f8dc968effe5n31szbT2P99mY": {
+      "tool_counts": {
+        "read": 30,
+        "grep": 20,
+        "question": 2,
+        "todowrite": 10,
+        "skill": 10,
+        "edit": 26,
+        "bash": 44
+      },
+      "last_tool": "todowrite",
+      "total_calls": 142,
+      "started_at": 1782531199,
+      "updated_at": 1782533546
+    },
+    "ses_0f9ab1604ffeGE9AVGwMCck3DQ": {
+      "tool_counts": {
+        "edit": 47,
+        "bash": 54,
+        "read": 38,
+        "write": 6,
+        "grep": 2,
+        "multi-edit": 2
       },
       "last_tool": "edit",
-      "total_calls": 57,
-      "started_at": 1782506429,
-      "updated_at": 1782515833
+      "total_calls": 149,
+      "started_at": 1782535999,
+      "updated_at": 1782548648
+    },
+    "ses_0f7cfbfc5ffeok52FW1jvYRPI2": {
+      "tool_counts": {
+        "hubMenu": 2,
+        "loadSkill": 4,
+        "read": 150,
+        "bash": 318,
+        "task": 2,
+        "write": 46,
+        "webfetch": 3,
+        "todowrite": 16,
+        "skill-categories": 2,
+        "json-edit": 4,
+        "question": 4,
+        "glob": 8,
+        "grep": 48,
+        "edit": 44,
+        "nix-build": 7,
+        "nix-format": 6
+      },
+      "last_tool": "bash",
+      "total_calls": 664,
+      "started_at": 1782548811,
+      "updated_at": 1782694541
+    },
+    "ses_0f7ce78ddffebZWwZZA8bW54by": {
+      "tool_counts": {
+        "read": 90,
+        "glob": 26,
+        "bash": 6,
+        "grep": 6,
+        "write": 2
+      },
+      "last_tool": "write",
+      "total_calls": 130,
+      "started_at": 1782548894,
+      "updated_at": 1782548987
+    },
+    "ses_0f75862d6ffedT06GMhgvVJbX3": {
+      "tool_counts": {
+        "webfetch": 130,
+        "bash": 1142,
+        "write": 162,
+        "read": 328,
+        "todowrite": 30,
+        "edit": 253,
+        "invalid": 2,
+        "saveCommitMessage": 2,
+        "glob": 2,
+        "grep": 20,
+        "question": 2
+      },
+      "last_tool": "read",
+      "total_calls": 2073,
+      "started_at": 1782556637,
+      "updated_at": 1782691688
+    },
+    "ses_0fb056f6bffetVMFfVXlFPbUY3": {
+      "tool_counts": {
+        "read": 84,
+        "grep": 14,
+        "bash": 36,
+        "todowrite": 8,
+        "edit": 68,
+        "task": 2,
+        "multi-edit": 5,
+        "write": 20,
+        "json-edit": 2
+      },
+      "last_tool": "read",
+      "total_calls": 239,
+      "started_at": 1782576809,
+      "updated_at": 1782581094
+    },
+    "ses_0f6246e36ffeA8HqpdvmmjhCUt": {
+      "tool_counts": {
+        "read": 10,
+        "bash": 5
+      },
+      "last_tool": "bash",
+      "total_calls": 15,
+      "started_at": 1782576815,
+      "updated_at": 1782576830
+    },
+    "ses_0eb9b9cc6ffePnMvkizAZ0Cdgm": {
+      "tool_counts": {
+        "bash": 351,
+        "agentContext": 6,
+        "grep": 20,
+        "read": 108,
+        "edit": 44,
+        "nix-build": 6,
+        "write": 12,
+        "question": 2,
+        "hubMenu": 2,
+        "skill": 1,
+        "glob": 12,
+        "json-edit": 6,
+        "todowrite": 12,
+        "webfetch": 2,
+        "regex-edit": 4
+      },
+      "last_tool": "read",
+      "total_calls": 588,
+      "started_at": 1782753587,
+      "updated_at": 1782757788
+    },
+    "ses_0ead57fdeffe5yUWh9mIPqZFos": {
+      "tool_counts": {
+        "todowrite": 6,
+        "read": 152,
+        "grep": 38,
+        "edit": 99,
+        "bash": 82,
+        "multi-edit": 2,
+        "glob": 4,
+        "context7_resolve-library-id": 2,
+        "context7_query-docs": 6,
+        "webfetch": 4,
+        "write": 4
+      },
+      "last_tool": "bash",
+      "total_calls": 399,
+      "started_at": 1782766539,
+      "updated_at": 1782782974
+    },
+    "ses_0e9d95b12ffeR9iAyjToWYXALC": {
+      "tool_counts": {
+        "bash": 28,
+        "question": 2,
+        "loadSkill": 2,
+        "skill": 4,
+        "webfetch": 109,
+        "write": 8,
+        "read": 10,
+        "todowrite": 10,
+        "task": 2
+      },
+      "last_tool": "webfetch",
+      "total_calls": 175,
+      "started_at": 1782783065,
+      "updated_at": 1782790143
+    },
+    "ses_0e9d1c1a1ffeQlampa4ASRg9EK": {
+      "tool_counts": {
+        "todowrite": 10,
+        "websearch": 22,
+        "webfetch": 15
+      },
+      "last_tool": "todowrite",
+      "total_calls": 47,
+      "started_at": 1782783562,
+      "updated_at": 1782783721
+    },
+    "ses_0e9d794fbffeADStvQ3CTYrJzv": {
+      "tool_counts": {
+        "write": 14,
+        "read": 40,
+        "edit": 31,
+        "bash": 8,
+        "grep": 18,
+        "todowrite": 2
+      },
+      "last_tool": "edit",
+      "total_calls": 113,
+      "started_at": 1782786939,
+      "updated_at": 1782790079
     }
   }
 }

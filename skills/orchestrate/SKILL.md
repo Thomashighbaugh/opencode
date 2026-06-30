@@ -133,6 +133,9 @@ mkdir -p .opencode/state/orchestration/progress
 mkdir -p .opencode/state/orchestration/checkpoints
 ```
 
+### Step 0a: Parse Flags
+Check for `--quiet` flag: when present, suppress all inline progress narration. Only print the final result and any errors. Saves tokens on long-running tasks where intermediate status is not needed.
+
 ### Step 1: Load Plan
 Check for a plan in this order:
 1. **Direct argument** — the description provided with the command
@@ -164,7 +167,7 @@ At stage boundaries, write a checkpoint to disk and provide a brief inline statu
 If a new rule, skill, or agent is needed during execution: identify the gap, note it in the checkpoint, create the resource (rule → `.opencode/rules/`, skill → `skill-creator`, agent → `opencode-agent-creator`), and continue. Do NOT block for approval unless destructive.
 
 ### Step 5: Completion
-Write a final checkpoint. Report results inline. Do NOT offer hand-off to other hubs.
+Write a final checkpoint. Report results inline. Offer hand-off to other hubs (e.g., `/harvest-context` to capture decisions).
 
 ## Resume Behavior
 

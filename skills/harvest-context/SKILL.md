@@ -17,10 +17,12 @@ Unified entry point for extracting, generating, and managing project context. Ea
 - When project memory needs updating
 - When context needs compression, pruning, or diff against previous checkpoints
 - When you need to search or export project context as a report
+- When you need to research a topic via web search and save findings as durable context
+- When you need to compare alternatives (libraries, tools, approaches) with structured analysis
 
 ## No-Argument Behavior
 
-When invoked without arguments (`/harvest-context`), list the subcommands as plain text and ask the user to choose. Do NOT call `hubMenu` or any other tool — just output the list directly. Available operations: session, codebase, skill, agent, rule, command, memory, docs, consume, decompose, context, compress, secondbrain, journal, search, prune, export, diff, sweep.
+When invoked without arguments (`/harvest-context`), list the subcommands as plain text and ask the user to choose. Do NOT call `hubMenu` or any other tool — just output the list directly. Available operations: session, codebase, skill, agent, rule, command, memory, docs, web-research, compare, consume, decompose, context, compress, secondbrain, journal, search, prune, export, diff, sweep.
 
 ## With-Argument Behavior
 
@@ -214,6 +216,70 @@ Fetch up-to-date official documentation for any library, framework, or package b
 
 **Reminder:**
 > Docs: I'll fetch up-to-date official documentation for any library via the Context7 MCP API. Give me a library name and optional topic — e.g., `/harvest-context docs react hooks` or `/harvest-context docs next.js app router`.
+
+---
+
+### `/harvest-context web-research` — Multi-Source Web Research
+
+Multi-source web research using `websearch` + `webfetch`. Searches multiple queries in parallel, fetches top results, and synthesizes findings into a structured research report saved to `.opencode/state/harvest/`. Good for investigating topics, gathering current information, or exploring unfamiliar domains.
+
+**Process:**
+1. Accept a research topic or question from the user
+2. Decompose the topic into 3-5 parallel search queries covering different angles
+3. Execute all searches simultaneously via `websearch`
+4. Fetch the top 2-3 results per query via `webfetch` (parallel fetches)
+5. Synthesize findings into a structured report with:
+   - Executive summary
+   - Key findings organized by theme
+   - Source citations with URLs
+   - Contradictions or disagreements found
+   - Gaps in available information
+   - Recommendations or conclusions
+6. Save report to `.opencode/state/harvest/web-research-{timestamp}-{topic-slug}.md`
+7. Present summary to user with option to refine, expand, or promote to durable context
+
+**Usage:**
+- `/harvest-context web-research "best practices for micro-frontend architecture"` — Research a topic
+- `/harvest-context web-research "React Server Components vs traditional SSR"` — Compare approaches
+
+**Output:** `.opencode/state/harvest/web-research-{timestamp}-{topic-slug}.md`
+
+**Reminder:**
+> Web Research: I'll search multiple queries in parallel, fetch top results, and synthesize findings into a structured research report.
+
+---
+
+### `/harvest-context compare` — Compare Alternatives via Web Research
+
+Research and compare multiple options (libraries, tools, approaches, services) via `websearch` + `webfetch`. Produces a structured comparison table with recommendations. Good for making informed technology or design decisions.
+
+**Process:**
+1. Accept the items to compare (2-5 options) and optionally the comparison criteria
+2. For each option, research via `websearch` + `webfetch`:
+   - Official documentation / landing page
+   - GitHub repository (stars, issues, activity)
+   - Package registry (downloads, version, maintenance)
+   - Recent blog posts or comparison articles
+3. Produce a structured comparison report with:
+   - Overview and description of each option
+   - Feature comparison matrix (rows = criteria, columns = options)
+   - Performance benchmarks (if available)
+   - Community health metrics
+   - Learning curve and DX assessment
+   - Integration complexity
+   - Pros and cons per option
+   - Recommendation with rationale
+4. Save report to `.opencode/state/harvest/compare-{timestamp}-{topic-slug}.md`
+5. Present to user with option to refine, expand, or promote to durable context
+
+**Usage:**
+- `/harvest-context compare "Prisma vs Drizzle ORM"` — Compare two ORMs
+- `/harvest-context compare "Redis vs Memcached for caching"` — Compare caching solutions
+
+**Output:** `.opencode/state/harvest/compare-{timestamp}-{topic-slug}.md`
+
+**Reminder:**
+> Compare: I'll research multiple options and produce a structured comparison table with recommendations.
 
 ---
 
@@ -470,6 +536,10 @@ Auto-sweep REMOVED — manual-only per API call reduction directive. Use `/harve
 
 Every subcommand follows this pattern:
 
+### Step 0: Parse Flags
+
+Check for `--quiet` flag: when present, suppress all inline progress narration. Only print the final result and any errors. Saves tokens on long-running research tasks where intermediate status is not needed.
+
 ### Step 1: Scan Existing State
 
 ```bash
@@ -587,6 +657,8 @@ Related:
   - /ideation to plan next steps
   - /orchestrate to execute a plan
 ```
+
+**⚠️ COMPLETION GUARDRAIL: After reporting the result, STOP. Do NOT offer to implement. Do NOT start coding. The user must explicitly approve before any code is written. See `rules/completion-guardrail.md`.**
 
 ## Scope Selection
 

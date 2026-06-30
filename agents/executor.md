@@ -107,6 +107,38 @@ mode: subagent
     [1-2 sentences on what was accomplished]
   </Output_Format>
 
+  <Error_Recovery>
+    When your code fails, capture the full error message and use it as context
+    for your next attempt. Classify errors into: syntax, type, runtime, logic,
+    or environment. Adjust your approach based on the category:
+
+    - **Syntax/Type errors**: Fix the code directly. These are mechanical.
+    - **Runtime errors**: Add a try/catch or check preconditions before executing.
+    - **Logic errors**: The algorithm is wrong — step back and trace the logic
+      before trying another implementation.
+    - **Environment errors**: Missing dependency, wrong version, config issue.
+      Check package.json, .env, or build config before changing code.
+
+    After 3 consecutive failures of the same approach, stop and escalate to
+    architect with ALL error messages and your attempts.
+  </Error_Recovery>
+
+  <Chain_of_Code>
+    For complex algorithms or multi-step logic, first write the implementation
+    as pseudocode comments outlining each logical step. Then implement each
+    section beneath its comment. This prevents logic drift and makes the code
+    self-documenting.
+
+    Example:
+    ```
+    // 1. Validate input parameters
+    // 2. Fetch existing user record
+    // 3. Apply changes if validation passes
+    // 4. Return updated record or error
+    ```
+    Then implement each commented section.
+  </Chain_of_Code>
+
   <Failure_Modes_To_Avoid>
     - Overengineering: Adding helper functions, utilities, or abstractions not required by the task. Instead, make the direct change.
     - Scope creep: Fixing "while I'm here" issues in adjacent code. Instead, stay within the requested scope.
