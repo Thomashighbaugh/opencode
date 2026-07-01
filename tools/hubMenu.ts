@@ -1,5 +1,5 @@
 import { tool } from "@opencode-ai/plugin"
-import { HubDefinition, HubSubcommand, getDelegation, getStateInfo, getLatestCheckpoint, getStateDir, loadHub, HUB_FILE_MAP } from "./hub-data"
+import { HubDefinition, HubSubcommand, getDelegation, getStateInfo, getLatestCheckpoint, getStateDir, loadHub, loadSubcommandSpecFull, HUB_FILE_MAP } from "./hub-data"
 import { withToolCache } from "./cache-utils"
 
 // ─── Lazy Hub Loader ────────────────────────────────────────────────────
@@ -67,7 +67,14 @@ export default tool({
       }
 
       case 'route': {
-        // ⭐ KEY OPTIMIZATION: Only loads the hub, only returns the single subcommand's data
+        // ⭐ KEY OPTIMIZATION: When both hub + subcommand are provided (user selected
+        // a subcommand → no routing needed), return the FULL HubSubcommandSpec with
+        // detailedDescription, inlined rules, related skill pointers, and examples.
+        // This is the single payload sent with the prompt — eliminates follow-up
+        // loadSkill/rule-read calls for the common case.
+        //
+        // When only hub is provided (bare hub + NL task → routing needed), the caller
+        // should use the 'menu' action instead to get the slim subcommand list.
         if (!args.hub) return JSON.stringify({ error: "Hub name required for route action" })
         if (!args.subcommand) return JSON.stringify({ error: "Subcommand required for route action" })
 
@@ -81,6 +88,9 @@ export default tool({
             available: hub.subcommands.map(s => s.label)
           })
         }
+
+        // Load the full spec (detailedDescription, tools, rules content, related skills)
+        const { spec, rulesContent, relatedSkillMeta } = loadSubcommandSpecFull(args.hub, args.subcommand)
 
         // Only read state/checkpoint on route — these are lightweight
         const stateInfo = getStateInfo(hub)
@@ -97,7 +107,16 @@ export default tool({
           flags: args.flags || null,
           state: stateInfo,
           checkpoint: checkpoint,
-          canResume: !!checkpoint
+          canResume: !!checkpoint,
+          // Full spec — only present when the subcommand spec file exists
+          detailedDescription: spec?.detailedDescription || null,
+          tools: spec?.tools || null,
+          rules: spec?.rules || null,
+          rulesContent: rulesContent.length > 0 ? rulesContent : null,
+          relatedSkills: spec?.relatedSkills || null,
+          relatedSkillMeta: relatedSkillMeta.length > 0 ? relatedSkillMeta : null,
+          examples: spec?.examples || null,
+          warnings: spec?.warnings || null
         })
       }
 

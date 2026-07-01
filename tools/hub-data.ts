@@ -4,6 +4,7 @@ import { scanDir } from "./state-utils"
 
 // ─── Types ───────────────────────────────────────────────────────────────
 
+/** Identity slice — what the hub menu/routing view needs (small payload) */
 export interface HubSubcommand {
   label: string
   description: string
@@ -14,6 +15,24 @@ export interface HubSubcommand {
   command?: string
   inline?: boolean
   phases?: string
+}
+
+/** Full per-subcommand spec — loaded only when this subcommand is selected.
+ *  Contains the exhaustive pattern/action description + tool/rule references.
+ *  Lives in tools/hubs/<hub>/<subcommand>.ts */
+export interface HubSubcommandSpec extends HubSubcommand {
+  /** Full pattern/action explanation (1-3 paragraphs): when to use, step-by-step, outputs, state location */
+  detailedDescription: string
+  /** Tools this subcommand uses, e.g. ["websearch", "webfetch", "loadSkill"] */
+  tools?: string[]
+  /** Rules to inline into the routed payload, e.g. ["completion-guardrail", "security"] */
+  rules?: string[]
+  /** Additional skills to load for context (beyond the primary `skill`) */
+  relatedSkills?: string[]
+  /** Non-obvious usage examples */
+  examples?: Array<{ input: string; approach: string }>
+  /** Warnings (e.g. "⚠️ EXPENSIVE: ~10× cost") */
+  warnings?: string[]
 }
 
 export interface HubDefinition {
@@ -185,4 +204,78 @@ export function loadAllHubs(): HubDefinition[] {
     if (hub) hubs.push(hub)
   }
   return hubs
+}
+
+// ─── Subcommand Spec Loader ──────────────────────────────────────────────
+// Loads the full HubSubcommandSpec (detailedDescription, tools, rules, etc.)
+// from tools/hubs/<hub>/<subcommand>.ts. Only called when a subcommand is
+// explicitly selected — NOT for menu/routing views.
+
+const SUBCOMMAND_DIR_MAP: Record<string, string> = {
+  "init-project": "init-project",
+  "ideation": "ideation",
+  "orchestrate": "orchestrate",
+  "harvest-context": "harvest-context",
+  "project": "project",
+  "skills": "skills",
+}
+
+export function loadSubcommandSpec(hubName: string, subLabel: string): HubSubcommandSpec | null {
+  const dir = SUBCOMMAND_DIR_MAP[hubName]
+  if (!dir) return null
+  const file = `./hubs/${dir}/${subLabel}`
+  try {
+    const mod = require(file)
+    return (mod.default || mod.spec) as HubSubcommandSpec
+  } catch {
+    return null
+  }
+}
+
+/** Load the full spec including inlined rule content + related skill pointers.
+ *  Used by hubMenu 'route' action when both hub + subcommand are provided. */
+export function loadSubcommandSpecFull(hubName: string, subLabel: string): {
+  spec: HubSubcommandSpec | null
+  rulesContent: Array<{ name: string; content: string }>
+  relatedSkillMeta: Array<{ name: string; path: string; description: string }>
+} {
+  const spec = loadSubcommandSpec(hubName, subLabel)
+  if (!spec) return { spec: null, rulesContent: [], relatedSkillMeta: [] }
+
+  const rulesContent: Array<{ name: string; content: string }> = []
+  if (spec.rules && spec.rules.length > 0) {
+    const rulesDir = path.join(__dirname, '..', 'rules')
+    for (const ruleName of spec.rules) {
+      const rulePath = path.join(rulesDir, `${ruleName}.md`)
+      try {
+        if (fs.existsSync(rulePath)) {
+          rulesContent.push({ name: ruleName, content: fs.readFileSync(rulePath, 'utf-8') })
+        }
+      } catch {}
+    }
+  }
+
+  const relatedSkillMeta: Array<{ name: string; path: string; description: string }> = []
+  if (spec.relatedSkills && spec.relatedSkills.length > 0) {
+    const skillsDir = path.join(__dirname, '..', 'skills')
+    for (const skillName of spec.relatedSkills) {
+      const skillPath = path.join(skillsDir, skillName, 'SKILL.md')
+      try {
+        if (fs.existsSync(skillPath)) {
+          const content = fs.readFileSync(skillPath, 'utf-8')
+          const fmMatch = content.match(/^---\n([\s\S]*?)\n---/)
+          if (fmMatch) {
+            const descMatch = fmMatch[1].match(/^description:\s*(.+)$/m)
+            relatedSkillMeta.push({
+              name: skillName,
+              path: skillPath,
+              description: descMatch ? descMatch[1].trim() : ''
+            })
+          }
+        }
+      } catch {}
+    }
+  }
+
+  return { spec, rulesContent, relatedSkillMeta }
 }

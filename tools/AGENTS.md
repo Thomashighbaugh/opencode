@@ -10,7 +10,11 @@ TypeScript tool implementations (19 tools) that extend the OpenCode runtime. Too
 
 | File | Description |
 |------|-------------|
-| `hubMenu.ts` | Hub menu router — parses subcommands, checks state, provides routing for all 5 hub commands |
+| `hubMenu.ts` | Hub menu router — lazy-loads per-hub data. `route` action returns the FULL subcommand spec (detailedDescription, inlined rules, related skills) when both hub + subcommand are provided. `menu`/`list` return slim identity slices for routing-only cases. |
+| `hub-data.ts` | Hub types, subcommand spec loader, state helpers. Exports `loadHub`, `loadSubcommandSpec`, `loadSubcommandSpecFull`. |
+| `hub-<name>.ts` | Thin hub manifests — import identity slices from `hubs/<name>/index.ts`. Small payload for menu/routing views. |
+| `hubs/<hub>/<sub>.ts` | Per-subcommand spec files — full `HubSubcommandSpec` with `detailedDescription`, `tools`, `rules`, `relatedSkills`, `examples`, `warnings`. Only loaded when the subcommand is selected. |
+| `hubs/<hub>/index.ts` | Re-exports all subcommand specs + the identity slice for the hub manifest. |
 | `loadSkill.ts` | Load a skill's content, metadata, scripts, and references for agent use |
 | `listAgents.ts` | List available agents or get details about a specific agent |
 | `agentContext.ts` | Get or update agent context including project memory, notepad, active modes |
