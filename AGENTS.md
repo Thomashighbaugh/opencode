@@ -94,11 +94,21 @@ Max 5 turns per subagent. If no output after 5 turns, terminate and escalate. Lo
 | Command | Purpose | Subcommands |
 |---------|---------|-------------|
 | `/init-project` | Project init | setup, detect, recommend, docs, context, verify, refresh, status, map-codebase, doctor, reset, provision, tag, find-skills, find-agents, find-tools, find-rules |
-| `/ideation` | Planning/research | plan, brainstorm, decomposition, refine, overhaul, deep, graph, research, ralplan, ddd, event-storming, double-diamond, jtbd, impact-mapping, spiral, top-down, bottom-up, adversarial-debate, cleanroom, pwf, rpikit, hive, story-mapping, lean-canvas, constitution, quality, modularity, arch-prep, web-research, tech-eval, competitive-analysis, tree-of-thoughts, opro |
-| `/orchestrate` | Execution | ralph, team, deep, ccg, ultrawork, autopilot, sciomc, swarm, state-machine, consensus, evolutionary, spec-driven, react, plan-execute, hive, tdd, pair, pipeline, gsd, self-assess, remediate, devin, maestro, metaswarm, cc10x, gastown, ruflo, harden, brownfield, vibe-code |
-| `/harvest-context` | Context mgmt | session, codebase, skill, agent, rule, command, memory, docs, decompose, context, consume, compress, secondbrain, journal, search, prune, export, diff, sweep |
-| `/project` | Project ops | tests, commit, stage, pr, gh, optimize, icon, organize, analyze, changelog, converge, scan, sandbox, retrospect, purge, release, review, audit, archive, git-cleanup, workspace |
+| `/ideation` | Planning/research | plan, brainstorm, decomposition, refine, overhaul, deep, graph, research, ralplan, ddd, event-storming, double-diamond, jtbd, impact-mapping, spiral, top-down, bottom-up, adversarial-debate, cleanroom, pwf, rpikit, hive, story-mapping, lean-canvas, constitution, quality, architecture, redesign, grill, modularity, arch-prep, web-research, tech-eval, competitive-analysis, tree-of-thoughts, opro |
+| `/orchestrate` | Execution | ralph, team, deep, ccg, ultrawork, autopilot, sciomc, swarm, state-machine, consensus, evolutionary, spec-driven, react, plan-execute, hive, tdd, pair, pipeline, gsd, self-assess, remediate, devin, maestro, metaswarm, cc10x, gastown, ruflo, harden, subagent-driven, brownfield, vibe-code |
+| `/harvest-context` | Context mgmt | session, codebase, skill, agent, rule, command, memory, docs, web-research, compare, decompose, context, consume, compress, secondbrain, journal, search, prune, export, diff, sweep |
+| `/project` | Project ops | tests, commit, stage, pr, gh, optimize, refactor, simplify, cleanup, modernize, icon, organize, analyze, changelog, converge, scan, sandbox, retrospect, purge, release, review, audit, archive, git-cleanup, workspace, readme |
 | `/skills` | Skill management | list, add, create, remove, edit, search, info, update, package, validate, sync, setup, scan |
+
+### Two-Tier Subcommand Routing
+
+Each of the 148 hub subcommands has a dedicated spec file in `tools/hubs/<hub>/<subcommand>.ts` containing the full `HubSubcommandSpec` — `detailedDescription`, `tools`, `rules`, `relatedSkills`, `examples`, `warnings`.
+
+**Direct selection** (`/orchestrate ralph`): `hubMenu route` returns the full spec in one response (detailedDescription + inlined rules + related skill pointers + examples). No follow-up `loadSkill` or rule-read calls needed.
+
+**Routing required** (bare `/orchestrate` + NL task, or pure NL): `hubMenu menu` returns the slim identity slice (label + short description + reminder) for the model to pick from. Then `route` loads the full spec for the chosen subcommand.
+
+See `rules/hub-routing.md` for the complete delegation table and architecture details.
 
 ## Magic Keywords (Detection Only — No Auto-Activation)
 
@@ -118,8 +128,13 @@ Max 5 turns per subagent. If no output after 5 turns, terminate and escalate. Lo
 ├── AGENTS.md            # This file (core instructions)
 ├── agents/              # 31 agent definitions
 ├── skills/              # 100 workflow skills
-├── commands/            # 2 custom commands
-├── tools/               # 19 TypeScript tools
+├── commands/            # 6 custom commands
+├── tools/               # TypeScript tools
+│   ├── hubMenu.ts       # Hub menu router (route returns full spec, menu returns slim slice)
+│   ├── hub-data.ts      # Hub types, subcommand spec loader, state helpers
+│   ├── hub-<name>.ts    # Thin hub manifests (10 lines each, identity slice only)
+│   ├── hubs/            # Per-subcommand spec files (148 files across 6 directories)
+│   └── ...              # File editing, cache, session, skill tools
 ├── plugins/             # Hook system + TUI plugin
 ├── rules/               # Shared rules (loaded as instructions)
 ├── templates/           # File templates

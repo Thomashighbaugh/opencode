@@ -46,6 +46,7 @@ This is a **convention, not a hard rule**. The bar is: if a user who has never s
 ## Scope
 
 Applies to:
-- `hubMenu.ts` subcommand `description` fields (shown in TUI dialogs)
+- `tools/hubs/<hub>/<subcommand>.ts` subcommand `description` fields (shown in TUI dialogs and routing views)
+- `tools/hub-<name>.ts` thin manifests (re-export the identity slice containing `description`)
 - `SKILL.md` subcommand section headers and descriptions
 - `AGENTS.md` hub command reference tables

@@ -237,6 +237,17 @@ Every hub follows the same three-phase lifecycle:
 
 Three hubs (`ideation`, `orchestrate`, `harvest-context`) persist progress to `.opencode/state/` for session-to-session continuity. The `/project` hub is intentionally stateless — git serves as its record.
 
+### Two-Tier Subcommand Routing
+
+The hub system uses a two-tier loading model to minimize token consumption:
+
+- **Tier 1 (slim identity slice):** When routing is needed (bare hub command with a natural-language task, or pure natural language), `hubMenu menu` returns only the subcommand `label`, short `description`, and `reminder` — enough for the model to pick the right one. This is a small payload.
+- **Tier 2 (full subcommand spec):** When a subcommand is directly selected (`/orchestrate ralph`), `hubMenu route` loads the full `HubSubcommandSpec` from `tools/hubs/<hub>/<subcommand>.ts` — including `detailedDescription` (the exhaustive pattern explanation), `tools` (which tools it uses), inlined `rulesContent` (rule files inlined into the response), `relatedSkillMeta` (related skill pointers), `examples`, and `warnings`. This single response eliminates the follow-up `loadSkill` and rule-read calls that the previous model required.
+
+Each of the 148 subcommands has its own spec file in `tools/hubs/<hub>/<subcommand>.ts`. The hub manifests (`hub-<name>.ts`) are thin 10-line files that import only the identity slice. The full spec is loaded only on direct selection — routing-only cases never pay the token cost of the full specs.
+
+See [Hub Routing Model](./.opencode/docs/routing.md) for the complete delegation table and architecture details.
+
 ### Execution Modes
 
 | Mode | Trigger | Purpose |
@@ -321,7 +332,7 @@ Natural language triggers that invoke subcommands directly, bypassing the menu. 
 | `/project` | Project operations hub |
 | `/skills` | Manage workflow skills — CRUD, search, sync, package, validate |
 
-### Tools (24)
+### Tools (26)
 
 | Tool | Description |
 |------|-------------|
@@ -335,7 +346,9 @@ Natural language triggers that invoke subcommands directly, bypassing the menu. 
 | `getSessionID` | Retrieve the current OpenCode session identifier |
 | `saveCommitMessage` | Persist a commit message for the current session |
 | `getCommitMessage` | Retrieve a previously saved commit message |
-| `hubMenu` | Hub menu router — parse subcommands, check state, route delegation |
+| `hubMenu` | Hub menu router — lazy-loads per-hub data. `route` returns the full subcommand spec (detailedDescription, inlined rules, related skills, examples) when both hub + subcommand provided. `menu`/`list` return slim identity slices for routing-only cases. |
+| `validate-delegation` | Validate all 148 hub subcommand delegation targets resolve to existing files |
+| `gen-routing-docs` | Generate hub routing documentation from canonical hub data |
 | `cache` | Multi-tier prompt cache management (tool, mcp, llm, agent, session) |
 | `agent-cache` | Tier 4 agent output cache — avoid re-executing identical subagent tasks |
 | `cache-utils` | Shared cache infrastructure — SHA-256 keying, TTL, disk+memory LRU |
@@ -346,8 +359,6 @@ Natural language triggers that invoke subcommands directly, bypassing the menu. 
 | `multi-edit` | Batch operations across files by glob — find, replace |
 | `skill-categories` | Browse and search skills grouped by functional category |
 | `state-utils` | State directory scanning and path resolution utilities |
-| `validate-delegation` | Validate delegation targets in hubMenu.ts |
-| `gen-routing-docs` | Generate hub routing documentation from hubMenu.ts data |
 | `todowrite` | Create and maintain structured task lists for coding sessions |
 
 ---
@@ -384,8 +395,19 @@ Configured in `opencode.jsonc`. See [Model Configuration](./.opencode/docs/model
 ├── AGENTS.md               # Project-level agent instructions
 ├── agents/                 # 31 agent definitions
 ├── skills/                 # 101 workflow skills
-├── commands/               # 1 command (skills.md)
-├── tools/                  # 24 TypeScript tools
+├── commands/               # 6 commands (skills, create-tests, git-stage-thread, pr, optimize, analyze-patterns)
+├── tools/                  # TypeScript tools
+│   ├── hubMenu.ts          # Hub menu router (route returns full spec, menu returns slim slice)
+│   ├── hub-data.ts         # Hub types, subcommand spec loader, state helpers
+│   ├── hub-<name>.ts       # Thin hub manifests (10 lines each, identity slice only)
+│   ├── hubs/               # Per-subcommand spec files (148 files)
+│   │   ├── orchestrate/    # 33 subcommand specs + index.ts
+│   │   ├── ideation/       # 38 subcommand specs + index.ts
+│   │   ├── harvest-context/# 21 subcommand specs + index.ts
+│   │   ├── init-project/   # 17 subcommand specs + index.ts
+│   │   ├── project/        # 26 subcommand specs + index.ts
+│   │   └── skills/         # 13 subcommand specs + index.ts
+│   └── ...                 # File editing, cache, session, skill tools
 ├── plugins/                # Hubs plugin system
 │   ├── core/               # Split into focused modules
 │   │   ├── session.ts      # Session lifecycle & stats
@@ -431,6 +453,7 @@ The separation is deliberate. State is transient and compaction-safe. Context ac
 |------|-------------|
 | [installation.md](./.opencode/docs/installation.md) | Installation methods, configuration, upgrading |
 | [execution-modes.md](./.opencode/docs/execution-modes.md) | Ralph, autopilot, ultrawork, team, ultraqa |
+| [routing.md](./.opencode/docs/routing.md) | Hub routing model — two-tier loading, delegation table (148 subcommands), file layout |
 | [agents.md](./.opencode/docs/agents.md) | All 31 agents with descriptions and usage |
 | [skills.md](./.opencode/docs/skills.md) | All 101 skills organized by category |
 | [commands.md](./.opencode/docs/commands.md) | All 6 commands with examples |

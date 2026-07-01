@@ -33,7 +33,7 @@ Shared rule files loaded as agent instructions. These provide behavioral guidanc
 
 ### Testing Requirements
 - Rule consistency validated by Hubs doctor
-- Hub routing table must match `tools/hubMenu.ts`
+- Hub routing table must match `tools/hubMenu.ts` + `tools/hubs/` spec files (validated by `validate-delegation` tool)
 
 ### Common Patterns
 - Markdown format with actionable checklists
@@ -44,7 +44,7 @@ Shared rule files loaded as agent instructions. These provide behavioral guidanc
 ## Dependencies
 
 ### Internal
-- `tools/hubMenu.ts` — Must stay in sync with `hub-routing.md`
+- `tools/hubMenu.ts` + `tools/hubs/` — Must stay in sync with `hub-routing.md` (validated by `validate-delegation`)
 - `AGENTS.md` — Root instructions auto-load these rules
 
 ### External

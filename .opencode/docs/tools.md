@@ -11,6 +11,7 @@
 - [Session Management Tools](#session-management-tools)
 - [Workflow State Tools](#workflow-state-tools)
 - [Cache & Routing Tools](#cache--routing-tools)
+- [Hub Routing Architecture](#hub-routing-architecture)
 - [Tool Development Guide](#tool-development-guide)
 - [Best Practices](#best-practices)
 
@@ -30,7 +31,12 @@ Hubs includes TypeScript tools that provide programmatic access to core function
 | **getSessionID** | Get current session ID |
 | **saveCommitMessage** | Save commit message for later |
 | **getCommitMessage** | Retrieve saved commit message |
-| **hubMenu** | Hub menu router — parse subcommands, check state, route delegation |
+| **hubMenu** | Hub menu router — lazy-loads per-hub data. `route` returns the full subcommand spec (detailedDescription, inlined rules, related skills, examples) when both hub + subcommand are provided. `menu`/`list` return slim identity slices for routing-only cases. |
+| **hub-data** | Hub types, subcommand spec loader, state helpers. Exports `loadHub`, `loadSubcommandSpec`, `loadSubcommandSpecFull`. |
+| **hub-<name>** | Thin hub manifests — import identity slices from `hubs/<name>/index.ts`. 10 lines each. |
+| **hubs/<hub>/<sub>** | 148 per-subcommand spec files — full `HubSubcommandSpec` with `detailedDescription`, `tools`, `rules`, `relatedSkills`, `examples`, `warnings`. Only loaded when the subcommand is selected. |
+| **validate-delegation** | Validate all 148 delegation targets resolve to existing skill/agent/command files |
+| **gen-routing-docs** | Generate hub routing documentation from canonical hub data |
 | **cache** | Multi-tier prompt cache management (tool, mcp, llm, agent, session) |
 | **agent-cache** | Tier 4 agent output cache — avoid re-executing identical subagent tasks |
 | **cache-utils** | Shared cache infrastructure — SHA-256 keying, TTL, disk+memory LRU |
@@ -756,6 +762,78 @@ const { artifacts } = await artifacts({
 **Storage Location:**
 
 `.opencode/state/artifacts/{skillName}/{sessionId}/{filename}`
+
+---
+
+## Hub Routing Architecture
+
+The hub routing system uses a two-tier loading model to minimize token consumption.
+
+### Two-Tier Loading
+
+**Tier 1 — Slim identity slice** (menu/routing views): Each hub manifest (`hub-<name>.ts`) imports only the identity fields (`label`, `description`, `reminder`, delegation pointer) from `tools/hubs/<name>/index.ts`. This is what `hubMenu menu` and `hubMenu list` return — small payloads for when routing is needed (bare hub command + natural language, or pure NL).
+
+**Tier 2 — Full subcommand spec** (direct selection): When a user selects a subcommand (`/orchestrate ralph`), `hubMenu route` loads the full `HubSubcommandSpec` from `tools/hubs/<hub>/<subcommand>.ts`:
+
+| Field | Purpose |
+|-------|---------|
+| `detailedDescription` | Exhaustive pattern/action explanation (1-3 paragraphs) |
+| `tools` | Which tools the subcommand uses |
+| `rules` | Rule names to inline into the response |
+| `rulesContent` | Inlined rule file contents (no follow-up reads needed) |
+| `relatedSkills` | Additional skills to load for context |
+| `relatedSkillMeta` | Skill name, path, description (for pointer reference) |
+| `examples` | Non-obvious usage examples |
+| `warnings` | Cost/risk warnings |
+
+### When Each Tier is Used
+
+| Scenario | Routing needed? | Tier loaded | Tool calls |
+|----------|-----------------|-------------|------------|
+| `/orchestrate ralph` (subcommand selected) | No — user already chose | Tier 2 (full spec) | 1 (`route`) |
+| `/orchestrate "fix all type errors"` (bare hub + NL) | Yes — model must pick | Tier 1 → Tier 2 | 2 (`menu` then `route`) |
+| `"fix all type errors using ralph"` (pure NL) | Yes — model must pick hub + sub | Tier 1 → Tier 2 | 2-3 (`list` → `menu` → `route`) |
+
+### File Layout
+
+```
+tools/
+├── hubMenu.ts              # Router tool — route action returns Tier 2
+├── hub-data.ts             # Types, loaders (loadHub, loadSubcommandSpec, loadSubcommandSpecFull)
+├── hub-<name>.ts           # Thin manifest (10 lines) — Tier 1 identity slice
+└── hubs/
+    ├── orchestrate/
+    │   ├── index.ts         # Re-exports all specs + identity slice
+    │   ├── ralph.ts         # Full HubSubcommandSpec (Tier 2)
+    │   └── ... (33 files)
+    ├── ideation/            # 38 files
+    ├── harvest-context/     # 21 files
+    ├── init-project/        # 17 files
+    ├── project/             # 26 files
+    └── skills/              # 13 files
+```
+
+### The `route` Action
+
+```typescript
+// When both hub + subcommand are provided (direct selection):
+hubMenu({ action: "route", hub: "orchestrate", subcommand: "ralph" })
+// Returns: { detailedDescription, tools, rulesContent, relatedSkillMeta, examples, warnings, ... }
+// Single response — no follow-up loadSkill or rule-read calls needed.
+
+// When only hub is provided (routing needed):
+hubMenu({ action: "menu", hub: "orchestrate" })
+// Returns: { options: [{ label, description }, ...] } — slim list for the model to pick from.
+```
+
+### Validation
+
+The `validate-delegation` tool checks that all 148 subcommand delegation targets resolve to existing files:
+
+```
+validate-delegation({ action: "validate" })
+// → { valid: true, total: 148, ok: 148, missing: 0, warnings: 0 }
+```
 
 ---
 
