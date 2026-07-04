@@ -4,7 +4,7 @@ const spec: HubSubcommandSpec = {
   label: "pr",
   description: "Create, view, merge, or manage pull requests",
   reminder: "Manage pull requests via GitHub CLI.",
-  command: "pr",
+  skill: "github-ops",
 
   detailedDescription: `Manages pull requests via the GitHub CLI (gh). Operations:
 

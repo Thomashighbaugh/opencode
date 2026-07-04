@@ -67,14 +67,16 @@ For each finding, apply fixes in priority order (Critical → High → Medium �
 - Input validation: Add schema validation (zod, joi, pydantic)
 - Dependency issues: Update to patched versions
 
-### Phase 3: Re-verify
+### Phase 3: Re-verify (Batch-Capable)
 
 After applying fixes:
 
-1. Re-run the security audit on changed files
-2. Verify each finding is resolved
-3. Run the full test suite — fixes must not break existing functionality
-4. Run build/typecheck
+1. **Batch verification**: If Phase 2 produced multiple independent fixes, batch them into a single re-verification pass. Collect all changed files and their corresponding finding IDs, then run one audit pass covering everything — not one audit per fix. This saves 1+ API call per batch.
+
+2. Re-run the security audit on changed files (in batch if multiple fixes)
+3. Verify each finding is resolved against the original SECURITY_AUDIT.md entries
+4. Run the full test suite — fixes must not break existing functionality
+5. Run build/typecheck
 
 ### Phase 4: Robustness Composables
 
@@ -100,10 +102,12 @@ function safeTask<T>(fn: () => T, context: string): T {
 // Use for external API calls, database operations, file I/O
 ```
 
-**verificationGate** — Block downstream operations until upstream is verified:
+**verificationGate** — Block downstream operations until upstream is verified, with batch support:
 ```typescript
 // Pattern: require explicit verification before proceeding
 // Use for deploy gates, data pipeline stages, payment processing
+// Batch optimization: when multiple upstream stages complete simultaneously,
+// verify them in a single gate pass rather than sequentially.
 ```
 
 ### Phase 5: Report

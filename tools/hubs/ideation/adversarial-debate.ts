@@ -2,7 +2,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 
 const spec: HubSubcommandSpec = {
   label: "adversarial-debate",
-  description: "Spec validation via oppositional debate — proposer vs security/performance critics with judge convergence",
+  description: "Spec validation via oppositional debate — proposer vs critics",
   reminder: "Validate specs via adversarial debate.",
   inline: true,
 

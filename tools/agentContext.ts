@@ -2,11 +2,7 @@ import { tool } from "@opencode-ai/plugin"
 import * as fs from "fs"
 import * as path from "path"
 import { homedir } from "os"
-
-// Path conventions:
-// - User-wide config: ~/.config/opencode/ (agents, skills, settings shared across projects)
-// - Project-level config: .opencode/ (project-specific agents, skills, commands, state)
-// - State is stored in .opencode/state/ (gitignored via .gitignore)
+import { withToolCache, invalidateToolCache } from "./cache-utils"
 
 const USER_CONFIG_DIR = process.env.OPENCODE_CONFIG_DIR || path.join(homedir(), '.config', 'opencode')
 
@@ -67,6 +63,80 @@ function getActiveModes(stateDir: string): string[] {
 }
 
 const VALID_CTX_ACTIONS = ['get', 'update-memory', 'update-notepad', 'clear-mode', 'list-plans', 'get-state'] as const
+const READ_ONLY_ACTIONS = new Set(['get', 'list-plans', 'get-state'])
+const MUTATION_ACTIONS = new Set(['update-memory', 'update-notepad', 'clear-mode'])
+
+function executeAgentContext(args: any, projectRoot: string, paths: ReturnType<typeof getContextPaths>): string {
+  switch (args.action) {
+    case 'get': {
+      const ctx: AgentContext = {
+        projectRoot,
+        ...paths,
+        projectMemory: readProjectMemory(paths.stateDir),
+        notepad: readNotepad(paths.stateDir),
+        activeModes: getActiveModes(paths.stateDir),
+        userConfigDir: USER_CONFIG_DIR
+      }
+      return JSON.stringify(ctx)
+    }
+    
+    case 'update-memory': {
+      if (!args.data) return JSON.stringify({ error: 'No data provided for memory update' })
+      fs.mkdirSync(paths.stateDir, { recursive: true })
+      const memoryPath = path.join(paths.stateDir, 'project-memory.json')
+      fs.writeFileSync(memoryPath, JSON.stringify(args.data, null, 2), 'utf-8')
+      return JSON.stringify({ success: true, path: memoryPath })
+    }
+    
+    case 'update-notepad': {
+      if (typeof args.data !== 'string') return JSON.stringify({ error: 'Notepad content must be a string' })
+      fs.mkdirSync(paths.stateDir, { recursive: true })
+      const notepadPath = path.join(paths.stateDir, 'notepad.md')
+      fs.writeFileSync(notepadPath, args.data, 'utf-8')
+      return JSON.stringify({ success: true, path: notepadPath })
+    }
+    
+    case 'clear-mode': {
+      if (!args.mode) return JSON.stringify({ error: 'Mode name required for clear-mode' })
+      const statePath = path.join(paths.stateDir, `${args.mode}-state.json`)
+      if (fs.existsSync(statePath)) {
+        fs.unlinkSync(statePath)
+        return JSON.stringify({ success: true, cleared: args.mode })
+      }
+      return JSON.stringify({ error: `No state file for mode '${args.mode}'` })
+    }
+    
+    case 'list-plans': {
+      if (!fs.existsSync(paths.plansDir)) return JSON.stringify({ plans: [] })
+      const plans = fs.readdirSync(paths.plansDir)
+        .filter(f => f.endsWith('.md'))
+        .map(f => ({
+          name: f,
+          path: path.join(paths.plansDir, f),
+          modified: fs.statSync(path.join(paths.plansDir, f)).mtime
+        }))
+      return JSON.stringify({ plans })
+    }
+    
+    case 'get-state': {
+      if (!args.mode) return JSON.stringify({ error: 'Mode name required for get-state' })
+      const statePath = path.join(paths.stateDir, `${args.mode}-state.json`)
+      if (!fs.existsSync(statePath)) return JSON.stringify({ error: `No state for mode '${args.mode}'`, exists: false })
+      try {
+        return JSON.stringify({ 
+          mode: args.mode, 
+          state: JSON.parse(fs.readFileSync(statePath, 'utf-8')),
+          path: statePath 
+        })
+      } catch {
+        return JSON.stringify({ error: 'Failed to parse state file', path: statePath })
+      }
+    }
+    
+    default:
+      return JSON.stringify({ error: `Unknown action: ${args.action}` })
+  }
+}
 
 export default tool({
   description: "Get or update agent context including project memory, notepad, active modes, and Hubs state directories",
@@ -79,74 +149,14 @@ export default tool({
     const projectRoot = context.directory || process.cwd()
     const paths = getContextPaths(projectRoot)
     
-    switch (args.action) {
-      case 'get': {
-        const ctx: AgentContext = {
-          projectRoot,
-          ...paths,
-          projectMemory: readProjectMemory(paths.stateDir),
-          notepad: readNotepad(paths.stateDir),
-          activeModes: getActiveModes(paths.stateDir),
-          userConfigDir: USER_CONFIG_DIR
-        }
-        return JSON.stringify(ctx)
-      }
-      
-      case 'update-memory': {
-        if (!args.data) return JSON.stringify({ error: 'No data provided for memory update' })
-        fs.mkdirSync(paths.stateDir, { recursive: true })
-        const memoryPath = path.join(paths.stateDir, 'project-memory.json')
-        fs.writeFileSync(memoryPath, JSON.stringify(args.data, null, 2), 'utf-8')
-        return JSON.stringify({ success: true, path: memoryPath })
-      }
-      
-      case 'update-notepad': {
-        if (typeof args.data !== 'string') return JSON.stringify({ error: 'Notepad content must be a string' })
-        fs.mkdirSync(paths.stateDir, { recursive: true })
-        const notepadPath = path.join(paths.stateDir, 'notepad.md')
-        fs.writeFileSync(notepadPath, args.data, 'utf-8')
-        return JSON.stringify({ success: true, path: notepadPath })
-      }
-      
-      case 'clear-mode': {
-        if (!args.mode) return JSON.stringify({ error: 'Mode name required for clear-mode' })
-        const statePath = path.join(paths.stateDir, `${args.mode}-state.json`)
-        if (fs.existsSync(statePath)) {
-          fs.unlinkSync(statePath)
-          return JSON.stringify({ success: true, cleared: args.mode })
-        }
-        return JSON.stringify({ error: `No state file for mode '${args.mode}'` })
-      }
-      
-      case 'list-plans': {
-        if (!fs.existsSync(paths.plansDir)) return JSON.stringify({ plans: [] })
-        const plans = fs.readdirSync(paths.plansDir)
-          .filter(f => f.endsWith('.md'))
-          .map(f => ({
-            name: f,
-            path: path.join(paths.plansDir, f),
-            modified: fs.statSync(path.join(paths.plansDir, f)).mtime
-          }))
-        return JSON.stringify({ plans })
-      }
-      
-      case 'get-state': {
-        if (!args.mode) return JSON.stringify({ error: 'Mode name required for get-state' })
-        const statePath = path.join(paths.stateDir, `${args.mode}-state.json`)
-        if (!fs.existsSync(statePath)) return JSON.stringify({ error: `No state for mode '${args.mode}'`, exists: false })
-        try {
-          return JSON.stringify({ 
-            mode: args.mode, 
-            state: JSON.parse(fs.readFileSync(statePath, 'utf-8')),
-            path: statePath 
-          })
-        } catch {
-          return JSON.stringify({ error: 'Failed to parse state file', path: statePath })
-        }
-      }
-      
-      default:
-        return JSON.stringify({ error: `Unknown action: ${args.action}` })
+    if (READ_ONLY_ACTIONS.has(args.action)) {
+      return withToolCache("agentContext", args, () => executeAgentContext(args, projectRoot, paths), 300_000)
     }
+    
+    if (MUTATION_ACTIONS.has(args.action)) {
+      invalidateToolCache("agentContext")
+    }
+    
+    return executeAgentContext(args, projectRoot, paths)
   }
 })

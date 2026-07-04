@@ -2,7 +2,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 
 const spec: HubSubcommandSpec = {
   label: "cleanroom",
-  description: "Formal correctness with box structures — black box → state box → clear box, statistical usage testing, MTTF certification",
+  description: "Formal correctness — box structure decomposition and statistical testing",
   reminder: "Formal correctness via box structures.",
   inline: true,
 

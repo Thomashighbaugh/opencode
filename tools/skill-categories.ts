@@ -10,6 +10,7 @@ import { tool } from "@opencode-ai/plugin"
 import * as fs from "fs"
 import * as path from "path"
 import { homedir } from "os"
+import { withToolCache } from "./cache-utils"
 
 const USER_CONFIG_DIR = process.env.OPENCODE_CONFIG_DIR || path.join(homedir(), '.config', 'opencode')
 const SKILLS_DIR = path.join(USER_CONFIG_DIR, 'skills')
@@ -399,6 +400,7 @@ export default tool({
     ),
   },
   async execute(args) {
+    return withToolCache("skill-categories", args, () => {
     if (args.action === 'list-categories') {
       const categories = getAllCategorizedSkills()
       return JSON.stringify({ categories, totalSkills: categories.reduce((sum, c) => sum + c.skills.length, 0) }, null, 2)
@@ -413,5 +415,6 @@ export default tool({
     }
 
     return JSON.stringify({ error: `Invalid action '${args.action}'. Valid: list-categories, search` })
+    }, 3_600_000) // 1h TTL — categories rarely change
   },
 })

@@ -207,9 +207,12 @@ export function loadAllHubs(): HubDefinition[] {
 }
 
 // ─── Subcommand Spec Loader ──────────────────────────────────────────────
-// Loads the full HubSubcommandSpec (detailedDescription, tools, rules, etc.)
+// Loads the HubSubcommandSpec (detailedDescription, tools, rules names, relatedSkills, etc.)
 // from tools/hubs/<hub>/<subcommand>.ts. Only called when a subcommand is
 // explicitly selected — NOT for menu/routing views.
+//
+// loadSubcommandSpec: returns just the spec (names, not inlined content)
+// loadSubcommandSpecFull: also inlines rule file content + skill frontmatter
 
 const SUBCOMMAND_DIR_MAP: Record<string, string> = {
   "init-project": "init-project",
@@ -232,8 +235,9 @@ export function loadSubcommandSpec(hubName: string, subLabel: string): HubSubcom
   }
 }
 
-/** Load the full spec including inlined rule content + related skill pointers.
- *  Used by hubMenu 'route' action when both hub + subcommand are provided. */
+/** Load the full spec with inlined rule/skill content for a SPECIFIC subcommand.
+ *  Used ONLY by hubMenu 'route' action — NOT by the menu view.
+ *  Inlines rule files and skill metadata so the agent doesn't need follow-up calls. */
 export function loadSubcommandSpecFull(hubName: string, subLabel: string): {
   spec: HubSubcommandSpec | null
   rulesContent: Array<{ name: string; content: string }>

@@ -14,6 +14,7 @@ import doubleDiamond from "./double-diamond"
 import jtbd from "./jtbd"
 import impactMapping from "./impact-mapping"
 import spiral from "./spiral"
+import spark from "./spark"
 import topDown from "./top-down"
 import bottomUp from "./bottom-up"
 import adversarialDebate from "./adversarial-debate"
@@ -35,16 +36,18 @@ import techEval from "./tech-eval"
 import competitiveAnalysis from "./competitive-analysis"
 import treeOfThoughts from "./tree-of-thoughts"
 import opro from "./opro"
+import analyzePatterns from "./analyze-patterns"
 import resume from "./resume"
 import status from "./status"
 
 export const specs = [
   plan, brainstorm, decomposition, refine, overhaul, deep, graph, research,
   ralplan, ddd, eventStorming, doubleDiamond, jtbd, impactMapping, spiral,
+  spark,
   topDown, bottomUp, adversarialDebate, cleanroom, pwf, rpikit, hive,
   storyMapping, leanCanvas, constitution, quality, architecture, redesign,
   grill, modularity, archPrep, webResearch, techEval, competitiveAnalysis,
-  treeOfThoughts, opro, resume, status
+  treeOfThoughts, opro, analyzePatterns, resume, status
 ]
 
 export const subcommands: HubSubcommand[] = specs.map(s => ({

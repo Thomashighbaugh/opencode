@@ -2,7 +2,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 
 const spec: HubSubcommandSpec = {
   label: "constitution",
-  description: "Establish project governance — code quality, UX, performance, and security principles as input to spec-driven work",
+  description: "Project governance — code, UX, performance, security principles",
   reminder: "Establish project governance principles.",
   inline: true,
 

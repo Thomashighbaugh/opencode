@@ -22,18 +22,18 @@ Directly invoke the matching subcommand. Print the reminder, then delegate to th
 
 | Subcommand | Phases | Skill/Delegate | What It Does |
 |------------|--------|----------------|--------------|
-| `setup` | 0-8 | self (all phases) | Full project initialization from scratch |
+| `setup` | 0-8 | self (all phases) | Full project initialization — default runs 0-5+8, `--full` adds 6-7 |
 | `detect` | 0-1 | `stack-detector` agent | Deep stack detection — languages, frameworks, build tools, testing, ORM, CSS, CI/CD, infra |
 | `recommend` | 2 | `stack-recommender` skill | Map stack fingerprint to recommended global resources (skills, agents, rules, archetype) |
-| `docs` | 4 | `deepinit` skill | Regenerate hierarchical AGENTS.md documentation |
-| `context` | 5 | `remember` + `wiki` | Capture session knowledge, promote insights |
-| `verify` | 7 | `verifier` agent | Validate configuration completeness and integrity, including .gitignore privacy protections |
-| `refresh` | 0-8 (merge) | self (all phases, merge mode) | Update existing config, preserve manual edits, rerun detect→recommend→provision |
+| `docs` | 5 | `deepinit` skill | Regenerate hierarchical AGENTS.md documentation |
+| `context` | 6 | `@architect` + `@convention-extractor` + `@explore` | Deep codebase mapping, context synthesis, agent upgrade (same as `setup --full` Phase 6) |
+| `verify` | 8 | `verifier` agent | Validate configuration completeness and integrity, including .gitignore privacy protections |
+| `refresh` | 0-8 (merge) | self (all phases, merge mode) | Update existing config — default runs 0-5+8 merge, `--full` adds 6-7 (deep re-mapping + integration) |
 | `status` | — | self (inline) | List state files and show checkpoint progress |
-| `map-codebase` | — | inline | Analyze existing codebase — spawn parallel agents to map stack, architecture, conventions |
+| `map-codebase` | — | inline | Analyze existing codebase — spawn parallel agents to map stack, architecture, conventions (subset of Phase 6) |
 | `doctor` | — | inline | Run diagnostic health check — validate Hubs installation, config integrity, state consistency |
 | `reset` | — | inline | Reset project state — archive .opencode/state and .opencode/context, start fresh |
-| `provision` | 3 | `project-config-composer` skill | Auto-generate .opencode/opencode.jsonc, project rules, and agent wrappers from stack fingerprint + recommendations |
+| `provision` | 4 | `provision` skill | Auto-generate .opencode/ agents, skills, tools, rules from stack fingerprint + recommendations |
 | `tag` | — | `tag-resources` skill | Audit and fix resource tags on global skills, agents, rules, and archetypes |
 | `find-skills` | — | `find-skills` skill | Search skill registries for relevant per-repo skills |
 | `find-agents` | — | `find-agents` skill | Search agent registries for relevant per-repo agents |
@@ -54,18 +54,18 @@ Each subcommand follows the hub pattern:
 
 | Subcommand | Reminder on Invoke |
 |------------|-------------------|
-| `setup` | Full init from scratch. I'll verify global Hubs, detect your stack, scaffold config, generate docs, and validate. |
+| `setup` | Full init from scratch. I'll verify global Hubs, detect your stack, scaffold config, provision agents/tools, generate docs, and validate. Use --full for deep codebase mapping and context capture. |
 | `detect` | Deep stack detection via @stack-detector. I'll analyze languages, frameworks, build tools, testing, ORM, CSS, CI/CD, and more. |
 | `recommend` | Recommending global resources via stack-recommender. I'll map your detected stack to relevant skills, agents, rules, and an archetype. |
-| `docs` | Generating codebase documentation. I'll create hierarchical AGENTS.md files across your directories. |
-| `context` | Capturing session knowledge. I'll promote insights to project memory, notepad, and AGENTS.md. |
-| `verify` | Validating configuration. I'll check file existence, config syntax, parent refs, and gitignore. |
-| `refresh` | Updating existing config. I'll preserve your manual edits and merge new detections. |
+| `docs` | Generating codebase documentation via deepinit. I'll create hierarchical AGENTS.md files across your directories. |
+| `context` | Deep codebase mapping via parallel agents (@architect, @convention-extractor, @explore). I'll synthesize architecture and conventions into durable context and upgrade your project agents. |
+| `verify` | Validating configuration via @verifier. I'll check file existence, config syntax, parent refs, and gitignore. |
+| `refresh` | Updating existing config. I'll preserve your manual edits and merge new detections. Use --full for deep codebase re-mapping and context refresh. |
 | `status` | Showing init state and checkpoint progress. |
 | `map-codebase` | Mapping existing codebase. I'll spawn parallel agents to analyze stack, architecture, and conventions. |
 | `doctor` | Running Hubs health diagnostics. I'll validate installation, config integrity, and state consistency. |
 | `reset` | Resetting project state. I'll archive .opencode/state and .opencode/context to a timestamped backup and start fresh. |
-| `provision` | Auto-generating .opencode/ config via project-config-composer. I'll create opencode.jsonc, project rules, and agent wrappers from your stack analysis. |
+| `provision` | Auto-generating .opencode/ agents/skills/tools/rules via provision skill. I'll create project-specific resources from your stack analysis. |
 | `tag` | Auditing global resource tags via tag-resources. I'll scan skills, agents, rules, and archetypes for missing or incomplete tags. |
 | `find-skills` | Searching skill registries for relevant skills for this project. |
 | `find-agents` | Searching agent registries for relevant agents for this project. |
@@ -85,7 +85,11 @@ Flags modify subcommand behavior and are passed through:
 | `--no-detect` | Use generic defaults | `setup`, `refresh` |
 | `--no-docs` | Skip Phase 4 | `setup`, `refresh` |
 
-Default (no flags, `setup` subcommand): Phases 0-5 (full scaffold + provision + docs, no context/routing).
+Default (no flags, `setup` subcommand): Phases 0-5 + 8 (full scaffold + provision + docs + verify, no deep context capture or routing integration).
+
+With `--full`: All 9 phases (0-8) including Phase 6 (deep codebase mapping + context capture via parallel agents) and Phase 7 (routing integration validation).
+
+Applies to both `setup` and `refresh`. In `refresh`, all phases run in merge mode — preserving manual edits, diffing existing context, and updating only changed sections.
 
 ## Detection-to-Provision Pipeline
 
@@ -146,9 +150,11 @@ Init state lives in `.opencode/state/init/` (gitignored).
 | Path | Purpose |
 |------|---------|
 | `.opencode/state/init/init-checkpoint.json` | Last completed phase checkpoint |
-| `.opencode/state/init/init-detection.json` | Phase 1 detection results |
-| `.opencode/state/init/init-plan.json` | Phase 2 initialization plan |
-| `.opencode/state/init/init-report.md` | Phase 7 verification report |
+| `.opencode/state/init/init-detection.json` | Phase 1 detection results (stack fingerprint) |
+| `.opencode/state/init/init-plan.json` | Phase 2 initialization plan (stack recommendations) |
+| `.opencode/state/init/provision-checkpoint.json` | Phase 4 provisioned artifacts manifest |
+| `.opencode/state/init/integration-report.md` | Phase 7 integration validation report (--full only) |
+| `.opencode/state/init/init-report.md` | Phase 8 final verification report |
 | `.opencode/state/init/` | All init state files |
 
 ### Checkpoint Format
@@ -181,26 +187,26 @@ Init state lives in `.opencode/state/init/` (gitignored).
 
 ## Architecture
 
-| Phase | Agent/Skill | Purpose |
-|-------|-------------|---------|
-| 0 - Global Verify | self | Ensure `~/.config/opencode/` is healthy |
-| 1 - Detection | `explore` | Scan project files, detect language/framework, detect available LSPs |
-| 2 - Planning | `planner` | Generate initialization plan from detection |
-| 3 - Scaffolding | `executor` | Create `.opencode/` structure, opencode.jsonc, AGENTS.md |
-| 4 - Provisioning | `executor` + `config-orchestrator` | Create project-specific agents, tools, commands, skills scaled to mode |
-| 5 - Docs | `deepinit` | Hierarchical AGENTS.md across codebase |
-| 6 - Context Capture | `remember` + `wiki` | Promote session knowledge, scan state artifacts |
-| 7 - Routing | `architect` | Optimize agent selection for detected stack |
-| 8 - Verification | `verifier` | Validate completeness, references, config |
+| Phase | Agent/Skill | Default | --full | Purpose |
+|-------|-------------|---------|--------|---------|
+| 0 - Verify | self | ✓ | ✓ | Ensure `~/.config/opencode/` is healthy |
+| 1 - Detection | `@stack-detector` | ✓ | ✓ | Scan project files, detect language/framework/build/test/ORM/CSS/CI |
+| 2 - Planning | `stack-recommender` skill | ✓ | ✓ | Map stack fingerprint to recommended global resources |
+| 3 - Configuration | `project-config-composer` skill | ✓ | ✓ | Create `.opencode/opencode.jsonc`, project rules, agent wrappers |
+| 4 - Provisioning | `provision` skill | ✓ | ✓ | Generate project-specific agents, skills, tools, rules into `.opencode/` |
+| 5 - Documentation | `deepinit` skill | ✓ | ✓ | Hierarchical AGENTS.md across codebase |
+| 6 - Context Capture | `@architect` + `@convention-extractor` + `@explore` (parallel) | — | ✓ | Map architecture, extract conventions, map file tree → synthesize into `.opencode/context/` → upgrade Phase 4 agents with deep project knowledge |
+| 7 - Routing & Integration | self (inline validation) | — | ✓ | Validate agent extends paths, skill frontmatter, tool exports, rule registration, context integrity, config syntax, .gitignore |
+| 8 - Verification | `@verifier` | ✓ | ✓ | Validate completeness, references, config — final health check + integration report |
 
 The effort in Phase 4 scales with the init mode:
 - `--minimal`: Create empty directories only
 - Default: Stub agents + basic commands
-- `--full`: Thorough agents with full prompts + project-specific TypeScript tools + comprehensive commands + reusable skills
+- `--full`: Thorough agents with full prompts + project-specific TypeScript tools + comprehensive commands + reusable skills, then Phase 6 upgrades those agents with deep project context
 
 ## Subcommand: setup
 
-Full project initialization from scratch. Runs all applicable phases (0-8 by default, 0-3 with `--minimal`, 0-8 with `--full`).
+Full project initialization from scratch. Default mode runs phases 0-5 + 8 (scaffold, provision, docs, verify). With `--full`, all 9 phases run including deep context capture (Phase 6) and routing integration (Phase 7).
 
 ### Pre-Flight
 
@@ -243,20 +249,20 @@ Run phases sequentially, saving checkpoints after each phase:
 
 1. Phase 0: Verify global Hubs
 2. Phase 1: Detect project stack
-3. Phase 2: Plan configuration
-4. Phase 3: Scaffold `.opencode/`
-5. Phase 4: Provision project-specific agents, tools, commands, skills (scales with mode)
-6. Phase 5: Generate docs (skip if `--minimal` or `--no-docs`)
-7. Phase 6: Capture context (skip if not `--full`)
-8. Phase 7: Optimize routing (skip if not `--full`)
-9. Phase 8: Validate everything
+3. Phase 2: Recommend global resources for detected stack
+4. Phase 3: Create/update `.opencode/opencode.jsonc`, project rules, agent wrappers
+5. Phase 4: Provision project-specific agents, skills, tools, rules (scales with mode)
+6. Phase 5: Generate hierarchical AGENTS.md docs (skip if `--minimal` or `--no-docs`)
+7. Phase 6: Deep codebase mapping + context capture (only if `--full`) — spawn 3 parallel agents, synthesize context, upgrade Phase 4 agents
+8. Phase 7: Routing & integration validation (only if `--full`) — validate agent inheritance, skill discoverability, tool exports, rule registration, .gitignore
+9. Phase 8: Final verification + integration report
 
 Save checkpoint after each phase to `.opencode/state/init/init-checkpoint.json`.
 
 On completion, display summary and offer next step:
 - If `--minimal`: Offer `/init-project docs`
-- If default: Offer `/init-project context` or `/init-project verify`
-- If `--full`: Offer `/harvest-context` or `/project workspace` to manage the new setup
+- If default: Offer `/init-project context` to add deep context, or `/init-project verify` to validate
+- If `--full`: Offer `/harvest-context` to extract more context, or `/project workspace` to manage the new setup
 
 ## Subcommand: detect
 
@@ -289,13 +295,13 @@ On completion, offer next step: `/init-project setup` or `/init-project docs`
 
 ## Subcommand: docs
 
-Regenerate hierarchical AGENTS.md documentation. Phase 4 only.
+Regenerate hierarchical AGENTS.md documentation. Phase 5 only.
 
 ### Behavior
 
 1. Check for `.opencode/state/init/init-detection.json` — if missing, run detect first
 2. Delegate to `deepinit` skill for documentation generation
-3. See `phases/04-documentation.md` for full workflow
+3. See `phases/05-documentation.md` for full workflow
 
 ### Re-Run Behavior
 
@@ -312,26 +318,32 @@ On completion, offer next step: `/init-project context` or `/init-project verify
 
 ## Subcommand: context
 
-Capture session knowledge and promote insights to durable documentation. Phase 5 only.
+Deep codebase mapping and context capture. Phase 6 only (same as `setup --full` Phase 6).
 
 ### Behavior
 
-1. Scan `.opencode/state/` for useful artifacts
-2. Invoke `remember` skill to classify session knowledge
-3. Promote insights to project memory, notepad, or AGENTS.md
-4. See SKILL.md Phase 5 for full workflow
+1. Spawn 3 parallel agents: `@architect` (architecture mapping), `@convention-extractor` (coding conventions), `@explore` (file tree + entry points)
+2. Synthesize agent outputs into `.opencode/context/frameworks/architecture.md`, `.opencode/context/patterns/conventions.md`, `.opencode/context/theory.md`
+3. Create `.opencode/context/decisions.md` with extracted architectural decisions
+4. Update `.opencode/state/project-memory.json` with durable project facts
+5. Upgrade Phase 4 agent wrappers in `.opencode/agents/*.md` with deep project context sections
+6. Run privacy scan on all context files before commit
+7. See `phases/06-context-capture.md` for full workflow
 
 ### Output
 
-- Updated `project-memory.json` with durable project facts
-- Updated `notepad.md` with high-signal session context
-- Optional AGENTS.md additions for project-specific patterns
+- `.opencode/context/frameworks/architecture.md` — system architecture, module boundaries, data flow
+- `.opencode/context/patterns/conventions.md` — naming, error handling, testing, import patterns
+- `.opencode/context/theory.md` — living documentation of how the project works
+- `.opencode/context/decisions.md` — architectural decision records
+- `.opencode/state/project-memory.json` — durable cross-session facts
+- Upgraded `.opencode/agents/*.md` — agents now contain deep project context
 
-On completion, offer next step: `/init-project verify`
+On completion, offer next step: `/init-project verify` or `/harvest-context`
 
 ## Subcommand: verify
 
-Validate configuration completeness and integrity. Phase 7 only.
+Validate configuration completeness and integrity. Phase 8 only.
 
 ### Behavior
 
@@ -342,8 +354,9 @@ Validate configuration completeness and integrity. Phase 7 only.
 5. Confirm .gitignore configured
 6. Validate state directory structure
 7. Test config loadability
+8. If `--full` was used, check Phase 7 integration report passed
 
-See `phases/05-verification.md` for full verification checklist.
+See `phases/08-verification.md` for full verification checklist.
 
 ### Output
 
@@ -370,11 +383,9 @@ Verified:
 
 ## Subcommand: refresh
 
-Update existing configuration, preserving manual edits. Phases 0-7 in merge mode.
+Update existing configuration, preserving manual edits. Default mode runs phases 0-5 + 8 in merge mode. With `--full`, all 9 phases run (0-8) including deep codebase re-mapping (Phase 6) and routing integration validation (Phase 7).
 
-### Behavior
-
-Identical to `setup` but in merge mode:
+### Default Behavior (merge mode, phases 0-5 + 8)
 
 1. **Read existing** — parse current `.opencode/opencode.jsonc` and `AGENTS.md`
 2. **Diff structure** — compare current directory tree vs what AGENTS.md describes
@@ -382,6 +393,35 @@ Identical to `setup` but in merge mode:
 4. **Update generated sections** — refresh file tables, directories, dependencies
 5. **Add new detections** — add newly found files/dirs, mark removed ones
 6. **Merge configs** — add new fields to opencode.jsonc, don't remove user-set values
+7. **Re-provision** — add new agents/skills/tools/rules from new recommendations, preserve manually edited ones, flag stale resources (don't delete)
+8. **Verify** — validate completeness, report changes
+
+### Full Behavior (merge mode, phases 0-8)
+
+All default behavior PLUS:
+
+9. **Phase 6: Deep codebase re-mapping** — Re-spawn 3 parallel agents:
+   - `@architect` — re-analyze architecture, detect new modules/refactored boundaries
+   - `@convention-extractor` — re-extract conventions, detect style changes
+   - `@explore` — re-map file tree, detect new entry points
+   - **Context diff**: Compare new analysis against existing `.opencode/context/` files. Update changed sections, preserve unchanged sections, preserve `<!-- MANUAL -->` blocks.
+   - **Agent re-upgrade**: Re-generate Phase 4 agent wrappers with refreshed deep context. Preserve MANUAL blocks, overwrite auto-generated context sections.
+10. **Phase 7: Routing re-validation** — Validate all agent extends paths, skill frontmatter, tool exports, rule registration, .gitignore. Fix broken cross-references. Generate updated integration report.
+11. **Phase 8: Verify + diff report** — Final health check plus a change diff showing what was added, updated, and flagged as stale.
+
+### When to use refresh --full
+
+- Codebase has evolved significantly since last init (new modules, refactors, architectural changes)
+- New conventions adopted (team changed naming, error handling, testing patterns)
+- Context feels stale — agents give generic advice that doesn't match current codebase
+- After absorbing another project (merger, acquisition, monorepo consolidation)
+
+### When default refresh is sufficient
+
+- Minor dependency updates, no architectural changes
+- Config drift fix, opencode.jsonc needs syncing
+- New global skills/agents available, want to pull in recommendations
+- Quick health check
 
 Equivalent to `setup` with `--refresh` flag.
 
@@ -421,10 +461,13 @@ fi
 Detailed phase documentation is in `phases/`:
 
 - `phases/01-detection.md` — Language, framework, tooling detection
-- `phases/02-planning.md` — Configuration planning
-- `phases/03-configuration.md` — Scaffolding and file generation
-- `phases/04-documentation.md` — Hierarchical AGENTS.md generation
-- `phases/05-verification.md` — Validation and integrity checks
+- `phases/02-planning.md` — Stack recommendation and resource planning
+- `phases/03-configuration.md` — Scaffolding and opencode.jsonc generation
+- `phases/04-provisioning.md` — Project-specific agent/skill/tool/rule generation
+- `phases/05-documentation.md` — Hierarchical AGENTS.md generation via deepinit
+- `phases/06-context-capture.md` — Deep codebase mapping via parallel agents, context synthesis, agent upgrade (--full only)
+- `phases/07-routing.md` — Routing integration validation: agent inheritance, skill discoverability, tool exports, rule registration, .gitignore (--full only)
+- `phases/08-verification.md` — Final validation, health check, integration report
 
 ## Idempotency
 

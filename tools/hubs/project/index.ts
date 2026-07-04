@@ -1,7 +1,7 @@
 import { HubSubcommand } from "../../hub-data"
-import tests from "./tests"
+import createTests from "./create-tests"
 import commit from "./commit"
-import stage from "./stage"
+import gitStageThread from "./git-stage-thread"
 import pr from "./pr"
 import gh from "./gh"
 import optimize from "./optimize"
@@ -11,7 +11,6 @@ import cleanup from "./cleanup"
 import modernize from "./modernize"
 import icon from "./icon"
 import organize from "./organize"
-import analyze from "./analyze"
 import changelog from "./changelog"
 import converge from "./converge"
 import scan from "./scan"
@@ -27,8 +26,8 @@ import workspace from "./workspace"
 import readme from "./readme"
 
 export const specs = [
-  tests, commit, stage, pr, gh, optimize, refactor, simplify, cleanup,
-  modernize, icon, organize, analyze, changelog, converge, scan, sandbox,
+  createTests, commit, gitStageThread, pr, gh, optimize, refactor, simplify, cleanup,
+  modernize, icon, organize, changelog, converge, scan, sandbox,
   retrospect, purge, release, review, audit, archive, gitCleanup, workspace, readme
 ]
 

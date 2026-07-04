@@ -2,7 +2,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 
 const spec: HubSubcommandSpec = {
   label: "modularity",
-  description: "Analyze module boundaries, coupling and cohesion — detect circular dependencies, suggest reorganization for cleaner module isolation",
+  description: "Module boundary analysis — detect circular dependencies, suggest reorg",
   reminder: "Analyze module boundaries and coupling.",
   agent: "architect",
 

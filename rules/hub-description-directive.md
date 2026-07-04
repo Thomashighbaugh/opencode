@@ -4,49 +4,57 @@
 
 When the TUI dialog lists hub subcommands, the hub name (`/orchestrate`, `/harvest-context`, etc.) is **not visually present** as context. The user sees a flat list of 20-30 subcommand names at once. A name like `docs`, `context`, `scan`, or `purge` might seem obvious within the hub's context, but that context is invisible to the user at the moment of selection.
 
-Rearranging menus, adding nested categories, or splitting hubs creates debugging nightmares and configuration breakage with almost no measurable improvement in discoverability. **This directive is the alternative.**
+The TUI dialog has limited horizontal space — descriptions beyond ~80 characters get truncated mid-sentence, becoming unintelligible.
 
-## The Solution
+## The Solution: Two-Tier Descriptions
 
-Every hub subcommand **description** (the line shown in the TUI menu next to the subcommand name) MUST embed:
+There are **two** description fields, each with a different purpose:
 
-1. **External tool names** — the actual CLI tool, API or service it invokes (e.g., `Context7 MCP`, `gh`, `git`, `npm`)
-2. **Recognizable buzzwords** — the domain-specific terms a user would search for (e.g., `library docs`, `fetch`, `scan`, `deploy`, `secrets`, `vulnerability`)
-3. **Concrete action verb** — what actually happens (e.g., `fetches`, `scans`, `generates`, `repairs`, `validates`)
+### `description` — Menu display (MUST be short)
 
-## Format
+Shown in the TUI dialog next to the subcommand name. Space is limited.
+
+- **Max 80 characters** (ideally 50-70).
+- **No tool names.** The user doesn't need to know HOW it works to choose it.
+- **No buzzwords.** Just say what it does in plain terms.
+- **Self-contained.** Don't assume the hub name is visible.
+- **Distinctive.** Must be obviously different from every other subcommand in the list.
+
+Format: `{What it does} — {key differentiator}`
 
 ```
-{action verb} {what it does} via {tool/service} — {buzzwords}
+GOOD (short, self-contained, recognizable):
+  "Architectural friction analysis — propose deep-module refactors"
+  "Stress-test a plan with relentless one-at-a-time questioning"
+  "Competitive landscape — feature comparison matrix"
+  "Multi-source web research — parallel searches, synthesize findings"
+
+BAD (too long, gets truncated):
+  "Analyze codebase for architectural friction, propose module-deepening refactors via John Ousterhout's deep module principle — parallel sub-agents explore, generate candidate refactors, produce markdown tables for comparison, then grill through your pick"
+  "Stress-test a plan or design via relentless one-at-a-time questioning — walk down each branch of the design tree, resolve dependencies between decisions, provide recommended answers. Use before building to surface hidden assumptions"
 ```
 
-**Examples:**
-- `docs`: `Fetch official library docs via Context7 MCP API — React, Next.js, Tailwind, Prisma, Express, Django, any npm/PyPI package`
-- `scan`: `Run security vulnerability scan via SAST rules — secrets detection, dependency audit, compliance checks`
-- `pr`: `Create, view, merge pull requests via GitHub CLI — diff, list, checks, review`
-- `purge`: `Clean up stale orchestration state — remove old runs, free disk space`
-- `git-cleanup`: `Fix orphaned CHANGELOG entries after .git/ rebuild — preserves entries, removes bad refs`
+### `detailedDescription` — Route payload (can be detailed)
 
-## Anti-Patterns
+Inlined into the prompt ONLY when a specific subcommand is selected (via `route` action). This has plenty of room.
 
-| BAD (hub-name-dependent) | GOOD (self-contained) |
-|---|---|
-| `Fetch library documentation` | `Fetch official library docs via Context7 MCP API` |
-| `Analyze code patterns` | `Analyze codebase patterns and anti-patterns via static analysis` |
-| `Validate configuration` | `Validate configuration via OpenCode schema — file existence, syntax, refs` |
-| `Create a skill` | `Create a reusable skill from session knowledge — YAML frontmatter, workflow steps` |
+- **No length limit.** Explain the full process, when to use it, what it produces.
+- **Can include tool names, buzzwords, methodology references.**
+- **Can include step-by-step workflow, output format, state paths.**
+- The user has already chosen the subcommand — now they need the details.
+
+### `reminder` — Invocation hint (keep terse)
+
+A 1-line reminder shown to the user when the subcommand is invoked. Already short — keep it that way.
 
 ## Enforcement
 
-This is a **convention, not a hard rule**. The bar is: if a user who has never seen this hub before reads the description, they should understand:
-- What tool/service does the work (if any)
-- What recognizable outcome to expect
-- That it's distinct from every other subcommand in the list
+This is a **convention, not a hard rule**. The bar for `description` is: if a user sees it in a 30-item TUI list, they should immediately understand what it does — without the hub name, without scrolling, without truncation.
 
 ## Scope
 
 Applies to:
-- `tools/hubs/<hub>/<subcommand>.ts` subcommand `description` fields (shown in TUI dialogs and routing views)
+- `tools/hubs/<hub>/<subcommand>.ts` `description` field (menu display — SHORT) and `detailedDescription` field (route payload — detailed)
 - `tools/hub-<name>.ts` thin manifests (re-export the identity slice containing `description`)
-- `SKILL.md` subcommand section headers and descriptions
-- `AGENTS.md` hub command reference tables
+- SKILL.md subcommand section headers and descriptions (same two-tier pattern)
+- AGENTS.md hub command reference tables (summary only)

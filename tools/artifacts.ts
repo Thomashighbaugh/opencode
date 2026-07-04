@@ -1,6 +1,7 @@
 import { tool } from "@opencode-ai/plugin"
 import * as fs from "fs"
 import * as path from "path"
+import { withToolCache, invalidateToolCache } from "./cache-utils"
 
 interface ArtifactsManifest {
   created: string
@@ -20,6 +21,8 @@ function getManifestPath(projectRoot: string, skill: string): string {
 
 const VALID_ARTIFACT_ACTIONS = ['save', 'load', 'list', 'list-all', 'delete', 'get-latest'] as const
 const VALID_ARTIFACT_TYPES = ['text', 'json', 'markdown'] as const
+const READ_ONLY_ACTIONS = new Set(['load', 'list', 'list-all', 'get-latest'])
+const MUTATION_ACTIONS = new Set(['save', 'delete'])
 
 export default tool({
   description: "Manage skill artifacts: save, load, list, or delete artifacts created by skills",
@@ -34,6 +37,19 @@ export default tool({
   async execute(args, context) {
     const projectRoot = context.directory || process.cwd()
     
+    if (READ_ONLY_ACTIONS.has(args.action)) {
+      return withToolCache("artifacts", args, () => executeArtifacts(args, projectRoot), 300_000)
+    }
+    
+    if (MUTATION_ACTIONS.has(args.action)) {
+      invalidateToolCache("artifacts")
+    }
+    
+    return executeArtifacts(args, projectRoot)
+  }
+})
+
+function executeArtifacts(args: any, projectRoot: string): string {
     switch (args.action) {
       case 'save': {
         if (!args.skill || !args.name || !args.content) {
@@ -192,5 +208,4 @@ export default tool({
       default:
         return JSON.stringify({ error: `Unknown action: ${args.action}` })
     }
-  }
-})
+}

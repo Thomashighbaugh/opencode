@@ -2,7 +2,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 
 const spec: HubSubcommandSpec = {
   label: "architecture",
-  description: "Analyze codebase for architectural friction, propose module-deepening refactors via John Ousterhout's deep module principle — parallel sub-agents explore, generate candidate refactors, produce markdown tables for comparison, then grill through your pick",
+  description: "Architectural friction analysis — propose deep-module refactors",
   reminder: "Surface deepening opportunities with markdown comparison tables.",
   skill: "improve-codebase-architecture",
 

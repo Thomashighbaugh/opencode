@@ -1,6 +1,7 @@
 import { tool } from "@opencode-ai/plugin"
 import * as fs from "fs"
 import * as path from "path"
+import { withToolCache, invalidateToolCache } from "./cache-utils"
 
 type TodoStatus = 'pending' | 'in_progress' | 'completed' | 'cancelled'
 type TodoPriority = 'high' | 'medium' | 'low'
@@ -35,6 +36,8 @@ function writeTodos(projectRoot: string, todos: TodoItem[]): void {
 const VALID_TODO_ACTIONS = ['create', 'add', 'update', 'get', 'clear', 'next', 'summary'] as const
 const VALID_STATUSES = ['pending', 'in_progress', 'completed', 'cancelled'] as const
 const VALID_PRIORITIES = ['high', 'medium', 'low'] as const
+const READ_ONLY_ACTIONS = new Set(['get', 'next', 'summary'])
+const MUTATION_ACTIONS = new Set(['create', 'add', 'update', 'clear'])
 
 export default tool({
   description: "Manage task todos: create list, add items, update status, get current, or clear all",
@@ -49,6 +52,19 @@ export default tool({
   async execute(args, context) {
     const projectRoot = context.directory || process.cwd()
     
+    if (READ_ONLY_ACTIONS.has(args.action)) {
+      return withToolCache("taskTodos", args, () => executeTodos(args, projectRoot), 300_000)
+    }
+    
+    if (MUTATION_ACTIONS.has(args.action)) {
+      invalidateToolCache("taskTodos")
+    }
+    
+    return executeTodos(args, projectRoot)
+  }
+})
+
+function executeTodos(args: any, projectRoot: string): string {
     switch (args.action) {
       case 'create': {
         const todos: TodoItem[] = (args.items || []).map((item: any) => ({
@@ -125,5 +141,4 @@ export default tool({
       default:
         return JSON.stringify({ error: `Unknown action: ${args.action}` })
     }
-  }
-})
+}

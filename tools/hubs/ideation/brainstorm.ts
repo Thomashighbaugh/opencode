@@ -2,7 +2,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 
 const spec: HubSubcommandSpec = {
   label: "brainstorm",
-  description: "Free-form idea generation — throw ideas at the wall on any topic, then cluster and prioritize",
+  description: "Free-form idea generation — diverge then converge",
   reminder: "Generate, cluster, and prioritize ideas.",
   inline: true,
 

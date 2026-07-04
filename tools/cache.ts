@@ -1,10 +1,10 @@
 import { tool } from "@opencode-ai/plugin"
 import { getCache, CacheManager, CACHE_CONFIGS, invalidateAllToolCaches } from "./cache-utils"
 
-const VALID_ACTIONS = ['stats', 'clear', 'invalidate', 'invalidate-tool', 'clear-all'] as const
+const VALID_ACTIONS = ['stats', 'clear', 'invalidate', 'invalidate-tool', 'clear-all', 'report'] as const
 
 export default tool({
-  description: "Manage the multi-tier prompt cache system — view stats, clear caches, or invalidate specific entries. Namespaces: tool (30s TTL), mcp (7d TTL), llm (1h TTL), agent (30m TTL), session (24h memory-only)",
+  description: "Manage the multi-tier prompt cache system — view stats, clear caches, invalidate entries, or generate a savings report. Namespaces: tool (15m), mcp (7d), llm (1h), agent (30m), session (24h memory-only), stable (24h), context7 (7d), file (24h memory-only). Actions: stats, clear, invalidate, invalidate-tool, clear-all, report",
   args: {
     action: tool.schema.string().describe(`Action to perform. Valid: ${VALID_ACTIONS.join(', ')}`),
     namespace: tool.schema.string().optional().describe("Cache namespace: tool, mcp, llm, agent, session"),
@@ -73,6 +73,55 @@ export default tool({
           } catch {}
         }
         return JSON.stringify({ cleared: "all namespaces" })
+      }
+
+      case 'report': {
+        const namespaces = Object.keys(CACHE_CONFIGS)
+        const report: any[] = []
+        let totalHits = 0
+        let totalMisses = 0
+        let totalTokensSaved = 0
+
+        for (const ns of namespaces) {
+          try {
+            const cache = getCache(ns, projectRoot)
+            const stats = cache.getStats()
+            report.push({
+              namespace: ns,
+              hits: stats.hits,
+              misses: stats.misses,
+              hitRate: stats.hits + stats.misses > 0 
+                ? `${Math.round((stats.hits / (stats.hits + stats.misses)) * 100)}%` 
+                : '0%',
+              entries: stats.entries,
+              diskEntries: stats.diskEntries,
+              tokensSaved: stats.estimatedTokensSaved,
+            })
+            totalHits += stats.hits
+            totalMisses += stats.misses
+            totalTokensSaved += stats.estimatedTokensSaved
+          } catch {
+            report.push({ namespace: ns, error: 'failed to load' })
+          }
+        }
+
+        const overallHitRate = totalHits + totalMisses > 0
+          ? `${Math.round((totalHits / (totalHits + totalMisses)) * 100)}%`
+          : '0%'
+
+        return JSON.stringify({
+          summary: {
+            totalHits,
+            totalMisses,
+            overallHitRate,
+            estimatedTokensSaved: totalTokensSaved,
+            estimatedCostSaved: `${Math.round(totalTokensSaved / 1000)}K tokens`,
+          },
+          namespaces: report,
+          recommendations: totalTokensSaved < 1000
+            ? ['Low cache utilization — ensure tools use withToolCache for read-only operations']
+            : [],
+        }, null, 2)
       }
 
       default:

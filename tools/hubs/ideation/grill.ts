@@ -2,7 +2,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 
 const spec: HubSubcommandSpec = {
   label: "grill",
-  description: "Stress-test a plan or design via relentless one-at-a-time questioning — walk down each branch of the design tree, resolve dependencies between decisions, provide recommended answers. Use before building to surface hidden assumptions",
+  description: "Stress-test a plan with relentless one-at-a-time questioning",
   reminder: "Grill plans relentlessly until shared understanding.",
   skill: "grilling",
 

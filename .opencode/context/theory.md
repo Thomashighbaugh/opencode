@@ -43,6 +43,12 @@ Hooks handle mechanical work: checkpointing at phase transitions, capturing ADRs
 - Feature flags before feature removal — disable first, delete later
 - Never compact durable context — only compact session state
 - Context loading should be subtree-scoped, never load entire context/
+- Hub SKILL.md files must not have YAML frontmatter — it triggers skill context injection (entire file dumped into prompt)
+- Hub SKILL.md routing uses compact tables, not `### /hub X` subsections — prevents agents pulling multiple sections
+- Subcommand descriptions are two-tier: short for TUI menu (≤80 chars), detailed for route payload (unlimited)
+- Generator tool testing: strip `@opencode-ai/plugin` import and `export default tool()` from temp copy, add function exports, `require()` and test generators directly — bypasses ESM resolution issues
+- End-to-end execution testing beats structural validation — run generated scripts with real arguments and validate JSON output via `JSON.parse()` or `python3 -m json.tool`
+- Count-based verification: compare spec counts in `index.ts` against routing table row counts using `awk` to scope to the relevant section
 
 ## Current Direction
 

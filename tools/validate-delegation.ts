@@ -3,6 +3,7 @@ import * as fs from "fs"
 import * as path from "path"
 import { homedir } from "os"
 import { loadAllHubs } from './hub-data'
+import { withToolCache } from "./cache-utils"
 
 const USER_CONFIG_DIR = process.env.OPENCODE_CONFIG_DIR || path.join(homedir(), '.config', 'opencode')
 
@@ -88,6 +89,8 @@ export default tool({
   async execute(args, context) {
     const projectRoot = context.directory || process.cwd()
     const action = args.action as string
+
+    return withToolCache("validate-delegation", args, () => {
 
     if (action === 'stats') {
       let total = 0
@@ -192,5 +195,6 @@ export default tool({
     }
 
     return JSON.stringify({ error: `Unknown action '${action}'. Valid: validate, stats` })
+    }, 3_600_000) // 1h TTL
   },
 })

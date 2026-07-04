@@ -2,7 +2,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 
 const spec: HubSubcommandSpec = {
   label: "opro",
-  description: "⚠️ EXPENSIVE: Generate prompt variations and test each against a benchmark (~many× cost). Warns user and asks for confirmation before proceeding. Use for prompt optimization and periodic maintenance",
+  description: "⚠️ EXPENSIVE: Optimize prompts by testing variations against benchmarks",
   reminder: "Prompt optimization with cost warning.",
   skill: "opro",
 

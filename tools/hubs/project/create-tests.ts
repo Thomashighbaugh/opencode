@@ -1,10 +1,10 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
 const spec: HubSubcommandSpec = {
-  label: "tests",
+  label: "create-tests",
   description: "Generate comprehensive 8-type test suite",
   reminder: "Generate comprehensive 8-type test suite.",
-  command: "create-tests",
+  // inline — hub prompt handles this directly
 
   detailedDescription: `Generates a comprehensive test suite covering 8 test types per unit under test:
 

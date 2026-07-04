@@ -20,6 +20,8 @@ export interface CacheConfig {
   maxHotEntries: number
   /** Whether to persist to disk */
   persist: boolean
+  /** Whether this namespace is shared across all projects (true) or per-project (false, default) */
+  globalScope?: boolean
 }
 
 export interface CacheStats {
@@ -29,6 +31,7 @@ export interface CacheStats {
   hits: number
   misses: number
   memoryEntries: number
+  estimatedTokensSaved: number
 }
 
 // ─── Default Configs ───────────────────────────────────────────────────
@@ -39,9 +42,22 @@ export const CACHE_CONFIGS: Record<string, CacheConfig> = {
   "llm":      { namespace: "llm",      defaultTTL: 3_600_000, maxHotEntries: 100, persist: true },  // 1 hour
   "agent":    { namespace: "agent",    defaultTTL: 1_800_000, maxHotEntries: 50, persist: true },   // 30 min
   "session":  { namespace: "session",  defaultTTL: 86_400_000, maxHotEntries: 20, persist: false }, // 24h, memory only
-  "stable":   { namespace: "stable",   defaultTTL: 86_400_000, maxHotEntries: 100, persist: true },  // 24h — agent defs, skill content, routing tables
-  "context7": { namespace: "context7", defaultTTL: 604_800_000, maxHotEntries: 100, persist: true },  // 7 days — Context7 doc results
+  "stable":   { namespace: "stable",   defaultTTL: 86_400_000, maxHotEntries: 100, persist: true, globalScope: true },  // 24h — agent defs, skill content, routing tables
+  "context7": { namespace: "context7", defaultTTL: 604_800_000, maxHotEntries: 100, persist: true, globalScope: true },  // 7 days — Context7 doc results
   "file":     { namespace: "file",     defaultTTL: 86_400_000, maxHotEntries: 200, persist: false }, // 24h, memory only — file read cache
+}
+
+// ─── Project Slug ─────────────────────────────────────────────────────
+
+const GENERIC_BASENAMES = new Set(["opencode", "src", "lib", "test", "tests", "dist", "build", "node_modules", "config", ".opencode"])
+
+export function getProjectSlug(projectRoot: string): string {
+  const basename = path.basename(projectRoot).toLowerCase().replace(/[^a-z0-9]/g, "-")
+  if (GENERIC_BASENAMES.has(basename) || basename.length < 2) {
+    // Use hash of full path for generic directory names
+    return crypto.createHash("sha256").update(projectRoot).digest("hex").substring(0, 12)
+  }
+  return basename
 }
 
 // ─── Cache Manager ─────────────────────────────────────────────────────
@@ -50,12 +66,16 @@ export class CacheManager {
   private memory = new Map<string, CacheEntry>()
   private config: CacheConfig
   private cacheDir: string
-  private stats = { hits: 0, misses: 0 }
+  private stats = { hits: 0, misses: 0, tokensSaved: 0 }
 
   constructor(config: CacheConfig, projectRoot?: string) {
     this.config = config
     const root = projectRoot || getProjectRoot()
     this.cacheDir = path.join(root, '.opencode', 'cache', config.namespace)
+    if (!this.config.globalScope) {
+      const slug = getProjectSlug(root)
+      this.cacheDir = path.join(this.cacheDir, slug)
+    }
     if (config.persist) {
       fs.mkdirSync(this.cacheDir, { recursive: true })
     }
@@ -79,6 +99,9 @@ export class CacheManager {
       if (Date.now() - mem.created < mem.ttl) {
         mem.hits++
         this.stats.hits++
+        // Estimate tokens saved (4 chars ≈ 1 token)
+        const valStr = typeof mem.value === 'string' ? mem.value : JSON.stringify(mem.value)
+        this.stats.tokensSaved += Math.ceil(valStr.length / 4)
         return mem.value as T
       }
       this.memory.delete(key)
@@ -90,6 +113,8 @@ export class CacheManager {
       if (disk) {
         disk.hits++
         this.stats.hits++
+        const valStr = typeof disk.value === 'string' ? disk.value : JSON.stringify(disk.value)
+        this.stats.tokensSaved += Math.ceil(valStr.length / 4)
         this.promoteToMemory(key, disk)
         return disk.value as T
       }
@@ -157,7 +182,7 @@ export class CacheManager {
   /** Clear all cached entries */
   clear(): void {
     this.memory.clear()
-    this.stats = { hits: 0, misses: 0 }
+    this.stats = { hits: 0, misses: 0, tokensSaved: 0 }
     if (this.config.persist && fs.existsSync(this.cacheDir)) {
       for (const f of fs.readdirSync(this.cacheDir)) {
         try { fs.unlinkSync(path.join(this.cacheDir, f)) } catch {}
@@ -178,6 +203,7 @@ export class CacheManager {
       hits: this.stats.hits,
       misses: this.stats.misses,
       memoryEntries: this.memory.size,
+      estimatedTokensSaved: this.stats.tokensSaved,
     }
   }
 
@@ -235,6 +261,38 @@ export class CacheManager {
         this.memory.delete(oldestKey)
       }
       this.memory.set(key, entry as CacheEntry)
+    }
+  }
+
+  /** Migrate per-project cache namespaces from flat to slug-prefixed layout */
+  static migrateToPerProject(projectRoot: string): void {
+    const root = projectRoot || getProjectRoot()
+    for (const [name, config] of Object.entries(CACHE_CONFIGS)) {
+      if (config.globalScope) continue
+      const oldDir = path.join(root, ".opencode", "cache", name)
+      const slug = getProjectSlug(root)
+      const newDir = path.join(oldDir, slug)
+      if (!fs.existsSync(oldDir)) continue
+      if (fs.existsSync(newDir)) continue // Already migrated
+
+      // Only migrate if oldDir is flat (no subdirectories)
+      let hasSubdirs = false
+      try {
+        const entries = fs.readdirSync(oldDir, { withFileTypes: true })
+        for (const entry of entries) {
+          if (entry.isDirectory()) { hasSubdirs = true; break }
+        }
+      } catch { continue }
+
+      if (hasSubdirs) continue // Contains subdirs — already migrated or mixed state
+
+      try {
+        fs.mkdirSync(path.dirname(newDir), { recursive: true })
+        fs.renameSync(oldDir, newDir)
+      } catch {
+        // Best-effort: if rename fails, invalidate old cache
+        try { fs.rmSync(oldDir, { recursive: true, force: true }) } catch {}
+      }
     }
   }
 }

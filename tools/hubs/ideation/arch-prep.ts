@@ -2,7 +2,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 
 const spec: HubSubcommandSpec = {
   label: "arch-prep",
-  description: "Architecture preparation for upcoming features — design extension points, plan module additions, anticipate refactoring runway before coding",
+  description: "Architecture prep for upcoming features — extension points, refactoring runway",
   reminder: "Design architecture to accommodate upcoming features.",
   agent: "architect",
 

@@ -90,7 +90,7 @@ Provisioning state lives in `.opencode/state/init/` (shares state directory with
 |------|---------|
 | `.opencode/state/init/init-detection.json` | Phase 1 codebase scan results |
 | `.opencode/state/init/provision-checkpoint.json` | Last completed phase checkpoint |
-| `.opencode/state/init/provision-report.md` | Phase 7 verification report |
+| `.opencode/state/init/provision-report.md` | Phase 8 verification report |
 
 ### Detection File Format
 

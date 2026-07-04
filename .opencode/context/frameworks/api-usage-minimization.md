@@ -42,7 +42,7 @@ Every hub subcommand is classified by API cost:
 
 ```
 🟢 FREE — No LLM invocation (tools only)
-   /project stage, /project commit (with -m), git status, ls, grep
+   /project git-stage-thread, /project commit (with -m), git status, ls, grep
    
 🟡 CHEAP — Single flash invocation, < 10K tokens
    /harvest-context docs (Context7 MCP — no LLM needed)
@@ -109,7 +109,7 @@ Every agent gets a token budget:
 
 | Subcommand | Before (API Cost) | After (API Cost) |
 |-----------|-------------------|------------------|
-| `/project stage` | LLM invocation (🔴) | **No LLM** — tools only (🟢) |
+| `/project git-stage-thread` | LLM invocation (🔴) | **No LLM** — tools only (🟢) |
 | `/project commit` | LLM generates message (🟠) | Use `-m` flag, no LLM (🟢) |
 | `/harvest-context session` | Auto-runs on completion (🔴) | **Manual only** (never auto) |
 | `/init-project docs` | Auto-runs after setup (🟠) | **Manual only** |

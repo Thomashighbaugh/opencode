@@ -195,7 +195,7 @@ Validate every generated artifact:
 
 ### "I don't want global config bloat"
 
-Each project gets its own `.opencode/` with only what it needs. The global config remains a lean engine with 29 agents, 67 skills, 6 commands — generic tools that work for any project. Project specifics go in `.opencode/`.
+Each project gets its own `.opencode/` with only what it needs. The global config remains a lean engine with 29 agents, 67 skills — generic tools that work for any project. Project specifics go in `.opencode/`.
 
 ### "I don't want to decompose my project's mechanics"
 

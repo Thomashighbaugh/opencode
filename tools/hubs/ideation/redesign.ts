@@ -2,7 +2,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 
 const spec: HubSubcommandSpec = {
   label: "redesign",
-  description: "Audit and upgrade existing websites/apps to premium design standards — scan codebase, diagnose generic AI patterns (overused gradients, Lucide icons, centered card columns), apply targeted upgrades without breaking functionality",
+  description: "Audit and upgrade existing UI to premium design standards",
   reminder: "Audit and upgrade to premium design standards.",
   skill: "redesign-existing-projects",
 

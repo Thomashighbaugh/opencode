@@ -2,7 +2,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 
 const spec: HubSubcommandSpec = {
   label: "quality",
-  description: "Deep-dive code quality audit — complexity hotspots, duplication clusters, naming violations, error handling gaps across the codebase",
+  description: "Code quality audit — complexity, duplication, naming, error handling",
   reminder: "Deep-dive code quality analysis across the codebase.",
   inline: true,
 

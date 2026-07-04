@@ -2,7 +2,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 
 const spec: HubSubcommandSpec = {
   label: "overhaul",
-  description: "Analyze project across 8 refinement dimensions — architecture, performance, security, code quality, testing, deps, DX — and produce a prioritized phased implementation plan",
+  description: "8-dimension project audit — produce prioritized improvement plan",
   reminder: "Analyze project and produce phased improvement plan.",
   skill: "overhaul",
 

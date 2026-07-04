@@ -2,7 +2,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 
 const spec: HubSubcommandSpec = {
   label: "pwf",
-  description: "Planning-with-files — treat filesystem as disk, context window as RAM; three-file pattern with quality-gated convergence and session recovery",
+  description: "Filesystem-as-disk planning — quality-gated convergence with recovery",
   reminder: "Plan with files as persistent disk.",
   inline: true,
 

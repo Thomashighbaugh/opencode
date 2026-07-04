@@ -395,17 +395,17 @@ Configured in `opencode.jsonc`. See [Model Configuration](./.opencode/docs/model
 ├── AGENTS.md               # Project-level agent instructions
 ├── agents/                 # 31 agent definitions
 ├── skills/                 # 101 workflow skills
-├── commands/               # 6 commands (skills, create-tests, git-stage-thread, pr, optimize, analyze-patterns)
+├── commands/               # (empty — all subcommands live in hub menus)
 ├── tools/                  # TypeScript tools
 │   ├── hubMenu.ts          # Hub menu router (route returns full spec, menu returns slim slice)
 │   ├── hub-data.ts         # Hub types, subcommand spec loader, state helpers
 │   ├── hub-<name>.ts       # Thin hub manifests (10 lines each, identity slice only)
 │   ├── hubs/               # Per-subcommand spec files (148 files)
 │   │   ├── orchestrate/    # 33 subcommand specs + index.ts
-│   │   ├── ideation/       # 38 subcommand specs + index.ts
+│   │   ├── ideation/       # 39 subcommand specs + index.ts
 │   │   ├── harvest-context/# 21 subcommand specs + index.ts
 │   │   ├── init-project/   # 17 subcommand specs + index.ts
-│   │   ├── project/        # 26 subcommand specs + index.ts
+│   │   ├── project/        # 24 subcommand specs + index.ts
 │   │   └── skills/         # 13 subcommand specs + index.ts
 │   └── ...                 # File editing, cache, session, skill tools
 ├── plugins/                # Hubs plugin system
@@ -456,12 +456,13 @@ The separation is deliberate. State is transient and compaction-safe. Context ac
 | [routing.md](./.opencode/docs/routing.md) | Hub routing model — two-tier loading, delegation table (148 subcommands), file layout |
 | [agents.md](./.opencode/docs/agents.md) | All 31 agents with descriptions and usage |
 | [skills.md](./.opencode/docs/skills.md) | All 101 skills organized by category |
-| [commands.md](./.opencode/docs/commands.md) | All 6 commands with examples |
+| [commands.md](./.opencode/docs/commands.md) | Command system reference |
 | [tools.md](./.opencode/docs/tools.md) | TypeScript tools API reference |
 | [model-configuration.md](./.opencode/docs/model-configuration.md) | Model setup, tiering, and failover routing |
 | [state-management.md](./.opencode/docs/state-management.md) | Session state persistence |
 | [plugin-system.md](./.opencode/docs/plugin-system.md) | Hook system and keyword detection |
 | [path-conventions.md](./.opencode/docs/path-conventions.md) | File and directory structure |
+| [decisions.md](./.opencode/context/decisions.md) | Architecture Decision Records — inference optimization, plugin architecture, stall detection, per-repo deployment, and all ADRs |
 
 ---
 

@@ -387,7 +387,7 @@ Remove all JOC branding references from the codebase and replace with "OpenCode"
 **Date:** 2026-06-14
 
 ## Context
-The global configuration (`~/.config/opencode/`) serves as a runtime engine with 29 agents, 67 skills, 6 commands, 10 tools, and 11 rules. However, every project has unique domain language, architecture patterns, coding conventions, testing practices, and external dependencies. Users currently must manually decompose their project architecture and wrestle with domain jargon before they can productively use AI assistance. There is no mechanism for `/init-project setup --full` to:
+The global configuration (`~/.config/opencode/`) serves as a runtime engine with 29 agents, 67 skills, 10 tools, and 11 rules. However, every project has unique domain language, architecture patterns, coding conventions, testing practices, and external dependencies. Users currently must manually decompose their project architecture and wrestle with domain jargon before they can productively use AI assistance. There is no mechanism for `/init-project setup --full` to:
 
 - Auto-analyze a project's domain language, architecture, and conventions
 - Research detected dependencies via Context7 MCP and synthesize structured knowledge
@@ -567,3 +567,185 @@ Implement a smart prompt queue that:
 ## See Also
 - `.opencode/context/frameworks/smart-prompt-queue.md` — Full design document
 - `.opencode/context/frameworks/stall-detection-and-recovery.md` — Complementary stall detection
+
+---
+
+# ADR: Inference Optimization Infrastructure — Semantic Cache + Prompt Compiler
+
+**Status:** Accepted  
+**Date:** 2026-07-03
+
+## Context
+The Hubs system dispatches subagents via OpenCode's `Task` tool, which calls an LLM API for each invocation. While the existing multi-tier cache (tool, mcp, llm, agent, session, stable, context7, file) handles **exact-repeat** work well, two significant inefficiencies remained:
+
+1. **Near-repeat tasks miss the cache** — The agent output cache uses SHA-256 hashing of the task prompt + file contents. Rephrasing the same task (e.g., "fix button styling" vs "update button CSS") produces a different hash and a full cache miss, requiring a fresh LLM call. This is the single largest source of redundant API requests.
+
+2. **Subagent prompts are bloated** — Every `Task` dispatch carries the full agent prompt template, all loaded rules, full file contents, and full skill dumps — even when only a small fraction is relevant to the task. This inflates per-request token consumption by an estimated 40-60%.
+
+## Decisions
+
+### D1: Semantic Similarity Cache (Embedding-Based)
+Add a semantic cache layer alongside the existing exact-match SHA-256 agent cache:
+
+- **Embedding model:** `ollama/nomic-embed-text` (137M params, ~300MB RAM, runs on CPU via local Ollama). No GPU needed. First inference cold-start ~2s, subsequent embeds ~50ms per prompt.
+- **Storage:** Flat JSON index in `.opencode/cache/semantic/` — a simple array of `{ hash, vector, output, timestamp }` objects scannable by cosine similarity. At our scale (hundreds, not millions of entries), a full vector DB is overkill.
+- **Similarity threshold:** 0.92 cosine similarity — tuned to catch paraphrased instructions without false positives on genuinely different tasks.
+- **Two-tier lookup:** Exact SHA-256 match first (fast path, O(1)) → semantic fallback (O(n) cosine scan) → fresh dispatch.
+- **File-hash verification:** On semantic hit, verify cached file hashes match current file state before returning (same as existing agent cache).
+- **TTL:** 24 hours (matching the `stable` cache namespace), with file-change invalidation.
+- **No degradation:** On miss, falls through to existing exact-match cache → fresh dispatch. Best-effort improvement, never worse than baseline.
+
+### D2: Prompt Compiler (Boilerplate Stripping)
+Add a pre-dispatch prompt compilation step that strips redundant boilerplate and scopes context to only what's needed:
+
+- **What it strips:**
+  - Role definitions and agent catalog sections that overlap with the target agent's built-in instructions — the subagent already knows who it is
+  - Rules that duplicate the agent's base instructions (checked against a known-overlap table)
+  - File content outside the relevant scope — function/class-level slices instead of full files
+  - Narrative instructions converted to structured YAML bullet points (~30% fewer tokens)
+
+- **What it preserves:**
+  - All security rules — never strip security context
+  - All task-specific instructions verbatim
+  - All rule references that are relevant to the specific task
+
+- **No budget enforcement:** The compiler is a pure quality optimization — it strips waste without imposing token budgets, caps, or size limits. If the compiled prompt is larger than the raw prompt (edge cases), it passes through unchanged.
+
+### D3: Skill Content Compression (Integrated with Prompt Compiler)
+The existing `loadSkill` tool gains two optional parameters:
+- `section`: already exists, returns only the requested section
+- `compress: true`: converts markdown workflow steps to compact YAML bullet lists
+
+The prompt compiler calls `loadSkill(name, section, { compress: true })` when assembling context for a subagent dispatch. This covers skill compression without any separate infrastructure.
+
+### D4: Verification Consolidation
+Two changes to reduce per-step verify overhead in iterative patterns:
+
+1. **Self-verify mode** — The executor agent runs its own verification (lint, test, typecheck) and only escalates to `@verifier` on failure. Built into the `ralph` and `harden` patterns as an optional flag.
+2. **Batch verification gate** — In pipeline patterns, collect 3-5 changes before a single `@verifier` pass instead of verify-after-every-change.
+
+## Rationale
+
+- **Semantic cache** catches 80% of near-repeat tasks that miss the exact-match cache. Combined with the prompt compiler, this eliminates an estimated 40-50% of subagent dispatches entirely for iterative workflows (ralph loops, review cycles, test-fix cycles).
+- **nomic-embed-text** is chosen over reusing the session model because: (a) It's a dedicated embedding model with much smaller memory footprint (137M vs 7B+ params), (b) It runs fully locally with no cloud API calls, (c) It produces consistent 768-dim vectors with well-understood cosine similarity behavior — no prompt engineering needed.
+- **Prompt compiler** reduces per-dispatch token consumption by 40-60% without changing the LLM's output quality — it only removes what the agent already knows or doesn't need.
+- **No budget enforcement** avoids the complexity of context window management and the risk of silently dropping critical context. The compiler is a filter, not a constraint.
+- **Verification consolidation** directly reduces the dominant cost in iterative patterns (the verify loop) by 2-3x.
+
+## Limitations
+
+- **Semantic cache:** Cosine scan over a flat JSON index is O(n) — acceptable at current scale (~hundreds of entries per project) but would need a proper vector index (HNSW, IVF) if it grows to thousands+. Monitor cache hit performance and migrate if scan time exceeds 100ms.
+- **Prompt compiler:** Stripping boilerplate requires knowing which rules overlap with the agent's built-in instructions. This overlap table must be maintained as agents evolve. A validation check in the `agent-format-enforcer` skill or a `hub-doctor` diagnostic can flag out-of-date entries.
+- **Verification consolidation:** Self-verification relies on the executor agent correctly running its own checks. For critical paths (deploy, security-sensitive changes), external `@verifier` review should remain the default — self-verify is an optimization for non-critical iteration loops.
+
+## Implementation Order
+
+1. ADR (this document) — architecture decisions recorded
+2. `tools/prompt-compiler.ts` — prompt compilation + skill compression integration
+3. `tools/semantic-cache.ts` — embedding-based cache layer
+4. `plugins/core/hooks.ts` — integrate both into the pre-dispatch pipeline
+5. Verification consolidation — update ralph/harden skill files
+
+## Consequences
+- Two new tools: `prompt-compiler.ts` and `semantic-cache.ts`
+- Modified: `plugins/core/hooks.ts` (pre-dispatch hook), `tools/loadSkill.ts` (compress mode), `skills/ralph/SKILL.md` (self-verify flag)
+- `nomic-embed-text` becomes a required Ollama model — auto-pull in init-project setup
+- ADR linked from global config README documentation table
+- No change to the existing exact-match agent cache — it remains as the fast path O(1) lookup
+
+## See Also
+- `.opencode/context/frameworks/inference-optimization.md` (if created — full design details)
+- `tools/prompt-compiler.ts` — Implementation
+- `tools/semantic-cache.ts` — Implementation
+- `tools/cache-utils.ts` — Existing multi-tier cache infrastructure
+- `tools/agent-cache.ts` — Existing exact-match agent output cache
+- `plugins/core/hooks.ts` — Hook integration (Tier 4 cache + pre-dispatch)
+
+---
+
+# ADR: Remove YAML Frontmatter from Hub SKILL.md Files
+
+**Status:** Accepted
+**Date:** 2026-07-03
+
+## Context
+Hub subcommand invocations were producing giant prompts — the entire SKILL.md file (200-700 lines) was being dumped into the LLM context. The `init-project/SKILL.md` file never had this issue.
+
+## Decision
+Strip YAML frontmatter (`---\nname: ...\n---`) from all 5 hub SKILL.md files (ideation, orchestrate, project, harvest-context, init-project). Hub SKILL.md files are routing manifests, not skill prompts — they must never have frontmatter.
+
+## Rationale
+OpenCode loads files with YAML frontmatter as skill context, injecting the entire file content into the prompt. Files without frontmatter are not auto-loaded. `init-project/SKILL.md` never had frontmatter and worked correctly — confirming frontmatter was the root cause, not the routing logic.
+
+## Consequences
+- Hub subcommand invocations now produce appropriately-sized prompts
+- All 5 hub SKILL.md files start with `# Heading` instead of YAML frontmatter
+- Convention documented in `rules/hub-description-directive.md` and `context/patterns/hub-skill-conventions.md`
+
+---
+
+# ADR: Two-Tier Description System for Hub Subcommands
+
+**Status:** Accepted
+**Date:** 2026-07-03
+
+## Context
+TUI dialogs have limited horizontal space (~80 chars). Long descriptions get truncated mid-sentence and become unintelligible. The hub name isn't visually present in the flat subcommand list, so descriptions must be self-contained.
+
+## Decision
+Hub subcommand specs use two description fields:
+- `description` (≤80 chars, no tools/buzzwords, self-contained) — TUI menu display
+- `detailedDescription` (unlimited, can include tools/methodology/steps) — route payload only
+
+## Rationale
+The two purposes have conflicting requirements. TUI needs short, distinctive, self-contained labels. Routing needs detailed workflows with tool names and methodology. A single field can't serve both without either truncating in TUI or being too sparse for routing.
+
+## Consequences
+- Rewrote `rules/hub-description-directive.md` for two-tier clarity
+- Shortened all 154 subcommand spec `description` fields to ≤78 chars
+- Shortened all 5 hub TUI description lists in `plugins/hubs-tui/src/tui.tsx`
+- TUI dist rebuilt (16.82 KB)
+
+---
+
+# ADR: Compact Routing Table Format for Hub SKILL.md Files
+
+**Status:** Accepted
+**Date:** 2026-07-03
+
+## Context
+Hub SKILL.md files used individual `### /hub X — Y` subsections with `---` dividers. This caused agents to regurgitate content from multiple sections when loaded, inflating token consumption.
+
+## Decision
+Replace individual subsections with a single compact markdown table: `Subcommand | Skill/Delegate | What It Does`. Terse reminders moved to a separate table. Shared lifecycle steps preserved but stripped of per-subcommand verbosity.
+
+## Rationale
+`init-project/SKILL.md` already used this format and worked well. Compact tables are more parseable, reduce token consumption, and prevent agents from pulling content across multiple sections.
+
+## Consequences
+- ideation: 476 → 236 lines
+- orchestrate: 187 → 148 lines
+- project: 387 → 117 lines (−70%)
+- harvest-context: 698 → 207 lines (−70%)
+- Verification: no-arg lists match spec labels, routing table row counts match spec counts
+
+---
+
+# ADR: Multi-Language Tool Scaffolder — Python and Bash Output Paths
+
+**Status:** Accepted
+**Date:** 2026-07-03
+
+## Context
+The `tool-scaffolder` only supported TypeScript tool generation. Python and Bash scripts needed different output paths since OpenCode auto-discovers tools only from `tools/` / `.opencode/tools/` (TypeScript only).
+
+## Decision
+TypeScript tools go to `tools/` (global) or `.opencode/tools/` (project). Python and Bash scripts go to `skills/<name>/scripts/` (global) or `.opencode/skills/<name>/scripts/` (project). The `language` parameter (`typescript` | `python` | `bash`) controls output path and code generation.
+
+## Rationale
+Python/Bash scripts are skill-bundled automation, not standalone tools registered with OpenCode. Placing them in `skills/<name>/scripts/` follows the artifact-placement rule and ensures they're discovered as skill scripts, not misinterpreted as OpenCode tools.
+
+## Consequences
+- `tools/tool-scaffolder.ts` extended with `generatePython()`, `generateBash()`, `validatePython()`, `validateBash()`
+- `skills/tool-creator/SKILL.md` updated with multi-language documentation, scope rules, parameter type mappings
+- Five bash escaping bugs fixed during testing (documented in `context/patterns/template-literal-bash-generation.md`)

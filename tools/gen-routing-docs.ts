@@ -1,6 +1,7 @@
 import { tool } from "@opencode-ai/plugin"
 import { loadAllHubs, getDelegation } from "./hub-data"
 import * as fs from "fs"
+import { withToolCache } from "./cache-utils"
 
 function generateRoutingDocs(): string {
   const lines: string[] = [
@@ -32,6 +33,7 @@ export default tool({
     output: tool.schema.string().optional().describe("Output file path (defaults to stdout)")
   },
   async execute(args) {
+    return withToolCache("gen-routing-docs", args, () => {
     const markdown = generateRoutingDocs()
 
     if (args.output) {
@@ -42,5 +44,6 @@ export default tool({
     // Output to stdout
     console.log(markdown)
     return JSON.stringify({ generated: true, outputPath: "stdout", size: markdown.length })
+    }, 3_600_000) // 1h TTL
   }
 })

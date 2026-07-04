@@ -1,9 +1,3 @@
----
-name: orchestrate
-description: Execution hub — pick an orchestration pattern, load a plan, and build. Persistent, parallel, or coordinated execution.
-level: 2
----
-
 # Orchestrate
 
 Unified entry point for all execution and orchestration patterns. Each subcommand invokes a specific execution methodology with shared lifecycle behavior.
@@ -12,131 +6,101 @@ Unified entry point for all execution and orchestration patterns. Each subcomman
 
 - You have an approved plan (from `/ideation` or elsewhere) and need to execute it
 - You want a specific execution pattern for a task
-- You need to resume interrupted work or run multi-agent execution with progress tracking
+- Multi-agent execution with progress tracking and checkpoints
+- Resume interrupted work from a prior orchestration session
 
 ## No-Argument Behavior
 
-When invoked without arguments (`/orchestrate`), list the subcommands as plain text and ask the user to choose. Do NOT call `hubMenu` or any other tool. Available patterns: ralph, team, deep, ccg, ultrawork, autopilot, sciomc, swarm, state-machine, consensus, evolutionary, spec-driven, react, plan-execute, hive, tdd, pair, pipeline, gsd, self-assess, remediate, devin, maestro, metaswarm, cc10x, gastown, ruflo, harden, brownfield, vibe-code, resume, status.
+When invoked without arguments (`/orchestrate`), list the subcommands as plain text and ask the user to choose. Do NOT call `hubMenu` or any other tool — just output the list directly. Available patterns: ralph, team, deep, ccg, ultrawork, autopilot, sciomc, swarm, state-machine, consensus, evolutionary, spec-driven, react, plan-execute, hive, tdd, pair, pipeline, gsd, self-assess, remediate, devin, maestro, metaswarm, cc10x, gastown, ruflo, harden, subagent-driven, brownfield, vibe-code, resume, status.
 
 ## With-Argument Behavior
 
 Directly invoke the matching subcommand. Print the reminder, then delegate to the corresponding skill.
 
-## Subcommands
+## Subcommand Routing
 
-### `/orchestrate ralph` — Persistent Loop
-**Method:** `ralph` — Keeps working in a loop until the task is verified complete. Each iteration checks progress and continues.
-**Reminder:** Ralph: Persistent loop. I'll keep working until the task is verified complete.
-**Delegates to:** `ralph` skill
+| Subcommand | Skill/Delegate | What It Does |
+|------------|----------------|--------------|
+| `ralph` | `ralph` skill | Persistent loop — keep working until task is verified complete |
+| `team` | `team` skill | N coordinated agents on a shared task list with real-time messaging |
+| `deep` | `deep-dive` skill | 2-stage pipeline: trace causal chain, then deep-interview requirements |
+| `ccg` | `ccg` skill | Multi-model synthesis — query diverse perspectives, merge into one answer |
+| `ultrawork` | `ultrawork` skill | Parallel execution engine — distribute tasks across workers for throughput |
+| `autopilot` | `autopilot` skill | Full autonomous execution from idea to working code |
+| `sciomc` | `sciomc` skill | Parallel scientist agents — each investigates a different aspect |
+| `swarm` | `swarm` skill | Architect-led swarm of 11 agents with gated QA pipeline |
+| `state-machine` | inline | State-machine orchestration — explicit states, transitions, and guards |
+| `consensus` | inline | Multi-agent consensus — 3+ agents independently, then resolve via vote/synthesis |
+| `evolutionary` | inline | Evolutionary delivery — each generation independently valuable |
+| `spec-driven` | inline | Spec-first — formalize requirements, implement against spec, verify each step |
+| `react` | inline | ReAct pattern — think, act, observe loop until goal met |
+| `plan-execute` | `plan-execute` skill | Classic plan-then-execute — architect plans, executor implements step by step |
+| `hive` | `hive-methodology` skill | Batched parallel execution with worktree isolation |
+| `tdd` | inline | Test-driven — write failing test, implement, verify, refactor |
+| `pair` | inline | Pair programming — driver + navigator roles, switch on milestones |
+| `pipeline` | inline | Sequential pipeline — ordered stages with gate conditions |
+| `gsd` | inline | Get Shit Done — discuss, plan, execute waves in parallel, verify, ship |
+| `self-assess` | `self-improve` skill | Iterative self-evaluation — execute, critique against thresholds, refine |
+| `remediate` | inline | CI/build auto-remediation — detect failure, analyze, fix, re-run until pass |
+| `devin` | inline | Autonomous dev pipeline — plan → code → debug → deploy cycle |
+| `maestro` | inline | Strict role separation — PM, Architect, Coder; bias prevention |
+| `metaswarm` | inline | Autonomous issue-to-PR — 12 agents across 7 phases with adversarial review |
+| `cc10x` | inline | Intent-detecting router — auto-classify BUILD/DEBUG/REVIEW/PLAN |
+| `gastown` | inline | Git-backed work units — atomic, traceable, recoverable |
+| `ruflo` | inline | Large-scale swarm — 60+ agents with Q-Learning routing |
+| `harden` | `harden` skill | Composable robustness — safeTask, circuitBreaker, verificationGate |
+| `subagent-driven` | `subagent-driven-development` skill | Dispatch independent subagents per task with review gates |
+| `brownfield` | `brownfield` skill | Feature addition to existing codebase — analyze, integrate, validate |
+| `vibe-code` | `vibe-code` skill | Conversational rapid prototyping — natural language to full-stack |
+| `resume` | self (inline) | Resume last orchestration session from checkpoint |
+| `status` | self (inline) | Show current orchestration state |
 
-### `/orchestrate team` — Coordinated Agents
-**Method:** `team` — N coordinated agents on a shared task list with real-time messaging. Specify agent count and types.
-**Reminder:** Team: N coordinated agents with shared task list. Specify count and agent types.
-**Delegates to:** `team` skill
+### Subcommand Behavior
 
-### `/orchestrate deep` — Deep Dive
-**Method:** `deep-dive` — Two-stage pipeline: trace the causal chain, then deep-interview to crystallize requirements.
-**Reminder:** Deep: 2-stage trace-to-interview. First trace the causal chain, then interview to crystallize requirements.
-**Delegates to:** `deep-dive` skill
+Each subcommand follows the hub pattern:
 
-### `/orchestrate ccg` — Multi-Model Synthesis
-**Method:** `ccg` — Query multiple models for diverse perspectives, then synthesize into a coherent answer.
-**Reminder:** CCG: Multi-model synthesis. I'll query diverse perspectives and merge them into a coherent answer.
-**Delegates to:** `ccg` skill
+1. **Print a terse reminder** (1-2 lines, see Terse Reminders table below — never generated dynamically)
+2. **Load plan** — check direct argument, then ideation output, then orchestration cache, then interactive
+3. If plan came from ideation and user hasn't seen it, review briefly; otherwise skip review and execute
+4. **Execute** by delegating to the appropriate skill (see routing table above)
+5. **Write checkpoints** after each significant stage to `.opencode/state/orchestration/checkpoints/`
+6. **Report inline** at stage boundaries — do NOT pause for confirmation
+7. **On completion**, write final checkpoint and offer hand-off to other hubs
 
-### `/orchestrate ultrawork` — Maximum Parallelism
-**Method:** `ultrawork` — Parallel execution engine distributing tasks across workers for maximum throughput.
-**Reminder:** Ultrawork: Maximum parallel execution. I'll distribute independent tasks across workers.
-**Delegates to:** `ultrawork` skill
+### Terse Reminders
 
-### `/orchestrate autopilot` — Full Autonomous
-**Method:** `autopilot` — Full autonomous execution from idea to working code. Plans, executes, verifies, and iterates.
-**Reminder:** Autopilot: Full autonomous execution. I'll plan, execute, verify, and iterate with minimal intervention.
-**Delegates to:** `autopilot` skill
+| Subcommand | Reminder on Invoke |
+|------------|-------------------|
+| `ralph` | Ralph: Persistent loop. I'll keep working until the task is verified complete. |
+| `team` | Team: N coordinated agents with shared task list. Specify count and agent types. |
+| `deep` | Deep: 2-stage trace-to-interview. First trace the causal chain, then interview to crystallize requirements. |
+| `ccg` | CCG: Multi-model synthesis. I'll query diverse perspectives and merge them into a coherent answer. |
+| `ultrawork` | Ultrawork: Maximum parallel execution. I'll distribute independent tasks across workers. |
+| `autopilot` | Autopilot: Full autonomous execution. I'll plan, execute, verify, and iterate with minimal intervention. |
+| `sciomc` | Sciomc: Parallel scientist analysis. Multiple agents investigate different aspects simultaneously. |
+| `swarm` | Swarm: Architect-led swarm with gated QA pipeline. 11 specialized agents, quality gates between batches. |
+| `harden` | Harden: Composable robustness primitives — safeTask, circuitBreaker, verificationGate. |
+| `plan-execute` | Plan-Execute: Architect builds complete plan, executor implements step by step. |
 
-### `/orchestrate sciomc` — Parallel Scientist Analysis
-**Method:** `sciomc` — Parallel scientist agents for comprehensive analysis. Each investigates a different aspect or hypothesis.
-**Reminder:** Sciomc: Parallel scientist analysis. Multiple agents investigate different aspects simultaneously.
-**Delegates to:** `sciomc` skill
-
-## Inline Patterns
-
-These patterns execute inline — no separate skill file needed.
-
-### `/orchestrate state-machine` — State-Machine Orchestration
-**When to use:** Workflows with explicit states, transitions, and guards.
-**Workflow:** Define states (Analyze → Build → Test → Deploy) with transition guards. Each agent operates as a state with entry/exit conditions. Guard conditions block invalid transitions; on failure, transition to error state.
-
-### `/orchestrate consensus` — Multi-Agent Consensus
-**When to use:** Decisions with multiple valid approaches.
-**Workflow:** Run 3+ agents independently on the same problem. Collect outputs, identify agreement/disagreement. Resolve via majority vote, weighted scoring, or synthesis.
-
-### `/orchestrate evolutionary` — Evolutionary Delivery
-**When to use:** Incremental delivery where each generation must be independently valuable.
-**Workflow:** Build minimum viable generation (Gen 1). Validate fitness against acceptance criteria. Evolve to next generation, preserving what works.
-
-### `/orchestrate spec-driven` — Spec-First Development
-**When to use:** Requirements must be formalized before implementation.
-**Workflow:** Formalize spec from requirements (structured, testable). Validate for completeness and consistency. Implement against the spec; verify each step.
-
-### `/orchestrate react` — ReAct Pattern
-**When to use:** Open-ended problems where the path isn't known upfront.
-**Workflow:** **Think** — analyze state and decide next action. **Act** — execute the action. **Observe** — evaluate result, loop back to Think until goal met.
-
-### `/orchestrate gsd` — Get Shit Done Pipeline
-**When to use:** End-to-end feature delivery with wave-based parallel execution.
-**Workflow:** **Discuss** — clarify scope. **Plan** — break into independent waves. **Execute** — run waves in parallel. **Verify** — validate each wave. **Ship** — atomic commits per wave.
-
-### `/orchestrate self-assess` — Iterative Self-Evaluation
-**When to use:** Quality-critical work requiring self-critique and refinement.
-**Workflow:** Execute the task. Critically evaluate against quality thresholds. Reflect on gaps, refine, and repeat until all targets met.
-
-### `/orchestrate remediate` — CI/Build Auto-Remediation
-**When to use:** Build or CI pipeline failures.
-**Workflow:** Detect failure and capture error output. Analyze root cause from logs. Apply targeted fix and re-run; loop until pipeline passes.
-
-### `/orchestrate devin` — Autonomous Dev Pipeline
-**When to use:** Full-stack feature development requiring plan → code → debug → deploy cycles.
-**Workflow:** **Plan** — decompose requirements. **Code** — implement each step. **Debug** — iterative root-cause analysis. **Deploy** — ship when tests pass.
-
-### `/orchestrate maestro` — Strict Role Separation
-**When to use:** Large features where role separation prevents bias.
-**Workflow:** **PM** gathers and formalizes requirements. **Architect** designs the solution (never codes). **Coder** implements and tests (never self-reviews).
-
-### `/orchestrate metaswarm` — Autonomous Issue-to-PR
-**When to use:** Full autonomous pipeline from issue to pull request with adversarial reviews.
-**Workflow:** 12 agents across 7 phases: analyze, plan, implement, test, review, refine, PR. Adversarial reviews use fresh reviewers each round. Each phase gates the next.
-
-### `/orchestrate cc10x` — Intent-Detecting Router
-**When to use:** Mixed-mode tasks where the system auto-detects whether to build, debug, review, or plan.
-**Workflow:** Intent detector classifies request (BUILD/DEBUG/REVIEW/PLAN). Evidence-first validation checks confidence. Confidence gating routes to appropriate workflow with fallback.
-
-### `/orchestrate gastown` — Git-Backed Work Units
-**When to use:** Distributed or unreliable agent environments requiring recoverable work.
-**Workflow:** Each work unit is a git-backed commit/branch — atomic and traceable. GUPP principle: no handoffs without execution. NDI ensures reliable outcomes from unreliable processes.
-
-### `/orchestrate ruflo` — Large-Scale Agent Swarm
-**When to use:** Maximum-scale orchestration with 60+ agents and Q-Learning routing.
-**Workflow:** Queen agents decompose work and assign to Workers. Q-Learning optimizes agent-task matching over time. 4 consensus protocols resolve conflicts at each hierarchy level.
-
-### `/orchestrate hive` — Agent Hive Execution
-**When to use:** Batched parallel execution with worktree isolation (Swarm Bee phase of Hive methodology).
-**Workflow:** Decompose work into independent batches. Execute each batch in parallel with isolated worktrees. Best-effort worker verification; blocked workers trigger re-routing. Orchestrator runs batch-level tests before merging.
+---
 
 ## Shared Lifecycle
 
 Every subcommand follows this lifecycle:
 
 ### Step 0: Initialize State Directory
+
 ```bash
 mkdir -p .opencode/state/orchestration/progress
 mkdir -p .opencode/state/orchestration/checkpoints
 ```
 
 ### Step 0a: Parse Flags
+
 Check for `--quiet` flag: when present, suppress all inline progress narration. Only print the final result and any errors. Saves tokens on long-running tasks where intermediate status is not needed.
 
 ### Step 1: Load Plan
+
 Check for a plan in this order:
 1. **Direct argument** — the description provided with the command
 2. **Ideation output** — check `.opencode/state/ideation/` for most recent approved plan: `ls -t .opencode/state/ideation/*_final.md 2>/dev/null | head -1`
@@ -144,29 +108,21 @@ Check for a plan in this order:
 4. **Interactive** — if no plan found, ask user to describe the task
 
 ### Step 2: Execute
+
 Skip plan review when the user explicitly invoked a subcommand with a task. Only review if the plan came from ideation and the user hasn't seen it yet. Print the method reminder inline, then immediately begin execution. Do NOT pause for confirmation.
 
-Load and execute the appropriate skill:
-
-| Subcommand | Skill to Load |
-|------------|---------------|
-| `ralph` | `ralph` |
-| `team` | `team` |
-| `deep` | `deep-dive` |
-| `ccg` | `ccg` |
-| `ultrawork` | `ultrawork` |
-| `autopilot` | `autopilot` |
-| `sciomc` | `sciomc` |
-
-At each significant stage, write a checkpoint JSON and progress Markdown file to the state directories. Include method, stage, timestamp, completed/remaining items, and key decisions.
+Load and execute the appropriate skill (see Subcommand Routing table). At each significant stage, write a checkpoint JSON and progress Markdown file to the state directories. Include method, stage, timestamp, completed/remaining items, and key decisions.
 
 ### Step 3: Report Progress (Inline Only)
+
 At stage boundaries, write a checkpoint to disk and provide a brief inline status update. Do NOT pause for confirmation.
 
 ### Step 4: Create Resources On The Fly
+
 If a new rule, skill, or agent is needed during execution: identify the gap, note it in the checkpoint, create the resource (rule → `.opencode/rules/`, skill → `skill-creator`, agent → `opencode-agent-creator`), and continue. Do NOT block for approval unless destructive.
 
 ### Step 5: Completion
+
 Write a final checkpoint. Report results inline. Offer hand-off to other hubs (e.g., `/harvest-context` to capture decisions).
 
 ## Resume Behavior

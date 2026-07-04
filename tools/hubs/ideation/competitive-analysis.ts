@@ -2,7 +2,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 
 const spec: HubSubcommandSpec = {
   label: "competitive-analysis",
-  description: "Competitive landscape analysis — research competitors via websearch, fetch product pages/docs via webfetch, produce structured competitive analysis with feature comparison matrix",
+  description: "Competitive landscape — feature comparison matrix",
   reminder: "Research competitors and produce feature comparison matrix.",
   inline: true,
 

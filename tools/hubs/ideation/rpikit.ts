@@ -2,7 +2,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 
 const spec: HubSubcommandSpec = {
   label: "rpikit",
-  description: "Research-Plan-Implement with stakes-based rigor scaling and 'Iron Law' — don't touch code until problem is understood",
+  description: "Research-Plan-Implement — stakes-based rigor scaling",
   reminder: "Research-Plan-Implement with stakes rigor.",
   inline: true,
 

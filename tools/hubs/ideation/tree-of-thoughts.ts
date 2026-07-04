@@ -2,7 +2,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 
 const spec: HubSubcommandSpec = {
   label: "tree-of-thoughts",
-  description: "⚠️ EXPENSIVE: Explore multiple solution branches in parallel (~10× cost). Warns user and asks for confirmation before proceeding. Use for open-ended design problems where the best path is unclear",
+  description: "⚠️ EXPENSIVE: Explore parallel solution branches for open-ended problems",
   reminder: "Branching exploration with cost warning.",
   skill: "tree-of-thoughts",
 

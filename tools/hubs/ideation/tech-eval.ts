@@ -2,7 +2,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 
 const spec: HubSubcommandSpec = {
   label: "tech-eval",
-  description: "Technology evaluation — research a library/framework/tool via websearch + webfetch, compare against alternatives, produce structured evaluation with pros/cons/recommendations",
+  description: "Technology evaluation — structured pros/cons comparison against alternatives",
   reminder: "Research and evaluate technologies with structured comparison.",
   inline: true,
 

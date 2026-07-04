@@ -1,9 +1,3 @@
----
-name: ideation
-description: Planning, research, and ideation hub — pick a method, develop an idea iteratively, approve and export
-level: 2
----
-
 # Ideation
 
 Unified entry point for all planning and research methods. Each subcommand is a hardfork into a specific methodology with shared lifecycle behavior.
@@ -20,304 +14,82 @@ Unified entry point for all planning and research methods. Each subcommand is a 
 
 ## No-Argument Behavior
 
-When invoked without arguments (`/ideation`), list the subcommands as plain text and ask the user to choose. Do NOT call `hubMenu` or any other tool — just output the list directly. Available methods: plan, brainstorm, decomposition, refine, overhaul, deep, graph, research, ralplan, ddd, event-storming, double-diamond, jtbd, impact-mapping, spiral, top-down, bottom-up, adversarial-debate, cleanroom, pwf, rpikit, hive, story-mapping, lean-canvas, constitution, quality, modularity, arch-prep, web-research, tech-eval, competitive-analysis, tree-of-thoughts, opro, resume, status.
+When invoked without arguments (`/ideation`), list the subcommands as plain text and ask the user to choose. Do NOT call `hubMenu` or any other tool — just output the list directly. Available methods: plan, brainstorm, decomposition, refine, overhaul, deep, graph, research, ralplan, ddd, event-storming, double-diamond, jtbd, impact-mapping, spiral, spark, top-down, bottom-up, adversarial-debate, cleanroom, pwf, rpikit, hive, story-mapping, lean-canvas, constitution, quality, modularity, arch-prep, web-research, tech-eval, competitive-analysis, tree-of-thoughts, opro, analyze-patterns, resume, status.
 
 ## With-Argument Behavior
 
 Directly invoke the matching subcommand. Print the reminder, then delegate to the corresponding skill.
 
-## Subcommands
-
-### `/ideation plan` — Strategic Planning
-
-**Method:** `plan`
-
-Interview-style planning. Asks clarifying questions, identifies constraints, breaks goals into ordered tasks with acceptance criteria.
-
-**Reminder shown to user:**
-> Plan: Interview-style strategic planning. I'll ask clarifying questions, identify constraints, and break your goal into ordered tasks with acceptance criteria.
-
-**Delegates to:** `plan` skill
-
----
-
-### `/ideation decomposition` — Task Decomposition
-
-**Method:** `decomposition`
-
-Breaks a complex task or goal into smaller, actionable subtasks. Identifies dependencies, orders them logically, and defines clear acceptance criteria for each subtask. Good for turning amorphous "build X" requests into a concrete work plan.
-
-**Reminder shown to user:**
-> Decomposition: Breaking down your task into ordered, actionable subtasks. I'll identify dependencies, define acceptance criteria for each, and produce a clear work breakdown.
-
-**Delegates to:** inline (executed directly)
-
----
-
-### `/ideation refine` — Idea Refinement
-
-**Method:** `idea-refine`
-
-Structured diverge/converge. Expands ideas through structured brainstorming, then converges on the strongest concepts.
-
-**Reminder shown to user:**
-> Refine: Diverge/converge iteration. I'll expand your idea through structured brainstorming, then help you converge on the strongest version.
-
-**Delegates to:** `idea-refine` skill
-
----
-
-### `/ideation overhaul` — Project Overhaul
-
-**Method:** `overhaul`
-
-Analyze an existing project across configurable dimensions and produce a prioritized, phased implementation plan. Select from: architecture, performance, security, code quality/tech debt, testing, dependencies, developer experience. Use `overhaul:dim` to target a single dimension (e.g., `/ideation overhaul:arch`, `/ideation overhaul:sec`).
-
-**Reminder shown to user:**
-> Overhaul: Analyze your project across 8 refinement dimensions and produce a prioritized, phased implementation plan.
-
-**Delegates to:** `overhaul` skill
-
----
-
-### `/ideation deep` — Deep Interview
-
-**Method:** `deep-interview`
-
-Socratic deep interview with mathematical ambiguity gating. Crystallizes vague requirements through iterative questioning. Won't proceed past ambiguous points until resolved.
-
-**Reminder shown to user:**
-> Deep: Socratic interview with ambiguity gating. I'll ask probing questions until your requirements are fully crystallized. Vague points won't be swept past.
-
-**Delegates to:** `deep-interview` skill
-
----
-
-### `/ideation graph` — Graph Thinking
-
-**Method:** `graph-thinking`
-
-Visual relationship mapping. Maps dependencies, components, and tradeoffs as a graph structure. Good for architecture decisions and system design.
-
-**Reminder shown to user:**
-> Graph: Visual relationship mapping. I'll map dependencies, components, and tradeoffs as a graph to reveal structure you might miss linearly.
-
-**Delegates to:** `graph-thinking` skill
-
----
-
-### `/ideation research` — Multi-Model Research
-
-**Method:** `ccg` (with `sciomc` for comprehensive mode)
-
-Multi-model research synthesis. Queries diverse perspectives, merges findings into a coherent answer. Good for technical decisions with tradeoffs.
-
-**Reminder shown to user:**
-> Research: Multi-model synthesis. I'll gather diverse perspectives on your question and merge them into a coherent, cross-referenced answer.
-
-**Delegates to:** `ccg` skill (comprehensive mode uses `sciomc`)
-
----
-
-### `/ideation ralplan` — Consensus Planning
-
-**Method:** `ralplan`
-
-Consensus-planning gate. Auto-gates vague requests before execution. Good for ensuring an idea is well-formed enough to hand off to orchestration.
-
-**Reminder shown to user:**
-> Ralplan: Consensus planning gate. I'll validate that your plan is concrete enough to execute, and if not, run an interview to sharpen it first.
-
-**Delegates to:** `ralplan` skill
-
----
-
-### `/ideation quality` — Code Quality Audit
-
-**Method:** `quality`
-
-Deep-dive code quality analysis across the codebase. Identifies complexity hotspots, duplication clusters, naming violations, error handling gaps, and dead code. More focused than a full `overhaul` — zeroes in on code quality dimensions specifically.
-
-**Reminder shown to user:**
-> Quality: Deep-dive code quality audit. I'll scan for complexity hotspots, duplication, naming issues, and error handling gaps across your codebase.
-
-**Delegates to:** inline (executed directly)
-
-**Process:**
-1. Scan the codebase using static analysis techniques
-2. Identify and categorize findings: complexity (high cyclomatic complexity, deep nesting), duplication (similar code blocks across files), naming (inconsistencies, unclear names), error handling (empty catches, swallowed errors, missing validation), dead code (unused exports, orphaned files, stale comments)
-3. For each finding, provide file paths, severity, and concrete improvement suggestions
-4. Prioritize findings into quick wins vs. larger efforts
-5. Output a structured quality report saved to `.opencode/state/ideation/work-products/`
-6. Can be handed off to `/project simplify`, `/project refactor`, or `/orchestrate` for execution
-
----
-
-### `/ideation modularity` — Modularity Analysis
-
-**Method:** `modularity`
-
-Analyze module boundaries, coupling, and cohesion across the codebase. Detects circular dependencies, mixed concerns, god modules, and suggests reorganization for cleaner module isolation. Uses the `@architect` agent for structural analysis.
-
-**Reminder shown to user:**
-> Modularity: I'll analyze module boundaries, coupling, and cohesion. I'll detect circular dependencies, god modules, and suggest a reorganization plan.
-
-**Delegates to:** `@architect` agent
-
-**Process:**
-1. Map the codebase's module/directory structure
-2. Analyze import/export graphs to quantify coupling between modules
-3. Detect circular dependencies, god modules (files >800 lines or importing from too many places), mixed concerns (e.g., data access mixed with UI logic), leaky abstractions
-4. Produce a modularity report with: coupling graph (text-based), problem modules ranked by severity, recommended boundary changes, step-by-step migration plan
-5. Output saved to `.opencode/state/ideation/work-products/`
-
-**Output example:**
-```markdown
-## Modularity Report
-
-### Coupling Summary
-- Module A → depends on 12 other modules (highly coupled)
-- Module B → has no clear boundary (mixes concerns)
-- Circular dependency: utils ←→ helpers
-
-### Recommendations
-1. Extract `validation` from `utils.ts` → new `validation/` module
-2. Split `components/BigComponent.tsx` (1200 lines) into 4 focused components
-3. Break circular dependency by introducing a shared types module
-```
-
----
-
-### `/ideation arch-prep` — Architecture Preparation
-
-**Method:** `arch-prep`
-
-Architecture preparation for upcoming features. Before writing code for a new feature, use this to design the architecture runway: identify extension points, plan module additions, anticipate what needs refactoring, and produce a blueprint. Uses the `@architect` agent for structural design.
-
-**Reminder shown to user:**
-> Arch-prep: I'll design the architecture runway for your upcoming feature. Extension points, module plan, refactoring needs, and implementation order.
-
-**Delegates to:** `@architect` agent
-
-**Process:**
-1. Understand the upcoming feature requirements (take user description as input)
-2. Analyze the current codebase architecture for integration points
-3. Design the architectural changes needed: where new modules/functions slot in, what refactoring is required first, what interfaces/abstractions to introduce
-4. Identify potential risks and trade-offs
-5. Produce an architecture blueprint with: system context (how the feature fits), module plan (new/modified modules), refactoring runway (what must change first), extension points (interfaces, hooks, plug-in points), implementation order (what to build in what sequence)
-6. Output saved to `.opencode/state/ideation/work-products/`
-
-**Usage:**
-- `/ideation arch-prep "multi-tenant auth"` — Prep architecture for adding multi-tenant authentication
-- `/ideation arch-prep "real-time notifications"` — Prep architecture for adding WebSocket-based notifications
-
----
-
-### `/ideation web-research` — Multi-Source Web Research
-
-**Method:** `web-research`
-
-Multi-source web research using `websearch` + `webfetch`. Searches multiple queries in parallel, fetches top results, and synthesizes findings into a structured research report. Good for investigating topics, gathering current information, or exploring unfamiliar domains.
-
-**Reminder shown to user:**
-> Web Research: I'll search multiple queries in parallel, fetch top results, and synthesize findings into a structured research report saved to `.opencode/state/ideation/work-products/`.
-
-**Delegates to:** inline (executed directly)
-
-**Process:**
-1. Accept a research topic or question from the user
-2. Decompose the topic into 3-5 parallel search queries covering different angles
-3. Execute all searches simultaneously via `websearch`
-4. Fetch the top 2-3 results per query via `webfetch` (parallel fetches)
-5. Synthesize findings into a structured report with:
-   - Executive summary
-   - Key findings organized by theme
-   - Source citations with URLs
-   - Contradictions or disagreements found
-   - Gaps in available information
-   - Recommendations or conclusions
-6. Save report to `.opencode/state/ideation/work-products/{timestamp}_web-research_{topic-slug}.md`
-7. Present summary to user with option to refine, expand, or export
-
-**Usage:**
-- `/ideation web-research "best practices for micro-frontend architecture"` — Research a topic
-- `/ideation web-research "React Server Components vs traditional SSR"` — Compare approaches
-
----
-
-### `/ideation tech-eval` — Technology Evaluation
-
-**Method:** `tech-eval`
-
-Research and evaluate a library, framework, or tool via `websearch` + `webfetch`. Compares against alternatives and produces a structured evaluation with pros, cons, and recommendations. Good for making technology decisions.
-
-**Reminder shown to user:**
-> Tech Eval: I'll research your technology candidate, compare it against alternatives, and produce a structured evaluation with pros/cons/recommendations.
-
-**Delegates to:** inline (executed directly)
-
-**Process:**
-1. Accept a technology name and optionally alternatives to compare against
-2. Research the primary technology: docs, GitHub, npm/PyPI stats, community, blog posts
-3. Research 2-3 alternatives (or use user-specified ones)
-4. For each technology, fetch via `webfetch`:
-   - Official documentation / landing page
-   - GitHub repository (stars, issues, activity)
-   - Package registry (downloads, version, maintenance)
-   - Recent blog posts or comparison articles
-5. Produce a structured evaluation report with:
-   - Overview and description of each option
-   - Feature comparison matrix
-   - Performance benchmarks (if available)
-   - Community health (stars, contributors, activity, maintenance)
-   - Learning curve and DX assessment
-   - Integration complexity
-   - Security considerations
-   - Pros and cons per option
-   - Recommendation with rationale
-6. Save report to `.opencode/state/ideation/work-products/{timestamp}_tech-eval_{topic-slug}.md`
-7. Present to user with option to refine or export
-
-**Usage:**
-- `/ideation tech-eval "Prisma vs Drizzle ORM"` — Compare two ORMs
-- `/ideation tech-eval "Bun"` — Evaluate Bun runtime (auto-discovers alternatives like Node.js, Deno)
-
----
-
-### `/ideation competitive-analysis` — Competitive Landscape Analysis
-
-**Method:** `competitive-analysis`
-
-Research competitors and produce a structured competitive analysis with feature comparison matrix. Uses `websearch` to discover competitors and `webfetch` to gather detailed product information. Good for product planning and market positioning.
-
-**Reminder shown to user:**
-> Competitive Analysis: I'll research your competitive landscape, discover competitors, and produce a structured analysis with feature comparison matrix.
-
-**Delegates to:** inline (executed directly)
-
-**Process:**
-1. Accept a product, market, or domain to analyze
-2. Discover competitors via `websearch` (multiple queries: "alternatives to X", "X competitors", "X vs")
-3. For each competitor (up to 5-6), fetch via `webfetch`:
-   - Product landing page and feature list
-   - Pricing page
-   - Documentation or product overview
-   - Review sites or comparison articles
-4. Produce a structured competitive analysis report with:
-   - Market overview and landscape map
-   - Competitor profiles (name, description, target audience, pricing model)
-   - Feature comparison matrix (rows = features, columns = competitors)
-   - Pricing comparison
-   - Strengths and weaknesses per competitor
-   - Market positioning analysis
-   - Gaps and opportunities
-   - Strategic recommendations
-5. Save report to `.opencode/state/ideation/work-products/{timestamp}_competitive-analysis_{topic-slug}.md`
-6. Present to user with option to refine, expand, or export
-
-**Usage:**
-- `/ideation competitive-analysis "project management tools for developers"` — Analyze a market
-- `/ideation competitive-analysis "AI code assistants"` — Competitive landscape for AI coding tools
+## Subcommand Routing
+
+| Subcommand | Skill/Delegate | What It Does |
+|------------|----------------|--------------|
+| `plan` | `plan` skill | Interview-style strategic planning — clarify goals, identify constraints, break into tasks |
+| `brainstorm` | inline | Free-form idea generation — diverge then converge |
+| `decomposition` | inline | Break complex work into ordered, verifiable subtasks |
+| `refine` | `idea-refine` skill | Diverge/converge iteration — expand ideas, then sharpen them |
+| `overhaul` | `overhaul` skill | 8-dimension project audit — produce prioritized improvement plan |
+| `deep` | `deep-interview` skill | Socratic interview with ambiguity gating — crystallize vague requirements |
+| `graph` | `graph-thinking` skill | Visual relationship mapping — dependencies, components, tradeoffs |
+| `research` | `ccg` skill | Multi-model synthesis — diverse perspectives merged into one answer |
+| `ralplan` | `ralplan` skill | Consensus planning gate — validate plan is concrete enough to execute |
+| `ddd` | inline | Domain-driven design — model bounded contexts, aggregates, domain events |
+| `event-storming` | inline | Collaborative domain exploration via timeline, commands, events, policies |
+| `double-diamond` | inline | Design Council framework — discover, define, develop, deliver |
+| `jtbd` | inline | Jobs-to-be-done — frame requirements around customer functional jobs |
+| `impact-mapping` | inline | Goal mapping — trace deliverables to business impact |
+| `spiral` | inline | Risk-driven iterative planning — each cycle targets highest-risk items first |
+| `spark` | inline | Project-aware idea sparks — improvements and expansion prompts |
+| `top-down` | inline | Decompose from high-level vision into components and sub-systems |
+| `bottom-up` | inline | Build up from existing primitives into composed systems |
+| `adversarial-debate` | inline | Spec validation via oppositional debate — proposer vs critics |
+| `cleanroom` | inline | Formal correctness — box structure decomposition and statistical testing |
+| `pwf` | inline | Filesystem-as-disk planning — quality-gated convergence with recovery |
+| `rpikit` | inline | Research-Plan-Implement — stakes-based rigor scaling |
+| `hive` | inline | Agent swarm planning — interview, discover, produce plan.md with approval gate |
+| `story-mapping` | inline | User story mapping — journey spine with release prioritization |
+| `lean-canvas` | inline | Lean business model — problem, solution, metrics, competitive advantage |
+| `constitution` | inline | Project governance — code, UX, performance, security principles |
+| `quality` | inline | Code quality audit — complexity, duplication, naming, error handling |
+| `modularity` | `@architect` agent | Module boundary analysis — detect circular dependencies, suggest reorg |
+| `arch-prep` | `@architect` agent | Architecture prep for upcoming features — extension points, refactoring runway |
+| `architecture` | `improve-codebase-architecture` skill | Architectural friction analysis — propose deep-module refactors |
+| `grill` | `grilling` skill | Stress-test a plan with relentless one-at-a-time questioning |
+| `redesign` | `redesign-existing-projects` skill | Audit and upgrade existing UI to premium design standards |
+| `web-research` | inline | Multi-source web research — parallel searches, synthesize findings |
+| `tech-eval` | inline | Technology evaluation — structured pros/cons comparison against alternatives |
+| `competitive-analysis` | inline | Competitive landscape — feature comparison matrix |
+| `tree-of-thoughts` | `tree-of-thoughts` skill | ⚠️ EXPENSIVE: Explore parallel solution branches for open-ended problems |
+| `opro` | `opro` skill | ⚠️ EXPENSIVE: Optimize prompts by testing variations against benchmarks |
+| `analyze-patterns` | inline | Analyze code patterns and anti-patterns — consistencies, convention violations |
+| `resume` | self (inline) | Resume last ideation session |
+| `status` | self (inline) | Show current ideation state |
+
+### Subcommand Behavior
+
+Each subcommand follows the hub pattern:
+
+1. **Print a terse reminder** (1-2 lines, hardcoded below — never generated dynamically)
+2. **Check for prior state** in `.opencode/state/ideation/`
+3. If relevant prior work exists, ask user whether to resume, start fresh, or use as context
+4. **Execute** by delegating to the appropriate skill (see routing table above)
+5. **Save mandatory checkpoint** after every significant iteration to `.opencode/state/ideation/work-products/`
+6. **Iterate until approved** — only finalize when user explicitly says "looks good," "approved," "finalize," etc.
+7. **On approval**, save final output to `.opencode/state/ideation/{timestamp}_{method}_{topic-slug}_final.md` and report inline
+8. **STOP after reporting** — do NOT offer to implement, do NOT dispatch executors (see `rules/completion-guardrail.md`)
+
+### Terse Reminders
+
+| Subcommand | Reminder on Invoke |
+|------------|-------------------|
+| `plan` | Plan: Interview-style strategic planning. I'll ask clarifying questions, identify constraints, and break your goal into ordered tasks with acceptance criteria. |
+| `decomposition` | Decomposition: Breaking down your task into ordered, actionable subtasks. I'll identify dependencies, define acceptance criteria for each, and produce a clear work breakdown. |
+| `refine` | Refine: Diverge/converge iteration. I'll expand your idea through structured brainstorming, then help you converge on the strongest version. |
+| `overhaul` | Overhaul: Analyze your project across 8 refinement dimensions and produce a prioritized, phased implementation plan. |
+| `deep` | Deep: Socratic interview with ambiguity gating. I'll ask probing questions until your requirements are fully crystallized. |
+| `graph` | Graph: Visual relationship mapping. I'll map dependencies, components, and tradeoffs as a graph to reveal structure you might miss linearly. |
+| `research` | Research: Multi-model synthesis. I'll gather diverse perspectives on your question and merge them into a coherent, cross-referenced answer. |
+| `ralplan` | Ralplan: Consensus planning gate. I'll validate that your plan is concrete enough to execute. |
 
 ---
 
@@ -333,7 +105,7 @@ mkdir -p .opencode/state/ideation/work-products
 
 ### Step 0a: Parse Flags
 
-Check for `--quiet` flag: when present, suppress all inline progress narration. Only print the final result and any errors. Saves tokens on long-running research tasks where intermediate status is not needed.
+Check for `--quiet` flag: when present, suppress all inline progress narration. Only print the final result and any errors.
 
 ### Step 1: Check Prior Work
 
@@ -348,22 +120,11 @@ If relevant prior work exists (matching topic or method):
 
 ### Step 2: Print Method Reminder
 
-Show the static 1-2 line description for the selected method (see above). Do NOT generate this dynamically.
+Show the static 1-2 line description for the selected method (see Terse Reminders table above). Do NOT generate this dynamically.
 
 ### Step 3: Execute Method
 
-Load and execute the appropriate skill:
-
-| Subcommand | Skill to Load |
-|------------|---------------|
-| `plan` | `plan` |
-| `decomposition` | inline (executed directly) |
-| `refine` | `idea-refine` |
-| `overhaul` | `overhaul` |
-| `deep` | `deep-interview` |
-| `graph` | `graph-thinking` |
-| `research` | `ccg` |
-| `ralplan` | `ralplan` |
+Look up the subcommand in the Subcommand Routing table above, then delegate to the listed skill/agent. For `inline` entries, execute directly.
 
 ### Step 4: Cache In-Progress Work
 

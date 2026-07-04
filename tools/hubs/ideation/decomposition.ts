@@ -2,7 +2,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 
 const spec: HubSubcommandSpec = {
   label: "decomposition",
-  description: "Decompose a task into actionable subtasks — break complex work into ordered, verifiable steps",
+  description: "Break complex work into ordered, verifiable subtasks",
   reminder: "Break complex tasks into actionable subtasks.",
   inline: true,
 

@@ -647,7 +647,7 @@ export function Button({ children, onClick, variant = 'primary' }: ButtonProps) 
 
 ## Integration with /init-project
 
-The rule-generator skill is called during `/init-project provision` (Phase 5: rules). The flow is:
+The rule-generator skill is called during `/init-project provision` (Phase 4: provisioning). The flow is:
 
 ```
 /init-project detect → @stack-detector → stack fingerprint

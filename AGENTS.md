@@ -5,9 +5,11 @@
 ## Overview
 
 - **31 specialized agents** for different task types
-- **100 workflow skills** for development tasks
-- **19 TypeScript tools** for session management and file editing
-- **Hook system plugin** for mode detection and state persistence
+- **105 workflow skills** for development tasks
+- **30 TypeScript tools** for session management and file editing
+- **154 hub subcommand specs** across 6 hub directories
+- **Hook system plugin** for mode detection, state persistence, and context injection
+- **Multi-tier cache system** — tool, file, session, vector search caching
 - **Durable context storage** — knowledge compounds across sessions
 
 ## API Request Efficiency (CRITICAL)
@@ -94,15 +96,15 @@ Max 5 turns per subagent. If no output after 5 turns, terminate and escalate. Lo
 | Command | Purpose | Subcommands |
 |---------|---------|-------------|
 | `/init-project` | Project init | setup, detect, recommend, docs, context, verify, refresh, status, map-codebase, doctor, reset, provision, tag, find-skills, find-agents, find-tools, find-rules |
-| `/ideation` | Planning/research | plan, brainstorm, decomposition, refine, overhaul, deep, graph, research, ralplan, ddd, event-storming, double-diamond, jtbd, impact-mapping, spiral, top-down, bottom-up, adversarial-debate, cleanroom, pwf, rpikit, hive, story-mapping, lean-canvas, constitution, quality, architecture, redesign, grill, modularity, arch-prep, web-research, tech-eval, competitive-analysis, tree-of-thoughts, opro |
+| `/ideation` | Planning/research | plan, brainstorm, decomposition, refine, overhaul, deep, graph, research, ralplan, ddd, event-storming, double-diamond, jtbd, impact-mapping, spiral, top-down, bottom-up, adversarial-debate, cleanroom, pwf, rpikit, hive, story-mapping, lean-canvas, constitution, quality, architecture, redesign, grill, modularity, arch-prep, web-research, tech-eval, competitive-analysis, tree-of-thoughts, opro, analyze-patterns |
 | `/orchestrate` | Execution | ralph, team, deep, ccg, ultrawork, autopilot, sciomc, swarm, state-machine, consensus, evolutionary, spec-driven, react, plan-execute, hive, tdd, pair, pipeline, gsd, self-assess, remediate, devin, maestro, metaswarm, cc10x, gastown, ruflo, harden, subagent-driven, brownfield, vibe-code |
 | `/harvest-context` | Context mgmt | session, codebase, skill, agent, rule, command, memory, docs, web-research, compare, decompose, context, consume, compress, secondbrain, journal, search, prune, export, diff, sweep |
-| `/project` | Project ops | tests, commit, stage, pr, gh, optimize, refactor, simplify, cleanup, modernize, icon, organize, analyze, changelog, converge, scan, sandbox, retrospect, purge, release, review, audit, archive, git-cleanup, workspace, readme |
+| `/project` | Project ops | create-tests, commit, git-stage-thread, pr, gh, optimize, refactor, simplify, cleanup, modernize, icon, organize, changelog, converge, scan, sandbox, retrospect, purge, release, review, audit, archive, git-cleanup, workspace, readme |
 | `/skills` | Skill management | list, add, create, remove, edit, search, info, update, package, validate, sync, setup, scan |
 
 ### Two-Tier Subcommand Routing
 
-Each of the 148 hub subcommands has a dedicated spec file in `tools/hubs/<hub>/<subcommand>.ts` containing the full `HubSubcommandSpec` — `detailedDescription`, `tools`, `rules`, `relatedSkills`, `examples`, `warnings`.
+Each of the 154 hub subcommands has a dedicated spec file in `tools/hubs/<hub>/<subcommand>.ts` containing the full `HubSubcommandSpec` — `detailedDescription`, `tools`, `rules`, `relatedSkills`, `examples`, `warnings`.
 
 **Direct selection** (`/orchestrate ralph`): `hubMenu route` returns the full spec in one response (detailedDescription + inlined rules + related skill pointers + examples). No follow-up `loadSkill` or rule-read calls needed.
 
@@ -127,17 +129,20 @@ See `rules/hub-routing.md` for the complete delegation table and architecture de
 ├── opencode.jsonc       # Main configuration
 ├── AGENTS.md            # This file (core instructions)
 ├── agents/              # 31 agent definitions
-├── skills/              # 100 workflow skills
-├── commands/            # 6 custom commands
+├── skills/              # 105 workflow skills
+├── commands/            # (empty — all subcommands live in hub menus)
+├── archetypes/          # Project archetype templates (bare-bones, cli-tool, go, nextjs, etc.)
 ├── tools/               # TypeScript tools
 │   ├── hubMenu.ts       # Hub menu router (route returns full spec, menu returns slim slice)
 │   ├── hub-data.ts      # Hub types, subcommand spec loader, state helpers
 │   ├── hub-<name>.ts    # Thin hub manifests (10 lines each, identity slice only)
-│   ├── hubs/            # Per-subcommand spec files (148 files across 6 directories)
+│   ├── hubs/            # Per-subcommand spec files (154 files across 6 directories)
 │   └── ...              # File editing, cache, session, skill tools
 ├── plugins/             # Hook system + TUI plugin
 ├── rules/               # Shared rules (loaded as instructions)
 ├── templates/           # File templates
+├── rule-templates/      # Rule generation templates
+├── tool-templates/      # Tool generation templates
 └── .opencode/           # Project state, context, docs, cache
     ├── state/           # Session state (gitignored)
     ├── context/         # Durable knowledge (committed)

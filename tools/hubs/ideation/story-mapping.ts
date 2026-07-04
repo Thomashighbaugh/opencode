@@ -2,7 +2,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 
 const spec: HubSubcommandSpec = {
   label: "story-mapping",
-  description: "User story mapping — arrange features along a user journey spine, prioritize by release for iterative delivery",
+  description: "User story mapping — journey spine with release prioritization",
   reminder: "Map features along user journey.",
   inline: true,
 

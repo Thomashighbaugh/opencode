@@ -1,12 +1,6 @@
----
-name: project
-description: Project operations hub — test creation, git workflows, code review, code refactoring, optimization, icons, and file organization
-level: 2
----
-
 # Project
 
-Unified entry point for project operations. Each subcommand delegates to an existing command or skill, with shared behavior for argument parsing and state awareness.
+Unified entry point for project operations. Each subcommand delegates to an existing command, skill, or agent, with shared behavior for argument parsing and state awareness.
 
 ## When to Use
 
@@ -19,424 +13,102 @@ Unified entry point for project operations. Each subcommand delegates to an exis
 - Cleaning up AI-generated code slop
 - Generating icon assets
 - Organizing files and finding duplicates
-- Analyzing code patterns
 - Generating changelogs
+- Updating README files
+- Tagging releases
+- Auditing project health
 
 ## No-Argument Behavior
 
-When invoked without arguments, list the subcommands as plain text and ask the user to choose. Do NOT call `hubMenu` or any other tool — just output the list directly. Available operations: tests, commit, stage, pr, gh, optimize, refactor, simplify, cleanup, modernize, icon, organize, analyze, changelog, converge, scan, sandbox, retrospect, purge, release, review, audit, archive, workspace, git-cleanup.
+When invoked without arguments, list the subcommands as plain text and ask the user to choose. Do NOT call `hubMenu` or any other tool — just output the list directly. Available operations: create-tests, commit, git-stage-thread, pr, gh, optimize, refactor, simplify, cleanup, modernize, icon, organize, changelog, converge, scan, sandbox, retrospect, purge, release, review, audit, archive, git-cleanup, workspace, readme.
 
 ## With-Argument Behavior
 
 Directly invoke the matching subcommand. Print the reminder, then delegate.
 
-## Subcommands
+## Subcommand Routing
 
-### `/project tests` — Generate Test Suite
+| Subcommand | Skill/Delegate | What It Does |
+|------------|----------------|--------------|
+| `create-tests` | `create-tests` command | Generate 8-type test suite for an OpenCode agent |
+| `commit` | `conventional-commit` skill | Create a conventional commit with emoji prefixes |
+| `git-stage-thread` | `git-stage-thread` command | Stage all files modified in the current conversation thread |
+| `pr` | `github-ops` skill | Create, view, merge, manage GitHub pull requests |
+| `gh` | `github-ops` skill | Full GitHub CLI operations — repos, issues, releases, workflows, search |
+| `optimize` | inline | Analyze code for performance, security, and maintainability bottlenecks |
+| `refactor` | `@refactoring` agent | Behavior-preserving restructuring — extract, split, reduce coupling |
+| `simplify` | `@code-simplifier` agent | Reduce complexity — flatten nesting, clarify naming, remove abstractions |
+| `cleanup` | `ai-slop-cleaner` skill | Regression-safe deletion-first cleanup of AI-generated code artifacts |
+| `modernize` | `@refactoring` agent | Update code patterns to modern language/framework conventions |
+| `icon` | `icon-generator` skill | Generate web/PWA/UE icon assets from a single source image |
+| `organize` | `file-organizer` skill | Find duplicates, suggest structures, automate file cleanup |
+| `changelog` | `changelog-generator` skill | Generate user-facing changelogs from git commits |
+| `converge` | inline | Merge divergent branches and resolve conflicts |
+| `scan` | inline | Scan for security vulnerabilities, secrets, and unsafe patterns |
+| `sandbox` | inline | Run code in an isolated sandbox environment |
+| `retrospect` | inline | Project retrospective — what went well, what didn't, action items |
+| `purge` | inline | Remove unused dependencies, dead code, and stale artifacts |
+| `release` | inline | Tag and release — bump version, generate changelog, create GitHub release |
+| `review` | inline | Full code review round — analyze changes, scan security, check complexity |
+| `audit` | inline | Comprehensive project health check — deps, security, quality, coverage, size |
+| `archive` | inline | Move stale branches, old artifacts, unused config to timestamped archive |
+| `git-cleanup` | inline | Repair CHANGELOG entries with orphaned commit hash references |
+| `workspace` | inline | Manage `.opencode` across projects — list, sync, init, health check |
+| `readme` | `readme-updater` skill | Update README to reflect current codebase state |
 
-**Delegates to:** `create-tests` command
+### Subcommand Behavior
 
-Generate a comprehensive 8-type test suite for an OpenCode agent.
+Each subcommand follows the hub pattern:
 
-**Reminder:**
-> Tests: Generate an 8-type test suite (planning, context-loading, implementation, delegation, error-handling, multi-language, coder-delegation, completion) for an agent.
+1. **Print a terse reminder** (1-2 lines, see Terse Reminders table below)
+2. **Parse arguments** — accept target paths, flags, or operation-specific args
+3. **Delegate** to the appropriate skill, agent, or inline execution (see routing table above)
+4. **Report results inline** with summary of what was done
 
-**Usage:** `/project tests <agent-name>`
+### Terse Reminders
 
----
-
-### `/project create-tests` — Generate Test Suite
-
-**Delegates to:** inline execution
-
-Generate a comprehensive 8-type test suite for an OpenCode agent.
-
-**Reminder:**
-> Tests: Generate an 8-type test suite for an agent.
-
-**Usage:** `/project create-tests <agent-name>`
-
----
-
-### `/project commit` — Create Git Commit
-
-**Delegates to:** `conventional-commit` skill / `commit` command
-
-Create a well-formatted git commit with conventional commit messages and emoji.
-
-**Reminder:**
-> Commit: Create a conventional commit with emoji prefixes. I'll analyze staged changes and generate an appropriate message.
-
-**Usage:** `/project commit [message]` — if message provided, use it; otherwise analyze diff
-
----
-
-### `/project stage` — Stage Changes
-
-**Delegates to:** `git-stage-thread` command
-
-Stage git changes for files modified in the current conversation thread.
-
-**Reminder:**
-> Stage: I'll identify all files modified in our conversation and stage them for commit.
-
-**Usage:** `/project stage`
-
----
-
-### `/project review` — Code Review
-
-**Delegates to:** `code-reviewer` agent
-
-Perform focused code review detecting smells and deep-diving concerns across security, performance, architecture, and code quality.
-
-**Reminder:**
-> Review: Focused code review — I'll detect smells, prioritize concerns, and deep-dive the top issues.
-
-**Usage:**
-- `/project review` — Review changes on current branch (git diff)
-- `/project review src/` — Review specific paths
-- `/project review --security` — Security-focused review
+| Subcommand | Reminder on Invoke |
+|------------|-------------------|
+| `create-tests` | Tests: Generate an 8-type test suite for an agent. |
+| `commit` | Commit: Analyze staged changes and create a conventional commit with emoji prefixes. |
+| `git-stage-thread` | Stage: I'll identify all files modified in our conversation and stage them. |
+| `review` | Review: Full code review round — analyze changes, scan security, check complexity. |
+| `pr` | PR: Create, view, merge pull requests via GitHub CLI. |
+| `gh` | GH: Full GitHub operations via the gh CLI — repos, issues, actions, releases, search. |
+| `optimize` | Optimize: Analyze code for bottlenecks, vulnerabilities, and maintainability issues. |
+| `refactor` | Refactor: Plan and implement behavior-preserving restructuring. |
+| `simplify` | Simplify: Reduce complexity, flatten nesting, clarify naming, remove abstractions. |
+| `cleanup` | Cleanup: Remove AI-generated slop — dead code, unused exports, redundant comments. |
+| `modernize` | Modernize: Update code patterns to modern language/framework conventions. |
+| `icon` | Icon: Generate web/PWA/UE icon assets from a source image. |
+| `organize` | Organize: Scan directories, find duplicates, suggest structures, clean up files. |
+| `changelog` | Changelog: Generate a user-facing changelog from git commits. |
+| `release` | Release: Tag, bump version, generate changelog, create GitHub release in one flow. |
+| `audit` | Audit: Comprehensive health check — deps, security, quality, coverage, bundle size. |
+| `readme` | Readme: Scan codebase and update README with current state. |
+| `git-cleanup` | Git-cleanup: Repair CHANGELOG entries with orphaned commit hash references. |
 
 ---
 
-### `/project pr` — Pull Request Operations
+## Shared Lifecycle
 
-**Delegates to:** `github-ops` skill
+`/project` is stateless — no checkpoints or resume. Each subcommand is a one-shot operation:
 
-Create, view, merge, and manage GitHub pull requests via GitHub CLI.
+### Step 1: Parse Arguments
 
-**Reminder:**
-> PR: Create, view, merge pull requests via GitHub CLI.
+Accept target paths, flags, or operation-specific arguments. If no arguments provided, ask the user what to operate on (unless the subcommand is self-targeting like `audit` or `retrospect`).
 
-**Usage:**
-- `/project pr create` — Create new PR from current branch
-- `/project pr view <number>` — View PR details
-- `/project pr diff <number>` — Show PR diff
-- `/project pr merge <number>` — Merge a PR
-- `/project pr list` — List open PRs
-- `/project pr checks <number>` — View PR status checks
+### Step 2: Print Reminder
 
----
+Show the static 1-2 line description for the selected subcommand (see Terse Reminders table above).
 
-### `/project gh` — GitHub Operations
+### Step 3: Execute
 
-**Delegates to:** `github-ops` skill
+Delegate to the appropriate skill, agent, or inline execution per the Subcommand Routing table.
 
-Full GitHub CLI operations — repos, issues, releases, workflows, code search.
+### Step 4: Report
 
-**Reminder:**
-> GH: Full GitHub operations via the gh CLI. Repo, issue, PR, actions, releases, and search.
-
-**Usage:** `/project gh <operation>` — e.g., `repo view cli/cli`, `issue list`, `release create v1.0.0`
-
----
-
-### `/project git-stage-thread` — Stage Thread Changes
-
-**Delegates to:** inline execution
-
-Stage files modified in the current conversation thread.
-
-**Reminder:**
-> Stage: Stage all files modified in this conversation thread.
-
-**Usage:** `/project git-stage-thread`
-
----
-
-### `/project optimize` — Code Optimization
-
-**Delegates to:** inline execution
-
-Analyze code for performance, security, and maintainability.
-
-**Reminder:**
-> Optimize: Analyze code for bottlenecks, vulnerabilities, and maintainability issues.
-
-**Usage:** `/project optimize [file or directory paths]` — if no paths, analyze current context
-
----
-
-### `/project refactor` — Code Refactoring
-
-**Delegates to:** `@refactoring` agent
-
-Restructure existing code without changing its behavior. Extracts functions, splits oversized modules, reduces coupling, and improves maintainability. The `@refactoring` agent plans the refactoring strategy and implements it step by step.
-
-**Reminder:**
-> Refactor: I'll plan and implement behavior-preserving code restructuring. Extract, split, reduce coupling, and clean up.
-
-**Usage:**
-- `/project refactor src/components/` — Refactor a directory
-- `/project refactor src/utils.ts` — Refactor a specific file
-- `/project refactor src/ --extract-module "validation"` — Extract a module
-
-**Process:**
-1. Analyze the target code for refactoring opportunities (long functions, high cyclomatic complexity, tight coupling, mixed concerns)
-2. Present a refactoring plan with specific changes
-3. Implement changes one at a time, verifying correctness after each
-4. Run existing tests to confirm no behavior change
-
----
-
-### `/project simplify` — Code Simplification
-
-**Delegates to:** `@code-simplifier` agent
-
-Reduce code complexity — flatten deeply nested conditionals, simplify complex expressions, clarify naming, eliminate redundant abstractions. Focuses on making code more readable and maintainable without changing its behavior.
-
-**Reminder:**
-> Simplify: I'll reduce complexity, flatten nesting, clarify naming, and remove unnecessary abstractions.
-
-**Usage:**
-- `/project simplify src/complex.ts` — Simplify a specific file
-- `/project simplify src/ --max-complexity 5` — Simplify all files above a cyclomatic complexity threshold
-
-**Process:**
-1. Scan target code for complexity hotspots (deep nesting, long conditionals, high cyclomatic complexity)
-2. For each hotspot, apply simplifications: guard clauses, early returns, decomposition, ternary reduction
-3. Verify each change preserves behavior
-
----
-
-### `/project cleanup` — Clean Up AI Slop
-
-**Delegates to:** `ai-slop-cleaner` skill
-
-Regression-safe cleanup of AI-generated code artifacts — dead code, unused exports, redundant comments, hallucinated imports, and boilerplate that doesn't belong. Uses the `ai-slop-cleaner` skill's deletion-first workflow: identify, verify unused, delete, confirm nothing broke.
-
-**Reminder:**
-> Cleanup: I'll safely remove AI-generated slop — dead code, unused exports, redundant comments — using deletion-first verification.
-
-**Usage:**
-- `/project cleanup src/` — Clean up a directory
-- `/project cleanup --review-only` — Review-only mode, no deletions
-- `/project cleanup src/app.ts` — Clean a specific file
-
-**Process:**
-1. Scan for AI slop patterns: unused exports, dead code paths, redundant JSDoc, hallucinated imports, empty catch blocks, tautological comments
-2. For each finding, verify it's truly unused (cross-reference imports, usages, and call sites)
-3. Delete or clean up with confirmation for ambiguous cases
-4. Run tests to verify nothing broke
-
----
-
-### `/project modernize` — Code Modernization
-
-**Delegates to:** `@refactoring` agent
-
-Update code patterns to modern language and framework conventions while preserving behavior. Examples: ES6+ syntax upgrades, framework API migrations, replacing deprecated patterns, adopting newer language features.
-
-**Reminder:**
-> Modernize: I'll update code patterns to modern language/framework conventions — behavior-preserving, targeted modernization.
-
-**Usage:**
-- `/project modernize src/` — Modernize all code in a directory
-- `/project modernize src/ --target es2022` — Target specific language version
-- `/project modernize --dry-run` — Preview changes without applying
-
-**Process:**
-1. Detect the target code's language version and patterns
-2. Identify modernization opportunities (e.g., `var` → `const`/`let`, promise chains → async/await, class components → hooks, CommonJS → ESM)
-3. Present the modernization plan with expected changes
-4. Apply changes incrementally, running tests between batches
-
----
-
-### `/project icon` — Generate Icon Assets
-
-**Delegates to:** `icon-generator` skill
-
-Generate all required icon sizes and formats (favicon, PWA, apple-touch, Unreal Engine) from a single SVG or PNG source.
-
-**Reminder:**
-> Icon: Generate web/PWA/UE icon assets from a source image. I'll produce all sizes and formats plus HTML snippets.
-
-**Usage:**
-- `/project icon logo.svg` — Generate all icon formats
-- `/project icon logo.svg --web-only` — Web icons only
-- `/project icon logo.svg --pwa-only` — PWA icons only
-
----
-
-### `/project organize` — File Organization
-
-**Delegates to:** `file-organizer` skill
-
-Organize files and folders — find duplicates, suggest structures, automate cleanup.
-
-**Reminder:**
-> Organize: Scan directories, find duplicates, suggest structures, and clean up files. Preview before executing.
-
-**Usage:**
-- `/project organize ~/Downloads` — Organize a directory
-- `/project organize --duplicates` — Find duplicate files
-- `/project organize --structure` — Suggest better organization
-- `/project organize --stats` — Show directory statistics
-
----
-
-### `/project analyze` — Pattern Analysis
-
-**Delegates to:** `analyze-patterns` command
-
-Analyze code patterns, architectural decisions, and codebase structure.
-
-**Reminder:**
-> Analyze: Scan the codebase for patterns, anti-patterns, and architectural decisions. I'll provide a structured analysis.
-
-**Usage:** `/project analyze [paths or scope]`
-
----
-
-### `/project analyze-patterns` — Analyze Codebase Patterns
-
-**Delegates to:** inline execution
-
-Analyze codebase patterns and anti-patterns.
-
-**Reminder:**
-> Analyze: Scan codebase for patterns, anti-patterns, and architectural decisions.
-
-**Usage:** `/project analyze-patterns [paths or scope]`
-
----
-
-### `/project changelog` — Generate Changelog
-
-**Delegates to:** `changelog-generator` skill
-
-Generate user-facing changelogs from git commits.
-
-**Reminder:**
-> Changelog: Generate a user-facing changelog from git commits. I'll categorize changes and translate technical jargon into customer language.
-
-**Usage:**
-- `/project changelog` — Since last git tag
-- `/project changelog since v1.5.0` — Since specific version
-- `/project changelog last week` — Last 7 days
-- `/project changelog 2024-01-01..2024-01-31` — Date range
-
----
-
-### `/project git-cleanup` — Fix Orphaned CHANGELOG Entries
-
-**Delegates to:** inline execution
-
-Repair CHANGELOG or `.opencode/CHANGELOG.md` files whose commit references no longer exist in git history. This happens when a project's `.git/` directory is rebuilt from remote (e.g., after `rm -rf .git && git clone`). The changelog entries themselves are valid — the work happened — but the commit hashes they reference are gone.
-
-**Process:**
-1. Read all `CHANGELOG.md` and `.opencode/CHANGELOG.md` files
-2. Parse every entry for commit hash references (e.g., `` `abc1234` ``)
-3. For each hash, run `git cat-file -t <hash>` to check if it exists in current history
-4. Report entries with orphaned hashes — show the content that would be lost
-5. **Option A — Replace hash with context**: `` `abc1234` `` → `[context: removed]`
-6. **Option B — Replace hash with date/topic**: `` `abc1234` `` → `[2026-06-12]` (inferred from entry date)
-7. **Option C — Leave hash but mark**: `` `abc1234` `` → `` `abc1234` `` (not in current history)
-8. Default: Option B (most readable), confirm with user
-
-**Reminder:**
-> Git-cleanup: I'll scan CHANGELOG files for commit references that no longer exist in git history (common after .git/ rebuild), and repair them without losing the changelog content.
-
-**Usage:**
-- `/project git-cleanup` — Scan all changelogs, report orphaned refs, prompt for fix
-- `/project git-cleanup --fix` — Auto-repair all orphaned refs with date-based replacements
-- `/project git-cleanup --fix --option context` — Replace with [context: removed]
-- `/project git-cleanup --check-only` — Just report, don't fix
-
----
-
-### `/project release` — Tag and Release
-
-**Delegates to:** inline execution
-
-Bump version, generate changelog, create GitHub release in one flow.
-
-**Reminder:**
-> Release: Tag, bump version, generate changelog, and create a GitHub release in one flow.
-
-**Usage:**
-- `/project release` — Interactive release workflow
-- `/project release patch` — Patch bump
-- `/project release minor` — Minor bump
-- `/project release major` — Major bump
-
----
-
-### `/project review` — Code Review
-
-**Delegates to:** inline execution
-
-Full code review round — analyze recent changes, run security scan, check complexity, and produce a review report.
-
-**Reminder:**
-> Review: Full code review round — I'll analyze recent changes, scan for security issues, check complexity, and produce a structured report.
-
-**Usage:**
-- `/project review` — Review recent changes (git diff)
-- `/project review src/` — Review specific paths
-
----
-
-### `/project audit` — Project Health Audit
-
-**Delegates to:** inline execution
-
-Comprehensive project health check — dependencies, security, code quality, test coverage, bundle size in one command.
-
-**Reminder:**
-> Audit: Comprehensive health check — I'll scan dependencies, security, code quality, test coverage, and bundle size.
-
-**Usage:**
-- `/project audit` — Full project health audit
-
----
-
-### `/project archive` — Archive Stale Artifacts
-
-**Delegates to:** inline execution
-
-Move stale branches, old artifacts, and unused config to a timestamped archive — keep the working tree clean.
-
-**Reminder:**
-> Archive: I'll move stale branches, old artifacts, and unused config to a timestamped archive.
-
-**Usage:**
-- `/project archive` — Interactive archive workflow
-
----
-
-### `/project readme` — Update README
-
-**Delegates to:** `readme-updater` skill
-
-Update the project README to reflect the current codebase state — scans agents, skills, tools, rules, commands, and archetypes; preserves existing tone, documentation links, and section structure; produces SEO-optimized, technically proficient output.
-
-**Reminder:**
-> Readme: I'll scan the codebase, read the existing README, and update all resource counts, feature descriptions, and links to match the current state.
-
-**Usage:**
-- `/project readme` — Update README with current codebase state
-- `/project readme --dry-run` — Preview changes without writing
-
----
-
-### `/project workspace` — Manage Hubs Workspace
-
-**Delegates to:** inline execution
-
-Manage `.opencode` across projects — list Hubs-enabled projects, sync config, init `.opencode` in new directories, check health.
-
-**Reminder:**
-> Workspace: I'll manage Hubs workspace across projects — list, sync, init, and health check.
-
-**Usage:**
-- `/project workspace list` — List Hubs-enabled projects
-- `/project workspace sync` — Sync config across projects
-- `/project workspace init <path>` — Init .opencode in a directory
-
----
+Report results inline with a summary of what was done. For destructive operations (purge, archive, git-cleanup), confirm before applying changes.
 
 ## Related
 

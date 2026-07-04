@@ -2,7 +2,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 
 const spec: HubSubcommandSpec = {
   label: "impact-mapping",
-  description: "Why-who-how-what goal mapping — trace deliverables to business impact",
+  description: "Goal mapping — trace deliverables to business impact",
   reminder: "Map goals to business impact.",
   inline: true,
 

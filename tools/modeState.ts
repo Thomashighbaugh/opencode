@@ -1,6 +1,7 @@
 import { tool } from "@opencode-ai/plugin"
 import * as fs from "fs"
 import * as path from "path"
+import { withToolCache, invalidateToolCache } from "./cache-utils"
 
 interface ModeState {
   active: boolean
@@ -51,6 +52,8 @@ function writeState(projectRoot: string, mode: ModeName, state: ModeState): void
 }
 
 const VALID_MODE_ACTIONS = ['start', 'stop', 'status', 'update', 'list-active', 'progress'] as const
+const READ_ONLY_ACTIONS = new Set(['status', 'list-active', 'progress'])
+const MUTATION_ACTIONS = new Set(['start', 'stop', 'update'])
 
 export default tool({
   description: "Manage execution modes: start, stop, update, or check status of ralph, autopilot, ultrawork, team, ultraqa modes",
@@ -66,6 +69,19 @@ export default tool({
     const projectRoot = context.directory || process.cwd()
     const sessionId = context.sessionID
     
+    if (READ_ONLY_ACTIONS.has(args.action)) {
+      return withToolCache("modeState", args, () => executeModeState(args, projectRoot, sessionId), 300_000)
+    }
+    
+    if (MUTATION_ACTIONS.has(args.action)) {
+      invalidateToolCache("modeState")
+    }
+    
+    return executeModeState(args, projectRoot, sessionId)
+  }
+})
+
+function executeModeState(args: any, projectRoot: string, sessionId: string | undefined): string {
     switch (args.action) {
       case 'start': {
         if (!args.mode || !SUPPORTED_MODES.includes(args.mode as ModeName)) {
@@ -173,5 +189,4 @@ export default tool({
       default:
         return JSON.stringify({ error: `Unknown action: ${args.action}` })
     }
-  }
-})
+}

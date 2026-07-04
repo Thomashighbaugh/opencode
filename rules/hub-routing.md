@@ -111,6 +111,7 @@ tools/
 | ideation | competitive-analysis | inline | true |
 | ideation | tree-of-thoughts | skill | tree-of-thoughts |
 | ideation | opro | skill | opro |
+| ideation | analyze-patterns | command | analyze-patterns |
 | ideation | resume | inline | true |
 | ideation | status | inline | true |
 | orchestrate | ralph | skill | ralph |
@@ -167,9 +168,9 @@ tools/
 | harvest-context | export | inline | true |
 | harvest-context | diff | inline | true |
 | harvest-context | sweep | inline | true |
-| project | tests | command | create-tests |
+| project | create-tests | command | create-tests |
 | project | commit | skill | conventional-commit |
-| project | stage | command | git-stage-thread |
+| project | git-stage-thread | command | git-stage-thread |
 | project | pr | command | pr |
 | project | gh | skill | github-ops |
 | project | optimize | command | optimize |
@@ -179,7 +180,6 @@ tools/
 | project | modernize | agent | refactoring |
 | project | icon | skill | icon-generator |
 | project | organize | skill | file-organizer |
-| project | analyze | command | analyze-patterns |
 | project | changelog | skill | changelog-generator |
 | project | converge | inline | true |
 | project | scan | inline | true |

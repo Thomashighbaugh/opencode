@@ -2,7 +2,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 
 const spec: HubSubcommandSpec = {
   label: "web-research",
-  description: "Multi-source web research — search multiple queries in parallel via websearch, fetch top results via webfetch, synthesize findings into a structured research report saved to .opencode/state/ideation/work-products/",
+  description: "Multi-source web research — parallel searches, synthesize findings",
   reminder: "Search, fetch, and synthesize web research into a structured report.",
   inline: true,
 

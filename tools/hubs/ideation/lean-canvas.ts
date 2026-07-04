@@ -2,7 +2,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 
 const spec: HubSubcommandSpec = {
   label: "lean-canvas",
-  description: "Lean business model canvas — one-page framework for problem, solution, key metrics, and competitive advantage",
+  description: "Lean business model — problem, solution, metrics, competitive advantage",
   reminder: "One-page lean business model canvas.",
   inline: true,
 

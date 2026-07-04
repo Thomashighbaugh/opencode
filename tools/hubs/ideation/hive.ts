@@ -2,7 +2,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 
 const spec: HubSubcommandSpec = {
   label: "hive",
-  description: "Agent Hive planning — Architect Bee phase: interview, discover, context-gather, produce plan.md with approval gate before execution",
+  description: "Agent swarm planning — interview, discover, produce plan.md with approval gate",
   reminder: "Architect Bee: plan with approval gate.",
   inline: true,
 

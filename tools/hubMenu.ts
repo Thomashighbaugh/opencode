@@ -89,7 +89,7 @@ export default tool({
           })
         }
 
-        // Load the full spec (detailedDescription, tools, rules content, related skills)
+        // Load the full spec (detailedDescription, rules, skills — inlined for only this subcommand)
         const { spec, rulesContent, relatedSkillMeta } = loadSubcommandSpecFull(args.hub, args.subcommand)
 
         // Only read state/checkpoint on route — these are lightweight
@@ -108,7 +108,7 @@ export default tool({
           state: stateInfo,
           checkpoint: checkpoint,
           canResume: !!checkpoint,
-          // Full spec — only present when the subcommand spec file exists
+          // Full spec — inlined rule/skill content for THIS subcommand only
           detailedDescription: spec?.detailedDescription || null,
           tools: spec?.tools || null,
           rules: spec?.rules || null,

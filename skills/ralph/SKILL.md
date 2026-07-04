@@ -1,7 +1,7 @@
 ---
 name: ralph
 description: Self-referential loop until task completion with configurable verification reviewer
-argument-hint: "[--no-prd] [--no-deslop] [--critic=architect|critic|codex] <task description>"
+argument-hint: "[--no-prd] [--no-deslop] [--self-verify] [--external-verify] [--critic=architect|critic|codex] <task description>"
 level: 4
 ---
 
@@ -43,6 +43,12 @@ By default, ralph operates in PRD mode. A scaffold `prd.json` is auto-generated 
 **Deslop opt-out:** If `{{PROMPT}}` contains `--no-deslop`, skip the mandatory post-review deslop pass entirely. Use this only when the cleanup pass is intentionally out of scope for the run.
 
 **Reviewer selection:** Pass `--critic=architect`, `--critic=critic`, or `--critic=codex` in the Ralph prompt to choose the completion reviewer for that run. `architect` remains the default.
+
+**Self-verify mode (default):** By default, the executor's own verification (running tests, lint, build, typecheck) is SUFFICIENT for story completion — no external `@verifier` escalation needed unless self-check fails. This saves 1+ API calls per story.
+
+**External-verify mode:** Pass `--external-verify` to require a `@verifier`/`@architect` review for every story, even those that pass self-verification. Use for security-sensitive, production-deploy, or audit-trail changes.
+
+**Self-verify mode (`--self-verify`):** Explicitly forces self-verify behavior. Useful when you want to confirm the mode is active, or when the task is non-critical iteration work.
 </PRD_Mode>
 
 <Execution_Policy>
@@ -79,7 +85,12 @@ By default, ralph operates in PRD mode. A scaffold `prd.json` is auto-generated 
    a. For EACH acceptance criterion in the story, verify it is met with fresh evidence
    b. Run relevant checks (test, build, lint, typecheck) and read the output
    c. If any criterion is NOT met, continue working -- do NOT mark the story as complete
-   d. **Self-verification pass**: If all criteria pass AND the change is small (<5 files, <100 lines), skip the reviewer step (Step 7) for this story. Mark it complete and proceed to Step 5.
+   d. **Self-verification pass (default behavior):** The executor's own verification (passing tests, clean build, zero lint errors) is SUFFICIENT for story completion. No external `@verifier` escalation needed unless:
+      - Self-check fails (test failure, build error, lint issue) → continue working
+      - `--external-verify` was explicitly specified → proceed to Step 7
+      - Change touches security/auth/config/credentials paths → proceed to Step 7
+      - More than 20 files were changed → proceed to Step 7
+   e. **Mark story complete immediately** when self-verify passes and none of the escalation conditions in 4d are met. Skip Step 7 entirely for this story — saving 1+ API calls.
 
 5. **Mark story complete**:
    a. When ALL acceptance criteria are verified, set `passes: true` for this story in `prd.json`
@@ -91,7 +102,8 @@ By default, ralph operates in PRD mode. A scaffold `prd.json` is auto-generated 
    b. If NOT all complete, loop back to Step 2 (pick next story)
    c. If ALL complete, proceed to Step 7 (architect verification)
 
-7. **Reviewer verification** (tiered, escalating):
+7. **Reviewer verification** (tiered, escalating, batch-capable):
+    - **Batch optimization**: If multiple stories are ready for review simultaneously (e.g., three small independent fixes from the same iteration), combine them into a single `@verifier` or `@architect` dispatch. A single review pass covering 3 small stories saves 2 API calls vs reviewing each separately.
     - <5 files, <100 lines with full tests: QUICK tier (`@verifier` / GLM-fast — free tier)
     - Standard changes: STANDARD tier (`@verifier` first, escalate to `@architect` on failure)
     - >20 files or security/architectural changes: DIRECT tier (`@architect` / Opus — skip verifier)
