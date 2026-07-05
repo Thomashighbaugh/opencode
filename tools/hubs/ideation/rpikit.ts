@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH_TASKTODOS, RULES_KARPAHTY_GUIDELINES } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "rpikit",
   description: "Research-Plan-Implement — stakes-based rigor scaling",
@@ -19,8 +20,8 @@ Stakes-based rigor scaling:
 
 The Iron Law prevents the common LLM failure of jumping to code before understanding the problem. Use when the stakes warrant research before implementation — especially for high-stakes changes.`,
 
-  tools: ["bash", "taskTodos"],
-  rules: ["karpathy-guidelines"],
+  tools: TOOLS_BASH_TASKTODOS,
+  rules: RULES_KARPAHTY_GUIDELINES,
   relatedSkills: [],
 }
 

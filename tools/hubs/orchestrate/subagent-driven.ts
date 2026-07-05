@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LOADSKILL_LISTAGENTS_TASKTODOS_MODESTATE_BASH, RULES_COMPLETION_GUARDRAIL, SKILLS_VERIFY } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "subagent-driven",
   description: "Execute implementation plans via fresh subagent per task with automated review gates — spec compliance + code quality after each task, broad final review. Includes hub-to-hub handoff protocol for bridging ideation→orchestrate→harvest-context",
@@ -20,9 +21,9 @@ Hub-to-hub handoff protocol: this pattern includes a bridge protocol for passing
 
 Use for executing plans produced by /ideation (plan, ralplan, decomposition, etc.) where you want per-task isolation + automated review. The fresh-context-per-task design prevents earlier tasks' mistakes from contaminating later tasks' context.`,
 
-  tools: ["loadSkill", "listAgents", "taskTodos", "modeState", "bash"],
-  rules: ["completion-guardrail"],
-  relatedSkills: ["verify"],
+  tools: TOOLS_LOADSKILL_LISTAGENTS_TASKTODOS_MODESTATE_BASH,
+  rules: RULES_COMPLETION_GUARDRAIL,
+  relatedSkills: SKILLS_VERIFY,
 
   examples: [
     {

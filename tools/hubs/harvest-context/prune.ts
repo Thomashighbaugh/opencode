@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH, RULES_CONTEXT_STRATEGY } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "prune",
   description: "Stale context management — identify old or superseded context files, archive or delete them to keep .opencode/context/ healthy",
@@ -17,8 +18,8 @@ For each, the agent recommends: archive (move to .opencode/context/archive/), de
 
 Use periodically to keep .opencode/context/ from growing unbounded. Stale context is noise that makes search less effective.`,
 
-  tools: ["bash"],
-  rules: ["context-strategy"],
+  tools: TOOLS_BASH,
+  rules: RULES_CONTEXT_STRATEGY,
   relatedSkills: [],
 }
 

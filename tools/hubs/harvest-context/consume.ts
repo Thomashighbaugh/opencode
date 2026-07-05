@@ -1,8 +1,9 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH, RULES_SECURITY, SKILLS_WIKI } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "consume",
-  description: "Ingest a file, directory, or URL — extract text content and save as durable context in .opencode/context/research/",
+  description: "Ingest a file, directory, or URL — extract text content, save as durable context, and update wiki index/log",
   reminder: "Ingest and save content as durable context.",
   inline: true,
 
@@ -12,12 +13,13 @@ const spec: HubSubcommandSpec = {
 2. Extract text content: for files, read directly; for directories, read all text files; for URLs, fetch via webfetch or web-to-markdown skill (handles JS-rendered pages).
 3. Clean and convert to markdown.
 4. Save to .opencode/context/research/{source-slug}/{timestamp}.md.
+5. **Wiki compliance**: update .opencode/context/index.md (catalog), append to .opencode/context/log.md, add YAML frontmatter to the new file, scan for cross-references to existing pages.
 
 Privacy scan runs before saving to prevent committing secrets/PII. Use when you have external documentation, papers, or reference material that should be part of the project's durable knowledge.`,
 
-  tools: ["bash"],
-  rules: ["security"],
-  relatedSkills: ["document-processor", "web-to-markdown", "privacy-scan"],
+  tools: TOOLS_BASH,
+  rules: RULES_SECURITY,
+  relatedSkills: ["document-processor", "web-to-markdown", "privacy-scan", "wiki"],
 }
 
 export default spec

@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LOADSKILL_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "readme",
   description: "Update README to reflect current codebase state — scans agents, skills, tools, rules, commands; preserves tone, links, and structure; SEO-optimized output via readme-updater skill",
@@ -16,7 +17,7 @@ Preserves the existing tone, links, and structure — it updates content, doesn'
 
 Use when the codebase has changed significantly and the README is stale. Not for creating a README from scratch (use /harvest-context command or writing skills for that).`,
 
-  tools: ["loadSkill", "bash"],
+  tools: TOOLS_LOADSKILL_BASH,
   relatedSkills: ["crafting-effective-readmes"],
 }
 

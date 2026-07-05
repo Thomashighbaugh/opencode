@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LISTAGENTS_TASKTODOS_MODESTATE_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "maestro",
   description: "Strict role separation — PMs gather requirements, Architects design/review (never code), Coders implement/test (never self-review)",
@@ -18,7 +19,7 @@ The strict separation means no agent approves its own work. This catches more de
 
 Use for quality-critical features where self-review bias is a real risk. Overkill for routine work.`,
 
-  tools: ["listAgents", "taskTodos", "modeState", "bash"],
+  tools: TOOLS_LISTAGENTS_TASKTODOS_MODESTATE_BASH,
   relatedSkills: [],
 
   examples: [

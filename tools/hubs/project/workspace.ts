@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH, SKILLS_HUBS_DOCTOR } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "workspace",
   description: "Manage .opencode across projects — list Hubs-enabled projects, sync config, init .opencode in new directories, check health",
@@ -15,8 +16,8 @@ const spec: HubSubcommandSpec = {
 
 Use when you work across multiple Hubs-enabled projects and need to manage them collectively.`,
 
-  tools: ["bash"],
-  relatedSkills: ["hubs-doctor"],
+  tools: TOOLS_BASH,
+  relatedSkills: SKILLS_HUBS_DOCTOR,
 }
 
 export default spec

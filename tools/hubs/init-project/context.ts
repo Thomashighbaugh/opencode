@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LOADSKILL_BASH_AGENTCONTEXT, RULES_CONTEXT_STRATEGY_SECURITY } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "context",
   description: "Capture session knowledge, promote insights to project memory and docs",
@@ -16,8 +17,8 @@ const spec: HubSubcommandSpec = {
 
 Use as part of /init-project setup (phase 5) or standalone when you want to preserve session knowledge before it's lost.`,
 
-  tools: ["loadSkill", "bash", "agentContext"],
-  rules: ["context-strategy", "security"],
+  tools: TOOLS_LOADSKILL_BASH_AGENTCONTEXT,
+  rules: RULES_CONTEXT_STRATEGY_SECURITY,
   relatedSkills: [],
 }
 

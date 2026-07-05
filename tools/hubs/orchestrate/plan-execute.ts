@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LOADSKILL_LISTAGENTS_TASKTODOS_MODESTATE_BASH, RULES_COMPLETION_GUARDRAIL, SKILLS_VERIFY } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "plan-execute",
   description: "Classic plan-then-execute — architect builds complete plan, executor implements step by step",
@@ -16,9 +17,9 @@ Unlike autopilot (which runs distinct phases with different roles), plan-execute
 
 The plan document is the contract — the executor shouldn't deviate without reason. If reality diverges from the plan, the executor stops and replans.`,
 
-  tools: ["loadSkill", "listAgents", "taskTodos", "modeState", "bash"],
-  rules: ["completion-guardrail"],
-  relatedSkills: ["verify"],
+  tools: TOOLS_LOADSKILL_LISTAGENTS_TASKTODOS_MODESTATE_BASH,
+  rules: RULES_COMPLETION_GUARDRAIL,
+  relatedSkills: SKILLS_VERIFY,
 
   examples: [
     {

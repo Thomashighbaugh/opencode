@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "pr",
   description: "Create, view, merge, or manage pull requests",
@@ -17,7 +18,7 @@ const spec: HubSubcommandSpec = {
 
 Always uses gh CLI (never raw git push + GitHub API). Use for any PR operation without leaving the session.`,
 
-  tools: ["bash"],
+  tools: TOOLS_BASH,
   relatedSkills: ["github-ops"],
 }
 

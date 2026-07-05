@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH_LISTAGENTS } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "adversarial-debate",
   description: "Spec validation via oppositional debate — proposer vs critics",
@@ -17,7 +18,7 @@ The debate is structured, not free-form. Each role has a mandate to find flaws i
 
 Use for high-stakes specs where a single perspective might miss critical flaws. The adversarial structure forces thorough examination.`,
 
-  tools: ["bash", "listAgents"],
+  tools: TOOLS_BASH_LISTAGENTS,
   relatedSkills: [],
 
   examples: [

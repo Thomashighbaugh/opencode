@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "status",
   description: "Show current initialization state and checkpoint progress",
@@ -10,7 +11,7 @@ const spec: HubSubcommandSpec = {
 
 Use to check progress of a setup run, especially after an interruption.`,
 
-  tools: ["bash"],
+  tools: TOOLS_BASH,
   relatedSkills: [],
 }
 

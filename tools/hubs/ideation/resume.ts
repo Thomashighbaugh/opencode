@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "resume",
   description: "Resume last ideation session",
@@ -10,7 +11,7 @@ const spec: HubSubcommandSpec = {
 
 Use when a previous /ideation invocation was interrupted and you want to continue without losing the work product.`,
 
-  tools: ["bash"],
+  tools: TOOLS_BASH,
   relatedSkills: [],
 }
 

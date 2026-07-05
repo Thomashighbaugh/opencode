@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LOADSKILL_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "refine",
   description: "Diverge/converge iteration — expand ideas, then sharpen them",
@@ -15,7 +16,7 @@ Multiple cycles progressively sharpen a rough idea into a concrete, actionable c
 
 Use when you have a rough idea that needs sharpening before it's actionable. Different from brainstorm (which generates from scratch) — refine starts with an existing idea and improves it.`,
 
-  tools: ["loadSkill", "bash"],
+  tools: TOOLS_LOADSKILL_BASH,
   relatedSkills: [],
 }
 

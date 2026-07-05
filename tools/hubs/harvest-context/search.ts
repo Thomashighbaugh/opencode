@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "search",
   description: "Semantic search across all context files — find decisions, patterns, research matching a query across .opencode/context/",
@@ -16,7 +17,7 @@ Process:
 
 Use when you need to find prior decisions, patterns, or research that's relevant to the current task — "what did we decide about auth last month?", "do we have research on caching strategies?".`,
 
-  tools: ["bash"],
+  tools: TOOLS_BASH,
   relatedSkills: ["vectorize-context"],
 }
 

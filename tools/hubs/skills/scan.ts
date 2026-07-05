@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH_SKILLCATEGORIES } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "scan",
   description: "Quick scan of skill directories — non-interactive inventory of both user and project scopes, reports counts and paths",
@@ -15,7 +16,7 @@ const spec: HubSubcommandSpec = {
 
 No interaction — just a summary. Use for a quick overview of what's available without the full /skills list detail.`,
 
-  tools: ["bash", "skill-categories"],
+  tools: TOOLS_BASH_SKILLCATEGORIES,
   relatedSkills: [],
 }
 

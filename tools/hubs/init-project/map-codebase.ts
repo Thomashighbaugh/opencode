@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LISTAGENTS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "map-codebase",
   description: "Analyze existing brownfield codebase — spawn parallel agents to map stack, architecture, conventions, and integration points before init",
@@ -24,7 +25,7 @@ This subcommand is a standalone subset of Phase 6 (Context Capture) from the \`s
 
 Use \`map-codebase\` when you want analysis without committing to a full setup. Use \`setup --full\` when you want the complete pipeline including agent upgrade.`,
 
-  tools: ["listAgents", "bash"],
+  tools: TOOLS_LISTAGENTS_BASH,
   relatedSkills: ["stack-recommender", "provision"],
 
   examples: [

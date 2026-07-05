@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "git-cleanup",
   description: "Fix orphaned CHANGELOG entries referencing commits not in git history after .git/ rebuild — preserves entries, removes bad refs",
@@ -15,7 +16,7 @@ Process:
 
 The entries are preserved — only the broken commit references are cleaned. Use after git history operations that might orphan CHANGELOG references.`,
 
-  tools: ["bash"],
+  tools: TOOLS_BASH,
   relatedSkills: ["changelog-generator"],
 }
 

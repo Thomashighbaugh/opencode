@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LOADSKILL_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "organize",
   description: "Find duplicates, suggest structures, automate cleanup",
@@ -15,7 +16,7 @@ const spec: HubSubcommandSpec = {
 
 Use when the project's file structure has grown organically and needs organization. Especially useful after periods of rapid development where files landed in ad-hoc locations.`,
 
-  tools: ["loadSkill", "bash"],
+  tools: TOOLS_LOADSKILL_BASH,
   relatedSkills: [],
 }
 

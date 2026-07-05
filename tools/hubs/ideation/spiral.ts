@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH_TASKTODOS } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "spiral",
   description: "Risk-driven iterative planning — each cycle targets highest-risk items first",
@@ -18,7 +19,7 @@ By attacking risk first, you learn the hard things early when rework is cheapest
 
 Use when the project has significant unknowns (technical, domain, integration) and you want to de-risk early rather than discover problems late.`,
 
-  tools: ["bash", "taskTodos"],
+  tools: TOOLS_BASH_TASKTODOS,
   relatedSkills: [],
 }
 

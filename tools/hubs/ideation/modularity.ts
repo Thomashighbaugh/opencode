@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LISTAGENTS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "modularity",
   description: "Module boundary analysis — detect circular dependencies, suggest reorg",
@@ -17,7 +18,7 @@ The architect produces a modularity report with: the dependency graph, circular 
 
 Use when the codebase feels "tangled" — changes in one place break unrelated things, tests require extensive mocking, or adding a feature touches many modules.`,
 
-  tools: ["listAgents", "bash"],
+  tools: TOOLS_LISTAGENTS_BASH,
   relatedSkills: ["improve-codebase-architecture"],
 }
 

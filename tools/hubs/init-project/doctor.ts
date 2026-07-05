@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH, SKILLS_HUBS_DOCTOR } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "doctor",
   description: "Run diagnostic health check — validate Hubs installation, config integrity, state consistency, and hook status",
@@ -19,8 +20,8 @@ const spec: HubSubcommandSpec = {
 
 Output: a diagnostic report with pass/warn/fail per check and specific remediation instructions for failures. Use when something isn't working or after manual config changes.`,
 
-  tools: ["bash"],
-  relatedSkills: ["hubs-doctor"],
+  tools: TOOLS_BASH,
+  relatedSkills: SKILLS_HUBS_DOCTOR,
 }
 
 export default spec

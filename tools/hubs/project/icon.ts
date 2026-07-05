@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LOADSKILL_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "icon",
   description: "Generate web/PWA/UE icon assets from source image",
@@ -15,7 +16,7 @@ const spec: HubSubcommandSpec = {
 
 The generator takes one source image and produces all required sizes/formats. Use when setting up a new web app or refreshing icons.`,
 
-  tools: ["loadSkill", "bash"],
+  tools: TOOLS_LOADSKILL_BASH,
   relatedSkills: [],
 }
 

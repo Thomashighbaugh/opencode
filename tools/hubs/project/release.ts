@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "release",
   description: "Tag and release — bump version, generate changelog, create GitHub release in one flow",
@@ -18,7 +19,7 @@ const spec: HubSubcommandSpec = {
 
 Use when ready to release. Combines version bump + changelog + tag + GitHub release into a single flow.`,
 
-  tools: ["bash"],
+  tools: TOOLS_BASH,
   relatedSkills: ["changelog-generator", "github-ops", "conventional-commit"],
 }
 

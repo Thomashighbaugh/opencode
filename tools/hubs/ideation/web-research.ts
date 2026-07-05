@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH, SKILLS_CONTEXT7_DOCS } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "web-research",
   description: "Multi-source web research — parallel searches, synthesize findings",
@@ -17,8 +18,8 @@ The report is saved to .opencode/state/ideation/work-products/ as a markdown doc
 
 Use when the ideation question requires external knowledge (current best practices, library comparisons, how-to guides). The multi-query approach catches more relevant results than a single search.`,
 
-  tools: ["bash"],
-  relatedSkills: ["context7-docs"],
+  tools: TOOLS_BASH,
+  relatedSkills: SKILLS_CONTEXT7_DOCS,
 
   examples: [
     {

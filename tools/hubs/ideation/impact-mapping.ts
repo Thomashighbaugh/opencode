@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH, SKILLS_GRAPH_THINKING } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "impact-mapping",
   description: "Goal mapping — trace deliverables to business impact",
@@ -17,8 +18,8 @@ The map ensures every deliverable traces to a business goal. If a feature can't 
 
 Output: an impact map (tree structure) + prioritized deliverables. Use for roadmap planning and feature prioritization where business alignment matters.`,
 
-  tools: ["bash"],
-  relatedSkills: ["graph-thinking"],
+  tools: TOOLS_BASH,
+  relatedSkills: SKILLS_GRAPH_THINKING,
 }
 
 export default spec

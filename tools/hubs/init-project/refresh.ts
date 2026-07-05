@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LOADSKILL_LISTAGENTS_BASH_MODESTATE, SKILLS_SETUP_REFRESH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "refresh",
   description: "Update existing config preserving manual edits — re-detect stack, merge new recommendations, re-provision; --full adds deep codebase mapping, context synthesis, and routing integration validation",
@@ -62,8 +63,8 @@ All phases run in merge mode:
 
 Safe to run on existing setups — it won't destroy manual work.`,
 
-  tools: ["loadSkill", "listAgents", "bash", "modeState"],
-  relatedSkills: ["stack-recommender", "provision", "deepinit", "hubs-doctor"],
+  tools: TOOLS_LOADSKILL_LISTAGENTS_BASH_MODESTATE,
+  relatedSkills: SKILLS_SETUP_REFRESH,
 
   examples: [
     {

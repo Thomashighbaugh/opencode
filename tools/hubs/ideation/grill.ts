@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LOADSKILL_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "grill",
   description: "Stress-test a plan with relentless one-at-a-time questioning",
@@ -16,7 +17,7 @@ const spec: HubSubcommandSpec = {
 
 The output is a fully-stress-tested plan with every decision resolved and every assumption surfaced. Use before committing to implementation — especially for plans from /ideation plan, /ideation architecture, or any design that seems "done" but might hide assumptions.`,
 
-  tools: ["loadSkill", "bash"],
+  tools: TOOLS_LOADSKILL_BASH,
   relatedSkills: ["deep-interview"],
 
   examples: [

@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "info",
   description: "Show detailed information about a skill — find by name, parse YAML frontmatter, display complete details and full content",
@@ -15,7 +16,7 @@ const spec: HubSubcommandSpec = {
 
 Use to inspect a skill before using it or to verify its content after editing.`,
 
-  tools: ["bash"],
+  tools: TOOLS_BASH,
   relatedSkills: [],
 }
 

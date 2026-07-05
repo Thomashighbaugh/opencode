@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LOADSKILL_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "overhaul",
   description: "8-dimension project audit — produce prioritized improvement plan",
@@ -21,7 +22,7 @@ Each dimension is scored. The output is a phased plan: Phase 1 addresses the hig
 
 Use for brownfield projects that need systematic improvement. NOT for greenfield (nothing to analyze) or single-issue fixes (use /project refactor or /project optimize).`,
 
-  tools: ["loadSkill", "bash"],
+  tools: TOOLS_LOADSKILL_BASH,
   relatedSkills: [],
 
   examples: [

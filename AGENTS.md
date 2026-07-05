@@ -50,8 +50,7 @@ Every turn, every subagent invocation, every verification round costs an API req
 | `shell_strategy.md` | Non-interactive shell — CI-safe commands, banned patterns |
 | `context-strategy.md` | Durable memory — state vs context, manual-only load/save |
 | `karpathy-guidelines.md` | Think before coding, simplicity first, surgical changes |
-| `artifact-placement.md` | No standalone scripts at project root |
-| `script-elimination.md` | Use file-editing tools, not inline scripts |
+| `file-operations.md` | No standalone scripts at project root; use file-editing tools, not inline scripts |
 | `hub-description-directive.md` | Hub subcommand description conventions |
 | `security.md` | Security rules — mandatory checks, secret management |
 | `completion-guardrail.md` | **MANDATORY STOP** after planning/analysis — no auto-implementation |
@@ -89,7 +88,15 @@ Each tier has a failover chain: Primary → F1 → F2 → (F3). Stop on first su
 **Failover:** Provider errors advance chain after 60s. Task errors → fix prompt, don't advance. Chain exhausted → escalate via `question` tool.
 
 ### Subagent Timeout
-Max 5 turns per subagent. If no output after 5 turns, terminate and escalate. Looping/hanging subagents waste API requests — needs a better prompt or different approach.
+Max turns per subagent, configurable by agent type:
+
+| Agent Type | Max Turns | Rationale |
+|------------|-----------|----------|
+| writer, verifier, document-specialist, effort-estimator, explore, commit-drafter, prompt-simplifier, convention-extractor | 3 | Simple or narrowly-scoped tasks — rarely need more |
+| executor, debugger, test-engineer, designer, frontend-design, git-master, config-orchestrator, skill-creator, refactoring, code-simplifier, qa-tester, code-reviewer, scientist, deep-thinker | 5 | Standard dev tasks — may need iteration |
+| architect, planner, security-reviewer, requirements-analyzer, tracer, analyst, critic | 7 | Complex reasoning tasks — may need deep analysis |
+
+If no output after the max turns, terminate and escalate. Looping/hanging subagents waste API requests — needs a better prompt or different approach.
 
 ## Hub Commands
 
@@ -104,7 +111,7 @@ Max 5 turns per subagent. If no output after 5 turns, terminate and escalate. Lo
 
 ### Two-Tier Subcommand Routing
 
-Each of the 154 hub subcommands has a dedicated spec file in `tools/hubs/<hub>/<subcommand>.ts` containing the full `HubSubcommandSpec` — `detailedDescription`, `tools`, `rules`, `relatedSkills`, `examples`, `warnings`.
+Each of the 155 hub subcommands has a dedicated spec file in `tools/hubs/<hub>/<subcommand>.ts` containing the full `HubSubcommandSpec` — `detailedDescription`, `tools`, `rules`, `relatedSkills`, `examples`, `warnings`.
 
 **Direct selection** (`/orchestrate ralph`): `hubMenu route` returns the full spec in one response (detailedDescription + inlined rules + related skill pointers + examples). No follow-up `loadSkill` or rule-read calls needed.
 
@@ -136,7 +143,7 @@ See `rules/hub-routing.md` for the complete delegation table and architecture de
 │   ├── hubMenu.ts       # Hub menu router (route returns full spec, menu returns slim slice)
 │   ├── hub-data.ts      # Hub types, subcommand spec loader, state helpers
 │   ├── hub-<name>.ts    # Thin hub manifests (10 lines each, identity slice only)
-│   ├── hubs/            # Per-subcommand spec files (154 files across 6 directories)
+│   ├── hubs/            # Per-subcommand spec files (155 files across 6 directories)
 │   └── ...              # File editing, cache, session, skill tools
 ├── plugins/             # Hook system + TUI plugin
 ├── rules/               # Shared rules (loaded as instructions)
@@ -146,7 +153,10 @@ See `rules/hub-routing.md` for the complete delegation table and architecture de
 └── .opencode/           # Project state, context, docs, cache
     ├── state/           # Session state (gitignored)
     ├── context/         # Durable knowledge (committed)
-    │   └── research/    # Cached Context7 documentation
+    │   ├── research/    # Cached Context7 documentation
+    │   ├── index.md     # LLM Wiki catalog
+    │   ├── log.md       # LLM Wiki operation chronicle
+    │   └── wiki-schema.md # LLM Wiki schema
     ├── cache/           # Multi-tier prompt cache (gitignored)
     ├── docs/            # Generated documentation
     └── CHANGELOG.md     # Auto-commit log

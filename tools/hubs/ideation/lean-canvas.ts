@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "lean-canvas",
   description: "Lean business model — problem, solution, metrics, competitive advantage",
@@ -20,7 +21,7 @@ const spec: HubSubcommandSpec = {
 
 The canvas forces concision — one page, no fluff. Use for product/business strategy at the idea stage, before committing to implementation. Helps validate the business model before building.`,
 
-  tools: ["bash"],
+  tools: TOOLS_BASH,
   relatedSkills: [],
 }
 

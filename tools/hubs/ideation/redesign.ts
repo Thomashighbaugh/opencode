@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LOADSKILL_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "redesign",
   description: "Audit and upgrade existing UI to premium design standards",
@@ -15,7 +16,7 @@ const spec: HubSubcommandSpec = {
 
 Use for existing apps that look "AI-generated" and need to look designed. The skill knows the specific patterns that signal generic AI output and how to replace them with premium alternatives.`,
 
-  tools: ["loadSkill", "bash"],
+  tools: TOOLS_LOADSKILL_BASH,
   relatedSkills: [],
 }
 

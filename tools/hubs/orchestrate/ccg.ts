@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { SKILLS_ASK } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "ccg",
   description: "Multi-model synthesis — query diverse models, merge perspectives",
@@ -15,7 +16,7 @@ Use when a design decision, architecture choice, or complex analysis would benef
 Configure via flags: --models=<comma-separated> to pick which models to query (default: a diverse set). The synthesizer agent reads all responses and produces the final answer.`,
 
   tools: ["bash", "loadSkill"],
-  relatedSkills: ["ask"],
+  relatedSkills: SKILLS_ASK,
 }
 
 export default spec

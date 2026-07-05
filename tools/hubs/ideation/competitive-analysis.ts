@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "competitive-analysis",
   description: "Competitive landscape — feature comparison matrix",
@@ -17,7 +18,7 @@ const spec: HubSubcommandSpec = {
 
 Output saved to .opencode/state/ideation/work-products/. Use for product strategy — understanding the competitive landscape before building or repositioning.`,
 
-  tools: ["bash"],
+  tools: TOOLS_BASH,
   relatedSkills: ["web-to-markdown"],
 }
 

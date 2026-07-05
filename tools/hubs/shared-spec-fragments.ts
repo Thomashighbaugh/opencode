@@ -1,0 +1,40 @@
+import { HubSubcommandSpec } from "../hub-data"
+
+// ─── Shared tool arrays (appear in 2+ spec files) ────────────────
+export const TOOLS_BASH: HubSubcommandSpec['tools'] = ["bash"]
+export const TOOLS_LOADSKILL_BASH: HubSubcommandSpec['tools'] = ["loadSkill", "bash"]
+export const TOOLS_LISTAGENTS_BASH: HubSubcommandSpec['tools'] = ["listAgents", "bash"]
+export const TOOLS_BASH_TASKTODOS: HubSubcommandSpec['tools'] = ["bash", "taskTodos"]
+export const TOOLS_LISTAGENTS_MODESTATE_BASH: HubSubcommandSpec['tools'] = ["listAgents", "modeState", "bash"]
+export const TOOLS_BASH_LISTAGENTS_MODESTATE_TASKTODOS: HubSubcommandSpec['tools'] = ["bash", "listAgents", "modeState", "taskTodos"]
+export const TOOLS_LOADSKILL_LISTAGENTS_BASH: HubSubcommandSpec['tools'] = ["loadSkill", "listAgents", "bash"]
+export const TOOLS_LISTAGENTS_TASKTODOS_MODESTATE_BASH: HubSubcommandSpec['tools'] = ["listAgents", "taskTodos", "modeState", "bash"]
+export const TOOLS_BASH_LISTAGENTS: HubSubcommandSpec['tools'] = ["bash", "listAgents"]
+export const TOOLS_LOADSKILL_LISTAGENTS_TASKTODOS_MODESTATE_BASH: HubSubcommandSpec['tools'] = ["loadSkill", "listAgents", "taskTodos", "modeState", "bash"]
+export const TOOLS_LOADSKILL_LISTAGENTS_MODESTATE_TASKTODOS_BASH: HubSubcommandSpec['tools'] = ["loadSkill", "listAgents", "modeState", "taskTodos", "bash"]
+export const TOOLS_LOADSKILL_LISTAGENTS_BASH_MODESTATE: HubSubcommandSpec['tools'] = ["loadSkill", "listAgents", "bash", "modeState"]
+export const TOOLS_LOADSKILL_BASH_AGENTCONTEXT: HubSubcommandSpec['tools'] = ["loadSkill", "bash", "agentContext"]
+export const TOOLS_BASH_SKILLCATEGORIES: HubSubcommandSpec['tools'] = ["bash", "skill-categories"]
+
+// ─── Shared rules arrays (appear in 2+ spec files) ───────────────
+export const RULES_COMPLETION_GUARDRAIL: HubSubcommandSpec['rules'] = ["completion-guardrail"]
+export const RULES_SECURITY: HubSubcommandSpec['rules'] = ["security"]
+export const RULES_CONTEXT_STRATEGY: HubSubcommandSpec['rules'] = ["context-strategy"]
+export const RULES_KARPAHTY_GUIDELINES: HubSubcommandSpec['rules'] = ["karpathy-guidelines"]
+export const RULES_CONTEXT_STRATEGY_SECURITY: HubSubcommandSpec['rules'] = ["context-strategy", "security"]
+export const RULES_COMPLETION_KARPAHTY: HubSubcommandSpec['rules'] = ["completion-guardrail", "karpathy-guidelines"]
+
+// ─── Shared relatedSkills arrays (appear in 2+ spec files) ───────
+export const SKILLS_VERIFY: HubSubcommandSpec['relatedSkills'] = ["verify"]
+export const SKILLS_PRIVACY_SCAN: HubSubcommandSpec['relatedSkills'] = ["privacy-scan"]
+export const SKILLS_PLANNING_BREAKDOWN: HubSubcommandSpec['relatedSkills'] = ["planning-and-task-breakdown"]
+export const SKILLS_HUBS_DOCTOR: HubSubcommandSpec['relatedSkills'] = ["hubs-doctor"]
+export const SKILLS_GRAPH_THINKING: HubSubcommandSpec['relatedSkills'] = ["graph-thinking"]
+export const SKILLS_CONTEXT7_WEB_TO_MD: HubSubcommandSpec['relatedSkills'] = ["context7-docs", "web-to-markdown"]
+export const SKILLS_WIKI: HubSubcommandSpec['relatedSkills'] = ["wiki"]
+export const SKILLS_SETUP_REFRESH: HubSubcommandSpec['relatedSkills'] = ["stack-recommender", "provision", "deepinit", "hubs-doctor"]
+export const SKILLS_SKILL_CREATOR: HubSubcommandSpec['relatedSkills'] = ["skill-creator"]
+export const SKILLS_SELF_CONSISTENCY: HubSubcommandSpec['relatedSkills'] = ["self-consistency"]
+export const SKILLS_CONTEXT7_DOCS: HubSubcommandSpec['relatedSkills'] = ["context7-docs"]
+export const SKILLS_ASK: HubSubcommandSpec['relatedSkills'] = ["ask"]
+export const SKILLS_ADR: HubSubcommandSpec['relatedSkills'] = ["adr-skill"]

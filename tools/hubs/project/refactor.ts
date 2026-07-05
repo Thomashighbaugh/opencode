@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LISTAGENTS_BASH, RULES_KARPAHTY_GUIDELINES } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "refactor",
   description: "Restructure code without changing behavior — extract functions, split modules, reduce coupling via @refactoring agent",
@@ -18,8 +19,8 @@ The refactoring agent verifies behavior is preserved (tests pass before and afte
 
 Use when code is hard to maintain but works correctly. For code that's broken, fix first, then refactor.`,
 
-  tools: ["listAgents", "bash"],
-  rules: ["karpathy-guidelines"],
+  tools: TOOLS_LISTAGENTS_BASH,
+  rules: RULES_KARPAHTY_GUIDELINES,
   relatedSkills: [],
 }
 

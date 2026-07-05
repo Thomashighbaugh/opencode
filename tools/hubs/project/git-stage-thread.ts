@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "git-stage-thread",
   description: "Stage git changes from current conversation thread",
@@ -10,7 +11,7 @@ const spec: HubSubcommandSpec = {
 
 This prevents accidentally staging unrelated changes (from other tools, manual edits, etc.). Use before /project commit to ensure only the conversation's changes are committed.`,
 
-  tools: ["bash"],
+  tools: TOOLS_BASH,
   relatedSkills: [],
 }
 

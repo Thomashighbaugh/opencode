@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "story-mapping",
   description: "User story mapping — journey spine with release prioritization",
@@ -16,7 +17,7 @@ Process:
 
 Output: a story map (markdown table or Mermaid) + release plan. Use for product planning where you want to sequence features by user value and deliver in vertical slices.`,
 
-  tools: ["bash"],
+  tools: TOOLS_BASH,
   relatedSkills: [],
 }
 

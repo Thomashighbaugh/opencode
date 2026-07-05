@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LOADSKILL_BASH, SKILLS_ASK } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "research",
   description: "Multi-model synthesis — diverse perspectives merged into one answer",
@@ -12,8 +13,8 @@ Use for research questions where a single model's perspective is insufficient: "
 
 This is the /ideation equivalent of /orchestrate ccg — same multi-model mechanism, used for research rather than execution decisions.`,
 
-  tools: ["loadSkill", "bash"],
-  relatedSkills: ["ask"],
+  tools: TOOLS_LOADSKILL_BASH,
+  relatedSkills: SKILLS_ASK,
 }
 
 export default spec

@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LISTAGENTS_TASKTODOS_MODESTATE_BASH, RULES_COMPLETION_GUARDRAIL } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "evolutionary",
   description: "Evolutionary delivery — incremental builds with fitness validation at each generation",
@@ -17,8 +18,8 @@ The fitness function is configurable: "all tests pass", "lint clean + tests pass
 
 Use when a feature set is large enough that building it all at once risks compounding errors, and each increment is independently valuable. The fitness gate ensures you always have a working system.`,
 
-  tools: ["listAgents", "taskTodos", "modeState", "bash"],
-  rules: ["completion-guardrail"],
+  tools: TOOLS_LISTAGENTS_TASKTODOS_MODESTATE_BASH,
+  rules: RULES_COMPLETION_GUARDRAIL,
 
   examples: [
     {

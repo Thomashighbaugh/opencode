@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH, RULES_CONTEXT_STRATEGY, SKILLS_WIKI } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "secondbrain",
   description: "Privacy-first local knowledge base — markdown+Git with role packs and self-healing cross-references",
@@ -15,9 +16,9 @@ const spec: HubSubcommandSpec = {
 
 The knowledge base lives in .opencode/context/ and integrates with the existing durable context system. Use when you want a structured, long-lived knowledge base that compounds across sessions and is fully under your control.`,
 
-  tools: ["bash"],
-  rules: ["context-strategy"],
-  relatedSkills: ["wiki"],
+  tools: TOOLS_BASH,
+  rules: RULES_CONTEXT_STRATEGY,
+  relatedSkills: SKILLS_WIKI,
 }
 
 export default spec

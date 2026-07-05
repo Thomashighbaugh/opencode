@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LOADSKILL_LISTAGENTS_BASH, RULES_KARPAHTY_GUIDELINES } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "brownfield",
   description: "Feature addition to existing codebase — analyze system, identify integration points, validate strategy before implementation",
@@ -16,8 +17,8 @@ The emphasis is on respecting the existing system — matching its conventions, 
 
 Use when adding a feature to a codebase you didn't write (or that has established conventions). The validation gate is the key — it catches "this doesn't fit the existing architecture" before you've written 200 lines.`,
 
-  tools: ["loadSkill", "listAgents", "bash"],
-  rules: ["karpathy-guidelines"],
+  tools: TOOLS_LOADSKILL_LISTAGENTS_BASH,
+  rules: RULES_KARPAHTY_GUIDELINES,
   relatedSkills: [],
 
   examples: [

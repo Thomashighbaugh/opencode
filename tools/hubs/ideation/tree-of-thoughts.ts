@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LOADSKILL_LISTAGENTS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "tree-of-thoughts",
   description: "⚠️ EXPENSIVE: Explore parallel solution branches for open-ended problems",
@@ -19,7 +20,7 @@ The cost is high because each branch is a separate reasoning chain. The skill wa
 
 Use for open-ended design problems where the best approach is genuinely unclear and exploring alternatives has high value. NOT for tasks where the approach is known — that's a waste of 10× the cost.`,
 
-  tools: ["loadSkill", "listAgents", "bash"],
+  tools: TOOLS_LOADSKILL_LISTAGENTS_BASH,
   warnings: [
     "⚠️ EXPENSIVE: ~10× cost due to parallel branch exploration. The skill asks for confirmation before proceeding. Only use for genuinely ambiguous problems."
   ]

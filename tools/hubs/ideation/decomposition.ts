@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH_TASKTODOS, SKILLS_PLANNING_BREAKDOWN } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "decomposition",
   description: "Break complex work into ordered, verifiable subtasks",
@@ -17,8 +18,8 @@ The decomposition produces a flat or tree-structured task list. The output is re
 
 Use when you have a clear task and need to break it into implementable pieces. For tasks that need clarification first, use /ideation plan.`,
 
-  tools: ["bash", "taskTodos"],
-  relatedSkills: ["planning-and-task-breakdown"],
+  tools: TOOLS_BASH_TASKTODOS,
+  relatedSkills: SKILLS_PLANNING_BREAKDOWN,
 }
 
 export default spec

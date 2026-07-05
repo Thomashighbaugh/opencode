@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LOADSKILL_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "codebase",
   description: "Generate hierarchical AGENTS.md across the codebase",
@@ -18,7 +19,7 @@ The hierarchy means parent AGENTS.md files summarize, and child files detail. An
 
 This is the same skill as /init-project docs. Use when you need comprehensive codebase documentation for AI navigation — especially before a large refactoring or onboarding.`,
 
-  tools: ["loadSkill", "bash"],
+  tools: TOOLS_LOADSKILL_BASH,
   relatedSkills: [],
 }
 

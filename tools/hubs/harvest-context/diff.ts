@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH, RULES_CONTEXT_STRATEGY } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "diff",
   description: "Context diff — compare current context state to a previous checkpoint, showing new decisions, patterns, and changes since last harvest",
@@ -17,8 +18,8 @@ The diff helps answer "what did we learn since last time?" — useful for standu
 
 Use after a work session to see what durable knowledge was gained, or before a harvest to decide what's worth promoting.`,
 
-  tools: ["bash"],
-  rules: ["context-strategy"],
+  tools: TOOLS_BASH,
+  rules: RULES_CONTEXT_STRATEGY,
   relatedSkills: [],
 }
 

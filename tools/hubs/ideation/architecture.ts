@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LOADSKILL_LISTAGENTS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "architecture",
   description: "Architectural friction analysis — propose deep-module refactors",
@@ -16,7 +17,7 @@ Process:
 
 Use for codebases that feel hard to change — where every change touches many files. The deepening refactors improve testability and navigability.`,
 
-  tools: ["loadSkill", "listAgents", "bash"],
+  tools: TOOLS_LOADSKILL_LISTAGENTS_BASH,
   relatedSkills: ["grilling"],
 }
 

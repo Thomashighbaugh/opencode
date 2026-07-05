@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LOADSKILL_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "graph",
   description: "Visual relationship mapping — dependencies, components, tradeoffs",
@@ -12,7 +13,7 @@ Use for: dependency analysis, architecture mapping, concept relationship explora
 
 Output: a graph diagram + analysis (key nodes, cycles, clusters, recommendations) saved to .opencode/state/ideation/work-products/.`,
 
-  tools: ["loadSkill", "bash"],
+  tools: TOOLS_LOADSKILL_BASH,
   relatedSkills: [],
 }
 

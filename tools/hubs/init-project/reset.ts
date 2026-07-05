@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "reset",
   description: "Reset project state — archive .opencode/state and .opencode/context, start fresh with clean slate",
@@ -12,7 +13,7 @@ This gives you a clean slate without losing history — the archived state can b
 
 Use when the project state has become corrupted, stale, or you want to start over. The archive preserves everything in case you need to recover.`,
 
-  tools: ["bash"],
+  tools: TOOLS_BASH,
   relatedSkills: [],
 
   warnings: [

@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH_TASKTODOS } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "top-down",
   description: "Decompose from high-level vision into components and sub-systems",
@@ -14,7 +15,7 @@ Each level is a decomposition of the level above. The top-down approach ensures 
 
 Contrast with /ideation bottom-up (compose from primitives). Use top-down when you have a clear end-state vision and need to figure out the components.`,
 
-  tools: ["bash", "taskTodos"],
+  tools: TOOLS_BASH_TASKTODOS,
   relatedSkills: [],
 }
 

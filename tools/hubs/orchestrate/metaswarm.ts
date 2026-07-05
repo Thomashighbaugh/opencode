@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH_LISTAGENTS_MODESTATE_TASKTODOS } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "metaswarm",
   description: "Autonomous issue-to-PR with 12 agents, 7 phases, adversarial reviews with fresh reviewers to block anchoring bias",
@@ -20,7 +21,7 @@ The adversarial review with fresh reviewers is the key innovation — reviewers 
 
 Use for significant features tracked as GitHub issues where you want a production-quality PR as output. Very high API cost — 12 agents × 7 phases. Reserve for high-value work.`,
 
-  tools: ["bash", "listAgents", "modeState", "taskTodos"],
+  tools: TOOLS_BASH_LISTAGENTS_MODESTATE_TASKTODOS,
   relatedSkills: [],
 
   warnings: [

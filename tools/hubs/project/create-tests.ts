@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "create-tests",
   description: "Generate comprehensive 8-type test suite",
@@ -21,7 +22,7 @@ The generator reads the code under test, infers its contract, and writes tests f
 
 Use when you need thorough test coverage quickly, especially for critical modules.`,
 
-  tools: ["bash"],
+  tools: TOOLS_BASH,
   relatedSkills: [],
 }
 

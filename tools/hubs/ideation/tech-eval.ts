@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH, SKILLS_CONTEXT7_WEB_TO_MD } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "tech-eval",
   description: "Technology evaluation — structured pros/cons comparison against alternatives",
@@ -17,8 +18,8 @@ const spec: HubSubcommandSpec = {
 
 Output saved to .opencode/state/ideation/work-products/. Use when choosing between technologies and a wrong choice is expensive to reverse (ORM, state management, framework).`,
 
-  tools: ["bash"],
-  relatedSkills: ["context7-docs", "web-to-markdown"],
+  tools: TOOLS_BASH,
+  relatedSkills: SKILLS_CONTEXT7_WEB_TO_MD,
 }
 
 export default spec

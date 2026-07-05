@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "cleanroom",
   description: "Formal correctness — box structure decomposition and statistical testing",
@@ -20,7 +21,7 @@ const spec: HubSubcommandSpec = {
 
 Use for safety-critical or high-reliability systems where formal correctness matters. Very rigorous — overkill for most application development.`,
 
-  tools: ["bash"],
+  tools: TOOLS_BASH,
   relatedSkills: [],
 }
 

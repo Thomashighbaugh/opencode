@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "archive",
   description: "Move stale branches, old artifacts, unused config to timestamped archive — keep working tree clean",
@@ -15,7 +16,7 @@ const spec: HubSubcommandSpec = {
 
 Archive is non-destructive — items are moved, not deleted, and can be recovered. Use when the repo accumulates cruft that makes navigation harder.`,
 
-  tools: ["bash"],
+  tools: TOOLS_BASH,
   relatedSkills: [],
 }
 

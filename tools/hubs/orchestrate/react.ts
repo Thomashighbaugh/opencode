@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LISTAGENTS_MODESTATE_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "react",
   description: "ReAct pattern — interleaved Reasoning and Acting: think → act → observe → reason → repeat until goal met",
@@ -17,7 +18,7 @@ Unlike ralph (which loops a verify-execute cycle), ReAct explicitly separates th
 
 Use for exploratory tasks where the next action depends on observing the result of the previous one: debugging, investigation, incremental refactoring where you don't know the full path upfront. The reasoning trace is saved to state for post-hoc analysis.`,
 
-  tools: ["listAgents", "modeState", "bash"],
+  tools: TOOLS_LISTAGENTS_MODESTATE_BASH,
   relatedSkills: [],
 
   examples: [

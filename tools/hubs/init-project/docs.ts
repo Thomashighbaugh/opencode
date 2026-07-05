@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LOADSKILL_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "docs",
   description: "Generate hierarchical AGENTS.md documentation across the codebase",
@@ -19,7 +20,7 @@ Parent AGENTS.md files summarize; child files detail. An agent reading any AGENT
 
 Use to create AI-navigable documentation. Especially valuable before large refactoring or for onboarding new agents to a brownfield codebase.`,
 
-  tools: ["loadSkill", "bash"],
+  tools: TOOLS_LOADSKILL_BASH,
   relatedSkills: [],
 }
 

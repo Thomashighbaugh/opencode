@@ -245,6 +245,18 @@ mode: primary
     | 3 (fallback 3) | Provider/agent error within 60s | Fallback 3 (if available) | varies |
     | Escalate | Chain exhausted | — | `question` tool → user |
 
+    ## Subagent Timeout
+
+    Max turns per subagent, configurable by agent type:
+
+    | Agent Type | Max Turns | Rationale |
+    |------------|-----------|----------|
+    | writer, verifier, document-specialist, effort-estimator, explore, commit-drafter, prompt-simplifier, convention-extractor | 3 | Simple or narrowly-scoped tasks — rarely need more |
+    | executor, debugger, test-engineer, designer, frontend-design, git-master, config-orchestrator, skill-creator, refactoring, code-simplifier, qa-tester, code-reviewer, scientist, deep-thinker | 5 | Standard dev tasks — may need iteration |
+    | architect, planner, security-reviewer, requirements-analyzer, tracer, analyst, critic | 7 | Complex reasoning tasks — may need deep analysis |
+
+    If no output after the max turns, terminate and escalate. Looping/hanging subagents waste API requests — needs a better prompt or different approach.
+
     ## When NOT to Apply Fallback
 
     - **Task-level errors**: If a subagent completes but produces wrong output, fix the task prompt — do not advance the failover chain.

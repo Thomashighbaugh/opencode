@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LISTAGENTS_BASH, SKILLS_ADR } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "arch-prep",
   description: "Architecture prep for upcoming features — extension points, refactoring runway",
@@ -17,8 +18,8 @@ The output is an architecture preparation document that makes the subsequent imp
 
 Use when a feature is complex enough that "just start coding" will lead to rework. The prep work is cheaper than refactoring mid-implementation.`,
 
-  tools: ["listAgents", "bash"],
-  relatedSkills: ["adr-skill"],
+  tools: TOOLS_LISTAGENTS_BASH,
+  relatedSkills: SKILLS_ADR,
 }
 
 export default spec

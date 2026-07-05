@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH_LISTAGENTS_MODESTATE_TASKTODOS, RULES_COMPLETION_GUARDRAIL } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "devin",
   description: "Autonomous Plan→Code→Debug→Deploy pipeline with iterative debugging cycles and root-cause analysis loops",
@@ -17,8 +18,8 @@ The distinguishing feature is the Debug sub-loop: rather than just "try again", 
 
 Use for end-to-end feature delivery where you expect bugs during implementation and want autonomous root-cause debugging rather than blind retries.`,
 
-  tools: ["bash", "listAgents", "modeState", "taskTodos"],
-  rules: ["completion-guardrail"],
+  tools: TOOLS_BASH_LISTAGENTS_MODESTATE_TASKTODOS,
+  rules: RULES_COMPLETION_GUARDRAIL,
   relatedSkills: ["systematic-debugging", "verify"],
 
   examples: [

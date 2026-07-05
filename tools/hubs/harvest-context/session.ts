@@ -1,8 +1,9 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "session",
-  description: "Extract decisions, patterns, learnings from current session",
+  description: "Extract decisions, patterns, learnings from current session — promotes to wiki via /harvest-context memory",
   reminder: "Extract decisions and patterns from session.",
   inline: true,
 
@@ -14,17 +15,17 @@ const spec: HubSubcommandSpec = {
 - Anti-patterns identified
 - Unresolved questions
 
-Each extracted item is classified and saved to .opencode/state/harvest/ as a structured markdown document. The output can then be promoted to durable context (.opencode/context/) via /harvest-context memory.
+Each extracted item is classified and saved to .opencode/state/harvest/ as a structured markdown document. The output can then be promoted to durable context (.opencode/context/) via /harvest-context memory, which runs wiki compliance (updates index.md, log.md, frontmatter, cross-references).
 
 This is the first step of context harvesting — extract, then promote. Use at the end of a session (or when context is getting large) to preserve knowledge before it's lost to compaction.`,
 
-  tools: ["bash"],
-  relatedSkills: ["remember"],
+  tools: TOOLS_BASH,
+  relatedSkills: ["remember", "wiki"],
 
   examples: [
     {
       input: "/harvest-context session",
-      approach: "Scan conversation. Find: decision 'use Redis for sessions' (rationale: faster than DB). Pattern: 'repository pattern for all data access'. Lesson: 'N+1 queries on dashboard'. Save to .opencode/state/harvest/session-{timestamp}.md."
+      approach: "Scan conversation. Find: decision 'use Redis for sessions' (rationale: faster than DB). Pattern: 'repository pattern for all data access'. Lesson: 'N+1 queries on dashboard'. Save to .opencode/state/harvest/session-{timestamp}.md. Then /harvest-context memory to promote to wiki with compliance."
     }
   ]
 }

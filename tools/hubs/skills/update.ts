@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH, SKILLS_SKILL_CREATOR } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "update",
   description: "Update an existing skill using skill-creator iteration workflow — read current skill, identify improvements, apply changes, validate structure",
@@ -15,8 +16,8 @@ const spec: HubSubcommandSpec = {
 
 Different from /skills edit (which is a simple field-by-field editor) — update uses the skill-creator's structured workflow for more comprehensive changes. Use when a skill needs significant revision rather than a quick field tweak.`,
 
-  tools: ["bash"],
-  relatedSkills: ["skill-creator"],
+  tools: TOOLS_BASH,
+  relatedSkills: SKILLS_SKILL_CREATOR,
 }
 
 export default spec

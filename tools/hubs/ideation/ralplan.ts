@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LOADSKILL_BASH, SKILLS_SELF_CONSISTENCY } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "ralplan",
   description: "Consensus planning gate — validate plan is concrete enough to execute",
@@ -12,8 +13,8 @@ The gate checks for: vague tasks ("improve X" without criteria), missing depende
 
 Use after /ideation plan (or any planning step) and before /orchestrate. It's the quality gate between planning and execution — prevents executing a plan that's too vague to succeed. This is especially important for hub-to-hub handoffs where a vague plan would cause the executor to flounder.`,
 
-  tools: ["loadSkill", "bash"],
-  relatedSkills: ["self-consistency"],
+  tools: TOOLS_LOADSKILL_BASH,
+  relatedSkills: SKILLS_SELF_CONSISTENCY,
 
   examples: [
     {

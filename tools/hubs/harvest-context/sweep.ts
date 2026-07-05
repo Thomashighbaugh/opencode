@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH, SKILLS_PRIVACY_SCAN } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "sweep",
   description: "Scan .opencode/ for files that should be gitignored but aren't — prevents bloat that breaks git push",
@@ -18,9 +19,9 @@ For each violation, the agent recommends adding a .gitignore entry. The user con
 
 Use periodically to prevent .opencode/ bloat from breaking git push — a common issue when state files accumulate and exceed GitHub's file size limits.`,
 
-  tools: ["bash"],
+  tools: TOOLS_BASH,
   rules: ["security", "context-strategy"],
-  relatedSkills: ["privacy-scan"],
+  relatedSkills: SKILLS_PRIVACY_SCAN,
 }
 
 export default spec

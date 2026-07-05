@@ -39,6 +39,182 @@ const OVERLAP_RULES = new Set([
   "security",              // Base security rules — agent has these as instructions
 ])
 
+// ─── Output Contract Templates ───────────────────────────────────────
+// JSON Schema output contracts for common subagent types.
+// Replaces verbose narrative "Expected Output" with precise schemas.
+
+interface OutputContract {
+  schema: Record<string, unknown>
+  description: string
+}
+
+const OUTPUT_CONTRACTS: Record<string, OutputContract> = {
+  'code-reviewer': {
+    description: 'Code review findings',
+    schema: {
+      type: 'object',
+      properties: {
+        verdict: { type: 'string', enum: ['approve', 'changes-requested', 'needs-discussion'] },
+        summary: { type: 'string', description: '1-2 sentence summary of findings' },
+        findings: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              severity: { type: 'string', enum: ['critical', 'important', 'minor', 'nit'] },
+              file: { type: 'string' },
+              line: { type: 'number' },
+              message: { type: 'string' },
+              suggestion: { type: 'string' },
+            },
+            required: ['severity', 'message'],
+          },
+        },
+      },
+      required: ['verdict', 'summary', 'findings'],
+    },
+  },
+  'verifier': {
+    description: 'Verification results',
+    schema: {
+      type: 'object',
+      properties: {
+        status: { type: 'string', enum: ['pass', 'fail', 'inconclusive'] },
+        checks: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              check: { type: 'string' },
+              passed: { type: 'boolean' },
+              detail: { type: 'string' },
+            },
+            required: ['check', 'passed'],
+          },
+        },
+        summary: { type: 'string' },
+      },
+      required: ['status', 'checks'],
+    },
+  },
+  'executor': {
+    description: 'Implementation results',
+    schema: {
+      type: 'object',
+      properties: {
+        filesModified: {
+          type: 'array',
+          items: { type: 'string' },
+        },
+        changes: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              file: { type: 'string' },
+              description: { type: 'string' },
+            },
+            required: ['file', 'description'],
+          },
+        },
+        status: { type: 'string', enum: ['completed', 'partial', 'blocked'] },
+        notes: { type: 'string' },
+      },
+      required: ['filesModified', 'status'],
+    },
+  },
+  'debugger': {
+    description: 'Debugging investigation results',
+    schema: {
+      type: 'object',
+      properties: {
+        rootCause: { type: 'string' },
+        evidence: { type: 'array', items: { type: 'string' } },
+        fix: { type: 'string' },
+        filesChanged: { type: 'array', items: { type: 'string' } },
+        verified: { type: 'boolean' },
+      },
+      required: ['rootCause', 'evidence'],
+    },
+  },
+  'test-engineer': {
+    description: 'Test generation results',
+    schema: {
+      type: 'object',
+      properties: {
+        testsAdded: { type: 'number' },
+        filesCreated: { type: 'array', items: { type: 'string' } },
+        coverage: { type: 'string' },
+        testCommand: { type: 'string' },
+        result: { type: 'string', enum: ['all-passing', 'some-failing', 'not-run'] },
+      },
+      required: ['testsAdded', 'result'],
+    },
+  },
+  'explore': {
+    description: 'Codebase search results',
+    schema: {
+      type: 'object',
+      properties: {
+        query: { type: 'string' },
+        matches: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              file: { type: 'string' },
+              lines: { type: 'array', items: { type: 'number' } },
+              context: { type: 'string' },
+            },
+            required: ['file'],
+          },
+        },
+        summary: { type: 'string' },
+      },
+      required: ['query', 'matches'],
+    },
+  },
+}
+
+/**
+ * Agent-type-specific overlap rules.
+ * Each agent type already has certain rules baked into its base instructions.
+ * This map lets us strip those rules more aggressively for known agent types.
+ * Falls back to OVERLAP_RULES when agentType is not specified or unknown.
+ */
+const AGENT_OVERLAP_RULES: Record<string, Set<string>> = {
+  'executor': new Set(['karpathy-guidelines', 'shell_strategy', 'script-elimination', 'artifact-placement', 'security']),
+  'architect': new Set(['karpathy-guidelines', 'shell_strategy']),
+  'code-reviewer': new Set(['karpathy-guidelines', 'shell_strategy', 'security']),
+  'planner': new Set(['karpathy-guidelines', 'shell_strategy']),
+  'writer': new Set(['shell_strategy']),
+  'verifier': new Set(['shell_strategy']),
+  'debugger': new Set(['karpathy-guidelines', 'shell_strategy']),
+  'test-engineer': new Set(['karpathy-guidelines', 'shell_strategy']),
+  'designer': new Set(['shell_strategy']),
+  'frontend-design': new Set(['shell_strategy']),
+  'explore': new Set(['shell_strategy']),
+  'scientist': new Set(['shell_strategy']),
+  'document-specialist': new Set(['shell_strategy']),
+  'git-master': new Set(['shell_strategy']),
+  'config-orchestrator': new Set(['karpathy-guidelines', 'shell_strategy']),
+  'skill-creator': new Set(['karpathy-guidelines', 'shell_strategy']),
+  'refactoring': new Set(['karpathy-guidelines', 'shell_strategy']),
+  'code-simplifier': new Set(['karpathy-guidelines', 'shell_strategy']),
+  'security-reviewer': new Set(['karpathy-guidelines', 'shell_strategy', 'security']),
+  'requirements-analyzer': new Set(['karpathy-guidelines', 'shell_strategy']),
+  'effort-estimator': new Set(['shell_strategy']),
+  'prompt-simplifier': new Set(['shell_strategy']),
+  'convention-extractor': new Set(['shell_strategy']),
+  'analyst': new Set(['karpathy-guidelines', 'shell_strategy']),
+  'critic': new Set(['karpathy-guidelines', 'shell_strategy']),
+  'deep-thinker': new Set(['karpathy-guidelines', 'shell_strategy']),
+  'tracer': new Set(['karpathy-guidelines', 'shell_strategy']),
+  'qa-tester': new Set(['shell_strategy']),
+  'commit-drafter': new Set(['shell_strategy']),
+  'general': new Set(['karpathy-guidelines', 'shell_strategy']),
+}
+
 // ─── Helpers ───────────────────────────────────────────────────────────
 
 function tokenCount(text: string): number {
@@ -113,6 +289,23 @@ function hasFileDump(content: string): boolean {
   return codeLines.length > 30 || lines.length > 100
 }
 
+/** Replace narrative "Expected Output" section with a JSON Schema contract */
+function applyOutputContract(prompt: string, agentType: string): string {
+  const contract = OUTPUT_CONTRACTS[agentType]
+  if (!contract) return prompt
+
+  const schemaText = JSON.stringify(contract.schema, null, 2)
+
+  // Try to replace an existing "Expected Output" section
+  const expectedOutputPattern = /Expected Output[\s\S]*?(?=\n# |\n## |\n---|\n$)/i
+  if (expectedOutputPattern.test(prompt)) {
+    return prompt.replace(expectedOutputPattern, `Expected Output (JSON Schema):\`\`\`json\n${schemaText}\n\`\`\``)
+  }
+
+  // Otherwise append at the end
+  return `${prompt}\n\n## Expected Output\n\`\`\`json\n${schemaText}\n\`\`\``
+}
+
 // ─── Tool Definition ─────────────────────────────────────────────────────
 
 export default tool({
@@ -143,9 +336,17 @@ export default tool({
 
     // Stage 2: Strip overlapping rules
     if (args.skipBoilerplate !== false) {
+      // Resolve agent-specific overlap rules, falling back to the default set
+      const activeRules = (args.agentType && AGENT_OVERLAP_RULES[args.agentType])
+        ? AGENT_OVERLAP_RULES[args.agentType]
+        : OVERLAP_RULES
+      if (args.agentType && AGENT_OVERLAP_RULES[args.agentType]) {
+        stages.push(`agent-specific-rules:${args.agentType}`)
+      }
+
       const rulePattern = /Instructions from: [^\n]+\n([\s\S]*?)(?=(?:Instructions from:|$|\n<available_skills>|\n<Agent_Prompt>|\n# ))/g
       prompt = prompt.replace(rulePattern, (match) => {
-        for (const ruleName of OVERLAP_RULES) {
+        for (const ruleName of activeRules) {
           if (match.includes(ruleName)) {
             stages.push(`rule-removed:${ruleName}`)
             return ""
@@ -154,7 +355,7 @@ export default tool({
         return match
       })
       // Also strip remaining rule references that match the overlap set
-      for (const ruleName of OVERLAP_RULES) {
+      for (const ruleName of activeRules) {
         const refPattern = new RegExp(
           `Instructions from: [^\n]*${escapeRegExp(ruleName)}[^\n]*\n[\\s\\S]*?(?=\\nInstructions from:|\\n<available_skills>|\\n<Agent_Prompt>|\\n# |$)`,
           "g"
@@ -199,6 +400,13 @@ export default tool({
     if (structuredPrompt.length < prompt.length * 0.95) {
       stages.push("instructions-structured")
       prompt = structuredPrompt
+    }
+
+    // Stage 4b: Apply output contract if agent type is known
+    if (args.agentType) {
+      const before = prompt.length
+      prompt = applyOutputContract(prompt, args.agentType)
+      if (prompt.length !== before) stages.push(`output-contract:${args.agentType}`)
     }
 
     // Collapse repeated blank lines from stripping

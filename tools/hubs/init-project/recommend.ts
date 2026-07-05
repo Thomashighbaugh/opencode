@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LOADSKILL_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "recommend",
   description: "Recommend global resources for detected stack — maps stack fingerprint to relevant skills, agents, rules, and archetype via stack-recommender skill",
@@ -12,7 +13,7 @@ For each matched resource, the recommender explains why it's relevant to the det
 
 Use after /init-project detect to see what global resources would help this project, or standalone if you already have a stack fingerprint.`,
 
-  tools: ["loadSkill", "bash"],
+  tools: TOOLS_LOADSKILL_BASH,
   relatedSkills: ["tag-resources"],
 }
 

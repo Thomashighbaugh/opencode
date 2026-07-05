@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH, SKILLS_SKILL_CREATOR } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "add",
   description: "Interactive wizard for quick skill creation — prompts for name, description, triggers, scope (user or project), writes SKILL.md with frontmatter",
@@ -17,8 +18,8 @@ Writes a minimal SKILL.md with YAML frontmatter. This is the fast path — for f
 
 Use when you have a simple skill to add quickly without the full creation workflow.`,
 
-  tools: ["bash"],
-  relatedSkills: ["skill-creator"],
+  tools: TOOLS_BASH,
+  relatedSkills: SKILLS_SKILL_CREATOR,
 }
 
 export default spec

@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "validate",
   description: "Validate a skill's structure without packaging — run structure checks, report errors, suggest fixes",
@@ -17,7 +18,7 @@ const spec: HubSubcommandSpec = {
 
 Reports errors with specific locations and suggested fixes. Use after editing a skill or before packaging to ensure it's structurally sound.`,
 
-  tools: ["bash"],
+  tools: TOOLS_BASH,
   relatedSkills: [],
 }
 

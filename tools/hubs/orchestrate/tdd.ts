@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { SKILLS_VERIFY } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "tdd",
   description: "Test-driven development loop — red-green-refactor: write failing test, make it pass, refactor, repeat until all features covered",
@@ -18,7 +19,7 @@ The loop continues until all acceptance criteria are covered by passing tests. T
 Use for features where correctness is critical and the requirements are testable. NOT for exploratory work, UI polish, or tasks where tests can't meaningfully express the requirement.`,
 
   tools: ["bash", "taskTodos", "modeState"],
-  relatedSkills: ["verify"],
+  relatedSkills: SKILLS_VERIFY,
 
   examples: [
     {

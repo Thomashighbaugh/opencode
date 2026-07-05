@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LISTAGENTS_MODESTATE_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "state-machine",
   description: "State-machine orchestration — agents as states with explicit transitions and guards",
@@ -24,7 +25,7 @@ State machine definition format (provided inline in the prompt or via a JSON fil
 
 Use when the workflow has clear states with conditional transitions — NOT for linear "do A then B then C" flows (use plan-execute for those).`,
 
-  tools: ["listAgents", "modeState", "bash"],
+  tools: TOOLS_LISTAGENTS_MODESTATE_BASH,
   relatedSkills: [],
 
   examples: [

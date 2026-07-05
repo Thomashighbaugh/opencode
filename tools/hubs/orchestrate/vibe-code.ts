@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LOADSKILL_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "vibe-code",
   description: "Conversational rapid prototyping — describe app in natural language, generate full-stack, iterate with feedback through conversational rounds",
@@ -18,7 +19,7 @@ The emphasis is on speed and iteration over upfront planning. The agent makes re
 
 Use for prototypes, demos, hackathons, and exploring an idea before committing to a spec. NOT for production code where requirements are fixed and correctness is critical.`,
 
-  tools: ["loadSkill", "bash"],
+  tools: TOOLS_LOADSKILL_BASH,
   relatedSkills: [],
 
   examples: [

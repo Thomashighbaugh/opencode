@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "jtbd",
   description: "Jobs-to-be-done — frame requirements around customer functional jobs",
@@ -17,7 +18,7 @@ Process:
 
 Output: a JTBD map + requirements derived from jobs. Use when feature requests are vague and you need to understand the underlying need. Especially useful for product strategy.`,
 
-  tools: ["bash"],
+  tools: TOOLS_BASH,
   relatedSkills: [],
 }
 

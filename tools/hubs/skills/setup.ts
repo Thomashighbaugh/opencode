@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "setup",
   description: "Interactive setup wizard — create skill directories, scan inventory, offer actions (add, list, scan conversation, import, done)",
@@ -14,7 +15,7 @@ const spec: HubSubcommandSpec = {
 
 Use when first setting up skills for a project or user account.`,
 
-  tools: ["bash"],
+  tools: TOOLS_BASH,
   relatedSkills: ["learner"],
 }
 

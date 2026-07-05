@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LISTAGENTS_BASH, RULES_KARPAHTY_GUIDELINES } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "modernize",
   description: "Update code patterns to modern language/framework conventions — targeted, behavior-preserving modernization via @refactoring agent",
@@ -19,8 +20,8 @@ Examples:
 
 Each modernization is verified (tests pass before and after). Use when the codebase uses outdated patterns that make it harder to read or maintain — NOT just for fashion.`,
 
-  tools: ["listAgents", "bash"],
-  rules: ["karpathy-guidelines"],
+  tools: TOOLS_LISTAGENTS_BASH,
+  rules: RULES_KARPAHTY_GUIDELINES,
   relatedSkills: [],
 }
 

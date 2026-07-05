@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { RULES_SECURITY } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "commit",
   description: "Create well-formatted conventional commit",
@@ -19,7 +20,7 @@ Follows the Conventional Commits specification (type, optional scope, breaking c
 Use whenever you're ready to commit staged changes with a proper message.`,
 
   tools: ["loadSkill", "bash", "saveCommitMessage"],
-  rules: ["security"],
+  rules: RULES_SECURITY,
   relatedSkills: [],
 
   examples: [

@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH, RULES_SECURITY, SKILLS_PRIVACY_SCAN } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "scan",
   description: "Security vulnerability scan — SAST rules, secrets detection, dependency audit, compliance checks",
@@ -17,9 +18,9 @@ Output: a security report with findings classified by severity (critical, high, 
 
 Use before commits, releases, or periodically as a security baseline. Also runs as gate 4 of /project converge.`,
 
-  tools: ["bash"],
-  rules: ["security"],
-  relatedSkills: ["privacy-scan"],
+  tools: TOOLS_BASH,
+  rules: RULES_SECURITY,
+  relatedSkills: SKILLS_PRIVACY_SCAN,
 }
 
 export default spec

@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "brainstorm",
   description: "Free-form idea generation — diverge then converge",
@@ -15,7 +16,7 @@ Use at the very start of a project or feature when you don't yet know what you w
 
 Output: a prioritized list of ideas grouped by theme, saved to .opencode/state/ideation/work-products/.`,
 
-  tools: ["bash"],
+  tools: TOOLS_BASH,
   relatedSkills: [],
 }
 

@@ -32,6 +32,8 @@ export interface CacheStats {
   misses: number
   memoryEntries: number
   estimatedTokensSaved: number
+  promotedEntries: number
+  avgTTLExtension: number
 }
 
 // ─── Default Configs ───────────────────────────────────────────────────
@@ -67,6 +69,12 @@ export class CacheManager {
   private config: CacheConfig
   private cacheDir: string
   private stats = { hits: 0, misses: 0, tokensSaved: 0 }
+  private accessCounters = new Map<string, { hits: number, firstAccess: number, lastAccess: number }>()
+  private promotedEntries = 0
+  private totalTTLExtension = 0
+  private readonly ADAPTIVE_TTL_MIN = 60_000
+  private readonly ADAPTIVE_TTL_MAX = 604_800_000
+  private readonly ADAPTIVE_PROMOTION_THRESHOLD = 5
 
   constructor(config: CacheConfig, projectRoot?: string) {
     this.config = config
@@ -102,6 +110,8 @@ export class CacheManager {
         // Estimate tokens saved (4 chars ≈ 1 token)
         const valStr = typeof mem.value === 'string' ? mem.value : JSON.stringify(mem.value)
         this.stats.tokensSaved += Math.ceil(valStr.length / 4)
+        // Adaptive TTL: track hit and promote if threshold met
+        this.recordAccess(key)
         return mem.value as T
       }
       this.memory.delete(key)
@@ -116,6 +126,8 @@ export class CacheManager {
         const valStr = typeof disk.value === 'string' ? disk.value : JSON.stringify(disk.value)
         this.stats.tokensSaved += Math.ceil(valStr.length / 4)
         this.promoteToMemory(key, disk)
+        // Adaptive TTL: track hit and promote if threshold met
+        this.recordAccess(key)
         return disk.value as T
       }
     }
@@ -126,12 +138,16 @@ export class CacheManager {
 
   /** Set a cached value */
   set<T = string>(key: string, value: T, ttl?: number): void {
+    const now = Date.now()
     const entry: CacheEntry<T> = {
       value,
-      created: Date.now(),
+      created: now,
       ttl: ttl ?? this.config.defaultTTL,
       hits: 0,
     }
+
+    // Initialize adaptive access counter for new entries
+    this.accessCounters.set(key, { hits: 0, firstAccess: now, lastAccess: now })
 
     // Memory (LRU eviction if needed)
     if (this.config.maxHotEntries >= 0) {
@@ -146,6 +162,7 @@ export class CacheManager {
           }
         }
         this.memory.delete(oldestKey)
+        this.accessCounters.delete(oldestKey)
       }
       this.memory.set(key, entry as CacheEntry)
     }
@@ -159,6 +176,7 @@ export class CacheManager {
   /** Invalidate a specific key */
   invalidate(key: string): void {
     this.memory.delete(key)
+    this.accessCounters.delete(key)
     if (this.config.persist) {
       const p = this.diskPath(key)
       try { fs.unlinkSync(p) } catch {}
@@ -168,7 +186,7 @@ export class CacheManager {
   /** Invalidate all entries matching a prefix */
   invalidatePrefix(prefix: string): void {
     for (const key of this.memory.keys()) {
-      if (key.startsWith(prefix)) this.memory.delete(key)
+      if (key.startsWith(prefix)) { this.memory.delete(key); this.accessCounters.delete(key) }
     }
     if (this.config.persist && fs.existsSync(this.cacheDir)) {
       for (const f of fs.readdirSync(this.cacheDir)) {
@@ -182,7 +200,10 @@ export class CacheManager {
   /** Clear all cached entries */
   clear(): void {
     this.memory.clear()
+    this.accessCounters.clear()
     this.stats = { hits: 0, misses: 0, tokensSaved: 0 }
+    this.promotedEntries = 0
+    this.totalTTLExtension = 0
     if (this.config.persist && fs.existsSync(this.cacheDir)) {
       for (const f of fs.readdirSync(this.cacheDir)) {
         try { fs.unlinkSync(path.join(this.cacheDir, f)) } catch {}
@@ -204,6 +225,8 @@ export class CacheManager {
       misses: this.stats.misses,
       memoryEntries: this.memory.size,
       estimatedTokensSaved: this.stats.tokensSaved,
+      promotedEntries: this.promotedEntries,
+      avgTTLExtension: this.promotedEntries > 0 ? Math.round(this.totalTTLExtension / this.promotedEntries) : 0,
     }
   }
 
@@ -216,7 +239,65 @@ export class CacheManager {
     return value
   }
 
+  /** Get adaptive TTL telemetry stats */
+  getAdaptiveStats(): { totalTracked: number; promotedEntries: number; avgTTLExtension: number; activeHotEntries: number } {
+    const activeHotEntries = [...this.accessCounters.values()].filter(a => a.hits >= this.ADAPTIVE_PROMOTION_THRESHOLD).length
+    return {
+      totalTracked: this.accessCounters.size,
+      promotedEntries: this.promotedEntries,
+      avgTTLExtension: this.promotedEntries > 0 ? Math.round(this.totalTTLExtension / this.promotedEntries) : 0,
+      activeHotEntries,
+    }
+  }
+
+  /**
+   * Prune cold entries from memory — entries with 0 adaptive hits
+   * whose age exceeds half the default TTL. Frees memory for
+   * potentially more useful entries.
+   */
+  pruneColdEntries(): number {
+    const now = Date.now()
+    const cutoff = this.config.defaultTTL / 2
+    let pruned = 0
+    for (const [key, entry] of this.memory) {
+      const acc = this.accessCounters.get(key)
+      const entryAge = now - entry.created
+      // Evict if entry has 0 hits from adaptive tracking and is older than half default TTL
+      if ((!acc || acc.hits === 0) && entryAge > cutoff) {
+        this.memory.delete(key)
+        this.accessCounters.delete(key)
+        pruned++
+      }
+    }
+    return pruned
+  }
+
   // ─── Private ───────────────────────────────────────────────────────
+
+  /** Track a cache hit and promote the entry's TTL if hit threshold is met */
+  private recordAccess(key: string): void {
+    const now = Date.now()
+    let counter = this.accessCounters.get(key)
+    if (!counter) {
+      counter = { hits: 0, firstAccess: now, lastAccess: now }
+      this.accessCounters.set(key, counter)
+    }
+    counter.hits++
+    counter.lastAccess = now
+
+    // Promote entry if it's in memory and has crossed the threshold
+    if (counter.hits >= this.ADAPTIVE_PROMOTION_THRESHOLD) {
+      const entry = this.memory.get(key)
+      if (entry) {
+        const extension = Math.min(entry.ttl * 2, this.ADAPTIVE_TTL_MAX) - entry.ttl
+        if (extension > 0) {
+          entry.ttl = Math.min(entry.ttl * 2, this.ADAPTIVE_TTL_MAX)
+          this.promotedEntries++
+          this.totalTTLExtension += extension
+        }
+      }
+    }
+  }
 
   private diskPath(key: string): string {
     return path.join(this.cacheDir, `${key}.json`)
@@ -259,6 +340,7 @@ export class CacheManager {
           }
         }
         this.memory.delete(oldestKey)
+        this.accessCounters.delete(oldestKey)
       }
       this.memory.set(key, entry as CacheEntry)
     }

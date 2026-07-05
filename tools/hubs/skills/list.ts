@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH_SKILLCATEGORIES } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "list",
   description: "List all available skills organized by scope — built-in, user (~/.config/opencode/skills/omc-learned/), and project (.opencode/state/skills/) — parse frontmatter, show quality/usage stats",
@@ -17,7 +18,7 @@ Each skill is listed with: name, description, scope, and any quality/usage stats
 
 Use to see what skills are available and in which scope.`,
 
-  tools: ["bash", "skill-categories"],
+  tools: TOOLS_BASH_SKILLCATEGORIES,
   relatedSkills: [],
 }
 

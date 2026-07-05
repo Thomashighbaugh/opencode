@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LISTAGENTS_BASH, RULES_KARPAHTY_GUIDELINES } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "simplify",
   description: "Reduce code complexity — flatten nesting, simplify conditionals, clarify naming via @code-simplifier agent",
@@ -16,8 +17,8 @@ const spec: HubSubcommandSpec = {
 
 Distinct from /project refactor (which restructures modules). Simplify works within a function/file; refactor works across files. Use when code is correct but hard to read.`,
 
-  tools: ["listAgents", "bash"],
-  rules: ["karpathy-guidelines"],
+  tools: TOOLS_LISTAGENTS_BASH,
+  rules: RULES_KARPAHTY_GUIDELINES,
   relatedSkills: [],
 }
 

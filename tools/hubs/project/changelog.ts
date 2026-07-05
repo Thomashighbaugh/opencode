@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LOADSKILL_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "changelog",
   description: "Generate user-facing changelog from git commits",
@@ -15,7 +16,7 @@ const spec: HubSubcommandSpec = {
 
 Output: a markdown changelog ready for release. Use before a release to produce the release notes, or periodically to document progress.`,
 
-  tools: ["loadSkill", "bash"],
+  tools: TOOLS_LOADSKILL_BASH,
   relatedSkills: [],
 }
 

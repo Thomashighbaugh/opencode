@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LISTAGENTS_MODESTATE_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "pair",
   description: "Pair programming — two agents on one task: Driver writes code, Navigator reviews in real-time, catching mistakes early",
@@ -17,7 +18,7 @@ Use for complex or error-prone code where a second perspective during writing (n
 
 Configure roles via flags: --driver=@executor, --navigator=@code-reviewer (defaults).`,
 
-  tools: ["listAgents", "modeState", "bash"],
+  tools: TOOLS_LISTAGENTS_MODESTATE_BASH,
   relatedSkills: [],
 
   examples: [

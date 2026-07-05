@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { RULES_COMPLETION_KARPAHTY } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "autopilot",
   description: "Full autonomous execution from idea to working code",
@@ -15,7 +16,7 @@ Use when you have a well-scoped feature or task and want end-to-end autonomous d
 State: .opencode/state/orchestration/autopilot-{session}/ holds the plan, implementation log, and verification report.`,
 
   tools: ["loadSkill", "modeState", "taskTodos", "listAgents", "bash"],
-  rules: ["completion-guardrail", "karpathy-guidelines"],
+  rules: RULES_COMPLETION_KARPAHTY,
   relatedSkills: ["plan-execute", "verify"],
 
   examples: [

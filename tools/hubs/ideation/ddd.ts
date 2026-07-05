@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH, SKILLS_GRAPH_THINKING } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "ddd",
   description: "Domain-driven design — model bounded contexts, aggregates, domain events",
@@ -19,8 +20,8 @@ Output: a DDD model document with context map diagram, aggregate definitions, an
 
 Use for complex business domains where understanding the domain structure is essential to good architecture. Overkill for simple CRUD apps.`,
 
-  tools: ["bash"],
-  relatedSkills: ["graph-thinking"],
+  tools: TOOLS_BASH,
+  relatedSkills: SKILLS_GRAPH_THINKING,
 }
 
 export default spec

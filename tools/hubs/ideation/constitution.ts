@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH, RULES_SECURITY, SKILLS_ADR } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "constitution",
   description: "Project governance — code, UX, performance, security principles",
@@ -17,9 +18,9 @@ The constitution is saved as a durable artifact (.opencode/context/decisions.md 
 
 Use at the start of a project (or a major reset) to establish non-negotiable principles before features are built. Prevents the "we should have decided that earlier" problem.`,
 
-  tools: ["bash"],
-  rules: ["security"],
-  relatedSkills: ["adr-skill"],
+  tools: TOOLS_BASH,
+  rules: RULES_SECURITY,
+  relatedSkills: SKILLS_ADR,
 }
 
 export default spec

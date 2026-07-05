@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "compress",
   description: "Token compression strategies — density filtering (~29% savings), command output compression (~47%), library cache compression (~94%)",
@@ -15,7 +16,7 @@ const spec: HubSubcommandSpec = {
 
 Use when token efficiency matters — large context windows, many tool outputs, or approaching context limits.`,
 
-  tools: ["bash"],
+  tools: TOOLS_BASH,
   relatedSkills: ["compact", "llm-cache"],
 }
 

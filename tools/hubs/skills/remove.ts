@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "remove",
   description: "Remove a skill by name — searches user and project scopes, confirms before deleting, warns if not found",
@@ -10,7 +11,7 @@ const spec: HubSubcommandSpec = {
 
 Non-destructive by default — requires explicit confirmation. Use to clean up skills that are no longer needed.`,
 
-  tools: ["bash"],
+  tools: TOOLS_BASH,
   relatedSkills: [],
 }
 

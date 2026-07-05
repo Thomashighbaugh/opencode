@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LOADSKILL_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "find-rules",
   description: "Discover OpenCode rules relevant to the current project by searching registries (GitHub, skills.sh) and local template catalog — finds project-specific conventions and guidelines. Used by setup/refresh to find per-repo rules",
@@ -12,7 +13,7 @@ Installed rules go to .opencode/rules/ (project scope) and are loaded as agent i
 
 Use during setup/refresh or standalone when you want project-specific coding conventions enforced as rules.`,
 
-  tools: ["loadSkill", "bash"],
+  tools: TOOLS_LOADSKILL_BASH,
   relatedSkills: ["find-skills", "find-agents", "find-tools"],
 }
 

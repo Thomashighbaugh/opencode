@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH, RULES_CONTEXT_STRATEGY } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "pwf",
   description: "Filesystem-as-disk planning — quality-gated convergence with recovery",
@@ -16,8 +17,8 @@ The quality-gated convergence ensures the plan isn't considered done until quali
 
 Use for long-running, multi-session work where context will compact or sessions will restart. The files are the source of truth, not the context window. This aligns with the durable context strategy (.opencode/context/).`,
 
-  tools: ["bash"],
-  rules: ["context-strategy"],
+  tools: TOOLS_BASH,
+  rules: RULES_CONTEXT_STRATEGY,
   relatedSkills: [],
 }
 

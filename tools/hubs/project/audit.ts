@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH, RULES_SECURITY } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "audit",
   description: "Comprehensive project health check — dependencies, security, code quality, test coverage, bundle size in one command",
@@ -17,8 +18,8 @@ const spec: HubSubcommandSpec = {
 
 Output: a single audit report with scores per dimension and an overall health grade. Use for periodic health checks or before major releases.`,
 
-  tools: ["bash"],
-  rules: ["security"],
+  tools: TOOLS_BASH,
+  rules: RULES_SECURITY,
   relatedSkills: [],
 }
 

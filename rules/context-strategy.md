@@ -30,6 +30,9 @@
 | Decisions | `.opencode/context/decisions.md` | Architecture Decision Records (ADRs) |
 | Theory | `.opencode/context/theory.md` | Living documentation |
 | Memory | `.opencode/state/project-memory.json` | Cross-session durable facts (conditionally committed) |
+| **Wiki index** | `.opencode/context/index.md` | LLM Wiki catalog — auto-maintained, lists all pages with links and summaries |
+| **Wiki log** | `.opencode/context/log.md` | LLM Wiki operation chronicle — append-only, parseable with unix tools |
+| **Wiki schema** | `.opencode/context/wiki-schema.md` | LLM Wiki schema — tells the LLM how to maintain the wiki |
 
 ## Core Principles
 

@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "package",
   description: "Package a skill for distribution — validate structure, create distributable zip if validation passes",
@@ -14,7 +15,7 @@ const spec: HubSubcommandSpec = {
 
 The resulting zip can be shared and installed by others. Use when you want to distribute a skill to other OpenCode users or publish to a skill registry.`,
 
-  tools: ["bash"],
+  tools: TOOLS_BASH,
   relatedSkills: [],
 }
 

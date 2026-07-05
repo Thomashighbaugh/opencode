@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "edit",
   description: "Edit an existing skill interactively — find by name, display current values, change description/triggers/content/rename, write back",
@@ -15,7 +16,7 @@ const spec: HubSubcommandSpec = {
 
 Writes changes back to the skill file. Use to refine skills after creation or when their purpose evolves.`,
 
-  tools: ["bash"],
+  tools: TOOLS_BASH,
   relatedSkills: [],
 }
 

@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "analyze-patterns",
   description: "Analyze code patterns and anti-patterns — consistencies, convention violations",
@@ -17,7 +18,7 @@ Output: a pattern analysis report with locations and recommendations. Use to und
 
 This is a read-only analysis — no code is modified. The report is saved to .opencode/state/ for reference. Use before refactoring, extending, or when onboarding to a new codebase.`,
 
-  tools: ["bash"],
+  tools: TOOLS_BASH,
   relatedSkills: [],
 }
 

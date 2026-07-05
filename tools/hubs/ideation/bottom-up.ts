@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH_TASKTODOS } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "bottom-up",
   description: "Build up from existing primitives and capabilities into composed systems",
@@ -14,7 +15,7 @@ Each level composes elements from the level below. The bottom-up approach is bes
 
 Contrast with /ideation top-down (decompose from vision). Use bottom-up when you have capable building blocks and want to discover what system they can form.`,
 
-  tools: ["bash", "taskTodos"],
+  tools: TOOLS_BASH_TASKTODOS,
   relatedSkills: [],
 }
 

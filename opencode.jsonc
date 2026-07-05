@@ -111,11 +111,10 @@
     "AGENTS.md",
     "./rules/shell_strategy.md",
     "./rules/context-strategy.md",
-    "./rules/artifact-placement.md",
+    "./rules/file-operations.md",
     "./rules/security.md",
     "./rules/karpathy-guidelines.md",
     "./rules/hub-description-directive.md",
-    "./rules/script-elimination.md",
     "./rules/completion-guardrail.md"
   ]
 }

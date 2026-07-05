@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "retrospect",
   description: "Post-run retrospective analysis — extract lessons learned, error taxonomy classification, metrics across all phases",
@@ -14,7 +15,7 @@ const spec: HubSubcommandSpec = {
 
 Output: a retrospective report saved to .opencode/state/. Use after significant work to learn from the session and improve future runs.`,
 
-  tools: ["bash"],
+  tools: TOOLS_BASH,
   relatedSkills: [],
 }
 

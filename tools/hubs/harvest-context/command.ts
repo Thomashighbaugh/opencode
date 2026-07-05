@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LOADSKILL_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "command",
   description: "Create a project slash command",
@@ -16,7 +17,7 @@ The command-creator workflow:
 
 The new command is immediately available. Use for project-specific workflows that you invoke repeatedly: "/deploy-checklist", "/db-migrate", "/release-prep".`,
 
-  tools: ["loadSkill", "bash"],
+  tools: TOOLS_LOADSKILL_BASH,
   relatedSkills: [],
 }
 

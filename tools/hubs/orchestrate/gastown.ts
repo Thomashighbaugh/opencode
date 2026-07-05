@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH_LISTAGENTS_MODESTATE_TASKTODOS } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "gastown",
   description: "GUPP principle — 'if work on your hook, YOU MUST RUN IT' with git-backed work units and NDI for reliable outcomes from unreliable processes",
@@ -15,7 +16,7 @@ Key mechanisms:
 
 Use when you want strong accountability for work units and the ability to recover from agent failures by re-assigning the git-backed unit to a new agent.`,
 
-  tools: ["bash", "listAgents", "modeState", "taskTodos"],
+  tools: TOOLS_BASH_LISTAGENTS_MODESTATE_TASKTODOS,
   relatedSkills: [],
 
   examples: [

@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LOADSKILL_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "opro",
   description: "⚠️ EXPENSIVE: Optimize prompts by testing variations against benchmarks",
@@ -18,7 +19,7 @@ The cost is high (N × benchmark size LLM calls). The skill warns the user and a
 
 Use for prompt optimization when a prompt is used repeatedly and small improvements compound. Also for periodic maintenance of system prompts. NOT for one-off prompts — the optimization cost exceeds the benefit.`,
 
-  tools: ["loadSkill", "bash"],
+  tools: TOOLS_LOADSKILL_BASH,
   warnings: [
     "⚠️ EXPENSIVE: cost scales with N variations × benchmark size. The skill asks for confirmation before proceeding. Only use for prompts that are reused enough to justify optimization."
   ]

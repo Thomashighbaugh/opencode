@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "sync",
   description: "Sync skills between user and project scopes — scan both, categorize, display diff opportunities, copy or merge with confirmation",
@@ -15,7 +16,7 @@ const spec: HubSubcommandSpec = {
 
 Use when you want to propagate a skill from user scope to a project (or vice versa), or reconcile differences between scopes.`,
 
-  tools: ["bash"],
+  tools: TOOLS_BASH,
   relatedSkills: [],
 }
 

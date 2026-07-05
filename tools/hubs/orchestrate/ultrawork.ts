@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { RULES_COMPLETION_GUARDRAIL } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "ultrawork",
   description: "Maximum parallel execution for high-throughput tasks",
@@ -15,7 +16,7 @@ Use when you have a batch of similar, independent tasks: "write tests for these 
 Configure concurrency via flags (e.g. --concurrency=5). Default: dispatches as many as practical given the agent budget. Each subagent's output is captured to .opencode/state/orchestration/ultrawork-{session}/.`,
 
   tools: ["taskTodos", "listAgents", "bash", "modeState"],
-  rules: ["completion-guardrail"],
+  rules: RULES_COMPLETION_GUARDRAIL,
 
   examples: [
     {

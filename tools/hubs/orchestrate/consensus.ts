@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LISTAGENTS_MODESTATE_BASH, SKILLS_SELF_CONSISTENCY } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "consensus",
   description: "Multi-agent consensus/voting — run agents independently, resolve via majority, weighting, or synthesis",
@@ -16,8 +17,8 @@ Use when a single agent's answer is risky (high-stakes decision, security-sensit
 
 Configure via flags: --agents=N, --protocol=majority|weighted|synthesis.`,
 
-  tools: ["listAgents", "modeState", "bash"],
-  relatedSkills: ["self-consistency"],
+  tools: TOOLS_LISTAGENTS_MODESTATE_BASH,
+  relatedSkills: SKILLS_SELF_CONSISTENCY,
 
   examples: [
     {

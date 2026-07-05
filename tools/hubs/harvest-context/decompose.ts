@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LISTAGENTS_BASH, SKILLS_PLANNING_BREAKDOWN } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "decompose",
   description: "Break down a concept or goal into smaller actionable units",
@@ -10,8 +11,8 @@ const spec: HubSubcommandSpec = {
 
 Output: a decomposition tree (markdown) saved to .opencode/state/harvest/. Use when a concept is too abstract to act on directly and needs to be broken into concrete steps.`,
 
-  tools: ["listAgents", "bash"],
-  relatedSkills: ["planning-and-task-breakdown"],
+  tools: TOOLS_LISTAGENTS_BASH,
+  relatedSkills: SKILLS_PLANNING_BREAKDOWN,
 }
 
 export default spec

@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH, RULES_SECURITY } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "sandbox",
   description: "Sandbox enforcement — policy-based tool control, file protection, network filtering for agent tool calls",
@@ -15,8 +16,8 @@ const spec: HubSubcommandSpec = {
 
 The sandbox is policy-driven — you define what's restricted, the sandbox enforces it. Use in CI, production environments, or when an agent might touch files it shouldn't.`,
 
-  tools: ["bash"],
-  rules: ["security"],
+  tools: TOOLS_BASH,
+  rules: RULES_SECURITY,
   relatedSkills: [],
 }
 

@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LOADSKILL_LISTAGENTS_BASH_MODESTATE, SKILLS_SETUP_REFRESH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "setup",
   description: "Full project setup via 9-phase pipeline — detect stack, provision agents/skills/tools/rules, generate docs, optional --full adds deep codebase mapping + context capture + routing integration",
@@ -42,8 +43,8 @@ const spec: HubSubcommandSpec = {
 
 Each phase writes a checkpoint to .opencode/state/init/ so setup can resume from where it left off if interrupted.`,
 
-  tools: ["loadSkill", "listAgents", "bash", "modeState"],
-  relatedSkills: ["stack-recommender", "provision", "deepinit", "hubs-doctor"],
+  tools: TOOLS_LOADSKILL_LISTAGENTS_BASH_MODESTATE,
+  relatedSkills: SKILLS_SETUP_REFRESH,
 
   examples: [
     {

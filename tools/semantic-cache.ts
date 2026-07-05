@@ -20,6 +20,7 @@ interface SemanticEntry {
   output: string
   fileHashes: string
   savedAt: string
+  lastAccess: string  // last time this entry was accessed (read); defaults to savedAt for legacy entries
 }
 
 interface SemanticIndex {
@@ -42,7 +43,14 @@ function ensureDir(p: string) {
 function loadIndex(projectRoot: string): SemanticIndex {
   const indexPath = getIndexPath(projectRoot)
   try {
-    return JSON.parse(fs.readFileSync(indexPath, "utf-8"))
+    const index: SemanticIndex = JSON.parse(fs.readFileSync(indexPath, "utf-8"))
+    // Backward compatibility: ensure all entries have lastAccess
+    for (const entry of index.entries) {
+      if (!entry.lastAccess) {
+        entry.lastAccess = entry.savedAt
+      }
+    }
+    return index
   } catch {
     return { version: 1, entries: [] }
   }
@@ -156,11 +164,12 @@ export default tool({
             output: args.output,
             fileHashes: hashFiles(filePaths),
             savedAt: new Date().toISOString(),
+            lastAccess: new Date().toISOString(),
           })
 
-          // Keep max 500 entries (prune oldest first)
+          // Keep max 500 entries (prune least recently used first)
           if (index.entries.length > 500) {
-            index.entries.sort((a, b) => new Date(a.savedAt).getTime() - new Date(b.savedAt).getTime())
+            index.entries.sort((a, b) => new Date(a.lastAccess || a.savedAt).getTime() - new Date(b.lastAccess || b.savedAt).getTime())
             index.entries = index.entries.slice(-500)
           }
 
@@ -233,6 +242,10 @@ export default tool({
             if (currentHashes === best.entry.fileHashes) {
               // Promote to exact-match cache for faster future lookups
               agentCache.set(exactKey, best.entry.output, 1_800_000)
+
+              // Update lastAccess time for LRU tracking
+              best.entry.lastAccess = new Date().toISOString()
+              saveIndex(projectRoot, index)
 
               return JSON.stringify({
                 success: true, action: "load", hit: true, tier: "semantic",

@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "quality",
   description: "Code quality audit — complexity, duplication, naming, error handling",
@@ -18,7 +19,7 @@ Each finding is classified by severity and location. The output is a prioritized
 
 Use for brownfield codebases that need a quality baseline before improvement work. The audit identifies what to fix and in what order. Pairs well with /ideation overhaul (which produces a phased improvement plan from the audit).`,
 
-  tools: ["bash"],
+  tools: TOOLS_BASH,
   relatedSkills: ["ai-slop-cleaner"],
 }
 

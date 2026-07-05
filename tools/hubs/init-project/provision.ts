@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LOADSKILL_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "provision",
   description: "Provision project config via project-config-composer — auto-generate .opencode/opencode.jsonc, project rules, and agent wrappers from stack fingerprint + recommendations",
@@ -17,7 +18,7 @@ The generated config references global resources (skills, agents, rules in ~/.co
 
 Use after /init-project detect + /init-project recommend to generate the actual config files. Or as part of /init-project setup (phase 3).`,
 
-  tools: ["loadSkill", "bash"],
+  tools: TOOLS_LOADSKILL_BASH,
   relatedSkills: ["stack-recommender", "tag-resources"],
 }
 

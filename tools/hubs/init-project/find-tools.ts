@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LOADSKILL_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "find-tools",
   description: "Discover TypeScript tools relevant to the current project by searching registries (GitHub, npm) and local template catalog — finds project-specific automation tools. Used by setup/refresh to find per-repo tools",
@@ -12,7 +13,7 @@ Installed tools go to .opencode/tools/ (project scope) or tools/ (user scope) an
 
 Use during setup/refresh or standalone when you want project-specific automation tools (e.g. a deploy tool, a migration tool).`,
 
-  tools: ["loadSkill", "bash"],
+  tools: TOOLS_LOADSKILL_BASH,
   relatedSkills: ["find-skills", "find-agents"],
 }
 

@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LOADSKILL_LISTAGENTS_MODESTATE_TASKTODOS_BASH, RULES_COMPLETION_GUARDRAIL } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "hive",
   description: "Agent Hive execution — Swarm Bee phase: batched parallelism with worktree isolation, best-effort worker verification, blocked worker protocol, orchestrator batch testing",
@@ -17,8 +18,8 @@ This is the execution half of the Hive methodology (the planning half is /ideati
 
 Use for large parallelizable features where file conflicts are a real risk. Worktree isolation makes parallel work safe.`,
 
-  tools: ["loadSkill", "listAgents", "modeState", "taskTodos", "bash"],
-  rules: ["completion-guardrail"],
+  tools: TOOLS_LOADSKILL_LISTAGENTS_MODESTATE_TASKTODOS_BASH,
+  rules: RULES_COMPLETION_GUARDRAIL,
   relatedSkills: [],
 
   examples: [

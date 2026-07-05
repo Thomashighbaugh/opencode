@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "converge",
   description: "5-gate quality convergence — functional tests, lint/complexity, type safety, security scanning, performance thresholds with progressive target escalation",
@@ -18,7 +19,7 @@ Progressive target escalation: if a gate barely passes, the target is tightened 
 
 Use for release readiness — confirms the project meets all quality bars before shipping.`,
 
-  tools: ["bash"],
+  tools: TOOLS_BASH,
   relatedSkills: [],
 
   examples: [

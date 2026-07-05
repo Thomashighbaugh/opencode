@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH_LISTAGENTS_MODESTATE_TASKTODOS } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "ruflo",
   description: "60+ agent swarm with Q-Learning smart routing, 4 consensus protocols, and Queen/Worker hierarchical topologies",
@@ -14,7 +15,7 @@ const spec: HubSubcommandSpec = {
 
 This is the heaviest orchestration pattern. Use ONLY for very large tasks that genuinely need 60+ agents — most tasks don't. The Q-Learning overhead only pays off if the swarm runs enough tasks for learning to improve routing.`,
 
-  tools: ["bash", "listAgents", "modeState", "taskTodos"],
+  tools: TOOLS_BASH_LISTAGENTS_MODESTATE_TASKTODOS,
   relatedSkills: [],
 
   warnings: [

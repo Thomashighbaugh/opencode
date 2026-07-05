@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LOADSKILL_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "gh",
   description: "Full GitHub CLI operations via gh",
@@ -12,7 +13,7 @@ The skill knows the correct gh command syntax for common operations and can draf
 
 Common operations: issue management, release creation, workflow monitoring, secret management, repo settings, team management.`,
 
-  tools: ["loadSkill", "bash"],
+  tools: TOOLS_LOADSKILL_BASH,
   relatedSkills: [],
 }
 

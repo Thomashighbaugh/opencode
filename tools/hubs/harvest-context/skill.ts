@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LOADSKILL_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "skill",
   description: "Create a reusable skill from session knowledge",
@@ -16,7 +17,7 @@ const spec: HubSubcommandSpec = {
 
 The new skill is immediately available for future sessions. Use when you notice the agent did something useful and repeatable — "extract this as a skill so it's available next time".`,
 
-  tools: ["loadSkill", "bash"],
+  tools: TOOLS_LOADSKILL_BASH,
   relatedSkills: ["learner", "skillify"],
 }
 

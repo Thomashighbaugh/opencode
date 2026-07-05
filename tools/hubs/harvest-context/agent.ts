@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LOADSKILL_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "agent",
   description: "Create a project-specific agent",
@@ -18,7 +19,7 @@ The agent is saved to agents/{name}.md with proper YAML frontmatter. It becomes 
 
 Use when you need a specialized agent for a project-specific domain — e.g. a "migration-agent" that knows the legacy system's patterns, or a "domain-agent" that understands the business domain.`,
 
-  tools: ["loadSkill", "bash"],
+  tools: TOOLS_LOADSKILL_BASH,
   relatedSkills: [],
 }
 

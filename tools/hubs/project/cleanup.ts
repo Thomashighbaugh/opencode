@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LOADSKILL_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "cleanup",
   description: "Regression-safe cleanup of AI-generated slop — dead code, redundant comments, unused exports via ai-slop-cleaner skill",
@@ -17,7 +18,7 @@ The "regression-safe" part: the skill uses a deletion-first workflow with verifi
 
 Use when an AI session has left the codebase messier than it found it. Especially useful after /orchestrate autopilot or /orchestrate vibe-code runs.`,
 
-  tools: ["loadSkill", "bash"],
+  tools: TOOLS_LOADSKILL_BASH,
   relatedSkills: [],
 }
 

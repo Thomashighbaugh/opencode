@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "journal",
   description: "Event-sourced journal for orchestration runs — deterministic replay, time-travel debugging, SHA-256 checksums",
@@ -16,7 +17,7 @@ Features:
 
 The journal lives in .opencode/state/orchestration/journal/. Use when you need observability into orchestration runs — especially for debugging "why did the agent do X?" or auditing agent behavior.`,
 
-  tools: ["bash"],
+  tools: TOOLS_BASH,
   relatedSkills: [],
 }
 

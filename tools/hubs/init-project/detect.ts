@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LISTAGENTS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "detect",
   description: "Deep stack detection — analyze codebase for languages, frameworks, build tools, testing, ORM, CSS, CI/CD, etc. via @stack-detector agent",
@@ -23,7 +24,7 @@ The fingerprint is saved as JSON to .opencode/state/init/stack-fingerprint.json.
 
 Use standalone when you want to know what the project uses without running the full setup.`,
 
-  tools: ["listAgents", "bash"],
+  tools: TOOLS_LISTAGENTS_BASH,
   relatedSkills: [],
 }
 

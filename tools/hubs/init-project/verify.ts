@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_LISTAGENTS_BASH, SKILLS_HUBS_DOCTOR } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "verify",
   description: "Validate configuration completeness, file existence, and reference integrity",
@@ -19,8 +20,8 @@ const spec: HubSubcommandSpec = {
 
 Output: a validation report with pass/fail per check and specific error messages for failures. Use after setup or after manual config changes to ensure nothing is broken.`,
 
-  tools: ["listAgents", "bash"],
-  relatedSkills: ["hubs-doctor"],
+  tools: TOOLS_LISTAGENTS_BASH,
+  relatedSkills: SKILLS_HUBS_DOCTOR,
 }
 
 export default spec

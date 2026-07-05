@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH_LISTAGENTS } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "review",
   description: "Full code review round — analyze recent changes, run security scan, check complexity, produce a review report",
@@ -17,7 +18,7 @@ const spec: HubSubcommandSpec = {
 
 Output: a structured review report with pass/warn/fail per dimension and specific recommendations. Use before merging a PR or when you want a thorough review of recent work.`,
 
-  tools: ["bash", "listAgents"],
+  tools: TOOLS_BASH_LISTAGENTS,
   relatedSkills: [],
 }
 

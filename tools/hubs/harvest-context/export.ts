@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH, RULES_SECURITY, SKILLS_PRIVACY_SCAN } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "export",
   description: "Export context as a readable summary, markdown bundle, or team report — share what the project knows",
@@ -16,9 +17,9 @@ The export is saved to .opencode/state/harvest/ or printed. Sensitive data is st
 
 Use when you need to share project knowledge with someone outside the OpenCode workflow — a new team member, a stakeholder, or a different tool.`,
 
-  tools: ["bash"],
-  rules: ["security"],
-  relatedSkills: ["privacy-scan"],
+  tools: TOOLS_BASH,
+  rules: RULES_SECURITY,
+  relatedSkills: SKILLS_PRIVACY_SCAN,
 }
 
 export default spec

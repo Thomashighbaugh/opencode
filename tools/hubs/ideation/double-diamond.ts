@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "double-diamond",
   description: "Design Council framework — discover, define, develop, deliver",
@@ -15,7 +16,7 @@ const spec: HubSubcommandSpec = {
 
 The two diamonds ensure you don't jump to a solution before understanding the problem (common LLM mistake). Use for product/design tasks where understanding the problem is as important as the solution.`,
 
-  tools: ["bash"],
+  tools: TOOLS_BASH,
   relatedSkills: [],
 }
 

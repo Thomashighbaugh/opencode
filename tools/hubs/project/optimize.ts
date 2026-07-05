@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "optimize",
   description: "Analyze code for performance and security issues, then apply targeted fixes",
@@ -55,7 +56,7 @@ const spec: HubSubcommandSpec = {
 - Test/lint verification result.
 - Report: each finding with location, severity, fix applied (or skipped with reason).`,
 
-  tools: ["bash"],
+  tools: TOOLS_BASH,
   rules: ["security", "karpathy-guidelines"],
   relatedSkills: [],
 

@@ -1,8 +1,9 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH, RULES_CONTEXT_STRATEGY } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "context",
-  description: "Manage context files — harvest, extract, organize, compact, map",
+  description: "Manage context files — harvest, extract, organize, compact, map — updates wiki index/log on changes",
   reminder: "Harvest, organize, or compact context.",
   inline: true,
 
@@ -14,11 +15,13 @@ const spec: HubSubcommandSpec = {
 - compact: merge related small context files into consolidated ones to reduce file count.
 - map: produce a map of what context exists and where, for quick reference.
 
+**Wiki compliance**: after any restructuring (organize, compact, extract), update .opencode/context/index.md (catalog), append to .opencode/context/log.md, ensure YAML frontmatter on all files, scan for broken cross-references.
+
 Use for context maintenance — keeping .opencode/context/ healthy and navigable.`,
 
-  tools: ["bash"],
-  rules: ["context-strategy"],
-  relatedSkills: ["compact"],
+  tools: TOOLS_BASH,
+  rules: RULES_CONTEXT_STRATEGY,
+  relatedSkills: ["compact", "wiki"],
 }
 
 export default spec

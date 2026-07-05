@@ -223,9 +223,45 @@ const SUBCOMMAND_DIR_MAP: Record<string, string> = {
   "skills": "skills",
 }
 
+// ─── Pre-compiled Spec Registry ───────────────────────────────────────
+// Loads from tools/hubs/spec-registry.json (built by build-spec-registry.ts).
+// Falls back to individual require() if registry is missing/stale.
+
+const SPEC_REGISTRY_PATH = path.join(__dirname, "hubs", "spec-registry.json")
+let _specRegistry: Record<string, HubSubcommandSpec> | null = null
+
+/** Load the pre-compiled spec registry from disk. Cached after first read. */
+function loadSpecRegistry(): Record<string, HubSubcommandSpec> | null {
+  if (_specRegistry !== null) return _specRegistry
+  try {
+    if (fs.existsSync(SPEC_REGISTRY_PATH)) {
+      const raw = JSON.parse(fs.readFileSync(SPEC_REGISTRY_PATH, "utf-8"))
+      _specRegistry = raw as Record<string, HubSubcommandSpec>
+      return _specRegistry
+    }
+  } catch {
+    // Registry is optional — silently fall through
+  }
+  return null
+}
+
+/** Invalidate the cached registry (useful after rebuild). */
+export function invalidateSpecRegistry(): void {
+  _specRegistry = null
+}
+
 export function loadSubcommandSpec(hubName: string, subLabel: string): HubSubcommandSpec | null {
   const dir = SUBCOMMAND_DIR_MAP[hubName]
   if (!dir) return null
+
+  // 1. Try pre-compiled registry first
+  const registry = loadSpecRegistry()
+  const registryKey = `${dir}/${subLabel}`
+  if (registry && registry[registryKey]) {
+    return registry[registryKey]
+  }
+
+  // 2. Fall back to individual require()
   const file = `./hubs/${dir}/${subLabel}`
   try {
     const mod = require(file)

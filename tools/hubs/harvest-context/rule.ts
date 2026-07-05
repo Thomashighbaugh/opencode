@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "rule",
   description: "Create a project rule (.opencode/rules/)",
@@ -16,7 +17,7 @@ A rule file is a markdown document with:
 
 Rules are project-scoped (loaded only for this project) vs global rules in ~/.config/opencode/rules/ (loaded for all projects). Use for conventions that are project-specific: "all API responses must include a request-id header", "database migrations must be reversible", "no direct DB access outside repositories".`,
 
-  tools: ["bash"],
+  tools: TOOLS_BASH,
   relatedSkills: ["rule-generator"],
 }
 

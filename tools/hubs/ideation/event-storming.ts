@@ -1,5 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
+import { TOOLS_BASH, SKILLS_GRAPH_THINKING } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "event-storming",
   description: "Collaborative domain exploration via timeline, commands, events, policies",
@@ -19,8 +20,8 @@ The timeline reveals the domain's behavior, not just its structure. Policies (ev
 
 Output: an event storm diagram (timeline + commands + policies + aggregates) saved as markdown/Mermaid. Use for complex domains where behavior (not just structure) needs modeling.`,
 
-  tools: ["bash"],
-  relatedSkills: ["graph-thinking"],
+  tools: TOOLS_BASH,
+  relatedSkills: SKILLS_GRAPH_THINKING,
 }
 
 export default spec
