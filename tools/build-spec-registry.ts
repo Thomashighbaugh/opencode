@@ -50,7 +50,6 @@ function extractSpec(hubDir: string, fileName: string): Record<string, unknown> 
     const mod = require(filePath)
     const spec = (mod.default || mod.spec) as Record<string, unknown>
     if (!spec || typeof spec !== "object") {
-      console.warn(`  ⚠  ${hubDir}/${fileName}: no default export or spec, skipping`)
       return null
     }
 
@@ -64,13 +63,11 @@ function extractSpec(hubDir: string, fileName: string): Record<string, unknown> 
 
     // Must have at least 'label' to be useful
     if (!entry.label) {
-      console.warn(`  ⚠  ${hubDir}/${fileName}: missing 'label' field, skipping`)
       return null
     }
 
     return entry
-  } catch (err) {
-    console.warn(`  ⚠  ${hubDir}/${fileName}: failed to load — ${(err as Error).message}`)
+  } catch {
     return null
   }
 }
@@ -79,25 +76,17 @@ function buildRegistry(): Record<string, Record<string, unknown>> {
   const registry: Record<string, Record<string, unknown>> = {}
   const hubDirs = getHubDirs()
 
-  console.log(`Scanning ${hubDirs.length} hub directories in ${HUBS_DIR}...`)
-
   for (const hubDir of hubDirs) {
     const specFiles = getSpecFiles(hubDir)
-    if (specFiles.length === 0) {
-      console.log(`  ${hubDir}: no spec files found`)
-      continue
-    }
+    if (specFiles.length === 0) continue
 
-    let loaded = 0
     for (const fileName of specFiles) {
       const key = fileName.replace(/\.ts$/, "")
       const entry = extractSpec(hubDir, fileName)
       if (entry) {
         registry[`${hubDir}/${key}`] = entry
-        loaded++
       }
     }
-    console.log(`  ${hubDir}: ${loaded}/${specFiles.length} specs loaded`)
   }
 
   return registry
@@ -114,7 +103,6 @@ function main(): void {
   const count = Object.keys(registry).length
 
   fs.writeFileSync(OUTPUT_PATH, JSON.stringify(registry, null, 2), "utf-8")
-  console.log(`\n✓ Wrote ${count} specs to ${OUTPUT_PATH}`)
 
   if (isWatch) {
     console.log("\nWatching for changes... (Ctrl+C to stop)")
