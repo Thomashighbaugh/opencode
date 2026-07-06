@@ -21,7 +21,7 @@ const spec: HubSubcommandSpec = {
 | 0 | Verify Hubs | ✓ | ✓ | Check global health |
 | 1 | Detection | ✓ | ✓ | Re-detect stack, diff against last fingerprint, report changes |
 | 2 | Planning | ✓ | ✓ | Merge new recommendations with existing config |
-| 3 | Configuration | ✓ | ✓ | Merge new fields into opencode.jsonc, don't remove user-set values |
+| 3 | Configuration | ✓ | ✓ | Merge new fields into opencode.jsonc, don't remove user-set values. Validate merged config against schema (fetch https://opencode.ai/config.json, reject invalid keys like extends/agents/project/rules/state/context/cache) |
 | 4 | Provisioning | ✓ | ✓ | Add new agents/skills/tools/rules, preserve manually edited ones, flag stale resources |
 | 5 | Documentation | ✓ | ✓ | Update generated AGENTS.md sections, preserve \`<!-- MANUAL -->\` blocks |
 | 6 | Context Capture | — | ✓ | Re-spawn parallel agents, diff context against existing, update changed sections only |

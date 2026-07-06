@@ -93,12 +93,24 @@
   },
   "mcp": {
     "context7": {
-      "type": "remote",
-      "url": "https://mcp.context7.com/mcp",
+      "enabled": true,
       "headers": {
         "CONTEXT7_API_KEY": "{env:CONTEXT7_API_KEY}"
       },
-      "enabled": true
+      "type": "remote",
+      "url": "https://mcp.context7.com/mcp"
+    },
+    "searxng": {
+      "args": [
+        "-y",
+        "mcp-searxng"
+      ],
+      "command": "npx",
+      "enabled": true,
+      "env": {
+        "SEARXNG_URL": "https://localhost:8080"
+      },
+      "type": "stdio"
     }
   },
   "plugin": [
@@ -115,6 +127,7 @@
     "./rules/security.md",
     "./rules/karpathy-guidelines.md",
     "./rules/hub-description-directive.md",
-    "./rules/completion-guardrail.md"
+    "./rules/completion-guardrail.md",
+    "./rules/output-compression.md"
   ]
 }

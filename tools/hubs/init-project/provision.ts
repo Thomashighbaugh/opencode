@@ -14,6 +14,8 @@ const spec: HubSubcommandSpec = {
 - Agent wrappers: .opencode/agents/ with project context injected (e.g. "this project uses Prisma + Express + Vitest").
 - Project-specific skills if the stack warrants them.
 
+**CRITICAL:** The generated opencode.jsonc MUST be validated against the schema at https://opencode.ai/config.json. Only the following keys are valid: $schema, shell, logLevel, server, command, skills, references, watcher, snapshot, plugin, share, autoupdate, disabled_providers, enabled_providers, model, small_model, default_agent, username, agent, provider, mcp, formatter, lsp, instructions, permission, tools, attachment, enterprise, tool_output, compaction, experimental. Invalid keys (extends, agents, project, rules, state, context, cache) will cause runtime errors and MUST NOT appear in the output.
+
 The generated config references global resources (skills, agents, rules in ~/.config/opencode/) rather than duplicating them — minimal footprint, maximum context.
 
 Use after /init-project detect + /init-project recommend to generate the actual config files. Or as part of /init-project setup (phase 3).`,

@@ -75,10 +75,11 @@ The composer creates the following structure under the project's `.opencode/`:
 
 The main project config file. It:
 - Sets `"$schema"` to the opencode config schema
-- Extends the detected archetype (if one was matched)
 - Includes project-specific instructions and rules
 - Selects relevant global skills via filter tags
 - Optionally overrides the default agent for this project
+
+> **⚠️ CRITICAL: Only valid schema keys allowed.** The OpenCode config schema (`https://opencode.ai/config.json`) sets `additionalProperties: false`. Generated files MUST contain ONLY the following valid top-level keys: `$schema`, `shell`, `logLevel`, `server`, `command`, `skills`, `references`, `watcher`, `snapshot`, `plugin`, `share`, `autoupdate`, `disabled_providers`, `enabled_providers`, `model`, `small_model`, `default_agent`, `username`, `agent`, `provider`, `mcp`, `formatter`, `lsp`, `instructions`, `permission`, `tools`, `attachment`, `enterprise`, `tool_output`, `compaction`, `experimental`. Keys like `extends`, `agents` (plural), `project`, `rules`, `state`, `context`, `cache` are NOT valid and will cause validation errors.
 
 ```jsonc
 {
@@ -103,7 +104,6 @@ If an archetype was matched:
 ```jsonc
 {
   "$schema": "https://opencode.ai/config.json",
-  "extends": "archetype/nextjs-webapp",
   "instructions": [
     "AGENTS.md",
     "./rules/project-conventions.md"
@@ -271,10 +271,54 @@ mkdir -p "$PROJECT_DIR/.opencode/instructions"
 
 ### Step 2: Generate opencode.jsonc
 
-- If an archetype was matched and has a manifest, use `extends` syntax
-- Otherwise, generate a standalone config with explicit instructions and tags
+- Generate a standalone config with the valid keys listed above
+- Do NOT include `extends` — it is NOT a valid config key (archetype manifests use it internally, project configs do not)
+- Do NOT include `agents` (plural), `project`, `rules`, `state`, `context`, or `cache` — these are NOT valid config keys
 - Do NOT overwrite existing `opencode.jsonc` without confirming with the user first
 - If existing config found, prompt: "Existing .opencode/opencode.jsonc found. Merge recommendations, overwrite, or skip?"
+
+### Step 2a: Validate opencode.jsonc against schema
+
+After writing the config file, validate it against the actual OpenCode schema:
+
+```bash
+# Fetch the schema and validate all top-level keys
+SCHEMA_URL="https://opencode.ai/config.json"
+CONFIG_FILE=".opencode/opencode.jsonc"
+
+# Extract top-level keys from the schema definition
+VALID_KEYS=$(curl -s "$SCHEMA_URL" | python3 -c "
+import json,sys
+schema = json.load(sys.stdin)
+# Navigate to Config definition
+config = schema
+if '\$defs' in schema and 'Config' in schema['\$defs']:
+    config = schema['\$defs']['Config']
+valid = list(config.get('properties', {}).keys())
+print(' '.join(valid))
+")
+
+# Check config for invalid keys
+python3 -c "
+import json, re, sys
+with open('$CONFIG_FILE') as f:
+    raw = f.read()
+# Strip comments
+raw = re.sub(r'//.*', '', raw)
+raw = re.sub(r'/\*[\s\S]*?\*/', '', raw)
+config = json.loads(raw)
+valid_keys = set('''$VALID_KEYS'''.split())
+invalid = [k for k in config if k not in valid_keys]
+if invalid:
+    print(f'ERROR: Invalid config keys: {invalid}')
+    print('Remove these keys. Valid keys: {\$schema, ' + ', '.join(sorted(valid_keys - {'\\\$schema'})) + '}')
+    sys.exit(1)
+else:
+    print('OK: All keys valid')
+"
+
+# If validation fails, fix the config and re-validate before proceeding
+```
 
 ### Step 3: Generate Convention Rules
 
