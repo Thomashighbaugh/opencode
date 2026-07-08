@@ -23,6 +23,9 @@ Auto-maintained catalog of all wiki pages. Organized by category.
 | [[lit-search-cite]] | source-summary | opencode, skill, academic, literature-search, cnki, pubmed, arxiv, citation | active |
 | [[opencode-manifold]] | source-summary | opencode, plugin, multi-agent, orchestration, persistent-memory, state-machine, gpl3 | active |
 | [[caveman]] | source-summary | opencode, claude-code, codex, gemini, skill, compression, tokens, caveman, prompt-engineering | active |
+| [[opencode-memoir]] | source-summary | opencode, plugin, memory, memoir, mcp, git, versioned-memory | active |
+| [[opencode-dispatcher]] | source-summary | opencode, plugin, workflow, agents, orchestration, task-artifacts, permission-model | active |
+| [[opencode-goal-plugin]] | source-summary | opencode, plugin, goal, auto-continue, session, hooks, state-machine | active |
 | [[advances-in-agentic-ai]] | academic-paper | — | — |
 | [[agentic-ai-cybersecurity-survey]] | academic-paper | — | — |
 | [[agent-systems-handbook-prompthon]] | — | — | — |

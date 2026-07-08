@@ -80,6 +80,33 @@ Chronological record of all wiki operations. Append-only.
 - **Index updated**: Added `opencode-manifold` entry to research section
 - **Cross-references**: Orchestration plugin (similar to opencode-dux); persistent memory (related to opencode-deep-memory)
 
+## [2026-07-07] consume | opencode-goal-plugin
+
+- **Operation**: Ingested GitHub README + source code (`src/goal-plugin.js`) for `willytop8/OpenCode-goal-plugin`
+- **Source**: GitHub README + source code
+- **Files created**:
+  - `research/opencode-goal-plugin.md` — full source summary with YAML frontmatter
+- **Cross-references**: Goal/auto-continue pattern relevant to our orchestration modes (ralph, autopilot). State persistence + ledger reconstruction patterns relevant to our state management.
+- **Notes**: 162-star plugin adding `/goal` command with auto-continue, multi-goal support, ordered (sisyphus) sequences, append-only lifecycle ledger, fail-closed persistence, compaction survival, prompt safety via XML tag injection prevention. Key patterns: marker-based completion, user-message preemption, no-progress/no-tool-call heuristics.
+
+## [2026-07-07] consume | opencode-dispatcher
+
+- **Operation**: Ingested GitHub README + docs (workflow, agents, configuration) for `louisemalvin/opencode-dispatcher`
+- **Source**: GitHub README + docs/workflow.md + docs/agents.md + docs/configuration.md + opencode.jsonc
+- **Files created**:
+  - `research/opencode-dispatcher.md` — full source summary with YAML frontmatter
+- **Cross-references**: Permission model patterns relevant to our own agent permission design
+- **Notes**: 11-agent workflow pack with file-based task artifacts, deny-by-default permission model, docs-first routing, 6-state orchestrator state machine. Notable: escape hatch sealing pattern (edit: deny not subvertable through shell), rich handoff concept (10-field structured handoff materialized as file), agy integration for quota-split across models.
+
+## [2026-07-07] consume | opencode-memoir
+
+- **Operation**: Ingested GitHub README for `disafronov/opencode-memoir`
+- **Source**: GitHub README
+- **Files created**:
+  - `research/opencode-memoir.md` — full source summary with YAML frontmatter
+- **Cross-references**: None yet — first entry for this plugin
+- **Notes**: Plugin registers memoir-mcp as dynamic MCP server via `uvx`. No manual CLI install needed. Git-versioned, taxonomy-structured memory for coding agents.
+
 ## [2026-07-05] consume | caveman
 
 - **Operation**: Ingested GitHub README for `JuliusBrussee/caveman`

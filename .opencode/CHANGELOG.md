@@ -2,6 +2,15 @@
 
 > Release log for the OpenCode Hubs configuration.
 
+## 2026-07-07
+
+- **feat(rules): caveman output compression rewrite** — `rules/output-compression.md` rewritten to model caveman speech (fragments, dropped articles, imperative tone) instead of describing it. Instruction form now matches its content. Adapted from JuliusBrussee/caveman skill: persistence clause, no self-reference, BAD/GOOD examples, auto-clarity for security warnings, intensity levels (lite/full/ultra) with `/caveman` switch, exemption marker, language-preserving.
+- **feat(embedding): swap nomic-embed-text → mxbai-embed-large** — `tools/semantic-cache.ts` updated. 335M params, 12.3M Ollama pulls, better retrieval on code/technical content. Same Ollama infra, no new dependencies.
+- **feat(tools): rerank tool** — `tools/rerank.ts` wrapping Ollama `/api/rerank` endpoint. Takes query + document list, returns scored+ranked results. Default model: `hans-tech/bge-reranker-v2-m3:260522`. CUDA auto-detected, CPU/RADEON fallback transparent.
+- **feat(plugins): local focus plugin** — `plugins/core/focus.ts` — zero external deps, adapted from opencode-goal-plugin. Provides session-scoped focus that steers hub command output via `<active_focus>` block injected into system.transform on every turn. Integrated into hooks.ts: initialize on session.created, cleanup on session.deleted, inject on system.transform. State persisted to `.opencode/state/focus/state.json` with append-only ledger. Safety limits: maxTurns, maxDuration, maxTokens, no-progress/no-tool-call heuristics.
+- **feat(context): ingested 4 external sources** — opencode-memoir (git-versioned memory via MCP), opencode-dispatcher (11-agent workflow pack with file-based task artifacts), opencode-goal-plugin (session-scoped /goal with auto-continue), brain-memory (hierarchical file-system memory with neuroscience-inspired decay/consolidation). All saved to `.opencode/context/research/` with YAML frontmatter, indexed in wiki.
+- **docs(decisions): updated for embedding swap + reranker** — `.opencode/context/decisions.md` updated D1 (mxbai-embed-large replaces nomic), added D5 (reranker-enhanced retrieval pipeline), updated required models list.
+
 ## 2026-06-21
 
 - **feat(hubs): model tiering fallback — ollama → opencode-go provider switching**

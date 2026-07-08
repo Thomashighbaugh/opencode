@@ -59,6 +59,12 @@ import {
   MODE_MESSAGES,
 } from "./keywords"
 
+import {
+  buildFocusBlock,
+  initializeFocus,
+  clearSessionFocus,
+} from "./focus"
+
 // ── [Change 6]: Unified Event Bus ────────────────────────────────────────────
 // Lightweight in-memory event bus for component communication.
 // Enables components to react to events without tight coupling.
@@ -249,6 +255,11 @@ export const JocPlugin: Plugin = async ({ project, client, directory, worktree }
         // ── [Change 6]: Emit session created event ──────────────────
         emit('session:created', { sessionId, directory })
 
+        // ── Focus: recover persisted focus state ───────────────────
+        try {
+          initializeFocus(directory, sessionId)
+        } catch { /* focus plugin unavailable */ }
+
         break
       }
 
@@ -256,6 +267,11 @@ export const JocPlugin: Plugin = async ({ project, client, directory, worktree }
         const sessionId = event.properties.info.id
 
         clearSessionContext(sessionId)
+
+        // ── Focus: clear session focus state ────────────────────────
+        try {
+          clearSessionFocus(sessionId)
+        } catch { /* focus plugin unavailable */ }
 
         // ── Save context warmup for next session ─────────────────────
         // Persist top query→context mappings so the next session starts warm.
@@ -786,6 +802,14 @@ Propose the mode to the user and ask before activating.
       const contextBlock = `<hubs-plugin-context>\n${messages.join('\n\n')}\n</hubs-plugin-context>`
       output.system.push(contextBlock)
     }
+
+    // ── Focus injection: steer hub commands toward active focus ────
+    try {
+      const focusBlock = buildFocusBlock(sessionId)
+      if (focusBlock) {
+        output.system.push(focusBlock)
+      }
+    } catch { /* focus plugin unavailable */ }
 
     // ── NEW: Vector-search-based context injection ──────────────────
     // Search .opencode/context/ for semantically relevant content and inject

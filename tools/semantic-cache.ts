@@ -6,7 +6,7 @@ import { getCache, CacheManager, getProjectSlug } from "./cache-utils"
 
 const VALID_ACTIONS = ["save", "load", "invalidate", "stats"] as const
 const OLLAMA_URL = "http://127.0.0.1:11434/api/embed"
-const EMBED_MODEL = "nomic-embed-text"
+const EMBED_MODEL = "mxbai-embed-large"
 const SIMILARITY_THRESHOLD = 0.92
 const CACHE_TTL_MS = 86_400_000 // 24h (matches stable namespace)
 
