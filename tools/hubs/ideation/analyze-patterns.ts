@@ -5,7 +5,7 @@ const spec: HubSubcommandSpec = {
   label: "analyze-patterns",
   description: "Analyze code patterns and anti-patterns — consistencies, convention violations",
   reminder: "Analyze codebase patterns and anti-patterns.",
-  // inline — hub prompt handles this directly
+  inline: true,
 
   detailedDescription: `Analyzes code patterns and anti-patterns across the codebase. Scans for:
 

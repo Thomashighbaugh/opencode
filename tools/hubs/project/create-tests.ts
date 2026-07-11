@@ -5,7 +5,7 @@ const spec: HubSubcommandSpec = {
   label: "create-tests",
   description: "Generate comprehensive 8-type test suite",
   reminder: "Generate comprehensive 8-type test suite.",
-  // inline — hub prompt handles this directly
+  inline: true,
 
   detailedDescription: `Generates a comprehensive test suite covering 8 test types per unit under test:
 

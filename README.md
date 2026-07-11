@@ -2,7 +2,7 @@
 
 > Hub-Driven Multi-Agent Orchestration for OpenCode — Interactive Menus, Not Memorization.
 
-The name derives from the hub-and-spoke orchestration concept — a central operations hub that coordinates specialized units rather than trying to do everything itself. Each hub dispatches to a curated roster of **31 agents, 104 skills, 24 tools, 17 rules, and 7 project archetypes** through structured menus instead of requiring you to remember every capability's exact name.
+The name derives from the hub-and-spoke orchestration concept — a central operations hub that coordinates specialized units rather than trying to do everything itself. Each hub dispatches to a curated roster of **31 agents, 106 skills, 36 tools, 17 rules, and 7 project archetypes** through structured menus instead of requiring you to remember every capability's exact name.
 
 The codebase evolves organically — each optimization emerges from actual usage: a missing facet surfaces mid-workflow, a previously overlooked edge case bites, and the configuration adapts. Rather than a grand upfront design, the system accretes capability patch by patch, responding to the real needs of orchestrating 31 agents across five hubs. Contributions, overlooked patterns, and pull requests are always welcome.
 
@@ -10,7 +10,11 @@ The codebase evolves organically — each optimization emerges from actual usage
 
 - **Constant-Time State Topology Indexing** — State directory traversal bounded at constant depth regardless of session count, preventing unbounded recursion into `.opencode/state/` subtrees that would otherwise grow linearly with orchestration runs. Directory scans (`read` tool on state directories) return top-level entries only — subdirectories like `checkpoints/` and `progress/` are never recursed into unless explicitly requested. Implementation: enforced at the tool-calling layer in `plugins/core/session.ts`, which caps directory listing depth at 1 for all state paths.
 
-- **Micro-Kernel Hook Decomposition Architecture** — Monolithic plugin (`hubs-plugin.ts`) refactored into focused, independently-loadable modules, each with a single responsibility boundary and zero cross-module imports except through a shared types interface. Session lifecycle management, mode state CRUD, magic keyword detection, and hook handler dispatch live in separate files that can fail independently without taking down the entire plugin system. Implementation: `plugins/core/` contains `session.ts` (lifecycle + stats), `modes.ts` (state machine), `keywords.ts` (regex-based intent extraction), and `hooks.ts` (unified handler entry point), orchestrated through `plugins/core/hooks.ts` which is the single plugin entry registered in `opencode.jsonc`.
+- **Micro-Kernel Hook Decomposition Architecture** — Monolithic plugin (`hubs-plugin.ts`) refactored into focused, independently-loadable modules, each with a single responsibility boundary and zero cross-module imports except through a shared types interface. Session lifecycle management, mode state CRUD, magic keyword detection, session focus management, and hook handler dispatch live in separate files that can fail independently without taking down the entire plugin system. Implementation: `plugins/core/` contains `session.ts` (lifecycle + stats), `modes.ts` (state machine), `keywords.ts` (regex-based intent extraction), `focus.ts` (session focus/goal management), and `hooks.ts` (unified handler entry point), orchestrated through `plugins/core/hooks.ts` which is the single plugin entry registered in `opencode.jsonc`.
+
+- **Session Focus / Goal Management** — A persistent, session-scoped focus objective that steers all hub command output toward a stated goal. Set via `/focus set <objective>` (with optional success criteria and constraints), the focus block is injected into the system prompt on every turn via the `experimental.chat.system.transform` hook, biasing the model toward the objective without requiring repeated reminders. The system tracks turn count, token usage, elapsed time, and progress checkpoints against configurable budgets (max turns, max duration, max tokens), with automatic pausing on no-progress or no-tool-call stalls. Subcommands: `set`, `show`, `clear`, `pause`, `resume`. Inspired by [`willytop8/opencode-goal-plugin`](https://github.com/willytop8/opencode-goal-plugin) — adapted to use existing state infrastructure (`.opencode/state/focus/state.json`), integrated with the existing hooks, and exposed through the `/focus` hub-style TUI menu command. Implementation: `plugins/core/focus.ts` exports `setFocus`, `clearFocus`, `pauseFocus`, `resumeFocus`, `formatFocusStatus`, and `buildFocusBlock` (for system prompt injection), with the `/focus` command registered in `plugins/hubs-tui/src/tui.tsx` and handled agent-side via structured state file operations.
+
+- **Magic Keyword Detection & Context Injection** — Regex-based intent extraction that detects natural-language triggers (ralph, autopilot, ultrawork, deep interview, cancel) from user prompts without auto-activating any mode. When a keyword is matched, a structured context message is queued for injection into the next system prompt via `experimental.chat.system.transform`, telling the agent to propose the mode to the user for explicit confirmation — never executing autonomously. Conflict resolution handles overlapping matches (e.g., "ultrawork" and "uw" firing simultaneously) by deduplicating and prioritizing cancellations. The cancel keyword (`cancel`, `stop`) clears all active mode states immediately. Implementation: `plugins/core/keywords.ts` maintains the keyword registry and conflict resolver, invoked from the `tui.prompt.append` hook handler in `plugins/core/hooks.ts`, with mode-specific messages (`MODE_MESSAGES`) injected as context rather than auto-commands.
 
 - **Tiered Cognitive Model Orchestration** — 31 subagents classified into three capability tiers — Pro (architecture, security review, causal tracing), Default (implementation, debugging, git operations), and Fast (exploration, documentation, estimation) — with all agents using `opencode/deepseek-v4-flash-free` as the primary model, `ollama/deepseek-v4-flash:cloud` as Fallback 1, and `opencode-go/deepseek-v4-flash` as Fallback 2. Orchestration skills (`ralph`, `ultrawork`, `autopilot`, `team`) consult the agent tiers reference to match task complexity to model capability before delegation, preventing both over-provisioning (wasting Pro-tier on trivial lookups) and under-provisioning (handing critical security review to Fast-tier). Implementation: tier assignments live in each agent's YAML frontmatter (`agents/*.md`), with the complete failover protocol in the Hubs agent's instruction block at `agents/hubs.md` in `<Model_Tiering_And_Fallback>`.
 
@@ -24,7 +28,7 @@ The codebase evolves organically — each optimization emerges from actual usage
 
 - **Multi-Method Ideation Engine** — The `/ideation` hub provides 26 structured thinking methodologies, spanning strategic planning (`plan` — interview-driven work breakdown with acceptance criteria), domain-driven design (`ddd` — bounded context modeling, aggregate root identification), event storming (`event-storming` — domain event exploration, command/aggregate/bounded-context mapping), Socratic deep-dive (`deep` — mathematical ambiguity gating before autonomous execution), design thinking (`double-diamond` — divergent exploration followed by convergent synthesis), jobs-to-be-done framing (`jtbd` — reframe requirements around user progress rather than feature lists), adversarial debate (`adversarial-debate` — steelman antithesis before committing to a direction), impact mapping (`impact-mapping` — trace deliverables to measurable outcomes), spiral risk targeting (`spiral` — address highest-risk decisions first, iterate outward), lean canvas modeling (`lean-canvas` — product strategy on one page), and formal correctness verification (`cleanroom` — verify correctness before implementation). Methods are not just names; each is a fully-scripted workflow that gates output quality before handing off to `/orchestrate`. Implementation: each method is a self-contained skill under `skills/` (e.g., `skills/ideation/SKILL.md` dispatches, `skills/plan/SKILL.md` drives the interview workflow, `skills/deep-interview/SKILL.md` runs the Socratic loop), with intent routing through `skills/orchestrate-router/scripts/route-ideation.mjs` for unstructured requests.
 
-- **Organic Configuration Integration (No Plugins, No Renames)** — The Hubs system is not a plugin you install or a theme you apply. It is a configuration — 31 agent definitions, 101 skill files, 24 tools, 17 rules, and 7 project archetypes that live in `~/.config/opencode/` and compose with OpenCode's native agent, skill, and command systems through standard `opencode.jsonc` fields (`instructions`, `agent`, `command`, `plugin`). There are no wrapper scripts that rename primary agents after kitsch Greco-Roman mythological figures, no monolithic plugin that overrides OpenCode's internal behavior, and no configuration layer that requires memorizing a parallel vocabulary. The `hubs` primary agent is a regular agent definition (`agents/hubs.md`) set as `default_agent`, the hub commands (`/init-project`, `/ideation`, `/orchestrate`, `/harvest-context`, `/project`, `/skills`) are standard OpenCode commands registered in `opencode.jsonc`, and the TUI menu dialog at `plugins/hubs-tui/` is the only plugin component — and it's optional. Everything else is load-on-demand skills and invoked-on-demand agents, composed through OpenCode's own delegation and tool systems rather than bypassing them.
+- **Organic Configuration Integration (No Plugins, No Renames)** — The Hubs system is not a plugin you install or a theme you apply. It is a configuration — 31 agent definitions, 106 skill files, 36 tools, 17 rules, and 7 project archetypes that live in `~/.config/opencode/` and compose with OpenCode's native agent, skill, and command systems through standard `opencode.jsonc` fields (`instructions`, `agent`, `command`, `plugin`). There are no wrapper scripts that rename primary agents after kitsch Greco-Roman mythological figures, no monolithic plugin that overrides OpenCode's internal behavior, and no configuration layer that requires memorizing a parallel vocabulary. The `hubs` primary agent is a regular agent definition (`agents/hubs.md`) set as `default_agent`, the hub commands (`/init-project`, `/ideation`, `/orchestrate`, `/harvest-context`, `/project`, `/skills`) are standard OpenCode commands registered in `opencode.jsonc`, and the TUI menu dialog at `plugins/hubs-tui/` is the only plugin component — and it's optional. Everything else is load-on-demand skills and invoked-on-demand agents, composed through OpenCode's own delegation and tool systems rather than bypassing them.
 
 - **Per-Project Model Persistence** — When a user selects a different model during a session (via OpenCode's model picker), that selection is automatically saved to `.opencode/opencode.jsonc` in the project directory. Subsequent sessions in the same project load the saved model preference, eliminating the need to re-select the model on every session start. Implementation: the plugin's session lifecycle hooks detect model changes and persist them to the project-scoped config file, with fallback to the global default if no project override exists.
 
@@ -35,6 +39,8 @@ The codebase evolves organically — each optimization emerges from actual usage
 - **Privacy-First Context Scanning** — Before any context is committed to durable storage or version control, the `privacy-scan` skill (`skills/privacy-scan/SKILL.md`) scans files for secrets, API keys, tokens, credentials, PII, and privacy-compromising content. Used by both `/init-project` and `/harvest-context` hubs as a mandatory pre-commit gate. Implementation: regex-based pattern matching across common secret formats, with gitignore protections for chat history and session transcripts.
 
 - **Project Archetype Templates** — 7 pre-built project archetypes (`archetypes/`) provide opinionated starter configurations for common project types: bare-bones, CLI tool, Go, Next.js webapp, Python API, React library, and Rust. Each archetype includes tailored agent definitions, skill recommendations, rules, and tool configurations. Used by `/init-project setup` to bootstrap new projects with zero configuration overhead. Implementation: each archetype is a directory under `archetypes/` with its own `opencode.jsonc` template, agent wrappers, and rule set.
+
+- **Config Integrity Test Suite** — 667 TypeScript eval tests running via `vitest` (~3s) covering config schema compliance, file integrity (209 parameterized path checks), agent format validation (280 checks across all 31 agents), hub delegation resolution (150 subcommand targets), and per-project config inheritance with fixture-based testing. Two-job GitHub Actions CI matrix (global + project config) catches broken paths, missing delegation targets, and config drift before commit. Ported from ad-hoc validation scripts (`check-schema-compliance.mjs`, `check-agent-format.mjs`) into structured, maintainable vitest suites with `it.each` parameterization. Implementation: `tests/` directory mirrors the config structure — `tests/global/` for global config integrity, `tests/project/` with fixture skeletons for inheritance testing, `tests/helpers/` for JSONC parsing, path resolution, and fixture loading utilities. Run with `npm test` (watch mode) or `npm run test:run` (CI).
 
 ---
 
@@ -223,7 +229,7 @@ No arguments on any hub produces an interactive menu. Supply a subcommand direct
 
 ## Overview
 
-OpenCode Hubs solves a problem of scale. A configuration that accumulates 31 agents, 104 skills, 24 tools, 17 rules, and 7 archetypes over time becomes a burden of memory rather than a toolbox. The natural response — "I hope what I need exists somewhere" — is not a workflow.
+OpenCode Hubs solves a problem of scale. A configuration that accumulates 31 agents, 106 skills, 36 tools, 17 rules, and 7 archetypes over time becomes a burden of memory rather than a toolbox. The natural response — "I hope what I need exists somewhere" — is not a workflow.
 
 The six hubs (`/init-project`, `/ideation`, `/orchestrate`, `/harvest-context`, `/project`, `/skills`) give every capability a discoverable home, ordered by the project development lifecycle. Each hub offers a menu when invoked without arguments, listing subcommands with descriptions. For experienced users, direct invocation skips the menu entirely: `/orchestrate ralph fix all TypeScript errors`.
 
@@ -273,23 +279,9 @@ Natural language triggers that invoke subcommands directly, bypassing the menu. 
 
 ---
 
-## Quick Start
+For detailed prerequisites (including Ollama model setup), see [Installation Guide](./.opencode/docs/installation.md).
 
-```bash
-# Explore — menus guide discovery
-/init-project
-/ideation
-/orchestrate
-/harvest-context
-/project
-
-# Go direct when you know the subcommand
-/init-project setup
-/ideation plan redesign the auth module
-/orchestrate ralph fix all TypeScript errors
-/harvest-context memory
-/project commit
-```
+---
 
 ---
 
@@ -306,7 +298,7 @@ Natural language triggers that invoke subcommands directly, bypassing the menu. 
 | Workflow | @tracer, @git-master, @debugger, @config-orchestrator, @stack-detector |
 | Specialized | @effort-estimator, @prompt-simplifier, @skill-creator, @requirements-analyzer, @commit-drafter, @general |
 
-### Skills (104)
+### Skills (106)
 
 | Category | Key Skills |
 |----------|------------|
@@ -332,7 +324,7 @@ Natural language triggers that invoke subcommands directly, bypassing the menu. 
 | `/project` | Project operations hub |
 | `/skills` | Manage workflow skills — CRUD, search, sync, package, validate |
 
-### Tools (26)
+### Tools (36)
 
 | Tool | Description |
 |------|-------------|
@@ -394,9 +386,14 @@ Configured in `opencode.jsonc`. See [Model Configuration](./.opencode/docs/model
 ├── opencode.jsonc          # Main configuration
 ├── AGENTS.md               # Project-level agent instructions
 ├── agents/                 # 31 agent definitions
-├── skills/                 # 101 workflow skills
+├── skills/                 # 106 workflow skills
+├── tests/                  # Config integrity test suite (667 tests, vitest)
+│   ├── helpers/            # JSONC parser, path resolver, fixture loader
+│   ├── global/             # Schema, file integrity, agent format, delegation tests
+│   ├── project/            # Fixture skeleton + config resolution inheritance tests
+│   └── coverage-map.test.ts# Meta-test: validates every source area has a corresponding test
 ├── commands/               # (empty — all subcommands live in hub menus)
-├── tools/                  # TypeScript tools
+├── tools/                  # 36 TypeScript tools
 │   ├── hubMenu.ts          # Hub menu router (route returns full spec, menu returns slim slice)
 │   ├── hub-data.ts         # Hub types, subcommand spec loader, state helpers
 │   ├── hub-<name>.ts       # Thin hub manifests (10 lines each, identity slice only)
@@ -455,9 +452,10 @@ The separation is deliberate. State is transient and compaction-safe. Context ac
 | [execution-modes.md](./.opencode/docs/execution-modes.md) | Ralph, autopilot, ultrawork, team, ultraqa |
 | [routing.md](./.opencode/docs/routing.md) | Hub routing model — two-tier loading, delegation table (148 subcommands), file layout |
 | [agents.md](./.opencode/docs/agents.md) | All 31 agents with descriptions and usage |
-| [skills.md](./.opencode/docs/skills.md) | All 101 skills organized by category |
+| [skills.md](./.opencode/docs/skills.md) | All 106 skills organized by category |
 | [commands.md](./.opencode/docs/commands.md) | Command system reference |
-| [tools.md](./.opencode/docs/tools.md) | TypeScript tools API reference |
+| [tools.md](./.opencode/docs/tools.md) | 36 TypeScript tools API reference |
+| [testing.md](./.opencode/docs/testing.md) | Config integrity test suite — running, writing, CI |
 | [model-configuration.md](./.opencode/docs/model-configuration.md) | Model setup, tiering, and failover routing |
 | [state-management.md](./.opencode/docs/state-management.md) | Session state persistence |
 | [plugin-system.md](./.opencode/docs/plugin-system.md) | Hook system and keyword detection |

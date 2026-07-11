@@ -1,0 +1,35 @@
+name: Config Test Suite
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  global-config:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run test:run
+        env:
+          OPENCODE_CONFIG_DIR: ${{ github.workspace }}
+
+  project-config:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci
+      - name: Run project-scoped tests only
+        run: npx vitest run tests/project/
+        env:
+          OPENCODE_CONFIG_DIR: ${{ github.workspace }}
