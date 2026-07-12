@@ -42,7 +42,10 @@ Auto-maintained catalog of all wiki pages. Organized by category.
 | [[relearning-flow-kedbin]] | — | — | — |
 | [[short-leash-ai-method-okturtles]] | — | — | — |
 | [[systematic-debugging]] | — | — | — |
-| [[ollama-caching/ollama-prompt-caching-2026-07-01]] | — | — | — |
+| [[openhands]] | research | ai-coding, agentic | active |
+| [[ponytail]] | research | ai-coding, lazy-dev | active |
+| [[karpathy-guidelines]] | research | coding-standards, ai-coding | active |
+
 | [[llm-wiki/karpathy-llm-wiki]] | — | — | — |
 
 ## Frameworks (Architecture & Design)

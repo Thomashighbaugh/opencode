@@ -122,3 +122,4 @@ Chronological record of all wiki operations. Append-only.
   - Sibling skills pack: grill-me, interface-kit, junior-to-senior, loop-factory
 - **Index updated**: Added `caveman` entry to research section
 - **Cross-references**: Referenced as dependency by opencode-manifold (uses Caveman for compressed communication); related to all token-compression tooling
+2026-07-12 19:12:36 - Harvested OpenHands, Ponytail, Karpathy Guidelines into durable context
