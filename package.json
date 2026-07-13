@@ -13,13 +13,13 @@
   },
   "dependencies": {
     "@franlol/opencode-md-table-formatter": "0.0.3",
-    "@opencode-ai/plugin": "1.16.2",
-    "@opencode-ai/sdk": "latest",
+    "@opencode-ai/plugin": "^1.17.18",
+    "@opencode-ai/sdk": "^1.17.18",
     "@opencode-plugins/env-protection": "^1.0.4",
     "glob": "^13.0.6",
-    "js-yaml": "^5.1.0",
+    "js-yaml": "^5.2.1",
     "jsonpath-plus": "^10.4.0",
-    "opencode-ai": "^1.16.2",
+    "opencode-ai": "^1.17.18",
     "typescript": "^6.0.3",
     "typescript-language-server": "^5.3.0",
     "vscode-langservers-extracted": "^4.10.0",
@@ -27,7 +27,7 @@
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
-    "@types/node": "^25.9.2",
+    "@types/node": "^25.9.5",
     "vitest": "^2.1.0"
   }
 }

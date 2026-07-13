@@ -88,6 +88,7 @@
     "grep": "allow",
     "glob": "allow",
     "skill": "allow",
+    "task": "allow",
     "todowrite": "allow",
     "question": "allow"
   },
@@ -129,5 +130,6 @@
     "./rules/hub-description-directive.md",
     "./rules/completion-guardrail.md",
     "./rules/output-compression.md"
-  ]
+  ],
+  "small_model": "ollama/deepseek-v4-flash:cloud"
 }

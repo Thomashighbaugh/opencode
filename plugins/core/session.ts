@@ -321,13 +321,13 @@ Treat this as prior-session context only. Prioritize the user's newest request.
 // Todo Status Cache
 // ============================================================================
 
-export const TODO_CACHE_TTL = 1000 // 1 second
+export const STALL_CACHE_TTL = 1000 // 1 second
 const todoCache = new Map<string, { status: string; timestamp: number }>()
 
 export function getTodoStatus(directory: string): string {
   const cacheKey = directory
   const cached = todoCache.get(cacheKey)
-  if (cached && Date.now() - cached.timestamp < TODO_CACHE_TTL) {
+  if (cached && Date.now() - cached.timestamp < STALL_CACHE_TTL) {
     return cached.status
   }
 

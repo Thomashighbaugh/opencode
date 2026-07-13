@@ -72,3 +72,4 @@ Add your project-specific coding style rules here:
 - Naming conventions
 - File structure requirements
 - Framework-specific patterns
+- YAGNI/Minimalist: No speculative features, no abstractions for single-use code. "If you write 200 lines and it could be 50, rewrite it."

@@ -88,3 +88,9 @@ Auto-maintained catalog of all wiki pages. Organized by category.
 | Page | Type | Tags | Status |
 |------|------|------|--------|
 | [[wiki-schema]] | concept | wiki, schema, meta | active |
+
+## Glossary
+
+| Term | Definition |
+|------|------------|
+| Materialization | Making a file real in the filesystem |

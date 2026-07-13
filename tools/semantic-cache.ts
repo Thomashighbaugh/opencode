@@ -6,7 +6,7 @@ import { getCache, CacheManager, getProjectSlug } from "./cache-utils"
 
 const VALID_ACTIONS = ["save", "load", "invalidate", "stats"] as const
 const OLLAMA_URL = "http://127.0.0.1:11434/api/embed"
-const EMBED_MODEL = "mxbai-embed-large"
+const EMBED_MODEL = "pedrohml/mxbai-embed-large:latest"
 const SIMILARITY_THRESHOLD = 0.92
 const CACHE_TTL_MS = 86_400_000 // 24h (matches stable namespace)
 
@@ -124,7 +124,7 @@ function buildExactKey(agentType: string, taskPrompt: string, filePaths: string[
 // ─── Tool Definition ─────────────────────────────────────────────────────
 
 export default tool({
-  description: "Semantic similarity cache for subagent outputs — embedding-based near-match detection via local Ollama nomic-embed-text. Two-tier: exact SHA-256 match first, then 0.92 cosine fallback. Saves API calls by returning cached results for semantically similar task prompts on unchanged files.",
+  description: "Semantic similarity cache for subagent outputs — embedding-based near-match detection via local Ollama (pedrohml/mxbai-embed-large:latest). Two-tier: exact SHA-256 match first, then 0.92 cosine fallback. Saves API calls by returning cached results for semantically similar task prompts on unchanged files.",
   args: {
     action: tool.schema.string().describe(`Action. Valid: ${VALID_ACTIONS.join(", ")}`),
     agentType: tool.schema.string().optional().describe("Agent type (e.g., 'executor', 'code-reviewer')"),

@@ -19,6 +19,8 @@ jobs:
       - run: npm run test:run
         env:
           OPENCODE_CONFIG_DIR: ${{ github.workspace }}
+      - name: Check dependency freshness
+        run: npm outdated || true
 
   project-config:
     runs-on: ubuntu-latest

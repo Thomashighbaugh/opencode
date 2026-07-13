@@ -12,6 +12,7 @@ import type { Plugin, Hooks } from "@opencode-ai/plugin"
 import type { Event } from "@opencode-ai/sdk"
 import { join } from "path"
 import { existsSync, readdirSync, unlinkSync, statSync } from "fs"
+
 import { getCache, CacheManager, withToolCache, invalidateToolCache, invalidateAllToolCaches } from "../../tools/cache-utils"
 import promptCompilerTool from "../../tools/prompt-compiler"
 import semanticCacheTool from "../../tools/semantic-cache"

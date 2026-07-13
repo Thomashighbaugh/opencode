@@ -1,5 +1,10 @@
 import { HubSubcommand } from "../../hub-data"
 import createTests from "./create-tests"
+import codeReview from "./code-review"
+import ponytailReview from "./ponytail-review"
+import ponytailAudit from "./ponytail-audit"
+import ponytailDebt from "./ponytail-debt"
+import ponytailGain from "./ponytail-gain"
 import commit from "./commit"
 import gitStageThread from "./git-stage-thread"
 import pr from "./pr"
@@ -26,6 +31,7 @@ import workspace from "./workspace"
 import readme from "./readme"
 
 export const specs = [
+  codeReview, ponytailReview, ponytailAudit, ponytailDebt, ponytailGain,
   createTests, commit, gitStageThread, pr, gh, optimize, refactor, simplify, cleanup,
   modernize, icon, organize, changelog, converge, scan, sandbox,
   retrospect, purge, release, review, audit, archive, gitCleanup, workspace, readme

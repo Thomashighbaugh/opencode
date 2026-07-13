@@ -38,6 +38,16 @@ Hubs can be installed in three ways:
 
 - **Git** - For repository operations
 - **TypeScript 5.7+** - For custom tools development
+- **Ollama** - Local AI server. Required for:
+  - **Semantic subagent cache** (embeddings via `pedrohml/mxbai-embed-large:latest`) — avoids redundant subagent API calls by caching outputs of semantically similar task prompts. Degrades to exact-match only without Ollama.
+  - **Document reranking** (via `hans-tech/bge-reranker-v2-m3:260522`) — scores and ranks context documents for more relevant injection. Unavailable without Ollama.
+
+  Pull the models:
+
+  ```bash
+  ollama pull pedrohml/mxbai-embed-large:latest
+  ollama pull hans-tech/bge-reranker-v2-m3:260522
+  ```
 
 ### Verify Prerequisites
 

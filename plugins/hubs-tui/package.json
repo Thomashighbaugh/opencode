@@ -8,9 +8,12 @@
     ".": "./index.js",
     "./tui": "./dist/tui.js"
   },
-  "oc-plugin": ["tui"],
+  "oc-plugin": [
+    "tui"
+  ],
   "scripts": {
-    "build": "bun build src/tui.tsx --outdir dist --target bun --minify",
+    "generate-menus": "bun run generate-menus.ts",
+    "build": "bun run generate-menus.ts && bun build src/tui.tsx --outdir dist --target bun --minify",
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
@@ -19,7 +22,7 @@
     "solid-js": "^1.9.0"
   },
   "devDependencies": {
-    "@opencode-ai/plugin": "^1.14.24",
+    "@opencode-ai/plugin": "^1.17.18",
     "@opentui/solid": "0.1.99",
     "solid-js": "^1.9.0",
     "typescript": "^5.8.0"

@@ -665,6 +665,7 @@
     "label": "analyze-patterns",
     "description": "Analyze code patterns and anti-patterns — consistencies, convention violations",
     "reminder": "Analyze codebase patterns and anti-patterns.",
+    "inline": true,
     "detailedDescription": "Analyzes code patterns and anti-patterns across the codebase. Scans for:\n\n- Repeated patterns (good — candidates for extraction).\n- Anti-patterns (bad — should be refactored).\n- Inconsistent patterns (same problem solved different ways).\n- Convention violations (naming, structure, error handling).\n\nOutput: a pattern analysis report with locations and recommendations. Use to understand the codebase's conventions before refactoring or extending.\n\nThis is a read-only analysis — no code is modified. The report is saved to .opencode/state/ for reference. Use before refactoring, extending, or when onboarding to a new codebase.",
     "tools": [
       "bash"
@@ -799,6 +800,7 @@
     "label": "create-tests",
     "description": "Generate comprehensive 8-type test suite",
     "reminder": "Generate comprehensive 8-type test suite.",
+    "inline": true,
     "detailedDescription": "Generates a comprehensive test suite covering 8 test types per unit under test:\n\n1. Happy path — expected input → expected output.\n2. Edge cases — empty, null, max, min, boundary values.\n3. Error cases — invalid input, failures, exceptions.\n4. Integration — interaction with dependencies.\n5. Concurrency — race conditions, ordering (where applicable).\n6. Performance — timing/complexity assertions (where applicable).\n7. Regression — tests for known bugs to prevent recurrence.\n8. Property-based — invariant testing (where applicable).\n\nThe generator reads the code under test, infers its contract, and writes tests for each type. Output goes to the project's test directory following existing conventions.\n\nUse when you need thorough test coverage quickly, especially for critical modules.",
     "tools": [
       "bash"
@@ -896,6 +898,14 @@
     "relatedSkills": [
       "hubs-doctor"
     ]
+  },
+  "project/code-review": {
+    "label": "code-review",
+    "description": "Delegated code review — pass instructions directly to @code-reviewer",
+    "reminder": "Delegating review to @code-reviewer agent.",
+    "agent": "@code-reviewer",
+    "inline": true,
+    "detailedDescription": "Delegates code review to the @code-reviewer agent. The remainder of your prompt will be passed as specific instructions to the agent."
   },
   "project/refactor": {
     "label": "refactor",
@@ -1017,6 +1027,7 @@
     "label": "git-stage-thread",
     "description": "Stage git changes from current conversation thread",
     "reminder": "Stage files changed in conversation.",
+    "inline": true,
     "detailedDescription": "Stages files that were changed during the current conversation thread. Scans the conversation for file edits/writes and stages exactly those files — not all modified files in the working tree.\n\nThis prevents accidentally staging unrelated changes (from other tools, manual edits, etc.). Use before /project commit to ensure only the conversation's changes are committed.",
     "tools": [
       "bash"
@@ -1034,6 +1045,14 @@
       "bash"
     ],
     "relatedSkills": []
+  },
+  "project/ponytail": {
+    "label": "ponytail",
+    "description": "Ponytail commands — audit, review, debt, gain, help",
+    "reminder": "Executing ponytail command.",
+    "command": "ponytail",
+    "inline": true,
+    "detailedDescription": "Ponytail commands: /ponytail-review (audit), /ponytail-audit (repo audit), /ponytail-debt (deferred cleanup), /ponytail-gain (score impact), /ponytail-help."
   },
   "project/converge": {
     "label": "converge",
