@@ -488,19 +488,19 @@ export const HUBS: Hub[] = [
         "description": "Delegated code review — pass instructions directly to @code-reviewer"
       },
       {
-        "label": "ponytail-review",
+        "label": "pt-review",
         "description": "Review current diff for over-engineering"
       },
       {
-        "label": "ponytail-audit",
+        "label": "pt-audit",
         "description": "Audit whole repo for over-engineering"
       },
       {
-        "label": "ponytail-debt",
+        "label": "pt-debt",
         "description": "Harvest deferred ponytail shortcuts"
       },
       {
-        "label": "ponytail-gain",
+        "label": "pt-gain",
         "description": "Show measured impact scoreboard"
       },
       {

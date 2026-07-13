@@ -1,7 +1,7 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
 const spec: HubSubcommandSpec = {
-  label: "ponytail-debt",
+  label: "pt-debt",
   description: "Harvest deferred ponytail shortcuts",
   reminder: "Harvesting deferred ponytail debt.",
   inline: true,

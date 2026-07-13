@@ -1,7 +1,7 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
 const spec: HubSubcommandSpec = {
-  label: "ponytail-gain",
+  label: "pt-gain",
   description: "Show measured impact scoreboard",
   reminder: "Showing impact scoreboard.",
   inline: true,

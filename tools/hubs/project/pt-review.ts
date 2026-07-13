@@ -1,7 +1,7 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
 const spec: HubSubcommandSpec = {
-  label: "ponytail-review",
+  label: "pt-review",
   description: "Review current diff for over-engineering",
   reminder: "Reviewing diff for over-engineering.",
   inline: true,

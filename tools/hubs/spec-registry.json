@@ -780,6 +780,13 @@
       "changelog-generator"
     ]
   },
+  "project/ponytail-audit": {
+    "label": "ponytail-audit",
+    "description": "Audit whole repo for over-engineering",
+    "reminder": "Auditing repo for over-engineering.",
+    "inline": true,
+    "detailedDescription": "Audits entire repository for over-engineering, returning a structured audit report."
+  },
   "project/scan": {
     "label": "scan",
     "description": "Security vulnerability scan — SAST rules, secrets detection, dependency audit, compliance checks",
@@ -806,6 +813,13 @@
       "bash"
     ],
     "relatedSkills": []
+  },
+  "project/ponytail-gain": {
+    "label": "ponytail-gain",
+    "description": "Show measured impact scoreboard",
+    "reminder": "Showing impact scoreboard.",
+    "inline": true,
+    "detailedDescription": "Displays impact metrics (LOC, cost, latency reduction) from Ponytail benchmark runs."
   },
   "project/purge": {
     "label": "purge",
@@ -934,6 +948,13 @@
     ],
     "relatedSkills": []
   },
+  "project/ponytail-debt": {
+    "label": "ponytail-debt",
+    "description": "Harvest deferred ponytail shortcuts",
+    "reminder": "Harvesting deferred ponytail debt.",
+    "inline": true,
+    "detailedDescription": "Harvests `ponytail:` comments deferred into the debt ledger."
+  },
   "project/release": {
     "label": "release",
     "description": "Tag and release — bump version, generate changelog, create GitHub release in one flow",
@@ -1046,13 +1067,12 @@
     ],
     "relatedSkills": []
   },
-  "project/ponytail": {
-    "label": "ponytail",
-    "description": "Ponytail commands — audit, review, debt, gain, help",
-    "reminder": "Executing ponytail command.",
-    "command": "ponytail",
+  "project/ponytail-review": {
+    "label": "ponytail-review",
+    "description": "Review current diff for over-engineering",
+    "reminder": "Reviewing diff for over-engineering.",
     "inline": true,
-    "detailedDescription": "Ponytail commands: /ponytail-review (audit), /ponytail-audit (repo audit), /ponytail-debt (deferred cleanup), /ponytail-gain (score impact), /ponytail-help."
+    "detailedDescription": "Reviews the current diff against Ponytail principles, flags over-engineering, returns delete-list."
   },
   "project/converge": {
     "label": "converge",

@@ -1,7 +1,7 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
 const spec: HubSubcommandSpec = {
-  label: "ponytail-audit",
+  label: "pt-audit",
   description: "Audit whole repo for over-engineering",
   reminder: "Auditing repo for over-engineering.",
   inline: true,
