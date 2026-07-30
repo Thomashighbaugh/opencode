@@ -288,7 +288,7 @@ Turn 2:
 
 | Skill | Purpose |
 |-------|---------|
-| `opencode-configure` | Full config surface reference (all 8 surfaces) |
+| `opencode-configure` | Full config surface reference (all 8 surfaces, includes `opencode-config`) |
 | `customize-opencode` | Schema shapes and field-level details for `opencode.json` |
 | `config-sync` | Schema compliance checking and drift detection |
 | `opencode-agent-creator` | Deep guide for creating agent definitions |

@@ -37,16 +37,16 @@
 │   ├── context-strategy.md
 │   ├── karpathy-guidelines.md
 │   └── ...                # 15 total rules
-├── archetypes/           # Project archetype templates for /init-project
-│   ├── bare-bones/
-│   ├── nextjs-webapp/
-│   └── ...                # 8 archetypes
-│   └── each archetype has: agents/, rules/, skills/, tools/
-│      # agents/ and rules/ → referenced in opencode.jsonc (agent + instructions keys)
-│      # skills/ and tools/ → copied/linked into project's .opencode/ directory
-├── templates/            # File templates
+├── templates/
+│   ├── projects/          # Project archetype templates for /init-project
+│   │   ├── bare-bones/
+│   │   ├── nextjs-webapp/
+│   │   └── ...             # 8 archetypes
+│   │   └── each archetype has: agents/, rules/, skills/, tools/
+│   │      # agents/ and rules/ → referenced in opencode.jsonc (agent + instructions keys)
+│   │      # skills/ and tools/ → copied/linked into project's .opencode/ directory
 │   ├── agent-template.md  # Agent definition template
-│   ├── context-template.md # Context document template
+│   ├── context-template.md
 │   ├── rules/             # Rule generation templates
 │   │   ├── api/
 │   │   ├── testing/

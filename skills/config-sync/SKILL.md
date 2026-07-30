@@ -2,6 +2,7 @@
 name: config-sync
 description: Synchronize opencode.jsonc with the latest OpenCode config schema from Context7. Checks schema, detects drift, and updates config to remain compliant.
 level: 3
+license: MIT
 ---
 
 # Config Sync

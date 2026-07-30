@@ -2,6 +2,7 @@
 name: rule-generator
 description: Generate project-specific OpenCode rules from a conventions fingerprint — converts detected coding patterns into .opencode/rules/*.md files with BAD/GOOD examples, tags, and auto-registration
 level: 3
+license: MIT
 tags: [provisioning, conventions, rules, init]
 ---
 

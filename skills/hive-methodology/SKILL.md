@@ -2,6 +2,7 @@
 name: hive-methodology
 description: Agent Hive methodology — 7 principles for structured multi-agent coordination: Plan→Approve→Execute, context persistence, batched parallelism, worktree isolation, good enough wins, tests define done, iron laws
 level: 2
+license: MIT
 ---
 
 # Agent Hive Methodology

@@ -1,6 +1,6 @@
 ---
 name: opencode-plugin-creator
-description: Guide for creating OpenCode plugins — hook plugins (.ts), npm plugins, and TUI plugins (.tsx). Use when building, updating, or packaging OpenCode plugins.
+description: Guide for creating OpenCode plugins — hook plugins (.ts), npm plugins, and TUI plugins (.tsx). Covers feasibility, architecture patterns, and full procedural workflow. Use when building, updating, or packaging OpenCode plugins.
 level: 3
 license: MIT
 ---
@@ -207,10 +207,74 @@ export default {
 
 Build with `bun run build` (configured in `package.json`). Register compiled `.js` in `opencode.jsonc`.
 
+## Feasibility Check
+
+Not every idea can be a plugin. Validate before building:
+
+### Feasible as plugins:
+- Intercepting/blocking tool calls
+- Reacting to events (file edits, session completion, etc.)
+- Adding custom tools for the LLM
+- Modifying LLM parameters (temperature, etc.)
+- Custom auth flows for providers
+- Customizing session compaction
+- Displaying status messages (toasts, inline)
+
+### NOT feasible (inform user):
+- Modifying TUI rendering or layout
+- Adding new built-in tools (requires OC source)
+- Changing core agent behavior/prompts
+- Intercepting assistant responses mid-stream
+- Adding new keybinds or commands
+- Modifying internal file read/write
+- Adding new permission types
+
+**Alternatives:** OC core changes → contribute to `packages/opencode`; MCP tools → use MCP server configuration; Simple automation → shell scripts.
+
+## Common Mistakes
+
+| Mistake | Fix |
+|---------|-----|
+| Using `client.registerTool()` | Use `tool: { name: tool({...}) }` |
+| Wrong event property names | Check `references/events.md` |
+| Sync event handler | MUST use `async` |
+| Not throwing to block | `throw new Error()` in `tool.execute.before` |
+| Forgetting TypeScript types | `import type { Plugin } from "@opencode-ai/plugin"` |
+
+## Modular Structure (Complex Plugins)
+
+For complex plugins, use a modular directory structure:
+
+```
+.opencode/plugin/my-plugin/
+├── index.ts          # Entry point, exports Plugin
+├── types.ts          # TypeScript types/interfaces
+├── utils.ts          # Shared utilities
+├── hooks/            # Hook implementations
+│   ├── event.ts
+│   └── tool-execute.ts
+└── tools/            # Custom tool definitions
+    └── my-tool.ts
+```
+
+**Rules:** Keep files under 150 lines. Single purpose per function. No monoliths.
+
 ## References
 
 - `references/hook-api.md` — Complete hook API reference and patterns
 - `references/templates.md` — Ready-to-use templates for hook, stateful, and TUI plugins
+- `references/hooks.md` — Hook signatures (auto-generated via extract script)
+- `references/events.md` — Event types and properties
+- `references/examples.md` — Complete plugin examples
+- `references/hook-patterns.md` — Hook implementation patterns
+- `references/CODING-TS.MD` — Code architecture principles
+- `references/tool-helper.md` — Zod tool schemas for custom tools
+- `references/testing.md` — Testing procedure
+- `references/publishing.md` — npm publishing guide
+- `references/toast-notifications.md` — Toast popup API
+- `references/ui-feedback.md` — Inline message API
+- `references/update-notifications.md` — Version update toast pattern
+- `scripts/extract-plugin-api.ts` — API reference extraction script (run to regenerate hooks/events/tools refs)
 
 ## See Also
 

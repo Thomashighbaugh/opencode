@@ -2,6 +2,7 @@
 name: github-ops
 description: GitHub operations via gh CLI for pull requests/PRs, GitHub code search, and drafting exact gh commands. Always use instead of WebFetch for github.com.
 level: 2
+license: MIT
 allowed-tools: Bash(gh:*) Bash(git:*) Bash(./scripts/*) Read Glob Grep Task
 context: fork
 compatibility: "OpenCode, Codex CLI, GitHub Copilot. Requires gh CLI and git."

@@ -2,6 +2,7 @@
 name: learner
 description: Extract a learned skill from the current conversation
 level: 7
+license: MIT
 ---
 
 # Learner Skill

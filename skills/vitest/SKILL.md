@@ -1,6 +1,7 @@
 ---
 name: vitest
 description: "Set up Vitest testing in any project — detects type (Cloudflare Workers, React, Node, library), generates vitest.config.ts, test setup, utilities, and a sample test. Covers mocking patterns, coverage config, workspace setup, Jest migration. Use whenever the user mentions adding tests, setting up Vitest, configuring tests, migrating from Jest, fixing testing infrastructure, or asks 'how do I test this'."
+level: 2
 license: MIT
 ---
 

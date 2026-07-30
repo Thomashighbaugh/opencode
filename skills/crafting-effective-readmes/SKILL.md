@@ -2,6 +2,7 @@
 name: crafting-effective-readmes
 description: Use when writing or improving README files. Provides templates and guidance matched to your audience and project type.
 level: 2
+license: MIT
 ---
 
 # Crafting Effective READMEs

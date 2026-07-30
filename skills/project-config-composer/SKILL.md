@@ -1,6 +1,8 @@
 ---
 name: project-config-composer
 description: Auto-generate a minimal per-project .opencode/ configuration from a stack fingerprint + recommendations. Creates opencode.jsonc, project agents, rules, and instructions that reference global resources. Used by /init-project provision.
+level: 2
+license: MIT
 tags: [init, config, provisioning, scaffolding, per-project]
 ---
 

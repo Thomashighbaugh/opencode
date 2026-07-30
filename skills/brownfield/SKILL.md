@@ -1,6 +1,8 @@
 ---
 name: brownfield
 description: Feature addition to existing codebase — analyze system, identify integration points, validate strategy before implementation
+level: 2
+license: MIT
 ---
 
 # Brownfield

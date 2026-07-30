@@ -1,6 +1,8 @@
 ---
 name: tool-creator
 description: Create valid, type-safe TypeScript tools for OpenCode — generates correct boilerplate, typed interfaces, and handler stubs. Use when building new tools for global config or per-project .opencode/tools/.
+level: 2
+license: MIT
 tags: [opencode, tool, typescript, scaffold, automation]
 version: 1.0.0
 ---

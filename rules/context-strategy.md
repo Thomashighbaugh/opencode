@@ -17,7 +17,7 @@
 | `/init-project` | — | `.opencode/state/init/` | `.opencode/state/init/init-checkpoint.json` |
 | `/ideation` | `.opencode/state/ideation/work-products/` | `.opencode/state/ideation/` | — |
 | `/orchestrate` | `.opencode/state/orchestration/progress/` | `.opencode/state/orchestration/` | `.opencode/state/orchestration/checkpoints/` |
-| `/harvest-context` | — | `.opencode/state/harvest/` | — |
+| `/harvest-context` | — | `.opencode/context/` (durable) / `.opencode/state/harvest/` (session/PII) | — |
 | `/project` | — (stateless) | — | — |
 
 ## Durable Context Paths

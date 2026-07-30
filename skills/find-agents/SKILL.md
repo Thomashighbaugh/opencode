@@ -1,6 +1,8 @@
 ---
 name: find-agents
 description: Discover, vet, and install AI agents by searching across agent registries and GitHub. Use when setting up a project (/init-project), when the user asks "find an agent for X", or when you need to extend agent capabilities with specialized subagents. Searches multiple sources simultaneously instead of trusting a single registry.
+level: 2
+license: MIT
 ---
 
 # Find Agents
@@ -50,7 +52,7 @@ For GitHub agents, direct the user to the repo for setup instructions.
 
 After installing an agent-related skill package, integrate it into the existing agent ecosystem:
 
-1. **Update /harvest-context agent spec** — If the package provides agent definition patterns (like `creating-opencode-agents` or `custom-agent-definitions`), add it as a relatedSkill to `/harvest-context agent` so the agent-creation workflow loads it automatically.
+1. **Update /harvest-context agent spec** — If the package provides agent definition patterns (like `opencode-agent-creator` or `custom-agent-definitions`), add it as a relatedSkill to `/harvest-context agent` so the agent-creation workflow loads it automatically.
 
 2. **Update agent-creator skill** — If the package enhances agent creation, update the `opencode-agent-creator` skill's "Best Practices" or "References" section to mention the new package.
 

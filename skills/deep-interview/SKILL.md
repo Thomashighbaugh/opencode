@@ -7,6 +7,7 @@ next-skill: omc-plan
 next-skill-args: --consensus --direct
 handoff: .opencode/state/specs/deep-interview-{slug}.md
 level: 3
+license: MIT
 ---
 
 <Purpose>

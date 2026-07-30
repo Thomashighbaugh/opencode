@@ -16,7 +16,7 @@ OpenCode Hubs uses five hub commands. Four track state; `/project` is stateless.
 | `/init-project` | — | — | `.opencode/state/init/` | `.opencode/state/init/init-checkpoint.json` |
 | `/ideation` | `.opencode/state/ideation/work-products/` | — | `.opencode/state/ideation/` | — |
 | `/orchestrate` | `.opencode/state/orchestration/progress/` | `.opencode/state/orchestration/progress/` | `.opencode/state/orchestration/` | `.opencode/state/orchestration/checkpoints/` |
-| `/harvest-context` | — | — | `.opencode/state/harvest/` | — |
+| `/harvest-context` | — | — | `.opencode/context/` (durable) / `.opencode/state/harvest/` (session/PII) | — |
 | `/project` | — (stateless) | — | — | — |
 
 ## Durable Context Paths
@@ -43,7 +43,7 @@ Each state subdirectory uses a SQLite database (`state.db`) for structured state
 | `.opencode/state/init/` | `init.db` | Init project state — checkpoints, phases, detection results |
 | `.opencode/state/ideation/` | `ideation.db` | Ideation state — work products, plans, research |
 | `.opencode/state/orchestration/` | `orchestration.db` | Orchestration state — progress, checkpoints, phase data |
-| `.opencode/state/harvest/` | `harvest.db` | Harvest state — extracted context, session summaries |
+| `.opencode/state/harvest/` | `harvest.db` | Harvest state — session extracts (may contain PII), exports, journals, sweeps |
 
 SQLite databases are created on first use. Schema is auto-generated from the JSON state files written to each directory. No embedding models, no ONNX, no vector DB — plain SQL queries over structured state data.
 

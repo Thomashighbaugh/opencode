@@ -2,6 +2,7 @@
 name: skillify
 description: Turn a repeatable workflow from the current session into a reusable OMC skill draft
 level: 3
+license: MIT
 ---
 
 # Skillify

@@ -2,6 +2,7 @@
 name: context7-docs
 description: Fetch official library docs via Context7 MCP for Tailwind CSS, React, Next.js, Vue, MCP, OpenCode, or any npm library. Always use before external web search.
 level: 2
+license: MIT
 allowed-tools: Bash(npx:*) Bash(./scripts/*) Read Glob Grep
 context: fork
 compatibility: "OpenCode, Codex CLI, GitHub Copilot. Requires npx and Context7 MCP server."

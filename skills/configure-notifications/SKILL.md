@@ -2,6 +2,7 @@
 name: configure-notifications
 description: Configure notification integrations (Telegram, Discord, Slack) via natural language
 level: 2
+license: MIT
 triggers:
   - "configure notifications"
   - "setup notifications"

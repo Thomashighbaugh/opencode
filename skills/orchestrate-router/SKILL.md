@@ -2,6 +2,7 @@
 name: orchestrate-router
 description: Natural language intent router — takes amorphous user requests and routes to the correct /orchestrate, /ideation, or /harvest-context subcommand
 level: 3
+license: MIT
 ---
 
 # Orchestrate Router

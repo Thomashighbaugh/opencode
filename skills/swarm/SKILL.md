@@ -2,6 +2,7 @@
 name: swarm
 description: Architect-led swarm of 11 specialized agents with gated QA pipeline. Use when you need parallel execution with quality gates between batches
 level: 4
+license: MIT
 ---
 
 # Swarm — Architect-Led Multi-Agent Execution

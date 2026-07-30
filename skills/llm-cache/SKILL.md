@@ -2,6 +2,7 @@
 name: llm-cache
 description: Semantic LLM response cache — caches and retrieves LLM responses for semantically similar prompts using vector similarity
 level: 2
+license: MIT
 ---
 
 # LLM Cache — Semantic Prompt Caching

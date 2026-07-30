@@ -1,6 +1,7 @@
 ---
 name: design-system-starter
 description: Create and evolve design systems with design tokens, component architecture, accessibility guidelines, and documentation templates. Ensures consistent, scalable, and accessible UI across products.
+level: 2
 license: MIT
 metadata:
   version: 1.0.0

@@ -2,6 +2,7 @@
 name: deliberate-practice
 description: Apply deliberate practice principles for rapid skill acquisition and expert-level performance. Use when learning new skills, plateauing in development, designing training routines, or seeking to accelerate expertise acquisition.
 level: 3
+license: MIT
 ---
 
 # Deliberate Practice & Skill Acquisition

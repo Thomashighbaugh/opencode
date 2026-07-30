@@ -1,6 +1,8 @@
 ---
 name: opro
 description: Optimization by PROmpting — generate candidate prompt variations, test each against a benchmark, and report the best performer. Use when the user invokes /ideation opro or asks for "prompt optimization" / "OPRO".
+level: 2
+license: MIT
 ---
 
 # OPRO — Optimization by PROmpting

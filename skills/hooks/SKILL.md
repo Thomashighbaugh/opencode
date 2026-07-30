@@ -1,6 +1,8 @@
 ---
 name: hooks
 description: Hook Development Rules
+level: 2
+license: MIT
 user-invocable: false
 ---
 

@@ -1,6 +1,8 @@
 ---
 name: professional-communication
 description: Guide technical communication for software developers. Covers email structure, team messaging etiquette, meeting agendas, and adapting messages for technical vs non-technical audiences. Use when drafting professional messages, preparing meeting communications, or improving written communication.
+level: 2
+license: MIT
 allowed-tools: Read, Glob, Grep
 ---
 

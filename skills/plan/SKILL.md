@@ -6,6 +6,7 @@ pipeline: [deep-interview, omc-plan, autopilot]
 next-skill: autopilot
 handoff: .opencode/state/plans/ralplan-*.md
 level: 4
+license: MIT
 ---
 
 <Purpose>

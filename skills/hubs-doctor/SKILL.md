@@ -2,6 +2,7 @@
 name: hubs-doctor
 description: Diagnose and fix OpenCode Hubs installation issues for self-managed global file installations
 level: 3
+license: MIT
 ---
 
 # Hubs Doctor

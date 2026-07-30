@@ -2,6 +2,7 @@
 name: hubs-reference
 description: OAS agent catalog, available tools, team pipeline routing, commit protocol, and skills registry. Auto-loads when delegating to agents, using OAS tools, orchestrating teams, making commits, or invoking skills.
 level: 1
+license: MIT
 user-invocable: false
 ---
 

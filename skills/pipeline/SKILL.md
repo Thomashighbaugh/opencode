@@ -1,6 +1,8 @@
 ---
 name: pipeline
 description: Declarative multi-stage pipeline — Stage 1: lint → Stage 2: test → Stage 3: build → Stage 4: deploy, each stage gates the next
+level: 2
+license: MIT
 ---
 
 # Pipeline

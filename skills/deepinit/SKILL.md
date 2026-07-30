@@ -2,6 +2,7 @@
 name: deepinit
 description: Deep codebase initialization with hierarchical AGENTS.md documentation
 level: 4
+license: MIT
 ---
 
 # Deep Init Skill

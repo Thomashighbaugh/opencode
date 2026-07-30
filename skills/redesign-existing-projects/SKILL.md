@@ -1,6 +1,8 @@
 ---
 name: redesign-existing-projects
 description: Audit and upgrade existing websites and apps to premium design standards without breaking functionality. Use when redesigning an existing UI — identifies generic AI patterns (overused gradients, Lucide icons, centered card columns) and applies high-end alternatives. Works with any CSS framework.
+level: 2
+license: MIT
 ---
 
 # Redesign Skill

@@ -3,6 +3,7 @@ name: ralph
 description: Self-referential loop until task completion with configurable verification reviewer
 argument-hint: "[--no-prd] [--no-deslop] [--self-verify] [--external-verify] [--critic=architect|critic|codex] <task description>"
 level: 4
+license: MIT
 ---
 
 [RALPH + ULTRAWORK - ITERATION {{ITERATION}}/{{MAX}}]

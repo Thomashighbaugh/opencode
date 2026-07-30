@@ -15,8 +15,8 @@ Process:
 3. Build a comparison table: criteria (rows) × alternatives (columns).
 4. Score each alternative on each criterion.
 5. Produce a recommendation with rationale.
-6. Save to .opencode/state/harvest/ and optionally promote to .opencode/context/patterns/ via /harvest-context memory.
-7. **Wiki compliance** (if promoted): update .opencode/context/index.md, append to .opencode/context/log.md, add YAML frontmatter, scan for cross-references.
+6. Save to .opencode/context/patterns/ with wiki compliance (update index.md, append to log.md, add YAML frontmatter, scan for cross-references).
+7. Privacy scan runs before save — if risk detected, divert to .opencode/state/harvest/ instead.
 
 Use when choosing between multiple options and the decision benefits from side-by-side comparison.`,
 

@@ -412,8 +412,98 @@ Project-scoped config mirrors global config but lives in `.opencode/` at the pro
 | MCP server not connecting | Check URL, API key env var, enabled flag |
 | Plugin crash on load | Validate export default, check syntax |
 
+## JSONC Config Tips
+
+### Comment Out, Don't Delete
+
+OpenCode supports JSONC (JSON with comments). Comment out unused configs instead of deleting:
+
+```jsonc
+{
+  "plugin": [
+    "opencode-openai-codex-auth@latest",
+    //"@tarquinen/opencode-dcp@latest",     // disabled for now
+    //"@howaboua/pickle-thinker@0.4.0",     // only for GLM-4.6
+    "@ramtinj95/opencode-tokenscope@latest"
+  ]
+}
+```
+
+**Why:** You might want to re-enable later. Keeps a record of what you've tried.
+
+### Validate After Major Changes
+
+After editing `opencode.jsonc`, you MUST run validation (not just suggest it):
+
+```bash
+opencode run "test"
+```
+
+**Execute it yourself** using the Bash tool before telling the user the change is complete.
+
+If broken, you'll see a clear error with line number:
+```
+Error: Config file at ~/.config/opencode/opencode.json is not valid JSON(C):
+--- Errors ---
+CommaExpected at line 464, column 5
+   Line 464:     "explore": {
+              ^
+--- End ---
+```
+
+Common JSONC mistakes:
+- Missing comma after object (especially after adding new sections)
+- Trailing comma before `}`
+- Unclosed brackets
+
+### Common Config Profiles
+
+**Minimal Safe Config:**
+```jsonc
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "anthropic/claude-sonnet-4-20250514",
+  "permission": {
+    "edit": "ask",
+    "bash": "ask"
+  }
+}
+```
+
+**Power User Config:**
+```jsonc
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "anthropic/claude-sonnet-4-20250514",
+  "autoupdate": true,
+  "permission": {
+    "edit": "allow",
+    "bash": {
+      "*": "allow",
+      "rm -rf *": "deny",
+      "sudo *": "ask"
+    }
+  },
+  "instructions": ["CONTRIBUTING.md"]
+}
+```
+
+**Team Project Config:**
+```jsonc
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "anthropic/claude-sonnet-4-20250514",
+  "share": "auto",
+  "instructions": [
+    "docs/development.md",
+    "docs/api-guidelines.md"
+  ]
+}
+```
+
 ## Related
 
+- `opencode-config-workflow` skill — API-efficient config management methodology
 - `opencode-agent-creator` skill — Deep agent creation guide
 - `skill-creator` skill — Deep skill creation guide  
 - `opencode-command-creator` skill — Deep command creation guide

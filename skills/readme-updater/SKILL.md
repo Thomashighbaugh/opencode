@@ -2,6 +2,7 @@
 name: readme-updater
 description: Update README files to reflect current codebase state — scans agents, skills, tools, rules, commands, archetypes, and plugins; preserves existing tone, links, and structure; produces SEO-optimized, technically proficient documentation. Use when the user says "update the readme" or via /project readme.
 level: 2
+license: MIT
 ---
 
 # Readme Updater
@@ -36,7 +37,7 @@ Collect current resource counts and metadata:
 | Tools | Count `tools/*.ts` files (exclude `AGENTS.md`) |
 | Rules | Count `rules/*.md` files (exclude `AGENTS.md`) |
 | Commands | Count `commands/*.md` files |
-| Archetypes | Count `archetypes/*/` directories |
+| Archetypes | Count `templates/projects/*/` directories |
 | Plugins | Count `plugins/*/` directories + npm plugins in `opencode.jsonc` |
 | Docs | Count `.opencode/context/docs/*.md` files |
 

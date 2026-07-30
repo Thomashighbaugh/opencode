@@ -2,6 +2,7 @@
 name: remember
 description: Review reusable project knowledge and decide what belongs in project memory, notepad, or durable docs
 level: 2
+license: MIT
 ---
 
 # Remember

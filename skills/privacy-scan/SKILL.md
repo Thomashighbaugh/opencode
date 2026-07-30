@@ -2,6 +2,7 @@
 name: privacy-scan
 description: Dynamically scan files and content for secrets, PII, API keys, tokens, credentials, and privacy-compromising content before committing to version control or saving as durable context. Used by init-project and harvest-context hubs.
 level: 2
+license: MIT
 ---
 
 # Privacy Scan

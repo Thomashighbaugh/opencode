@@ -1,6 +1,8 @@
 ---
 name: find-tools
 description: Discover, vet, and generate project-relevant OpenCode tools by searching registries (GitHub, npm) and local template catalog. Used by /init-project setup/refresh to provision project-specific tools alongside skills and agents.
+level: 2
+license: MIT
 tags: [init, config, provisioning, tools, scaffolding]
 ---
 

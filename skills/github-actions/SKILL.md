@@ -1,6 +1,8 @@
 ---
 name: github-actions
 description: "GitHub Actions CI/CD workflows for automating build, test, and deployment"
+level: 2
+license: MIT
 user-invocable: false
 disable-model-invocation: true
 version: 1.0.0

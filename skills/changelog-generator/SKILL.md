@@ -2,6 +2,7 @@
 name: changelog-generator
 description: Automatically creates user-facing changelogs from git commits by analyzing commit history, categorizing changes, and transforming technical commits into clear, customer-friendly release notes.
 level: 2
+license: MIT
 ---
 
 # Changelog Generator

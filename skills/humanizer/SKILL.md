@@ -2,6 +2,7 @@
 name: humanizer
 description: Remove signs of AI-generated writing from text. Use when editing or reviewing text to make it sound more natural and human-written. Based on Wikipedia's comprehensive "Signs of AI writing" guide.
 level: 2
+license: MIT
 version: 2.3.0
 allowed-tools:
   - Read

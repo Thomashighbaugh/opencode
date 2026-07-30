@@ -1,6 +1,8 @@
 ---
 name: vibe-code
 description: Conversational rapid prototyping — describe app in natural language, generate full-stack, iterate with feedback through conversational rounds
+level: 2
+license: MIT
 ---
 
 # Vibe Code

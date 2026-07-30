@@ -1,6 +1,8 @@
 ---
 name: systematic-debugging
 description: Structured debugging methodology that mandates root cause investigation before attempting any fixes. Use when encountering any bug, test failure, or unexpected behavior, before proposing fixes. ESPECIALLY when under time pressure, when "just one quick fix" seems obvious, when you've already tried multiple fixes, or when you don't fully understand the issue. Do NOT skip when the issue seems simple — simple bugs have root causes too.
+level: 2
+license: MIT
 ---
 
 # Systematic Debugging

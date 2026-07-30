@@ -1,17 +1,20 @@
 ---
 name: typescript-interface-vs-type
-description: Guidance on when to use `interface` vs `type` in TypeScript. Use when reviewing TypeScript code, choosing between interface and type alias, or evaluating type system usage.
+description: TypeScript best practices covering interface vs type, utility types, discriminated unions, generics, and strict mode configuration. Use when reviewing TypeScript code, designing types, or configuring tsconfig.
+level: 2
+license: MIT
 ---
 
-# TypeScript: `interface` vs `type`
+# TypeScript Best Practices
 
-Quick-reference guide for choosing between `interface` and `type` aliases in TypeScript.
+Covers interface/type selection, utility types, discriminated unions, generic patterns, and strict mode configuration.
 
 ## When to Use
 
 - Reviewing TypeScript code for type system consistency
 - Choosing between `interface` and `type` in new code
-- Evaluating whether declaration merging or intersection behavior is needed
+- Designing discriminated unions and generic utilities
+- Configuring tsconfig for strict mode
 - Code review feedback on type definitions
 
 ---
@@ -150,4 +153,168 @@ type ReadonlyProps = Readonly<Props>;
 
 // ⚠️ Both work for simple object types — pick one per project
 // ✅ interface for extends, ✅ type for intersection
+```
+
+---
+
+## Utility Types Reference
+
+| Utility | Transform | Example |
+|---------|-----------|---------|
+| `Partial<T>` | All properties optional | `Partial<Config>` |
+| `Required<T>` | All properties required | `Required<Config>` |
+| `Readonly<T>` | All properties readonly | `Readonly<State>` |
+| `Pick<T, K>` | Select keys | `Pick<User, 'id' \| 'name'>` |
+| `Omit<T, K>` | Remove keys | `Omit<User, 'password'>` |
+| `Record<K, V>` | Object with key type K, value type V | `Record<string, User>` |
+| `Exclude<T, U>` | Remove from union | `Exclude<Status, 'error'>` |
+| `Extract<T, U>` | Keep only union members in U | `Extract<Status, string>` |
+| `NonNullable<T>` | Remove null/undefined | `NonNullable<string \| null>` |
+| `ReturnType<T>` | Function return type | `ReturnType<typeof fetchUser>` |
+| `Parameters<T>` | Function parameter tuple | `Parameters<typeof fn>` |
+| `Awaited<T>` | Unwrap Promise | `Awaited<Promise<User>>` |
+
+```typescript
+// Practical example: API response with loading state
+type ApiState<T> = 
+  | { status: 'idle' }
+  | { status: 'loading' }
+  | { status: 'success'; data: T }
+  | { status: 'error'; error: string };
+
+// Discriminate by status
+function renderState(state: ApiState<User>) {
+  switch (state.status) {
+    case 'idle': return null;
+    case 'loading': return <Spinner />;
+    case 'success': return <UserProfile user={state.data} />;
+    case 'error': return <Error msg={state.error} />;
+  }
+}
+```
+
+---
+
+## Discriminated Unions
+
+### Pattern
+
+A union type with a common literal field (`kind`, `type`, `status`) that TypeScript uses for narrowing:
+
+```typescript
+type Shape =
+  | { kind: 'circle'; radius: number }
+  | { kind: 'square'; size: number }
+  | { kind: 'rect'; width: number; height: number };
+
+function area(s: Shape): number {
+  switch (s.kind) {
+    case 'circle': return Math.PI * s.radius ** 2;
+    case 'square': return s.size ** 2;
+    case 'rect':   return s.width * s.height;
+  }
+}
+```
+
+**Rules:**
+- Discriminant field MUST be a literal type (string literal, number literal, boolean)
+- Each variant has the discriminant PLUS its specific data
+- Switch exhaustiveness: add `default: assertNever(s)` to catch missing cases
+
+```typescript
+function assertNever(x: never): never {
+  throw new Error(`Unexpected value: ${x}`);
+}
+```
+
+### When to Use
+
+- State machines (loading/success/error, connection states)
+- Form field unions (text, number, select, checkbox with different payloads)
+- Event handlers (different event types with different data)
+- Redux actions / command patterns
+
+---
+
+## Generics Patterns
+
+### Constrained Generics
+
+```typescript
+function getProperty<T, K extends keyof T>(obj: T, key: K): T[K] {
+  return obj[key];
+}
+
+// K is constrained to actual keys of T — type-safe access
+```
+
+### Generic Components (React)
+
+```typescript
+interface ListProps<T> {
+  items: T[];
+  renderItem: (item: T) => React.ReactNode;
+}
+
+function List<T>({ items, renderItem }: ListProps<T>) {
+  return <ul>{items.map(renderItem)}</ul>;
+}
+
+// Usage: <List items={users} renderItem={u => <li>{u.name}</li>} />
+```
+
+### Factory Functions
+
+```typescript
+function createStore<T>(initial: T) {
+  let state = initial;
+  return {
+    getState: () => state,
+    setState: (fn: (prev: T) => T) => { state = fn(state); },
+  };
+}
+```
+
+---
+
+## Strict Mode Configuration
+
+### Minimal Strict tsconfig
+
+```jsonc
+{
+  "compilerOptions": {
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "exactOptionalPropertyTypes": true
+  }
+}
+```
+
+### What `strict: true` enables
+
+| Flag | Effect |
+|------|--------|
+| `strictNullChecks` | `null`/`undefined` are distinct types |
+| `noImplicitAny` | Error on implicit `any` |
+| `strictFunctionTypes` | Contravariant function parameter checks |
+| `strictBindCallApply` | Type-safe `.bind()`, `.call()`, `.apply()` |
+| `strictPropertyInitialization` | Class properties must be initialized |
+| `noImplicitThis` | Error on `this` with implicit `any` |
+
+### Patterns for Strict Compliance
+
+```typescript
+// Before: implicit any on callback parameter
+items.forEach(item => console.log(item)); // ❌
+
+// After: typed parameter
+items.forEach((item: Item) => console.log(item)); // ✅
+
+// Before: unchecked indexed access
+const first = arr[0]; // string | undefined
+
+// After: must handle undefined
+const first = arr[0] ?? fallback; // ✅
 ```

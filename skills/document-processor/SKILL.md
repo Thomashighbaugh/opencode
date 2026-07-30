@@ -2,6 +2,7 @@
 name: document-processor
 description: Convert documents (PDF, EPUB, HTML, DOCX, MD) to clean Markdown using pandoc and pdftotext for ingestion into project context
 level: 1
+license: MIT
 ---
 
 # Document Processor

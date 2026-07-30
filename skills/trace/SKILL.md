@@ -4,6 +4,7 @@ description: Evidence-driven tracing lane that orchestrates competing tracer hyp
 argument-hint: "<observation to trace>"
 agent: tracer
 level: 2
+license: MIT
 ---
 
 # Trace Skill

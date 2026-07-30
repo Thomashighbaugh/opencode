@@ -2,6 +2,7 @@
 name: idea-refine
 description: Refines ideas iteratively through structured divergent and convergent thinking. Use to transform raw ideas into actionable concepts.
 level: 3
+license: MIT
 ---
 
 # Idea Refine

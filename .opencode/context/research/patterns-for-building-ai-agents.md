@@ -1,9 +1,3 @@
----
-source: "Patterns for Building AI Agents by Sam Bhagwat & Michelle Gienow (Mastra, October 2025)"
-type: book
-converted: pdf-to-text
-converted_at: 2026-06-26T23:26:19Z
----
 for Building AI Agents
 
 

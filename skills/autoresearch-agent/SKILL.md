@@ -2,6 +2,7 @@
 name: autoresearch-agent
 description: Delegate autoresearch tasks to a headless OpenCode sub-agent process. Use when the current agent needs to run any autoresearch command as an autonomous background or foreground subprocess.
 level: 3
+license: MIT
 ---
 
 # autoresearch-agent

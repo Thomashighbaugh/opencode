@@ -1,6 +1,8 @@
 ---
 name: compact
 description: Compact session context — save work artifacts to state and update CHANGELOG with recent changes. Use when session context is full or before switching tasks.
+level: 2
+license: MIT
 ---
 
 # Compact

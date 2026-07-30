@@ -2,6 +2,7 @@
 name: release
 description: Automated release workflow for OpenCode Hubs
 level: 3
+license: MIT
 ---
 
 # Release Skill

@@ -2,6 +2,7 @@
 name: icon-generator
 description: Generate web UI/UX icon assets (favicon.ico, apple-touch-icon, PWA icons) and optionally Unreal Engine packaging icons from a single source SVG/PNG.
 level: 2
+license: MIT
 ---
 
 # Icon Generator

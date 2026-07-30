@@ -2,6 +2,7 @@
 name: ccg
 description: Multi-model orchestration via ask commands for alternative perspectives, then synthesis
 level: 5
+license: MIT
 ---
 
 # CCG - Tri-Model Orchestration

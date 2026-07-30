@@ -1,6 +1,8 @@
 ---
 name: find-rules
 description: Discover, vet, and generate project-relevant OpenCode rules by searching registries (GitHub, skills.sh) and local template catalog. Used by /init-project setup/refresh to provision project-specific rules alongside skills and agents.
+level: 2
+license: MIT
 tags: [init, config, provisioning, rules, scaffolding]
 ---
 

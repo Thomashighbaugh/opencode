@@ -1,6 +1,8 @@
 ---
 name: improve-codebase-architecture
 description: Analyze codebases for architectural friction and propose module-deepening refactors as testability improvements. Use when the codebase feels hard to change, tests are brittle, or modules seem shallow. Applies John Ousterhout's deep module principle — small interfaces hiding large implementations for better testability and AI navigability.
+level: 2
+license: MIT
 ---
 
 # Improve Codebase Architecture

@@ -4,6 +4,7 @@ description: N coordinated agents on shared task list using OpenCode native team
 argument-hint: "[N:agent-type] [ralph] <task description>"
 aliases: []
 level: 4
+license: MIT
 ---
 
 # Team Skill

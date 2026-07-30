@@ -1,6 +1,8 @@
 ---
 name: test-coverage-improver
 description: Analyze test coverage gaps and generate tests to improve coverage. Use when improving test coverage, finding untested code, or writing missing tests.
+level: 2
+license: MIT
 ---
 
 # Test Coverage Improver

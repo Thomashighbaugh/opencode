@@ -1,6 +1,8 @@
 ---
 name: self-consistency
 description: Run multiple independent reasoning passes and find consensus. Use when the decision is critically important, the stakes are high, or the user explicitly requests "run it multiple times" / "check consistency" / "self-consistency".
+level: 2
+license: MIT
 ---
 
 # Self-Consistency

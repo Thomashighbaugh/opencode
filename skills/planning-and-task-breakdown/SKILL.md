@@ -2,6 +2,7 @@
 name: planning-and-task-breakdown
 description: Break work into ordered tasks with explicit acceptance criteria. Use when you have requirements and need to break them into implementable units.
 level: 3
+license: MIT
 ---
 
 # Planning and Task Breakdown

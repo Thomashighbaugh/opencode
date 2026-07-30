@@ -1,6 +1,8 @@
 ---
 name: plan-execute
 description: Classic plan-then-execute — architect builds complete plan, executor implements step by step
+level: 2
+license: MIT
 ---
 
 # Plan-Execute

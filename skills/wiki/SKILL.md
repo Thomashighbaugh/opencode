@@ -2,6 +2,7 @@
 name: wiki
 description: LLM Wiki compliance layer — index, log, frontmatter, and cross-references for .opencode/context/ (Karpathy model)
 level: 4
+license: MIT
 triggers: ["wiki", "llm-wiki", "karpathy wiki"]
 ---
 

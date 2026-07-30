@@ -2,6 +2,7 @@
 name: self-improve
 description: Autonomous evolutionary code improvement engine with tournament selection
 level: 4
+license: MIT
 mode: subagent
 ---
 

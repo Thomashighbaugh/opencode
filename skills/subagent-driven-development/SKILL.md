@@ -1,6 +1,8 @@
 ---
 name: subagent-driven-development
 description: Execute implementation plans by dispatching independent subagents per task with automated review gates. Use when executing implementation plans with independent tasks, when you need per-task subagents for isolated context, or when you want spec compliance + code quality review after each task. CRITICAL for Hub-to-Hub handoffs between /ideation and /orchestrate — ensures plans survive context switches.
+level: 2
+license: MIT
 ---
 
 # Subagent-Driven Development

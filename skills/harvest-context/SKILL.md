@@ -100,10 +100,13 @@ Check for flags:
 
 ### Step 1: Scan Existing State
 
+Scan both durable context (committed) and state (gitignored) for overlapping artifacts:
+
 ```bash
+ls .opencode/context/research/ 2>/dev/null
+ls .opencode/context/patterns/ 2>/dev/null
+ls .opencode/context/frameworks/ 2>/dev/null
 ls .opencode/state/harvest/ 2>/dev/null
-ls .opencode/state/ideation/ 2>/dev/null
-ls .opencode/state/orchestration/ 2>/dev/null
 ```
 
 If overlapping artifacts exist, ask user: "Found prior harvest on [topic]. Use as context, overwrite, or skip?"
@@ -123,7 +126,7 @@ if [[ -f "$PRIVACY_SCAN" ]]; then
     SCAN_RISK=$(echo "$SCAN_RESULT" | jq -r '.risk' 2>/dev/null)
     case "$SCAN_RISK" in
         high|medium|uncertain)
-            # Save to state (gitignored) instead of context (committed)
+            # Save to state/harvest (gitignored) instead of context (committed) — review before promoting
             STATE_PATH="${SAVE_PATH/.opencode\/context\//.opencode\/state\/harvest\/}"
             mkdir -p "$(dirname "$STATE_PATH")"
             echo "$ARTIFACT_CONTENT" > "$STATE_PATH"
@@ -156,6 +159,9 @@ Write the output to the appropriate location:
 | `docs` | On screen, optionally `.opencode/context/` | Yes (if saving) |
 | `consume` | `.opencode/context/research/{name}.md` | **Yes — always** |
 | `context` | `.opencode/context/` organized by function | **Yes — always** |
+| `web-research` | `.opencode/context/research/{topic}.md` | **Yes — always** |
+| `compare` | `.opencode/context/patterns/{a}-vs-{b}.md` | **Yes — always** |
+| `decompose` | `.opencode/context/frameworks/{topic}-decomposition.md` | Yes |
 | `compress` | On screen, compressed output | No (computational) |
 | `secondbrain` | `.opencode/context/` organized by role pack | Yes (for context) |
 | `journal` | `.opencode/state/harvest/journal/` | No (state) |

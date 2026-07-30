@@ -5,6 +5,7 @@ import decomposition from "./decomposition"
 import refine from "./refine"
 import overhaul from "./overhaul"
 import deep from "./deep"
+import deepDive from "./deep-dive"
 import graph from "./graph"
 import research from "./research"
 import ralplan from "./ralplan"
@@ -41,7 +42,7 @@ import resume from "./resume"
 import status from "./status"
 
 export const specs = [
-  plan, brainstorm, decomposition, refine, overhaul, deep, graph, research,
+  plan, brainstorm, decomposition, refine, overhaul, deep, deepDive, graph, research,
   ralplan, ddd, eventStorming, doubleDiamond, jtbd, impactMapping, spiral,
   spark,
   topDown, bottomUp, adversarialDebate, cleanroom, pwf, rpikit, hive,

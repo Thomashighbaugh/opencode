@@ -2,6 +2,7 @@
 name: hubs-setup
 description: Install or refresh OpenCode Hubs — delegates to /init-project for the full workflow
 level: 2
+license: MIT
 ---
 
 # Hubs Setup

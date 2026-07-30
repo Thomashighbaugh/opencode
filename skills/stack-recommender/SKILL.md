@@ -1,6 +1,8 @@
 ---
 name: stack-recommender
 description: Maps a stack fingerprint (from @stack-detector or direct input) to recommended global OpenCode resources — skills, agents, rules, commands, archetypes. Used by /init-project setup and refresh to provision per-project configs.
+level: 2
+license: MIT
 tags: [init, config, detection, stack, provisioning]
 ---
 
@@ -97,8 +99,8 @@ A resource recommendation object:
 | Django            | —                                                   | test-engineer         | testing.md     | python-api      |
 | Rails             | —                                                   | test-engineer         | testing.md     | —               |
 | Express/Fastify   | —                                                   | test-engineer         | testing.md     | —               |
-| OpenCode config   | opencode-config, create-opencode-plugin              | —                     | —              | —               |
-| OpenCode plugin   | create-opencode-plugin, hooks, hook-developer        | —                     | —              | —               |
+| OpenCode config   | opencode-configure, opencode-plugin-creator           | —                     | —              | —               |
+| OpenCode plugin   | opencode-plugin-creator, hooks, hook-developer        | —                     | —              | —               |
 
 ### CSS Approach → Skills
 
@@ -173,7 +175,7 @@ A resource recommendation object:
 
 | System              | Skills                                                       |
 |---------------------|--------------------------------------------------------------|
-| Agent definitions   | custom-agent-definitions, creating-opencode-agents             |
+| Agent definitions   | custom-agent-definitions, opencode-agent-creator               |
 | SDK/Tool dev        | opencode-sdk-development                                      |
 
 ### Hook/Plugin Development → Skills
@@ -181,7 +183,7 @@ A resource recommendation object:
 | System   | Skills                                    |
 |----------|-------------------------------------------|
 | Hooks    | hooks, hook-developer, scaffold-hooks      |
-| Plugins  | create-opencode-plugin, opencode-sdk-development |
+| Plugins  | opencode-plugin-creator, opencode-sdk-development |
 
 ### Containerization → Tools
 

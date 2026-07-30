@@ -1,6 +1,8 @@
 ---
 name: tree-of-thoughts
 description: Explore multiple solution branches in parallel, evaluate each, and recommend the best path. Use when the user explicitly invokes /ideation tree-of-thoughts or asks for "tree of thought" / "branching exploration".
+level: 2
+license: MIT
 ---
 
 # Tree-of-Thoughts

@@ -3,6 +3,7 @@ name: ultraqa
 description: QA cycling workflow - test, verify, fix, repeat until goal met
 argument-hint: "[--tests|--build|--lint|--typecheck|--custom <pattern>] [--interactive]"
 level: 3
+license: MIT
 ---
 
 # UltraQA Skill

@@ -1,6 +1,8 @@
 ---
 name: opentui
 description: OpenTUI skill for building terminal user interfaces with the Core, React, or Solid APIs. Use for any TUI task including components, layout, keyboard and keymap handling, animations, and testing.
+level: 2
+license: MIT
 metadata:
    references: core, react, solid, components, layout, keyboard, keymap, animation, testing
 ---

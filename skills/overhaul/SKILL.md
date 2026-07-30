@@ -2,6 +2,7 @@
 name: overhaul
 description: Analyze an existing project across multiple dimensions and produce a prioritized implementation plan for targeted refinement
 level: 3
+license: MIT
 ---
 
 # Overhaul — Project Refinement Planning

@@ -1,6 +1,8 @@
 ---
 name: tag-resources
 description: Scan, validate, and auto-tag global OpenCode resources (skills, agents, rules, archetypes) for resource_tags filtering. Used by /init-project, config maintenance, and by stack-recommender for accurate mapping.
+level: 2
+license: MIT
 tags: [meta, config, skills-management, automation]
 ---
 
@@ -24,7 +26,7 @@ Check every resource for its tags frontmatter:
 **Skills:** `~/.config/opencode/skills/*/SKILL.md`
 **Agents:** `~/.config/opencode/agents/*.md`
 **Rules:** `~/.config/opencode/rules/*.md`
-**Archetypes:** `~/.config/opencode/archetypes/*/manifest.json`
+**Archetypes:** `~/.config/opencode/templates/projects/*/manifest.json`
 
 ### Step 2: Classify Each Resource
 

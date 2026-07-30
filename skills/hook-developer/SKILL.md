@@ -1,6 +1,8 @@
 ---
 name: hook-developer
 description: Complete Claude Code hooks reference - input/output schemas, registration, testing patterns
+level: 2
+license: MIT
 ---
 
 # Hook Developer

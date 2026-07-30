@@ -1,6 +1,8 @@
 ---
 name: tdd
 description: Test-driven development loop — red-green-refactor: write failing test, make it pass, refactor, repeat until all features covered
+level: 2
+license: MIT
 ---
 
 # TDD

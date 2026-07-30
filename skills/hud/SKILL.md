@@ -5,6 +5,7 @@ argument-hint: "[setup|minimal|focused|full|status]"
 role: config-writer
 scope: ~/.config/opencode/**
 level: 2
+license: MIT
 ---
 
 # HUD Skill

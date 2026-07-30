@@ -2,6 +2,7 @@
 name: opencode-agent-creator
 description: Create specialized OpenCode agents with proper configuration for primary agents and subagents. Use when creating reusable agent profiles.
 level: 3
+license: MIT
 ---
 
 # OpenCode Agent Creator
@@ -363,14 +364,43 @@ This will:
 - Model format: `provider/model-id` (e.g., `ollama/glm-5.2:cloud`)
 - Hidden subagents (`hidden: true`) don't appear in autocomplete but can still be invoked programmatically
 - Task permissions control which subagents an agent can invoke
+- Documentation: https://opencode.ai/docs/agents/
 
-## Supplementary Community Skills
+## PRPM Integration (Agent Publishing)
 
-These community skills extend the agent-creator workflow with advanced patterns and reference material. Load them via `/harvest-context agent` or reference them when creating specialized agents:
+### Package Manifest (prpm.json)
+```json
+{
+  "name": "@username/my-agent",
+  "version": "1.0.0",
+  "description": "My OpenCode agent",
+  "format": "opencode",
+  "subtype": "agent",
+  "files": [".opencode/agent/my-agent.md"],
+  "tags": ["opencode", "agent", "development"]
+}
+```
 
-| Skill | Purpose | When to Load |
-|-------|---------|-------------|
-| `creating-opencode-agents` | In-depth guide on agent definitions, model selection, permission scoping, and best practices | For complex agent designs with custom models and permission tiers |
-| `custom-agent-definitions` | Advanced agent patterns: isolated research agent, read-only explorer, security auditor, plugin layout | For production-grade agents with strict security boundaries |
+### Installation
+```bash
+# Install from registry
+prpm install @username/agent-name --format opencode
 
-Both skills are pre-configured as related skills on `/harvest-context agent` and `/init-project provision` — they load automatically when those subcommands are invoked.
+# Installs to: .opencode/agent/<agent-name>.md
+```
+
+### Publishing
+```bash
+prpm publish
+```
+
+## Navigation & Usage
+
+- **Tab key**: Switch between primary agents
+- **@ mention**: Invoke subagents (e.g., `@code-reviewer check this function`)
+- **<Leader>+Right/Left**: Navigate parent/child sessions
+
+## Related Skills
+
+- `custom-agent-definitions` — Agent patterns for Claude Code (context forking, allowed/disallowed tools)
+- `opencode-config-workflow` — Methodology for API-efficient config management

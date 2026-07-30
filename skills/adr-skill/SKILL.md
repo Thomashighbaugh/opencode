@@ -1,6 +1,8 @@
 ---
 name: adr-skill
 description: Create and maintain Architecture Decision Records (ADRs) optimized for agentic coding workflows. Use when you need to propose, write, update, accept/reject, deprecate, or supersede an ADR; consult existing ADRs before implementing changes; or enforce ADR conventions. This skill uses structured interviewing to capture intent before drafting, and validates output against an agent-readiness checklist.
+level: 2
+license: MIT
 ---
 
 # ADR Skill

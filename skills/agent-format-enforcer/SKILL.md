@@ -2,6 +2,7 @@
 name: agent-format-enforcer
 description: Enforce the <Agent_Prompt> XML wrapper convention across all agent definition files. Scan, validate, and auto-fix non-compliant agents.
 level: 2
+license: MIT
 ---
 
 # Agent Format Enforcer

@@ -1,6 +1,8 @@
 ---
 name: mui
 description: Material-UI v7 component library patterns including sx prop styling, theme integration, responsive design, and MUI-specific hooks. Use when working with MUI components, styling with sx prop, theme customization, or MUI utilities.
+level: 2
+license: MIT
 ---
 
 # MUI v7 Patterns

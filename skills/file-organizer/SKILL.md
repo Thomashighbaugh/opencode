@@ -2,6 +2,7 @@
 name: file-organizer
 description: Intelligently organizes files and folders by understanding context, finding duplicates, suggesting better structures, and automating cleanup tasks.
 level: 2
+license: MIT
 ---
 
 # File Organizer

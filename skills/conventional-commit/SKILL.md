@@ -2,6 +2,7 @@
 name: conventional-commit
 description: Structure commit messages following the Conventional Commits specification. Use when drafting commit messages before coding or reviewing commit message quality.
 level: 2
+license: MIT
 ---
 
 # Conventional Commits

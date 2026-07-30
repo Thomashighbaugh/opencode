@@ -2,6 +2,7 @@
 name: provision
 description: Analyze a codebase and auto-generate project-specific agents, skills, tools, and rules into .opencode/. Project wrappers inject deep project context into subagents for dramatically more effective AI assistance.
 level: 3
+license: MIT
 ---
 
 # Provision

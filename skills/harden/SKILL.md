@@ -1,6 +1,8 @@
 ---
 name: harden
 description: Composable robustness — safeTask (error+deviation tracking), circuitBreaker (halt on failure rate), verificationGate (block downstream until verified)
+level: 2
+license: MIT
 ---
 
 # Harden

@@ -2,6 +2,7 @@
 name: ask
 description: Process-first advisor routing for multi-model consultation via ask commands, with artifact capture and no raw CLI assembly
 level: 3
+license: MIT
 ---
 
 # Ask

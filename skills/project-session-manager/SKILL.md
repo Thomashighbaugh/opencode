@@ -3,6 +3,7 @@ name: project-session-manager
 description: Worktree-first dev environment manager for issues, PRs, and features with optional tmux sessions
 aliases: [psm]
 level: 2
+license: MIT
 ---
 
 # Project Session Manager (PSM) Skill

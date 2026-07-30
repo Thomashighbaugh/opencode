@@ -64,6 +64,10 @@ export const HUBS: Hub[] = [
         "description": "Audit and fix resource tags on global skills, agents, rules, and archetypes for resource_tags filtering — scan, classify, suggest, and apply tags via tag-resources skill"
       },
       {
+        "label": "config",
+        "description": "Create or modify opencode.jsonc with mandatory schema validation — wraps opencode-config, opencode-configure, opencode-config-workflow; always fetches and validates final output against https://opencode.ai/config.json"
+      },
+      {
         "label": "find-skills",
         "description": "Discover skills relevant to the current project by searching across skill registries (skills.sh, GitHub) — fetches candidates, security-scans top results, presents recommendations for installation. Used by setup/refresh to find per-repo skills"
       },
@@ -109,6 +113,10 @@ export const HUBS: Hub[] = [
       {
         "label": "deep",
         "description": "Socratic interview with ambiguity gating — crystallize vague requirements"
+      },
+      {
+        "label": "deep-dive",
+        "description": "2-stage pipeline: trace root cause, then crystallize requirements — evidence-first investigation"
       },
       {
         "label": "graph",
@@ -426,7 +434,7 @@ export const HUBS: Hub[] = [
       },
       {
         "label": "web-research",
-        "description": "Multi-source web research — search multiple queries in parallel via websearch, fetch top results via webfetch, synthesize findings into a structured research report saved to .opencode/state/harvest/"
+        "description": "Multi-source web research — search multiple queries in parallel via websearch, fetch top results via webfetch, synthesize findings into a structured research report saved directly to .opencode/context/research/"
       },
       {
         "label": "compare",
@@ -602,6 +610,10 @@ export const HUBS: Hub[] = [
       {
         "label": "readme",
         "description": "Update README to reflect current codebase state — scans agents, skills, tools, rules, commands; preserves tone, links, and structure; SEO-optimized output via readme-updater skill"
+      },
+      {
+        "label": "consolidate-telemetry",
+        "description": "Consolidate SRCL telemetry log into proposed ADRs in decisions.md"
       }
     ]
   },

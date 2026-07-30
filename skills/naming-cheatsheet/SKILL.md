@@ -2,6 +2,7 @@
 name: naming-cheatsheet
 description: Apply language-agnostic naming conventions using the A/HC/LC pattern. Use when naming variables, functions, or reviewing code for naming consistency.
 level: 2
+license: MIT
 ---
 
 # Naming Cheatsheet

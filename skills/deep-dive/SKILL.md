@@ -2,6 +2,7 @@
 name: deep-dive
 description: "2-stage pipeline: trace (causal investigation) -> deep-interview (requirements crystallization) with 3-point injection"
 level: 4
+license: MIT
 argument-hint: "<problem or exploration target>"
 triggers:
   - "deep dive"

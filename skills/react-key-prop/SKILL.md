@@ -1,17 +1,20 @@
 ---
 name: react-key-prop
-description: Guidance on React key prop best practices for stable keys and reconciliation. Use when reviewing React components, rendering lists, or troubleshooting key-related rendering bugs.
+description: React best practices covering key prop reconciliation, component patterns, performance optimization, and hooks rules. Use when reviewing React code, troubleshooting rendering bugs, or writing new components.
+level: 2
+license: MIT
 ---
 
-# React `key` Prop Best Practices
+# React Best Practices
 
-Quick-reference guide for using the `key` prop correctly in React.
+Covers key prop reconciliation, component architecture, performance patterns, and hooks conventions.
 
 ## When to Use
 
 - Reviewing React components that render lists with `.map()`
 - Troubleshooting stale state, incorrect reordering, or unnecessary remounts
-- Evaluating key selection in code review
+- Evaluating component architecture and composition patterns
+- Checking hooks rule compliance in code review
 - Onboarding developers to React reconciliation behavior
 
 ---
@@ -217,4 +220,111 @@ items.map((item) => (
     <Item key={item.id} item={item} />
   </div>
 ));
+```
+
+---
+
+## Component Composition Patterns
+
+### Props vs Children
+
+| Pattern | Use When | Example |
+|---------|----------|---------|
+| **Props** | Data-driven, known shape | `<Card title={t} body={b} />` |
+| **Children** | Flexible layout, unknown content | `<Card><p>Any JSX</p></Card>` |
+| **Render props** | Shared logic, varying render | `<DataProvider render={data => <View {...data} />} />` |
+
+### Controlled vs Uncontrolled
+
+```typescript
+// Controlled — state managed by parent
+function Input({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  return <input value={value} onChange={e => onChange(e.target.value)} />;
+}
+
+// Uncontrolled — state managed internally via ref
+function FileInput() {
+  const ref = useRef<HTMLInputElement>(null);
+  return <input ref={ref} type="file" />;
+}
+```
+
+**Rule:** Prefer controlled for form inputs. Use uncontrolled for file inputs, media playback, and third-party DOM interop.
+
+### Lifting State Up
+
+Duplicate or derived state across siblings → lift to the nearest common ancestor:
+
+```typescript
+function Parent() {
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  return (
+    <>
+      <List onSelect={setSelectedId} />
+      <Detail id={selectedId} />
+    </>
+  );
+}
+```
+
+---
+
+## Hooks Rules & Patterns
+
+### Rules of Hooks
+
+1. **Only call hooks at the top level** — not inside conditions, loops, or callbacks
+2. **Only call hooks from React functions** — components or custom hooks, not regular JS functions
+
+### Common Custom Hooks
+
+```typescript
+// Debounced value
+function useDebounce<T>(value: T, delay: number): T {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const id = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(id);
+  }, [value, delay]);
+  return debounced;
+}
+
+// Toggle
+function useToggle(initial = false) {
+  return useReducer(state => !state, initial);
+}
+```
+
+### Effect Cleanup
+
+Every `useEffect` that subscribes, sets intervals, or starts async work MUST return a cleanup:
+
+```typescript
+useEffect(() => {
+  const sub = source.subscribe(data => setData(data));
+  return () => sub.unsubscribe(); // ✅ cleanup
+}, [source]);
+```
+
+Missing cleanup → memory leaks, stale closures, duplicate subscriptions on StrictMode re-mounts.
+
+---
+
+## Performance Patterns
+
+| Pattern | Problem | Solution |
+|---------|---------|----------|
+| `React.memo` | Unnecessary re-renders of pure presentational components | Wrap leaf components with stable props |
+| `useMemo` | Expensive computations re-running | Memoize derived data |
+| `useCallback` | Callback identity changing every render | Stable function reference for memo children |
+| Lazy loading | Large component bundles | `React.lazy(() => import('./BigComponent'))` |
+
+```typescript
+// Before: re-renders on every parent render
+function ExpensiveList({ items }: { items: Item[] }) { /* ... */ }
+
+// After: skips re-render if items reference hasn't changed
+const ExpensiveList = React.memo(function ExpensiveList({ items }: { items: Item[] }) {
+  return /* ... */;
+});
 ```

@@ -3,6 +3,7 @@ name: hubs-teams
 description: CLI-team runtime for opencode, codex, or gemini workers in tmux panes when you need process-based parallel execution
 aliases: []
 level: 4
+license: MIT
 mode: subagent
 ---
 

@@ -2,6 +2,7 @@
 name: vectorize-context
 description: Manual vector DB for semantic search over .opencode/context/ — triggered via /harvest-context search
 level: 2
+license: MIT
 ---
 
 # Vectorize Context

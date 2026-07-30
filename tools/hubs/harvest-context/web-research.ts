@@ -3,18 +3,18 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_BASH, SKILLS_CONTEXT7_WEB_TO_MD } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "web-research",
-  description: "Multi-source web research — search multiple queries in parallel via websearch, fetch top results via webfetch, synthesize findings into a structured research report saved to .opencode/state/harvest/",
+  description: "Multi-source web research — search multiple queries in parallel via websearch, fetch top results via webfetch, synthesize findings into a structured research report saved directly to .opencode/context/research/",
   reminder: "Search, fetch, and synthesize web research into a report.",
   inline: true,
 
-  detailedDescription: `Multi-source web research pipeline for the harvest-context hub. Same mechanism as /ideation web-research but saves to .opencode/state/harvest/ instead of ideation work-products.
+  detailedDescription: `Multi-source web research pipeline for the harvest-context hub. Same mechanism as /ideation web-research but saves directly to .opencode/context/research/ instead of ideation work-products.
 
 1. Generate multiple search queries from the research question.
 2. Run websearch in parallel for all queries.
 3. Fetch top results via webfetch (parallel).
 4. Synthesize into a structured report with key findings, evidence (source URLs), contradictions, conclusion.
-5. Save to .opencode/state/harvest/ and optionally promote to .opencode/context/research/ via /harvest-context memory.
-6. **Wiki compliance** (if promoted to .opencode/context/): update .opencode/context/index.md, append to .opencode/context/log.md, add YAML frontmatter, scan for cross-references.
+5. Save to .opencode/context/research/ with wiki compliance (update index.md, append to log.md, add YAML frontmatter, scan for cross-references).
+6. Privacy scan runs before save — if risk detected, divert to .opencode/state/harvest/ instead.
 
 Use for research questions that require external knowledge. Prefer /harvest-context docs (Context7) first for library-specific questions.`,
 

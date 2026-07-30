@@ -1,9 +1,3 @@
----
-source: "Advances in Agentic AI: Back to the Future by Sergio Álvarez-Teleña & Marta Díez-Fernández (SciTheWorld, Dec 2025)"
-type: academic-paper
-converted: pdf-to-text
-converted_at: 2026-06-26T23:26:19Z
----
 Dec, 2025
 Advances in Agentic AI: Back to the Future
 
