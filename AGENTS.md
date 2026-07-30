@@ -138,7 +138,10 @@ See `rules/hub-routing.md` for the complete delegation table and architecture de
 ├── agents/              # 31 agent definitions
 ├── skills/              # 105 workflow skills
 ├── commands/            # (empty — all subcommands live in hub menus)
-├── archetypes/          # Project archetype templates (bare-bones, cli-tool, go, nextjs, etc.)
+├── archetypes/          # Project archetype templates (bare-bones, cli-tool, docker, go, nextjs, etc.)
+│   └── Each archetype contains four subdirectories: agents/, rules/, skills/, tools/
+│      Only agents/ and rules/ can be referenced in opencode.jsonc (via `agent` and `instructions` keys).
+│      skills/ and tools/ must be copied/linked into the project's .opencode/ directory.
 ├── tools/               # TypeScript tools
 │   ├── hubMenu.ts       # Hub menu router (route returns full spec, menu returns slim slice)
 │   ├── hub-data.ts      # Hub types, subcommand spec loader, state helpers
@@ -147,9 +150,7 @@ See `rules/hub-routing.md` for the complete delegation table and architecture de
 │   └── ...              # File editing, cache, session, skill tools
 ├── plugins/             # Hook system + TUI plugin
 ├── rules/               # Shared rules (loaded as instructions)
-├── templates/           # File templates
-├── rule-templates/      # Rule generation templates
-├── tool-templates/      # Tool generation templates
+├── templates/           # File templates (agents, context, rules, tools, reasoning)
 └── .opencode/           # Project state, context, docs, cache
     ├── state/           # Session state (gitignored)
     ├── context/         # Durable knowledge (committed)

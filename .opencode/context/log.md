@@ -3,7 +3,7 @@ title: "LLM Wiki Operation Log"
 type: concept
 tags: [wiki, log, changelog]
 created: 2026-07-04
-updated: 2026-07-05
+updated: 2026-07-19
 status: active
 ---
 
@@ -123,3 +123,47 @@ Chronological record of all wiki operations. Append-only.
 - **Index updated**: Added `caveman` entry to research section
 - **Cross-references**: Referenced as dependency by opencode-manifold (uses Caveman for compressed communication); related to all token-compression tooling
 2026-07-12 19:12:36 - Harvested OpenHands, Ponytail, Karpathy Guidelines into durable context
+
+## [2026-07-29] migrate | docs → context/docs (wiki integration)
+
+- **Operation**: Migrated all documentation files from `.opencode/docs/` (14 files) and `docs/shared/` (1 file) into `.opencode/context/docs/` with full wiki compliance
+- **Source**: `.opencode/docs/` (14 files) + `docs/shared/agent-tiers.md`
+- **Files created/migrated** (15 files):
+  - `docs/AGENTS.md` — docs directory index stub
+  - `docs/agents.md` — agent catalog reference (841 lines)
+  - `docs/agent-tiers.md` — model tier assignments (176 lines)
+  - `docs/commands.md` — command system reference (741 lines)
+  - `docs/execution-modes.md` — ralph/autopilot/ultrawork modes (973 lines)
+  - `docs/installation.md` — installation guide (406 lines)
+  - `docs/model-configuration.md` — model config reference (565 lines)
+  - `docs/new-agents.md` — research-backed agent creation (373 lines)
+  - `docs/path-conventions.md` — file system conventions (434 lines)
+  - `docs/plugin-system.md` — hooks/plugin architecture (871 lines)
+  - `docs/routing.md` — hub routing model (214 lines)
+  - `docs/skills.md` — skills catalog (1216 lines)
+  - `docs/state-management.md` — state persistence (784 lines)
+  - `docs/testing.md` — config integrity test suite (55 lines)
+  - `docs/tools.md` — TypeScript tools reference (934 lines)
+- **Operations performed on each file**:
+  - Added YAML frontmatter (title, type: entity, tags, created/updated, status: active)
+  - Rewrote internal cross-reference links: `](./xxx.md)` → `](../docs/xxx.md)`
+- **Cross-references updated**:
+  - `skills/readme-updater/SKILL.md` — `.opencode/docs/` → `.opencode/context/docs/`
+  - `.opencode/CHANGELOG.md` — `.opencode/docs/` → `.opencode/context/docs/`
+  - `.opencode/context/research/opencode-joc-overview/20260719_catalog-and-patterns.md` — `Files_To_Add/docs/` → `.opencode/context/docs/`
+- **Index updated**: Added `docs/` section listing all migrated pages
+- **Old source removed**: `.opencode/docs/` directory and `docs/shared/agent-tiers.md` deleted
+
+## [2026-07-19] consume | opencode-joc-overview
+
+- **Operation**: Ingested and analyzed `~/Data/Projects/Notes/Opencode_JOC/` directory
+- **Source**: Directory containing 8 cloned skill/agent registries and reference materials
+- **Files created**:
+  - `research/opencode-joc-overview/20260719_catalog-and-patterns.md` — catalog of 9 pattern discoveries with cross-reference to existing hub subcommands
+- **Key findings**:
+  - 220 agents (awesome-copilot), 203 agents (wshobson), 94 plugins, 175 skills, 109 commands
+  - 9 new hub subcommand patterns identified: lifecycle `/dev` hub, hooks system, scored audits, domain orchestrators, agent quality evaluation, agent testing methodology, plugin bundle management, agentic workflows, GitHub profile audit
+  - addyosami/agent-skills provides 24 skills with 8 lifecycle commands
+  - wshobson/agents has 16 multi-agent orchestrators + adapter framework for 6 harnesses
+  - Files_To_Add/docs/new-agents.md has research-backed agent creation methodology with 8-test-type validation
+- **Cross-references**: Links to existing `/project`, `/orchestrate`, `/harvest-context`, `/init-project` hub subcommands

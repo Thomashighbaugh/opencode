@@ -1,0 +1,83 @@
+{
+  "verified_on": "2026-06-21",
+  "verified_with": {
+    "official_docs": [
+      "https://opencode.ai/docs/plugins/",
+      "https://opencode.ai/docs/config/"
+    ],
+    "froggy_sources": [
+      "https://github.com/smartfrog/opencode-froggy",
+      "https://www.npmjs.com/package/opencode-froggy"
+    ],
+    "runtime_package": {
+      "name": "@opencode-ai/plugin",
+      "latest_version": "1.17.9",
+      "checked_via": "npm view @opencode-ai/plugin version"
+    },
+    "opencode_cli": {
+      "name": "opencode",
+      "local_version": "1.15.10",
+      "checked_via": "opencode --version"
+    },
+    "froggy_package": {
+      "name": "opencode-froggy",
+      "latest_version": "0.12.0",
+      "checked_via": "npm view opencode-froggy --json",
+      "source_commit": "ca3e228d53b62be2cd882c91a0eb091d94909371"
+    },
+    "checked_paths": [
+      "src/index.ts",
+      "src/loaders.ts",
+      "src/bash-executor.ts",
+      "src/config-paths.ts",
+      "README.md"
+    ]
+  },
+  "plugin_name": "opencode-froggy",
+  "config_files": {
+    "project": "opencode.json or opencode.jsonc",
+    "global": "~/.config/opencode/opencode.json or opencode.jsonc"
+  },
+  "hook_config_files": {
+    "project": ".opencode/hook/hooks.md",
+    "global": "~/.config/opencode/hook/hooks.md",
+    "windows_global_fallback": "%APPDATA%/opencode/hook/hooks.md"
+  },
+  "load_order": [
+    "global Froggy hooks",
+    "project Froggy hooks"
+  ],
+  "supported_events": [
+    "session.created",
+    "session.deleted",
+    "session.idle",
+    "tool.before.*",
+    "tool.before.<name>",
+    "tool.after.*",
+    "tool.after.<name>"
+  ],
+  "conditions": [
+    "isMainSession",
+    "hasCodeChange"
+  ],
+  "actions": [
+    "bash",
+    "command",
+    "tool"
+  ],
+  "bash_context": {
+    "environment": [
+      "OPENCODE_PROJECT_DIR",
+      "OPENCODE_SESSION_ID"
+    ],
+    "stdin_fields": [
+      "session_id",
+      "event",
+      "cwd",
+      "files",
+      "tool_name",
+      "tool_args"
+    ],
+    "blocking_exit_code": 2
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "model": "opencode/deepseek-v4-flash-free",
+  "temperature": 0.2,
+  "subagentTier": "Fast"
+}

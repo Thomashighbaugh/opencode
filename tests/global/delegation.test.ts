@@ -52,7 +52,8 @@ function checkDelegation(
       relativePath = path.join('skills', target, 'SKILL.md')
       break
     case 'agent':
-      relativePath = path.join('agents', `${target}.md`)
+      // Strip @ prefix if present (agent references use @name convention, but filenames don't)
+      relativePath = path.join('agents', `${target.replace(/^@/, '')}.md`)
       break
     case 'command':
       relativePath = path.join('commands', `${target}.md`)

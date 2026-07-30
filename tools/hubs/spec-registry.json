@@ -163,6 +163,14 @@
     ],
     "relatedSkills": []
   },
+  "ideation/critic": {
+    "label": "critic",
+    "description": "Work plan and code review expert — pass instructions directly to @critic",
+    "reminder": "Delegating to @critic.",
+    "agent": "@critic",
+    "inline": true,
+    "detailedDescription": "Delegates directly to the @critic agent. The remainder of your prompt will be passed as specific instructions to the agent."
+  },
   "ideation/adversarial-debate": {
     "label": "adversarial-debate",
     "description": "Spec validation via oppositional debate — proposer vs critics",
@@ -180,6 +188,14 @@
         "approach": "Proposer: 'token rotation is secure'. Security critic: 'rotation doesn't prevent replay within the token lifetime'. Performance critic: 'DB lookup per request is O(n)'. Judge: 'fail — fix replay prevention and add token cache'."
       }
     ]
+  },
+  "ideation/prompt-simplifier": {
+    "label": "prompt-simplifier",
+    "description": "Simplify prompt logic — pass instructions directly to @prompt-simplifier",
+    "reminder": "Delegating to @prompt-simplifier.",
+    "agent": "@prompt-simplifier",
+    "inline": true,
+    "detailedDescription": "Delegates directly to the @prompt-simplifier agent. The remainder of your prompt will be passed as specific instructions to the agent."
   },
   "ideation/jtbd": {
     "label": "jtbd",
@@ -289,6 +305,14 @@
       "bash"
     ],
     "relatedSkills": []
+  },
+  "ideation/deep-thinker": {
+    "label": "deep-thinker",
+    "description": "Structured thinking partner — pass instructions directly to @deep-thinker",
+    "reminder": "Delegating to @deep-thinker.",
+    "agent": "@deep-thinker",
+    "inline": true,
+    "detailedDescription": "Delegates directly to the @deep-thinker agent. The remainder of your prompt will be passed as specific instructions to the agent."
   },
   "ideation/double-diamond": {
     "label": "double-diamond",
@@ -417,6 +441,14 @@
     "relatedSkills": [
       "graph-thinking"
     ]
+  },
+  "ideation/requirements-analyzer": {
+    "label": "requirements-analyzer",
+    "description": "Analyze feature requirements — pass instructions directly to @requirements-analyzer",
+    "reminder": "Delegating to @requirements-analyzer.",
+    "agent": "@requirements-analyzer",
+    "inline": true,
+    "detailedDescription": "Delegates directly to the @requirements-analyzer agent. The remainder of your prompt will be passed as specific instructions to the agent."
   },
   "ideation/brainstorm": {
     "label": "brainstorm",
@@ -672,6 +704,14 @@
     ],
     "relatedSkills": []
   },
+  "ideation/analyst": {
+    "label": "analyst",
+    "description": "Strategic analyst — pass instructions directly to @analyst",
+    "reminder": "Delegating to @analyst.",
+    "agent": "@analyst",
+    "inline": true,
+    "detailedDescription": "Delegates directly to the @analyst agent. The remainder of your prompt will be passed as specific instructions to the agent."
+  },
   "ideation/decomposition": {
     "label": "decomposition",
     "description": "Break complex work into ordered, verifiable subtasks",
@@ -720,6 +760,14 @@
       "graph-thinking"
     ]
   },
+  "ideation/effort-estimator": {
+    "label": "effort-estimator",
+    "description": "Estimate development effort — pass instructions directly to @effort-estimator",
+    "reminder": "Delegating to @effort-estimator.",
+    "agent": "@effort-estimator",
+    "inline": true,
+    "detailedDescription": "Delegates directly to the @effort-estimator agent. The remainder of your prompt will be passed as specific instructions to the agent."
+  },
   "project/archive": {
     "label": "archive",
     "description": "Move stale branches, old artifacts, unused config to timestamped archive — keep working tree clean",
@@ -730,6 +778,36 @@
       "bash"
     ],
     "relatedSkills": []
+  },
+  "project/pt-gain": {
+    "label": "pt-gain",
+    "description": "Show measured impact scoreboard",
+    "reminder": "Showing impact scoreboard.",
+    "inline": true,
+    "detailedDescription": "Displays impact metrics (LOC, cost, latency reduction) from Ponytail benchmark runs."
+  },
+  "project/executor": {
+    "label": "executor",
+    "description": "Focused task executor — pass instructions directly to @executor",
+    "reminder": "Delegating to @executor.",
+    "agent": "@executor",
+    "inline": true,
+    "detailedDescription": "Delegates directly to the @executor agent. The remainder of your prompt will be passed as specific instructions to the agent."
+  },
+  "project/pt-audit": {
+    "label": "pt-audit",
+    "description": "Audit whole repo for over-engineering",
+    "reminder": "Auditing repo for over-engineering.",
+    "inline": true,
+    "detailedDescription": "Audits entire repository for over-engineering, returning a structured audit report."
+  },
+  "project/document-specialist": {
+    "label": "document-specialist",
+    "description": "External docs/reference specialist — pass instructions directly to @document-specialist",
+    "reminder": "Delegating to @document-specialist.",
+    "agent": "@document-specialist",
+    "inline": true,
+    "detailedDescription": "Delegates directly to the @document-specialist agent. The remainder of your prompt will be passed as specific instructions to the agent."
   },
   "project/commit": {
     "label": "commit",
@@ -758,7 +836,7 @@
     "description": "Update README to reflect current codebase state — scans agents, skills, tools, rules, commands; preserves tone, links, and structure; SEO-optimized output via readme-updater skill",
     "reminder": "Update README with current codebase state.",
     "skill": "readme-updater",
-    "detailedDescription": "Updates the README to reflect the current codebase state via the readme-updater skill. Scans:\n\n- Agents, skills, tools, rules, commands, archetypes, plugins.\n- Project structure and configuration.\n- Existing README content.\n\nPreserves the existing tone, links, and structure — it updates content, doesn't rewrite from scratch. Output is SEO-optimized and technically proficient.\n\nUse when the codebase has changed significantly and the README is stale. Not for creating a README from scratch (use /harvest-context command or writing skills for that).",
+    "detailedDescription": "Updates the README to reflect the current codebase state via the readme-updater skill. Scans:\n\n- Agents, skills, tools, rules, commands, archetypes (each with agents/, rules/, skills/, tools/ subdirs), plugins.\n- Project structure and configuration.\n- Existing README content.\n\nWhen documenting archetypes, note that each contains four subdirectories (agents/, rules/, skills/, tools/) — all four must be provisioned per-project: agents/ and rules/ go in opencode.jsonc, skills/ and tools/ are copied/linked into .opencode/.\n\nPreserves the existing tone, links, and structure — it updates content, doesn't rewrite from scratch. Output is SEO-optimized and technically proficient.\n\nUse when the codebase has changed significantly and the README is stale. Not for creating a README from scratch (use /harvest-context command or writing skills for that).",
     "tools": [
       "loadSkill",
       "bash"
@@ -779,13 +857,6 @@
     "relatedSkills": [
       "changelog-generator"
     ]
-  },
-  "project/ponytail-audit": {
-    "label": "ponytail-audit",
-    "description": "Audit whole repo for over-engineering",
-    "reminder": "Auditing repo for over-engineering.",
-    "inline": true,
-    "detailedDescription": "Audits entire repository for over-engineering, returning a structured audit report."
   },
   "project/scan": {
     "label": "scan",
@@ -812,14 +883,34 @@
     "tools": [
       "bash"
     ],
-    "relatedSkills": []
+    "relatedSkills": [
+      "vitest",
+      "test-coverage-improver"
+    ]
   },
-  "project/ponytail-gain": {
-    "label": "ponytail-gain",
-    "description": "Show measured impact scoreboard",
-    "reminder": "Showing impact scoreboard.",
+  "project/qa-tester": {
+    "label": "qa-tester",
+    "description": "Interactive CLI testing specialist — pass instructions directly to @qa-tester",
+    "reminder": "Delegating to @qa-tester.",
+    "agent": "@qa-tester",
     "inline": true,
-    "detailedDescription": "Displays impact metrics (LOC, cost, latency reduction) from Ponytail benchmark runs."
+    "detailedDescription": "Delegates directly to the @qa-tester agent. The remainder of your prompt will be passed as specific instructions to the agent."
+  },
+  "project/designer": {
+    "label": "designer",
+    "description": "UI/UX designer-developer — pass instructions directly to @designer",
+    "reminder": "Delegating to @designer.",
+    "agent": "@designer",
+    "inline": true,
+    "detailedDescription": "Delegates directly to the @designer agent. The remainder of your prompt will be passed as specific instructions to the agent."
+  },
+  "project/git-master": {
+    "label": "git-master",
+    "description": "Git expert for atomic commits — pass instructions directly to @git-master",
+    "reminder": "Delegating to @git-master.",
+    "agent": "@git-master",
+    "inline": true,
+    "detailedDescription": "Delegates directly to the @git-master agent. The remainder of your prompt will be passed as specific instructions to the agent."
   },
   "project/purge": {
     "label": "purge",
@@ -874,6 +965,14 @@
     ],
     "relatedSkills": []
   },
+  "project/explore": {
+    "label": "explore",
+    "description": "Codebase search specialist — pass instructions directly to @explore",
+    "reminder": "Delegating to @explore.",
+    "agent": "@explore",
+    "inline": true,
+    "detailedDescription": "Delegates directly to the @explore agent. The remainder of your prompt will be passed as specific instructions to the agent."
+  },
   "project/sandbox": {
     "label": "sandbox",
     "description": "Sandbox enforcement — policy-based tool control, file protection, network filtering for agent tool calls",
@@ -900,6 +999,37 @@
     ],
     "relatedSkills": []
   },
+  "project/consolidate-telemetry": {
+    "label": "consolidate-telemetry",
+    "description": "Consolidate SRCL telemetry log into proposed ADRs in decisions.md",
+    "reminder": "Consolidate telemetry log into ADR proposals.",
+    "inline": true,
+    "detailedDescription": "Consolidates the Self-Refining Config Loop (SRCL) telemetry log at .opencode/state/telemetry.ndjson into a proposed ADR appended to .opencode/context/decisions.md.\n\n**Workflow:**\n\n1. Read the NDJSON log (event-by-event, stream-friendly).\n2. Group by event kind; compute rolling metrics for the requested window (default: 7 days).\n3. Detect patterns:\n   - **High-frequency skills/rules** not currently in frontmatter triggers.\n   - **Hub subcommands** that were rejected or rerouted (action=menu after action=route).\n   - **Cache miss hot-spots** — same key missing repeatedly.\n   - **Repeated file reads** — same path read N times across sessions.\n4. Draft an ADR with: observed patterns, proposed changes (concrete, file-specific), evidence (event counts), rollback (git checkout).\n5. Append to .opencode/context/decisions.md (or .opencode/context/proposed-improvements.md if it exists).\n6. Print a summary table to the terminal.\n\n**Flags:**\n- `--since 7d` — window (default: 7d, accepts Nd/Nh/Nm).\n- `--dry-run` — print ADR to stdout, do not write to disk.\n- `--output FILE` — write to alternate path (default: decisions.md).\n\n**Hot-path cost:** zero. The consolidation step runs only on explicit invocation and does LLM-free pattern detection. A user can call `/ideation tree-of-thoughts` after consolidation to brainstorm alternatives if the proposals feel weak.\n\n**Validation commands:**\n- `wc -l .opencode/state/telemetry.ndjson` — log size.\n- `tail -20 .opencode/context/decisions.md` — most recent ADR.\n\nSee skill `adr-skill` for ADR structure conventions. See `opencode/state/ideation/work-products/20260723_180000_refine_self-refining-config-loop.md` for the design one-pager.",
+    "tools": [
+      "bash"
+    ],
+    "rules": [
+      "context-strategy"
+    ],
+    "relatedSkills": [
+      "adr-skill"
+    ]
+  },
+  "project/commit-drafter": {
+    "label": "commit-drafter",
+    "description": "Structure conventional commit messages — pass instructions directly to @commit-drafter",
+    "reminder": "Delegating to @commit-drafter.",
+    "agent": "@commit-drafter",
+    "inline": true,
+    "detailedDescription": "Delegates directly to the @commit-drafter agent. The remainder of your prompt will be passed as specific instructions to the agent."
+  },
+  "project/pt-debt": {
+    "label": "pt-debt",
+    "description": "Harvest deferred ponytail shortcuts",
+    "reminder": "Harvesting deferred ponytail debt.",
+    "inline": true,
+    "detailedDescription": "Harvests `ponytail:` comments deferred into the debt ledger."
+  },
   "project/workspace": {
     "label": "workspace",
     "description": "Manage .opencode across projects — list Hubs-enabled projects, sync config, init .opencode in new directories, check health",
@@ -918,7 +1048,6 @@
     "description": "Delegated code review — pass instructions directly to @code-reviewer",
     "reminder": "Delegating review to @code-reviewer agent.",
     "agent": "@code-reviewer",
-    "inline": true,
     "detailedDescription": "Delegates code review to the @code-reviewer agent. The remainder of your prompt will be passed as specific instructions to the agent."
   },
   "project/refactor": {
@@ -936,6 +1065,13 @@
     ],
     "relatedSkills": []
   },
+  "project/pt-review": {
+    "label": "pt-review",
+    "description": "Review current diff for over-engineering",
+    "reminder": "Reviewing diff for over-engineering.",
+    "inline": true,
+    "detailedDescription": "Reviews the current diff against Ponytail principles, flags over-engineering, returns delete-list."
+  },
   "project/organize": {
     "label": "organize",
     "description": "Find duplicates, suggest structures, automate cleanup",
@@ -947,13 +1083,6 @@
       "bash"
     ],
     "relatedSkills": []
-  },
-  "project/ponytail-debt": {
-    "label": "ponytail-debt",
-    "description": "Harvest deferred ponytail shortcuts",
-    "reminder": "Harvesting deferred ponytail debt.",
-    "inline": true,
-    "detailedDescription": "Harvests `ponytail:` comments deferred into the debt ledger."
   },
   "project/release": {
     "label": "release",
@@ -975,14 +1104,38 @@
     "description": "Comprehensive project health check — dependencies, security, code quality, test coverage, bundle size in one command",
     "reminder": "Run comprehensive project health audit.",
     "inline": true,
-    "detailedDescription": "Comprehensive project health audit. Runs all checks in one command:\n\n- Dependencies: outdated, vulnerable, unused, duplicate-purpose.\n- Security: SAST, secrets, compliance.\n- Code quality: complexity, duplication, naming, dead code.\n- Test coverage: coverage %, untested critical paths.\n- Bundle size: production build size, size budget adherence.\n- Performance: basic profiling (build time, test suite duration).\n\nOutput: a single audit report with scores per dimension and an overall health grade. Use for periodic health checks or before major releases.",
+    "detailedDescription": "Comprehensive project health audit. Runs all checks in one command:\n\n- Dependencies: outdated, vulnerable, unused, duplicate-purpose.\n- Security: SAST, secrets, compliance.\n- Code quality: complexity, duplication, naming, dead code.\n- Test coverage: coverage %, untested critical paths.\n- Bundle size: production build size, size budget adherence.\n- Performance: basic profiling (build time, test suite duration).\n- Meta-audit flags:\n    - --skills: audit local skill registry for compatibility, drift, and tag coverage.\n    - --rules: audit local rule set for consistency and activation coverage.\n    - --commands: audit project-specific command library for validity.\n\nOutput: a single audit report with scores per dimension and an overall health grade. Use for periodic health checks or before major releases.",
     "tools": [
       "bash"
     ],
     "rules": [
       "security"
     ],
-    "relatedSkills": []
+    "relatedSkills": [
+      "vitest",
+      "test-coverage-improver",
+      "opencode-config",
+      "ci-cd-and-automation",
+      "github-actions",
+      "find-skills",
+      "find-rules"
+    ]
+  },
+  "project/frontend-design": {
+    "label": "frontend-design",
+    "description": "Production-grade frontend interfaces — pass instructions directly to @frontend-design",
+    "reminder": "Delegating to @frontend-design.",
+    "agent": "@frontend-design",
+    "inline": true,
+    "detailedDescription": "Delegates directly to the @frontend-design agent. The remainder of your prompt will be passed as specific instructions to the agent."
+  },
+  "project/debugger": {
+    "label": "debugger",
+    "description": "Root-cause analysis — pass instructions directly to @debugger",
+    "reminder": "Delegating to @debugger.",
+    "agent": "@debugger",
+    "inline": true,
+    "detailedDescription": "Delegates directly to the @debugger agent. The remainder of your prompt will be passed as specific instructions to the agent."
   },
   "project/simplify": {
     "label": "simplify",
@@ -1067,13 +1220,6 @@
     ],
     "relatedSkills": []
   },
-  "project/ponytail-review": {
-    "label": "ponytail-review",
-    "description": "Review current diff for over-engineering",
-    "reminder": "Reviewing diff for over-engineering.",
-    "inline": true,
-    "detailedDescription": "Reviews the current diff against Ponytail principles, flags over-engineering, returns delete-list."
-  },
   "project/converge": {
     "label": "converge",
     "description": "5-gate quality convergence — functional tests, lint/complexity, type safety, security scanning, performance thresholds with progressive target escalation",
@@ -1103,6 +1249,14 @@
     ],
     "relatedSkills": []
   },
+  "project/test-engineer": {
+    "label": "test-engineer",
+    "description": "Test strategy specialist — pass instructions directly to @test-engineer",
+    "reminder": "Delegating to @test-engineer.",
+    "agent": "@test-engineer",
+    "inline": true,
+    "detailedDescription": "Delegates directly to the @test-engineer agent. The remainder of your prompt will be passed as specific instructions to the agent."
+  },
   "project/cleanup": {
     "label": "cleanup",
     "description": "Regression-safe cleanup of AI-generated slop — dead code, redundant comments, unused exports via ai-slop-cleaner skill",
@@ -1114,6 +1268,14 @@
       "bash"
     ],
     "relatedSkills": []
+  },
+  "project/writer": {
+    "label": "writer",
+    "description": "Technical documentation writer — pass instructions directly to @writer",
+    "reminder": "Delegating to @writer.",
+    "agent": "@writer",
+    "inline": true,
+    "detailedDescription": "Delegates directly to the @writer agent. The remainder of your prompt will be passed as specific instructions to the agent."
   },
   "harvest-context/session": {
     "label": "session",
@@ -1216,7 +1378,7 @@
     "description": "Ingest a file, directory, or URL — extract text content, save as durable context, and update wiki index/log",
     "reminder": "Ingest and save content as durable context.",
     "inline": true,
-    "detailedDescription": "Ingests external content (files, directories, URLs) and saves it as durable context. Process:\n\n1. Take the input: a file path, directory, or URL.\n2. Extract text content: for files, read directly; for directories, read all text files; for URLs, fetch via webfetch or web-to-markdown skill (handles JS-rendered pages).\n3. Clean and convert to markdown.\n4. Save to .opencode/context/research/{source-slug}/{timestamp}.md.\n5. **Wiki compliance**: update .opencode/context/index.md (catalog), append to .opencode/context/log.md, add YAML frontmatter to the new file, scan for cross-references to existing pages.\n\nPrivacy scan runs before saving to prevent committing secrets/PII. Use when you have external documentation, papers, or reference material that should be part of the project's durable knowledge.",
+    "detailedDescription": "Ingests external content (files, directories, URLs) and saves it as durable context. Process:\n\n1. Take the input: a file path, directory, or URL.\n2. Extract text content: for files, read directly; for directories, read all text files; for URLs, fetch via webfetch or web-to-markdown skill (handles JS-rendered pages).\n3. Clean and convert to markdown.\n4. Save to .opencode/context/research/{source-slug}/{timestamp}.md.\n5. **Wiki compliance**: update .opencode/context/index.md (catalog), append to .opencode/context/log.md, add YAML frontmatter to the new file, scan for cross-references to existing pages.\n6. **References sync**: ensure the project's opencode.jsonc has a `references` key with:\n   - A `context` entry pointing to `./.opencode/context` (local path reference) so the durable knowledge base is accessible to agents.\n   - For any GitHub repository mentioned in the ingested content (matching `github.com/owner/repo` pattern), add or update a `references` entry with `repository` set to `owner/repo` and a `description` explaining when to use it. See https://opencode.ai/docs/references/ for schema details.\n   - Only add repos that are substantive project references (not gists, not forks, not passing mentions). Deduplicate variant names to the primary repo.\n   - If `references` already exists, merge new entries without removing existing ones.\n\nPrivacy scan runs before saving to prevent committing secrets/PII. Use when you have external documentation, papers, or reference material that should be part of the project's durable knowledge.",
     "tools": [
       "bash"
     ],
@@ -1314,12 +1476,15 @@
     "description": "Create a project-specific agent",
     "reminder": "Create a project-specific agent.",
     "skill": "opencode-agent-creator",
-    "detailedDescription": "Creates a project-specific OpenCode agent using the agent-creator workflow. Defines:\n\n- Agent name and description\n- Model tier (Pro, Default, Fast)\n- Mode (primary or subagent)\n- Tools the agent has access to\n- The agent's prompt (role, constraints, workflow, output format)\n\nThe agent is saved to agents/{name}.md with proper YAML frontmatter. It becomes available immediately for delegation via the Task tool.\n\nUse when you need a specialized agent for a project-specific domain — e.g. a \"migration-agent\" that knows the legacy system's patterns, or a \"domain-agent\" that understands the business domain.",
+    "detailedDescription": "Creates a project-specific OpenCode agent using the agent-creator workflow. Defines:\n\n- Agent name and description\n- Model tier (Pro, Default, Fast)\n- Mode (primary or subagent)\n- Tools the agent has access to\n- The agent's prompt (role, constraints, workflow, output format)\n- Links to related community agent-creation skills for advanced patterns\n\nThe agent is saved to agents/{name}.md with proper YAML frontmatter. It becomes available immediately for delegation via the Task tool.\n\n**Supplementary skills loaded automatically:**\n- `creating-opencode-agents` — in-depth guide for agent definition best practices, model selection, permission scoping\n- `custom-agent-definitions` — advanced agent patterns (isolated research agent, read-only explorer, security auditor)\n\nUse when you need a specialized agent for a project-specific domain — e.g. a \"migration-agent\" that knows the legacy system's patterns, or a \"domain-agent\" that understands the business domain.",
     "tools": [
       "loadSkill",
       "bash"
     ],
-    "relatedSkills": []
+    "relatedSkills": [
+      "creating-opencode-agents",
+      "custom-agent-definitions"
+    ]
   },
   "harvest-context/export": {
     "label": "export",
@@ -1361,7 +1526,8 @@
     ],
     "relatedSkills": [
       "learner",
-      "skillify"
+      "skillify",
+      "create-opencode-plugin"
     ]
   },
   "harvest-context/web-research": {
@@ -1795,6 +1961,14 @@
       "ask"
     ]
   },
+  "orchestrate/scientist": {
+    "label": "scientist",
+    "description": "Data analysis specialist — pass instructions directly to @scientist",
+    "reminder": "Delegating to @scientist.",
+    "agent": "@scientist",
+    "inline": true,
+    "detailedDescription": "Delegates directly to the @scientist agent. The remainder of your prompt will be passed as specific instructions to the agent."
+  },
   "orchestrate/cc10x": {
     "label": "cc10x",
     "description": "Intent-detecting router → dispatches to BUILD/DEBUG/REVIEW/PLAN workflows with evidence-first validation and confidence gating",
@@ -1832,6 +2006,14 @@
         "approach": "Reason: 'likely candidates are event listener leaks or unbounded queues'. Act: grep for addEventListener. Observe: found 12. Reason: 'check if they're removed'. Act: grep for removeEventListener. Observe: only 3. Reason: '9 leaks'. Act: add removals. Observe: tests pass. Done."
       }
     ]
+  },
+  "orchestrate/security-reviewer": {
+    "label": "security-reviewer",
+    "description": "Security vulnerability detection — pass instructions directly to @security-reviewer",
+    "reminder": "Delegating to @security-reviewer.",
+    "agent": "@security-reviewer",
+    "inline": true,
+    "detailedDescription": "Delegates directly to the @security-reviewer agent. The remainder of your prompt will be passed as specific instructions to the agent."
   },
   "orchestrate/autopilot": {
     "label": "autopilot",
@@ -2101,6 +2283,14 @@
       }
     ]
   },
+  "orchestrate/tracer": {
+    "label": "tracer",
+    "description": "Evidence-driven causal tracing — pass instructions directly to @tracer",
+    "reminder": "Delegating to @tracer.",
+    "agent": "@tracer",
+    "inline": true,
+    "detailedDescription": "Delegates directly to the @tracer agent. The remainder of your prompt will be passed as specific instructions to the agent."
+  },
   "orchestrate/hive": {
     "label": "hive",
     "description": "Agent Hive execution — Swarm Bee phase: batched parallelism with worktree isolation, best-effort worker verification, blocked worker protocol, orchestrator batch testing",
@@ -2161,7 +2351,7 @@
     "description": "Recommend global resources for detected stack — maps stack fingerprint to relevant skills, agents, rules, and archetype via stack-recommender skill",
     "reminder": "Recommend global resources matching the detected stack.",
     "skill": "stack-recommender",
-    "detailedDescription": "Maps a detected stack fingerprint to recommended global OpenCode resources. Reads .opencode/state/init/stack-fingerprint.json and matches it against the global resource catalog (skills, agents, rules, archetypes) using resource tags.\n\nFor each matched resource, the recommender explains why it's relevant to the detected stack. The output is a prioritized recommendation list that feeds into /init-project provision.\n\nUse after /init-project detect to see what global resources would help this project, or standalone if you already have a stack fingerprint.",
+    "detailedDescription": "Maps a detected stack fingerprint to recommended global OpenCode resources. Reads .opencode/state/init/stack-fingerprint.json and matches it against the global resource catalog (skills, agents, rules, archetypes) using resource tags.\n\nEach archetype contains four subdirectories: agents/, rules/, skills/, and tools/. When provisioning a project, all four must be included: agents/ and rules/ are referenced in opencode.jsonc (via the agent and instructions keys), while skills/ and tools/ must be copied or linked into the project's .opencode/ directory so that agents and rules which reference them resolve correctly.\n\nFor each matched resource, the recommender explains why it's relevant to the detected stack. The output is a prioritized recommendation list that feeds into /init-project provision.\n\nUse after /init-project detect to see what global resources would help this project, or standalone if you already have a stack fingerprint.",
     "tools": [
       "loadSkill",
       "bash"
@@ -2175,7 +2365,7 @@
     "description": "Audit and fix resource tags on global skills, agents, rules, and archetypes for resource_tags filtering — scan, classify, suggest, and apply tags via tag-resources skill",
     "reminder": "Audit and fix resource tags for filtering.",
     "skill": "tag-resources",
-    "detailedDescription": "Audits and fixes resource tags on global OpenCode resources (skills, agents, rules, archetypes). Tags enable resource_tags filtering — the mechanism that lets stack-recommender match resources to a detected stack.\n\nProcess:\n1. Scan all resources for existing tags.\n2. Classify: are tags accurate? Missing? Incorrect?\n3. Suggest: propose tags based on resource content and metadata.\n4. Apply: write corrected tags to resource frontmatter.\n\nProperly tagged resources are discoverable by stack-recommender. Untagged or mis-tagged resources are invisible to recommendation. Use when setting up resources or when recommendations seem to miss obvious matches.",
+    "detailedDescription": "Audits and fixes resource tags on global OpenCode resources (skills, agents, rules, archetypes). Tags enable resource_tags filtering — the mechanism that lets stack-recommender match resources to a detected stack.\n\nEach archetype contains four subdirectories: agents/, rules/, skills/, and tools/. When provisioning a project, all four must be included: agents/ and rules/ are referenced in opencode.jsonc (via the agent and instructions keys), while skills/ and tools/ must be copied or linked into the project's .opencode/ directory so that agents and rules which reference them resolve correctly.\n\nProcess:\n1. Scan all resources for existing tags.\n2. Classify: are tags accurate? Missing? Incorrect?\n3. Suggest: propose tags based on resource content and metadata.\n4. Apply: write corrected tags to resource frontmatter.\n\nProperly tagged resources are discoverable by stack-recommender. Untagged or mis-tagged resources are invisible to recommendation. Use when setting up resources or when recommendations seem to miss obvious matches.",
     "tools": [
       "loadSkill",
       "bash"
@@ -2183,6 +2373,14 @@
     "relatedSkills": [
       "stack-recommender"
     ]
+  },
+  "init-project/config-orchestrator": {
+    "label": "config-orchestrator",
+    "description": "OpenCode config orchestrator — pass instructions directly to @config-orchestrator",
+    "reminder": "Delegating to @config-orchestrator.",
+    "agent": "@config-orchestrator",
+    "inline": true,
+    "detailedDescription": "Delegates directly to the @config-orchestrator agent. The remainder of your prompt will be passed as specific instructions to the agent."
   },
   "init-project/status": {
     "label": "status",
@@ -2244,7 +2442,7 @@
     "reminder": "Update config preserving manual edits. Use --full for deep codebase re-mapping and context refresh.",
     "skill": "init-project",
     "phases": "0-8 (merge)",
-    "detailedDescription": "Updates an existing project configuration without losing manual edits. Two modes:\n\n**Default mode** (no flag): Re-runs phases 0-5 + 8 in merge mode. Re-detects the stack, merges new recommendations, re-provisions agents/skills/tools/rules (preserving manual edits), regenerates docs, and verifies.\n\n**Full mode** (`--full`): Re-runs all 9 phases (0-8) in merge mode. In addition to the default behavior, it re-runs Phase 6 (deep codebase mapping via parallel agents, context synthesis, agent upgrade) and Phase 7 (routing integration validation) — preserving existing context and manual edits while refreshing the deep analysis.\n\n## Phases (all run in merge mode)\n\n| Phase | Name | Default | --full | Merge Behavior |\n|-------|------|---------|--------|----------------|\n| 0 | Verify Hubs | ✓ | ✓ | Check global health |\n| 1 | Detection | ✓ | ✓ | Re-detect stack, diff against last fingerprint, report changes |\n| 2 | Planning | ✓ | ✓ | Merge new recommendations with existing config |\n| 3 | Configuration | ✓ | ✓ | Merge new fields into opencode.jsonc, don't remove user-set values. Validate merged config against schema (fetch https://opencode.ai/config.json, reject invalid keys like extends/agents/project/rules/state/context/cache) |\n| 4 | Provisioning | ✓ | ✓ | Add new agents/skills/tools/rules, preserve manually edited ones, flag stale resources |\n| 5 | Documentation | ✓ | ✓ | Update generated AGENTS.md sections, preserve `<!-- MANUAL -->` blocks |\n| 6 | Context Capture | — | ✓ | Re-spawn parallel agents, diff context against existing, update changed sections only |\n| 7 | Routing & Integration | — | ✓ | Validate all cross-references, fix broken ones, generate updated integration report |\n| 8 | Verification | ✓ | ✓ | Final health check + diff report showing what changed |\n\n## What --full adds to refresh\n\n- **Deep codebase re-mapping**: Re-spawns @architect, @convention-extractor, @explore to analyze the current codebase state. If the codebase has evolved (new modules, refactored architecture, changed conventions), the context files are updated to reflect the new reality.\n- **Context diff**: Existing context files in .opencode/context/ are diffed against new analysis. Changed sections are updated; unchanged sections are preserved. Manual additions (marked with `<!-- MANUAL -->`) are never overwritten.\n- **Agent re-upgrade**: Phase 4 agent wrappers are re-upgraded with the refreshed deep context. If agents were manually edited since last setup, those edits are preserved in MANUAL blocks and the context sections are updated around them.\n- **Integration re-validation**: Phase 7 validates all cross-references, fixes broken extends paths, registers new skills/rules, and generates an updated integration report.\n\n## When to use refresh --full\n\n- **Codebase has evolved significantly** — new modules, major refactors, architectural changes since last init\n- **New conventions adopted** — team changed naming patterns, error handling style, testing approach\n- **New dependencies added** — want context files to reflect new libraries and their integration patterns\n- **Context feels stale** — agents are giving generic advice that doesn't match the current codebase\n- **After a merger/acquisition** — codebase absorbed another project, need to re-map the combined architecture\n\n## When default refresh is sufficient\n\n- **Minor dependency updates** — a few new packages, no architectural changes\n- **Config drift fix** — opencode.jsonc needs syncing, no codebase changes\n- **Global resource update** — new skills/agents available, want to pull in recommendations\n- **Quick health check** — just verify everything is still valid\n\n## Merge Mode Rules\n\nAll phases run in merge mode:\n1. **Read existing** — parse current config, agents, context, AGENTS.md\n2. **Diff** — compare current state vs new analysis\n3. **Preserve manual edits** — keep `<!-- MANUAL -->` blocks in all files\n4. **Update generated sections** — refresh auto-generated content with new data\n5. **Add new resources** — new agents/skills/tools/rules from new recommendations\n6. **Flag stale resources** — resources that no longer match the detected stack are flagged (not deleted)\n7. **Report changes** — summary of what was added, updated, flagged as stale\n\nSafe to run on existing setups — it won't destroy manual work.",
+    "detailedDescription": "Updates an existing project configuration without losing manual edits. Two modes:\n\n**Default mode** (no flag): Re-runs phases 0-5 + 8 in merge mode. Re-detects the stack, merges new recommendations, re-provisions agents/skills/tools/rules (preserving manual edits), regenerates docs, and verifies.\n\n**Full mode** (`--full`): Re-runs all 9 phases (0-8) in merge mode. In addition to the default behavior, it re-runs Phase 6 (deep codebase mapping via parallel agents, context synthesis, agent upgrade) and Phase 7 (routing integration validation) — preserving existing context and manual edits while refreshing the deep analysis.\n\n## References Sync (always runs)\n\nAfter Phase 3 (Configuration), ensure the project's `.opencode/opencode.jsonc` has a `references` key configured per https://opencode.ai/docs/references/:\n\n1. **Context reference**: Ensure a `references.context` entry exists pointing to `./.opencode/context` (local path reference) so the durable knowledge base is accessible to agents. Example:\n   ```jsonc\n   \"references\": {\n     \"context\": {\n       \"path\": \"./.opencode/context\",\n       \"description\": \"Durable project knowledge base — decisions, patterns, research, frameworks, and theory.\"\n     }\n   }\n   ```\n\n2. **Git repository references**: Scan all files in `.opencode/context/` for GitHub repository URLs matching `github.com/owner/repo`. For each substantive project reference (not gists, not forks, not passing mentions), ensure a `references` entry exists with:\n   - `repository` set to `owner/repo` (GitHub shorthand)\n   - `description` explaining when an agent should use it\n   - Deduplicate variant names to the primary repo\n   - If `references` already exists, merge new entries without removing existing ones\n   - Only add repos that are substantive project references — skip gists, forks, and casual mentions\n\n3. **Validate**: After adding references, verify the `opencode.jsonc` still passes schema validation (the `references` key is a valid top-level key per the OpenCode config schema).\n\n## Phases (all run in merge mode)\n\n| Phase | Name | Default | --full | Merge Behavior |\n|-------|------|---------|--------|----------------|\n| 0 | Verify Hubs | ✓ | ✓ | Check global health |\n| 1 | Detection | ✓ | ✓ | Re-detect stack, diff against last fingerprint, report changes |\n| 2 | Planning | ✓ | ✓ | Merge new recommendations with existing config |\n| 3 | Configuration | ✓ | ✓ | Merge new fields into opencode.jsonc, don't remove user-set values. Validate merged config against schema (fetch https://opencode.ai/config.json, reject invalid keys like extends/agents/project/rules/state/context/cache). **Then run References Sync (see above).** |\n| 4 | Provisioning | ✓ | ✓ | Add new agents/skills/tools/rules, preserve manually edited ones, flag stale resources |\n| 5 | Documentation | ✓ | ✓ | Update generated AGENTS.md sections, preserve `<!-- MANUAL -->` blocks |\n| 6 | Context Capture | — | ✓ | Re-spawn parallel agents, diff context against existing, update changed sections only |\n| 7 | Routing & Integration | — | ✓ | Validate all cross-references, fix broken ones, generate updated integration report |\n| 8 | Verification | ✓ | ✓ | Final health check + diff report showing what changed |\n\n## What --full adds to refresh\n\n- **Deep codebase re-mapping**: Re-spawns @architect, @convention-extractor, @explore to analyze the current codebase state. If the codebase has evolved (new modules, refactored architecture, changed conventions), the context files are updated to reflect the new reality.\n- **Context diff**: Existing context files in .opencode/context/ are diffed against new analysis. Changed sections are updated; unchanged sections are preserved. Manual additions (marked with `<!-- MANUAL -->`) are never overwritten.\n- **Agent re-upgrade**: Phase 4 agent wrappers are re-upgraded with the refreshed deep context. If agents were manually edited since last setup, those edits are preserved in MANUAL blocks and the context sections are updated around them.\n- **Integration re-validation**: Phase 7 validates all cross-references, fixes broken extends paths, registers new skills/rules, and generates an updated integration report.\n\n## When to use refresh --full\n\n- **Codebase has evolved significantly** — new modules, major refactors, architectural changes since last init\n- **New conventions adopted** — team changed naming patterns, error handling style, testing approach\n- **New dependencies added** — want context files to reflect new libraries and their integration patterns\n- **Context feels stale** — agents are giving generic advice that doesn't match the current codebase\n- **After a merger/acquisition** — codebase absorbed another project, need to re-map the combined architecture\n\n## When default refresh is sufficient\n\n- **Minor dependency updates** — a few new packages, no architectural changes\n- **Config drift fix** — opencode.jsonc needs syncing, no codebase changes\n- **Global resource update** — new skills/agents available, want to pull in recommendations\n- **Quick health check** — just verify everything is still valid\n\n## Merge Mode Rules\n\nAll phases run in merge mode:\n1. **Read existing** — parse current config, agents, context, AGENTS.md\n2. **Diff** — compare current state vs new analysis\n3. **Preserve manual edits** — keep `<!-- MANUAL -->` blocks in all files\n4. **Update generated sections** — refresh auto-generated content with new data\n5. **Add new resources** — new agents/skills/tools/rules from new recommendations\n6. **Flag stale resources** — resources that no longer match the detected stack are flagged (not deleted)\n7. **Report changes** — summary of what was added, updated, flagged as stale\n\nSafe to run on existing setups — it won't destroy manual work.",
     "tools": [
       "loadSkill",
       "listAgents",
@@ -2255,7 +2453,8 @@
       "stack-recommender",
       "provision",
       "deepinit",
-      "hubs-doctor"
+      "hubs-doctor",
+      "opencode-config"
     ],
     "examples": [
       {
@@ -2308,7 +2507,8 @@
       "stack-recommender",
       "provision",
       "deepinit",
-      "hubs-doctor"
+      "hubs-doctor",
+      "opencode-config"
     ],
     "examples": [
       {
@@ -2335,7 +2535,7 @@
     "description": "Discover TypeScript tools relevant to the current project by searching registries (GitHub, npm) and local template catalog — finds project-specific automation tools. Used by setup/refresh to find per-repo tools",
     "reminder": "Search registries for relevant project tools.",
     "skill": "find-tools",
-    "detailedDescription": "Discovers TypeScript tools relevant to the project. Searches registries (GitHub, npm) and the local template catalog for automation tools matching the project's needs.\n\nInstalled tools go to .opencode/tools/ (project scope) or tools/ (user scope) and are auto-discovered by OpenCode.\n\nUse during setup/refresh or standalone when you want project-specific automation tools (e.g. a deploy tool, a migration tool).",
+    "detailedDescription": "Discovers TypeScript tools relevant to the project. Searches registries (GitHub, npm) and the local template catalog for automation tools matching the project's needs.\n\nInstalled tools go to .opencode/tools/ (project scope — never user/global scope) and are auto-discovered by OpenCode.\n\nUse during setup/refresh or standalone when you want project-specific automation tools (e.g. a deploy tool, a migration tool).",
     "tools": [
       "loadSkill",
       "bash"
@@ -2366,12 +2566,20 @@
       }
     ]
   },
+  "init-project/convention-extractor": {
+    "label": "convention-extractor",
+    "description": "Extract coding conventions — pass instructions directly to @convention-extractor",
+    "reminder": "Delegating to @convention-extractor.",
+    "agent": "@convention-extractor",
+    "inline": true,
+    "detailedDescription": "Delegates directly to the @convention-extractor agent. The remainder of your prompt will be passed as specific instructions to the agent."
+  },
   "init-project/find-skills": {
     "label": "find-skills",
     "description": "Discover skills relevant to the current project by searching across skill registries (skills.sh, GitHub) — fetches candidates, security-scans top results, presents recommendations for installation. Used by setup/refresh to find per-repo skills",
     "reminder": "Search registries for relevant project skills.",
     "skill": "find-skills",
-    "detailedDescription": "Discovers skills relevant to the current project by searching across skill registries simultaneously. Sources:\n\n- skills.sh registry\n- clawhub.ai\n- GitHub (repos tagged as opencode-skills)\n\nProcess:\n1. Search all registries in parallel for skills matching the project's stack and needs.\n2. Security-scan top results (check for dangerous patterns, secrets, suspicious code).\n3. Present ranked recommendations with descriptions, source reputation, and security scan results.\n4. User selects which to install; the skill installs them to the appropriate scope.\n\nUse during /init-project setup/refresh or standalone when you want to extend the project's skill set with community skills.",
+    "detailedDescription": "Discovers skills relevant to the current project by searching across skill registries simultaneously. Sources:\n\n- skills.sh registry\n- clawhub.ai\n- GitHub (repos tagged as opencode-skills)\n\nProcess:\n1. Search all registries in parallel for skills matching the project's stack and needs.\n2. Security-scan top results (check for dangerous patterns, secrets, suspicious code).\n3. Present ranked recommendations with descriptions, source reputation, and security scan results.\n4. User selects which to install; the skill installs them to the project's .opencode/ directory (project scope).\n\nUse during /init-project setup/refresh or standalone when you want to extend the project's skill set with community skills.",
     "tools": [
       "loadSkill",
       "bash"
@@ -2381,19 +2589,41 @@
       "find-tools"
     ]
   },
+  "init-project/config": {
+    "label": "config",
+    "description": "Create or modify opencode.jsonc with mandatory schema validation — wraps opencode-config, opencode-configure, opencode-config-workflow; always fetches and validates final output against https://opencode.ai/config.json",
+    "reminder": "Create/modify opencode.jsonc with mandatory schema validation.",
+    "skill": "opencode-config",
+    "detailedDescription": "Creates or modifies opencode.jsonc (or .opencode/opencode.jsonc for project scope) with mandatory schema validation against the canonical OpenCode schema.\n\n## Workflow\n\n1. **Load config skills** — loads `opencode-config`, `opencode-configure`, and `opencode-config-workflow` for comprehensive config surface knowledge.\n\n2. **Elicit intent** — if the user hasn't specified exact changes, interview them to determine: scope (global vs project), what to change (model, provider, MCP, plugins, permissions, instructions, tools, etc.), and target values.\n\n3. **Apply changes** — edit the target config file using the loaded skills' guidance. Allowed keys per the schema: `$schema`, `shell`, `logLevel`, `server`, `command`, `skills`, `references`, `watcher`, `snapshot`, `plugin`, `share`, `autoupdate`, `disabled_providers`, `enabled_providers`, `model`, `small_model`, `default_agent`, `username`, `agent`, `provider`, `mcp`, `formatter`, `lsp`, `instructions`, `permission`, `tools`, `attachment`, `enterprise`, `tool_output`, `compaction`, `experimental`.\n\n4. **Fetch schema** — fetch `https://opencode.ai/config.json` and validate the final config against it.\n\n5. **Validate** — check for:\n   - Invalid keys (anything not in the allowed list above)\n   - Type mismatches (e.g. `model` should be string, not object)\n   - Missing required fields\n   - Broken plugin paths, MCP URL format, provider model references\n\n6. **Fix and re-validate** — if validation fails, fix the issues and re-validate. Loop until clean.\n\n7. **Report** — output a validation report showing which checks passed, what was fixed (if anything), and the final config diff.\n\n## MANDATORY\n\n**This subcommand MUST ALWAYS validate the final output against `https://opencode.ai/config.json` before reporting completion.** Do not skip this step even if the change seems trivial. Schema violations cause runtime errors that are hard to debug.",
+    "tools": [
+      "loadSkill",
+      "bash"
+    ],
+    "relatedSkills": [
+      "opencode-configure",
+      "opencode-config-workflow"
+    ],
+    "warnings": [
+      "Schema validation requires network access to https://opencode.ai/config.json — if offline, use cached schema from last fetch.",
+      "Fetches the full config.json schema (~50KB) — avoid unnecessary repeated fetches within a session.",
+      "Only modify one scope at a time (global or project). Mixed-scope edits in a single invocation risk cross-contamination."
+    ]
+  },
   "init-project/find-agents": {
     "label": "find-agents",
     "description": "Discover agents relevant to the current project by searching across agent registries and GitHub — finds specialized subagents for detected tech stack. Used by setup/refresh to find per-repo agents",
     "reminder": "Search registries for relevant project agents.",
     "skill": "find-agents",
-    "detailedDescription": "Discovers agents relevant to the current project. Searches agent registries and GitHub for specialized subagents matching the detected tech stack.\n\nSame pattern as /init-project find-skills but for agents: search, security-scan, recommend, install. Installed agents go to .opencode/agents/ (project scope) or agents/ (user scope).\n\nUse during setup/refresh or standalone when you need specialized agents for the project's stack.",
+    "detailedDescription": "Discovers skill packages related to agent creation and configuration. Searches agent registries and GitHub for specialized agent instructions.\n\nNote: The skills.sh ecosystem catalogs SKILL.md knowledge packages, not standalone agent .md definition files. Found packages provide instructions and workflows for:\n- Creating custom agent definitions (agent .md files with frontmatter)\n- Configuring agent tools, permissions, and models\n- Agent lifecycle and best practices\n\nResults are installed as skills, not agent files. To create actual agent .md files, use the `opencode-agent-creator` skill or the `provision` skill for project-scoped agents.\n\nUse during setup/refresh or standalone.",
     "tools": [
       "loadSkill",
       "bash"
     ],
     "relatedSkills": [
       "find-skills",
-      "find-tools"
+      "find-tools",
+      "custom-agent-definitions",
+      "creating-opencode-agents"
     ]
   },
   "init-project/context": {
@@ -2419,12 +2649,14 @@
     "description": "Provision project config via project-config-composer — auto-generate .opencode/opencode.jsonc, project rules, and agent wrappers from stack fingerprint + recommendations",
     "reminder": "Auto-generate .opencode/ config from stack analysis.",
     "skill": "project-config-composer",
-    "detailedDescription": "Provisions project-specific configuration from the stack fingerprint and recommendations. The project-config-composer skill generates:\n\n- .opencode/opencode.jsonc: project config referencing global resources + project-specific overrides.\n- Project rules: .opencode/rules/ files derived from detected conventions.\n- Agent wrappers: .opencode/agents/ with project context injected (e.g. \"this project uses Prisma + Express + Vitest\").\n- Project-specific skills if the stack warrants them.\n\n**CRITICAL:** The generated opencode.jsonc MUST be validated against the schema at https://opencode.ai/config.json. Only the following keys are valid: $schema, shell, logLevel, server, command, skills, references, watcher, snapshot, plugin, share, autoupdate, disabled_providers, enabled_providers, model, small_model, default_agent, username, agent, provider, mcp, formatter, lsp, instructions, permission, tools, attachment, enterprise, tool_output, compaction, experimental. Invalid keys (extends, agents, project, rules, state, context, cache) will cause runtime errors and MUST NOT appear in the output.\n\nThe generated config references global resources (skills, agents, rules in ~/.config/opencode/) rather than duplicating them — minimal footprint, maximum context.\n\nUse after /init-project detect + /init-project recommend to generate the actual config files. Or as part of /init-project setup (phase 3).",
+    "detailedDescription": "Provisions project-specific configuration from the stack fingerprint and recommendations. The project-config-composer skill generates:\n\n- .opencode/opencode.jsonc: project config referencing global resources + project-specific overrides.\n- Project rules: .opencode/rules/ files derived from detected conventions.\n- Agent wrappers: .opencode/agents/ with project context injected (e.g. \"this project uses Prisma + Express + Vitest\").\n- Project-specific skills if the stack warrants them.\n- When agent wrappers are created, loads supplementary agent-creation skills (creating-opencode-agents, custom-agent-definitions) for advanced agent patterns.\n\n**CRITICAL:** The generated opencode.jsonc MUST be validated against the schema at https://opencode.ai/config.json. Only the following keys are valid: $schema, shell, logLevel, server, command, skills, references, watcher, snapshot, plugin, share, autoupdate, disabled_providers, enabled_providers, model, small_model, default_agent, username, agent, provider, mcp, formatter, lsp, instructions, permission, tools, attachment, enterprise, tool_output, compaction, experimental. Invalid keys (extends, agents, project, rules, state, context, cache) will cause runtime errors and MUST NOT appear in the output.\n\nThe generated config references global resources (skills, agents, rules in ~/.config/opencode/) rather than duplicating them — minimal footprint, maximum context.\n\nUse after /init-project detect + /init-project recommend to generate the actual config files. Or as part of /init-project setup (phase 3).",
     "tools": [
       "loadSkill",
       "bash"
     ],
     "relatedSkills": [
+      "creating-opencode-agents",
+      "custom-agent-definitions",
       "stack-recommender",
       "tag-resources"
     ]

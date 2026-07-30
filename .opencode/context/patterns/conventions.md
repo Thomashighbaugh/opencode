@@ -40,7 +40,7 @@ async execute(args) {
 
 ## Plugin Hook Registration
 
-`plugins/core/hooks.ts` exports a `Plugin` factory. All hooks assigned to a `Hooks` object:
+`plugins/hooks/hooks.ts` exports a `Plugin` factory. All hooks assigned to a `Hooks` object:
 
 - `hooks.event` — switches on `event.type` (session.created/deleted)
 - `tool.execute.before` — pre-cache check + mtime staleness + agent context injection

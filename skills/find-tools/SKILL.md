@@ -19,7 +19,7 @@ Find and generate the right OpenCode tools for a project's tech stack by searchi
 
 | Source | Search Method | Signal |
 |--------|--------------|--------|
-| **Local templates** | `ls ~/.config/opencode/tool-templates/*/` | Known-good templates |
+| **Local templates** | `ls ~/.config/opencode/templates/tools/*/` | Known-good templates |
 | **GitHub** | `gh search repos --topic opencode-tools --topic agent-tools --topic skills` | Stars, description |
 | **npm** | `npm search opencode-tool` | Downloads, description |
 | **skills.sh** | `npx skills search <term>` | Install count |

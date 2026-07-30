@@ -3,7 +3,7 @@ title: "LLM Wiki Index"
 type: concept
 tags: [wiki, index, catalog]
 created: 2026-07-04
-updated: 2026-07-05
+updated: 2026-07-29
 status: active
 ---
 
@@ -45,6 +45,7 @@ Auto-maintained catalog of all wiki pages. Organized by category.
 | [[openhands]] | research | ai-coding, agentic | active |
 | [[ponytail]] | research | ai-coding, lazy-dev | active |
 | [[karpathy-guidelines]] | research | coding-standards, ai-coding | active |
+| [[opencode-joc-overview]] | source-summary | hubs, orchestration, agents, skills, commands, patterns | active |
 
 | [[llm-wiki/karpathy-llm-wiki]] | — | — | — |
 
@@ -82,6 +83,26 @@ Auto-maintained catalog of all wiki pages. Organized by category.
 | Page | Type | Tags | Status |
 |------|------|------|--------|
 | [[theory]] | — | — | — |
+
+## Docs (Reference Documentation)
+
+| Page | Type | Tags | Status |
+|------|------|------|--------|
+| [[docs/AGENTS]] | entity | docs, index, reference | active |
+| [[docs/agents]] | entity | docs, agents, reference | active |
+| [[docs/agent-tiers]] | entity | docs, agents, model-tiers | active |
+| [[docs/commands]] | entity | docs, commands, reference | active |
+| [[docs/execution-modes]] | entity | docs, execution-modes, orchestration | active |
+| [[docs/installation]] | entity | docs, installation, setup | active |
+| [[docs/model-configuration]] | entity | docs, models, configuration | active |
+| [[docs/new-agents]] | entity | docs, agents, creation | active |
+| [[docs/path-conventions]] | entity | docs, paths, conventions | active |
+| [[docs/plugin-system]] | entity | docs, plugins, hooks | active |
+| [[docs/routing]] | entity | docs, routing, hubs | active |
+| [[docs/skills]] | entity | docs, skills, reference | active |
+| [[docs/state-management]] | entity | docs, state, persistence | active |
+| [[docs/testing]] | entity | docs, testing, config-integrity | active |
+| [[docs/tools]] | entity | docs, tools, reference | active |
 
 ## Schema
 

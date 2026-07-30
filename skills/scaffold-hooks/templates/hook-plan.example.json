@@ -1,0 +1,277 @@
+{
+  "mode": "additive",
+  "hooks_root": "hooks",
+  "cleanup_legacy": true,
+  "harnesses": [
+    "claude",
+    "codex",
+    "copilot",
+    "devin",
+    "opencode"
+  ],
+  "plans": {
+    "claude": {
+      "settings_target": ".claude/settings.json",
+      "enabled_events": [
+        {
+          "name": "SessionStart",
+          "matcher": "startup|resume|clear|compact",
+          "async": false,
+          "timeout": 20,
+          "scripts": [],
+          "commands": [],
+          "notes": "Bootstrap lightweight shared context for Claude sessions."
+        },
+        {
+          "name": "PreToolUse",
+          "matcher": "Bash|Edit|Write|MultiEdit",
+          "async": false,
+          "timeout": 30,
+          "scripts": [],
+          "commands": [],
+          "notes": "Hard policy and safety gate."
+        },
+        {
+          "name": "PostToolUse",
+          "matcher": "Bash|Edit|Write|MultiEdit",
+          "async": true,
+          "timeout": 180,
+          "scripts": [],
+          "commands": [],
+          "notes": "Formatting, logging, and lightweight post-tool validation."
+        },
+        {
+          "name": "UserPromptSubmit",
+          "async": false,
+          "timeout": 20,
+          "scripts": [],
+          "commands": [],
+          "notes": "Prompt policy or context injection before Claude processes a user prompt."
+        },
+        {
+          "name": "PermissionRequest",
+          "matcher": "Bash|Edit|Write|MultiEdit",
+          "async": false,
+          "timeout": 20,
+          "scripts": [],
+          "commands": [],
+          "notes": "Permission decision hook for commands and file edits."
+        },
+        {
+          "name": "Notification",
+          "matcher": "",
+          "async": true,
+          "timeout": 15,
+          "scripts": [],
+          "commands": [],
+          "notes": "Optional desktop or remote notification hook."
+        },
+        {
+          "name": "Stop",
+          "async": false,
+          "timeout": 45,
+          "scripts": [],
+          "commands": [],
+          "notes": "End-of-turn quality gate."
+        }
+      ]
+    },
+    "codex": {
+      "hooks_target": ".codex/hooks.json",
+      "feature_scope": "project",
+      "enabled_events": [
+        {
+          "name": "SessionStart",
+          "matcher": "startup|resume|clear",
+          "timeout": 20,
+          "status_message": "Loading shared agent hook context",
+          "scripts": [],
+          "commands": [],
+          "notes": "Bootstrap lightweight shared context for Codex sessions."
+        },
+        {
+          "name": "PreToolUse",
+          "matcher": "Bash|apply_patch",
+          "timeout": 20,
+          "status_message": "Checking shared tool policy",
+          "scripts": [],
+          "commands": [],
+          "notes": "Hard policy and safety gate."
+        },
+        {
+          "name": "PostToolUse",
+          "matcher": "Bash|apply_patch",
+          "timeout": 90,
+          "status_message": "Running shared post-tool hook",
+          "scripts": [],
+          "commands": [],
+          "notes": "Post-tool validation or context."
+        },
+        {
+          "name": "UserPromptSubmit",
+          "timeout": 15,
+          "status_message": "Reviewing prompt context",
+          "scripts": [],
+          "commands": [],
+          "notes": "Prompt policy or context injection."
+        },
+        {
+          "name": "PermissionRequest",
+          "matcher": "Bash|apply_patch",
+          "timeout": 20,
+          "status_message": "Checking approval request",
+          "scripts": [],
+          "commands": [],
+          "notes": "Permission decision hook."
+        },
+        {
+          "name": "Stop",
+          "timeout": 45,
+          "status_message": "Running shared end-of-turn hook",
+          "scripts": [],
+          "commands": [],
+          "notes": "End-of-turn quality gate."
+        }
+      ]
+    },
+    "devin": {
+      "hooks_target": ".devin/hooks.v1.json",
+      "enabled_events": [
+        {
+          "name": "SessionStart",
+          "matcher": "",
+          "timeout": 10,
+          "block_on_failure": false,
+          "scripts": [],
+          "commands": [],
+          "notes": "Bootstrap lightweight shared context for Devin sessions."
+        },
+        {
+          "name": "PreToolUse",
+          "matcher": "^exec$",
+          "timeout": 30,
+          "block_on_failure": true,
+          "scripts": [],
+          "commands": [],
+          "notes": "Hard policy and safety gate before shell commands."
+        },
+        {
+          "name": "PostToolUse",
+          "matcher": "^(edit|exec)$",
+          "timeout": 120,
+          "block_on_failure": false,
+          "scripts": [],
+          "commands": [],
+          "notes": "Post-tool validation or logging."
+        },
+        {
+          "name": "UserPromptSubmit",
+          "matcher": "",
+          "timeout": 15,
+          "block_on_failure": false,
+          "scripts": [],
+          "commands": [],
+          "notes": "Prompt policy or context injection."
+        },
+        {
+          "name": "PermissionRequest",
+          "matcher": "^exec$",
+          "timeout": 20,
+          "block_on_failure": true,
+          "scripts": [],
+          "commands": [],
+          "notes": "Permission decision hook."
+        },
+        {
+          "name": "Stop",
+          "matcher": "",
+          "timeout": 45,
+          "block_on_failure": true,
+          "scripts": [],
+          "commands": [],
+          "notes": "End-of-turn quality gate."
+        }
+      ]
+    },
+    "opencode": {
+      "scope": "project",
+      "plugin_name": "opencode-froggy",
+      "config_target": "opencode.json",
+      "hook_config_target": ".opencode/hook/hooks.md",
+      "managed_state_dir": ".opencode/hook/.managed",
+      "hooks": [
+        {
+          "event": "session.created",
+          "conditions": [
+            "isMainSession"
+          ],
+          "actions": [
+            {
+              "bash": {
+                "command": "if [ -f \"$OPENCODE_PROJECT_DIR/scripts/agent-session-context.sh\" ]; then AGENT_HOOK_HARNESS=opencode AGENT_HOOK_PROJECT_ROOT=\"$OPENCODE_PROJECT_DIR\" AGENT_HOOK_SESSION_ID=\"$OPENCODE_SESSION_ID\" bash \"$OPENCODE_PROJECT_DIR/scripts/agent-session-context.sh\" >/dev/null; fi",
+                "timeout": 20000
+              }
+            }
+          ],
+          "notes": "Record a repo-owned session baseline when scripts/agent-session-context.sh exists."
+        },
+        {
+          "event": "session.idle",
+          "conditions": [
+            "isMainSession"
+          ],
+          "actions": [
+            {
+              "bash": {
+                "command": "if [ -f \"$OPENCODE_PROJECT_DIR/scripts/validate-project.sh\" ]; then AGENT_HOOK_HARNESS=opencode AGENT_HOOK_PROJECT_ROOT=\"$OPENCODE_PROJECT_DIR\" AGENT_HOOK_SESSION_ID=\"$OPENCODE_SESSION_ID\" bash \"$OPENCODE_PROJECT_DIR/scripts/validate-project.sh\" \"$OPENCODE_PROJECT_DIR\"; fi",
+                "timeout": 600000
+              }
+            }
+          ],
+          "notes": "Run repo-owned validation after OpenCode makes file changes."
+        }
+      ]
+    },
+    "copilot": {
+      "hooks_target": ".github/hooks/copilot-hooks.json",
+      "managed_root": ".github/copilot/hooks/generated",
+      "enabled_events": [
+        {
+          "name": "preToolUse",
+          "matcher": "bash|edit|create",
+          "timeoutSec": 15,
+          "block_on_failure": true,
+          "scripts": [],
+          "commands": [],
+          "notes": "Use this for hard policy and safety gates. Deny through stdout JSON, not a Devin-style exit-code-2 block."
+        },
+        {
+          "name": "postToolUseFailure",
+          "timeoutSec": 30,
+          "block_on_failure": false,
+          "scripts": [],
+          "commands": [],
+          "notes": "Use this for recovery guidance after failed tools."
+        },
+        {
+          "name": "agentStop",
+          "timeoutSec": 30,
+          "block_on_failure": true,
+          "scripts": [
+            {
+              "label": "shared stop checks",
+              "path": "scripts/agent-stop-checks.sh",
+              "args": [
+                "copilot"
+              ],
+              "cwd": ".",
+              "notes": "Reusable repo-owned script that can also be called by CI or other agent adapters."
+            }
+          ],
+          "commands": [],
+          "notes": "Use this to keep the agent from stopping before required repo checks are complete."
+        }
+      ]
+    }
+  }
+}

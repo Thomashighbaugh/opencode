@@ -23,7 +23,7 @@ The generator reads the code under test, infers its contract, and writes tests f
 Use when you need thorough test coverage quickly, especially for critical modules.`,
 
   tools: TOOLS_BASH,
-  relatedSkills: [],
+  relatedSkills: ["vitest", "test-coverage-improver"],
 }
 
 export default spec

@@ -88,15 +88,17 @@ A resource recommendation object:
 
 ### Framework → Resources
 
-| Framework    | Skills                                      | Agents               | Rules          | Archetype       |
-|--------------|---------------------------------------------|-----------------------|----------------|-----------------|
-| Next.js      | react-key-prop, context7-docs, mui           | test-engineer         | testing.md     | nextjs-webapp   |
-| Nuxt         | context7-docs                               | test-engineer         | testing.md     | —               |
-| SvelteKit    | context7-docs                               | test-engineer         | testing.md     | —               |
-| FastAPI      | —                                           | test-engineer         | testing.md     | python-api      |
-| Django       | —                                           | test-engineer         | testing.md     | python-api      |
-| Rails        | —                                           | test-engineer         | testing.md     | —               |
-| Express/Fastify | —                                        | test-engineer         | testing.md     | —               |
+| Framework         | Skills                                              | Agents               | Rules          | Archetype       |
+|-------------------|-----------------------------------------------------|-----------------------|----------------|-----------------|
+| Next.js           | react-key-prop, context7-docs, mui                   | test-engineer         | testing.md     | nextjs-webapp   |
+| Nuxt              | context7-docs                                       | test-engineer         | testing.md     | —               |
+| SvelteKit         | context7-docs                                       | test-engineer         | testing.md     | —               |
+| FastAPI           | —                                                   | test-engineer         | testing.md     | python-api      |
+| Django            | —                                                   | test-engineer         | testing.md     | python-api      |
+| Rails             | —                                                   | test-engineer         | testing.md     | —               |
+| Express/Fastify   | —                                                   | test-engineer         | testing.md     | —               |
+| OpenCode config   | opencode-config, create-opencode-plugin              | —                     | —              | —               |
+| OpenCode plugin   | create-opencode-plugin, hooks, hook-developer        | —                     | —              | —               |
 
 ### CSS Approach → Skills
 
@@ -108,6 +110,14 @@ A resource recommendation object:
 | styled-components | —                                       |
 | Emotion      | —                                            |
 
+### TUI/CLI Framework → Skills
+
+| Framework      | Skills         |
+|----------------|----------------|
+| OpenTUI/Ink    | opentui        |
+| Blessed/blessed | opentui       |
+| Textual        | —              |
+
 ### Build Tool → Skills
 
 | Build Tool    | Skills                                        |
@@ -116,15 +126,15 @@ A resource recommendation object:
 | Vite          | —                                              |
 | Webpack       | —                                              |
 
-### Testing → Agents
+### Testing → Resources
 
-| Testing Framework | Agents       |
-|-------------------|--------------|
-| Vitest            | test-engineer |
-| Jest              | test-engineer |
-| Playwright        | test-engineer |
-| Cypress           | test-engineer |
-| Pytest            | test-engineer |
+| Testing Framework | Agents        | Skills                                        |
+|-------------------|---------------|-----------------------------------------------|
+| Vitest            | test-engineer | vitest, test-coverage-improver                |
+| Jest              | test-engineer | test-coverage-improver                        |
+| Playwright        | test-engineer | —                                              |
+| Cypress           | test-engineer | —                                              |
+| Pytest            | test-engineer | —                                              |
 
 ### Monorepo → Archetype
 
@@ -150,6 +160,28 @@ A resource recommendation object:
 |----------|-------------------|
 | Prisma   | prisma/db-migrate |
 | Drizzle  | drizzle/db-migrate |
+
+### CI/CD → Resources
+
+| Platform        | Skills                                          |
+|-----------------|-------------------------------------------------|
+| GitHub Actions  | ci-cd-and-automation, github-actions, devops-engineer |
+| GitLab CI       | devops-engineer                                 |
+| CircleCI        | devops-engineer                                 |
+
+### Agent/Tool Development → Skills
+
+| System              | Skills                                                       |
+|---------------------|--------------------------------------------------------------|
+| Agent definitions   | custom-agent-definitions, creating-opencode-agents             |
+| SDK/Tool dev        | opencode-sdk-development                                      |
+
+### Hook/Plugin Development → Skills
+
+| System   | Skills                                    |
+|----------|-------------------------------------------|
+| Hooks    | hooks, hook-developer, scaffold-hooks      |
+| Plugins  | create-opencode-plugin, opencode-sdk-development |
 
 ### Containerization → Tools
 
@@ -231,7 +263,7 @@ The recommendation output now includes `tools` and `fine_rules` arrays:
 1. **Receive the fingerprint** — either from `@stack-detector` output or direct user input
 2. **Apply mapping tables** — iterate through each detection dimension and collect matching resources (skills, agents, rules, tools, fine_rules, archetype)
 3. **Detect gaps** — identify stacks with no matching global resources and flag them in `gaps`
-4. **Select archetype** — choose the best-matching project archetype (see archetype matching table above)
+4. **Select archetype** — choose the best-matching project archetype (see archetype matching table above). Each archetype contains four subdirectories: `agents/`, `rules/`, `skills/`, and `tools/`. When provisioning a project, **all four must be included**: `agents/` and `rules/` are referenced in `opencode.jsonc` (via the `agent` and `instructions` keys), while `skills/` and `tools/` must be copied or linked into the project's `.opencode/` directory so that agents and rules which reference them resolve correctly.
 5. **De-duplicate and prioritize** — remove duplicate resource references and order by relevance
 6. **Return recommendations** — structured JSON with skills, agents, rules, tools, fine_rules, commands, archetype, gaps, and notes
 7. If calling from `/init-project`, pass the recommendations to `project-config-composer` for `.opencode/` generation

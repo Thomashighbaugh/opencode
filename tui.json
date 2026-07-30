@@ -81,9 +81,9 @@
     "prompt_submit": "none",
     "prompt_editor_context_clear": "none",
     "prompt_skills": "none",
-    "prompt_stash": "none",
-    "prompt_stash_pop": "none",
-    "prompt_stash_list": "none",
+    "prompt_stash": "<leader>s",
+    "prompt_stash_pop": "<leader>z",
+    "prompt_stash_list": "<leader>S",
     "workspace_set": "none",
 
     "input_clear": "ctrl+c",
@@ -154,7 +154,7 @@
     "plugin_manager": "none",
     "plugin_install": "none",
 
-    "which_key_toggle": "ctrl+alt+k",
+    "which_key_toggle": "<leader>k",
     "which_key_layout_toggle": "ctrl+alt+shift+k",
     "which_key_pending_toggle": "ctrl+alt+shift+p",
     "which_key_group_previous": "ctrl+alt+left,ctrl+alt+[",
@@ -168,4 +168,3 @@
   },
   "plugin": ["./plugins/hubs-tui/index.js"]
 }
-

@@ -30,7 +30,7 @@
 ├── commands/             # Slash command definitions
 │   └── *.md
 ├── plugins/              # Hook system plugins and TUI plugins
-│   ├── core/hooks.ts
+│   ├── hooks/hooks.ts
 │   └── hubs-tui/
 ├── rules/                # Shared agent instructions (loaded via opencode.jsonc)
 │   ├── shell_strategy.md
@@ -40,13 +40,19 @@
 ├── archetypes/           # Project archetype templates for /init-project
 │   ├── bare-bones/
 │   ├── nextjs-webapp/
-│   └── ...                # 7 archetypes
-├── rule-templates/       # Rule generation templates
-│   ├── api/
-│   ├── testing/
-│   └── ...                # 8 categories
+│   └── ...                # 8 archetypes
+│   └── each archetype has: agents/, rules/, skills/, tools/
+│      # agents/ and rules/ → referenced in opencode.jsonc (agent + instructions keys)
+│      # skills/ and tools/ → copied/linked into project's .opencode/ directory
 ├── templates/            # File templates
-└── tool-templates/       # Tool creation templates
+│   ├── agent-template.md  # Agent definition template
+│   ├── context-template.md # Context document template
+│   ├── rules/             # Rule generation templates
+│   │   ├── api/
+│   │   ├── testing/
+│   │   └── ...             # 8 categories
+│   ├── tools/             # Tool creation templates
+│   └── reasoning/         # CoT reasoning templates
 ```
 
 ## File Format Requirements

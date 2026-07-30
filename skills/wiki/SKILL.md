@@ -65,6 +65,18 @@ Run these steps after every write (file creation, update, or deletion):
    - Check if the new content mentions any existing page by name/concept
    - Add [[page-slug]] links where appropriate
    - Check if existing pages should link to the new content
+
+6. SYNC references in opencode.jsonc
+   - Ensure the project's opencode.jsonc has a `references` key with a `context` entry
+     pointing to `./.opencode/context` (local path reference) so the durable
+     knowledge base is accessible to agents via the references system
+     (see https://opencode.ai/docs/references/ for schema)
+   - Scan the new content for GitHub repository references (github.com/owner/repo)
+   - For each substantive project reference (not gists, not forks, not passing
+     mentions), add or update a `references` entry with `repository` set to
+     `owner/repo` and a `description` explaining when to use it
+   - Deduplicate variant names to the primary repo
+   - If `references` already exists, merge new entries without removing existing ones
 ```
 
 ### YAML Frontmatter Convention

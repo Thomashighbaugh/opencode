@@ -16,6 +16,8 @@
     "@opencode-ai/plugin": "^1.17.18",
     "@opencode-ai/sdk": "^1.17.18",
     "@opencode-plugins/env-protection": "^1.0.4",
+    "fast-xml-parser": "^5.10.1",
+    "fs-extra": "^11.4.0",
     "glob": "^13.0.6",
     "js-yaml": "^5.2.1",
     "jsonpath-plus": "^10.4.0",

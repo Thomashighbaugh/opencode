@@ -653,12 +653,12 @@ Two changes to reduce per-step verify overhead in iterative patterns:
 1. ADR (this document) — architecture decisions recorded
 2. `tools/prompt-compiler.ts` — prompt compilation + skill compression integration
 3. `tools/semantic-cache.ts` — embedding-based cache layer
-4. `plugins/core/hooks.ts` — integrate both into the pre-dispatch pipeline
+4. `plugins/hooks/hooks.ts` — integrate both into the pre-dispatch pipeline
 5. Verification consolidation — update ralph/harden skill files
 
 ## Consequences
 - Two new tools: `prompt-compiler.ts` and `semantic-cache.ts`
-- Modified: `plugins/core/hooks.ts` (pre-dispatch hook), `tools/loadSkill.ts` (compress mode), `skills/ralph/SKILL.md` (self-verify flag)
+- Modified: `plugins/hooks/hooks.ts` (pre-dispatch hook), `tools/loadSkill.ts` (compress mode), `skills/ralph/SKILL.md` (self-verify flag)
 - `mxbai-embed-large` and `hans-tech/bge-reranker-v2-m3:260522` become required Ollama models — auto-pull in init-project setup
 - ADR linked from global config README documentation table
 - No change to the existing exact-match agent cache — it remains as the fast path O(1) lookup
@@ -669,7 +669,7 @@ Two changes to reduce per-step verify overhead in iterative patterns:
 - `tools/semantic-cache.ts` — Implementation
 - `tools/cache-utils.ts` — Existing multi-tier cache infrastructure
 - `tools/agent-cache.ts` — Existing exact-match agent output cache
-- `plugins/core/hooks.ts` — Hook integration (Tier 4 cache + pre-dispatch)
+- `plugins/hooks/hooks.ts` — Hook integration (Tier 4 cache + pre-dispatch)
 
 ---
 

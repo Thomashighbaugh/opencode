@@ -38,7 +38,7 @@ Collect current resource counts and metadata:
 | Commands | Count `commands/*.md` files |
 | Archetypes | Count `archetypes/*/` directories |
 | Plugins | Count `plugins/*/` directories + npm plugins in `opencode.jsonc` |
-| Docs | Count `.opencode/docs/*.md` files |
+| Docs | Count `.opencode/context/docs/*.md` files |
 
 ### Step 2: Read the Existing README
 
@@ -56,7 +56,7 @@ Collect current resource counts and metadata:
 - Update all resource counts to current values
 - Add new sections for new capabilities
 - Remove or update sections for removed/changed capabilities
-- Preserve all existing documentation links (they point to `.opencode/docs/` or `.documentation/`)
+- Preserve all existing documentation links (they point to `.opencode/context/docs/` or `.documentation/`)
 - Maintain the existing tone and voice
 - Keep SEO-friendly headings and keyword placement
 
@@ -68,7 +68,7 @@ Collect current resource counts and metadata:
 
 ## Heuristics
 
-- **Preserve documentation links** — if the README links to `.opencode/docs/agents.md`, keep that link even if you update the agent count
+- **Preserve documentation links** — if the README links to `.opencode/context/docs/agents.md`, keep that link even if you update the agent count
 - **SEO headings** — use descriptive H2/H3 headings that include natural keywords (e.g., "Agents (31)" not "Agent Count")
 - **Tone matching** — if the existing README uses "you" and friendly language, don't switch to dry academic tone
 - **No emoji unless present** — match the existing emoji usage (or lack thereof)

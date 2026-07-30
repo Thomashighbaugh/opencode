@@ -39,19 +39,34 @@ Find the right agent for a task by searching across **agent registries** and **G
 
 ## Installation
 
-For skills.sh agents:
+For skills.sh agents (project scope — installs to .opencode/ in the current project):
 ```bash
-npx skills add <owner>/<repo> --skill <agent-name> -g
+npx skills add <owner>/<repo> --skill <agent-name>
 ```
 
 For GitHub agents, direct the user to the repo for setup instructions.
+
+## Post-Install: Agent Integration (CRITICAL)
+
+After installing an agent-related skill package, integrate it into the existing agent ecosystem:
+
+1. **Update /harvest-context agent spec** — If the package provides agent definition patterns (like `creating-opencode-agents` or `custom-agent-definitions`), add it as a relatedSkill to `/harvest-context agent` so the agent-creation workflow loads it automatically.
+
+2. **Update agent-creator skill** — If the package enhances agent creation, update the `opencode-agent-creator` skill's "Best Practices" or "References" section to mention the new package.
+
+3. **Update /init-project provision spec** — If the package relates to provisioning (agent wrappers, config generation), add it as a relatedSkill to `/init-project provision`.
+
+4. **Update stack-recommender** — Add the package to the relevant mapping table (e.g. Agent/Tool Development section).
+
+5. **Create or update agent definitions** — For packages that define complete agent workflows, create a corresponding subagent in `agents/` that loads the skill and exposes it via `@mention`.
 
 ## Integration with /init-project
 
 This skill is used by `/init-project setup` and `/init-project refresh` to:
 1. Search for agents relevant to the detected project stack and needs
 2. Present findings for user selection
-3. Install selected agents
+3. Install selected agent packages
+4. **Post-install integration** — wire packages into hub specs, skill references, and agent definitions
 
 ## Security & Privacy
 

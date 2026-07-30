@@ -12,6 +12,7 @@ import doctor from "./doctor"
 import reset from "./reset"
 import provision from "./provision"
 import tag from "./tag"
+import config from "./config"
 import findSkills from "./find-skills"
 import findAgents from "./find-agents"
 import findTools from "./find-tools"
@@ -19,7 +20,7 @@ import findRules from "./find-rules"
 
 export const specs = [
   setup, detect, recommend, docs, context, verify, refresh, status,
-  mapCodebase, doctor, reset, provision, tag, findSkills, findAgents,
+  mapCodebase, doctor, reset, provision, tag, config, findSkills, findAgents,
   findTools, findRules
 ]
 

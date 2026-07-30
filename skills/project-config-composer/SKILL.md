@@ -57,19 +57,27 @@ The composer creates the following structure under the project's `.opencode/`:
 ```
 .opencode/
 ├── opencode.jsonc              # Project-level config (extends global, selects resources)
-├── rules/
+├── rules/                      # From archetype rules/ + generated rules
 │   ├── project-conventions.md  # Auto-generated conventions from detected stack
 │   ├── project-testing.md      # Testing guidelines specific to detected frameworks
-│   ├── {category}-{name}.md    # Fine-grained rules from rule-templates (if recommended)
+│   ├── {category}-{name}.md    # Fine-grained rules from templates/rules (if recommended)
 │   └── ...                     # One per recommended fine_rule
-├── tools/
-│   ├── {name}.ts               # TypeScript tools from tool-templates (if recommended)
+├── tools/                      # From archetype tools/ + generated tools
+│   ├── {name}.ts               # TypeScript tools from templates/tools (if recommended)
 │   └── ...                     # One per recommended tool
+├── skills/                     # From archetype skills/ — copied/linked into project
+│   └── ...                     # Skill directories referenced by agents and rules
 ├── agents/                     # Project-specific agent wrappers (if needed)
 │   └── ... (only if gaps identified)
 └── instructions/               # AGENTS.md fragment for project-specific docs
     └── README.md               # Brief note about what was generated
 ```
+
+> **CRITICAL: All four archetype subdirectories must be provisioned.**
+> Archetypes contain four subdirectories: `agents/`, `rules/`, `skills/`, and `tools/`.
+> - `agents/` and `rules/` are referenced in `opencode.jsonc` (via the `agent` and `instructions` keys)
+> - `skills/` and `tools/` must be copied or linked into the project's `.opencode/` directory
+> - Without `skills/` and `tools/` present, agents and rules that reference them will fail to resolve
 
 ### 1. opencode.jsonc
 
@@ -152,12 +160,12 @@ description: Auto-generated conventions for [framework] project
 - Group: external → internal → types
 ```
 
-### 3. Tools (from tool-templates)
+### 3. Tools (from templates/tools)
 
-When the recommendations include `tools[]`, the composer generates TypeScript tool files from the local template catalog at `~/.config/opencode/tool-templates/`:
+When the recommendations include `tools[]`, the composer generates TypeScript tool files from the local template catalog at `~/.config/opencode/templates/tools/`:
 
 ```bash
-TOOL_TEMPLATES_DIR="$HOME/.config/opencode/tool-templates"
+TOOL_TEMPLATES_DIR="$HOME/.config/opencode/templates/tools"
 PROJECT_TOOLS_DIR="$PROJECT_DIR/.opencode/tools"
 ```
 
@@ -180,7 +188,7 @@ For each recommended tool, the composer:
 | `{{ORM}}` | `fingerprint.database.orm` | `prisma` |
 | `{{DATABASE}}` | `fingerprint.database.database` | `postgresql` |
 
-**Example output** (from `tool-templates/typescript/type-check.ts`):
+**Example output** (from `templates/tools/typescript/type-check.ts`):
 
 ```typescript
 // Auto-generated from tool-template: typescript/type-check.ts
@@ -197,12 +205,12 @@ export default {
 }
 ```
 
-### 4. Fine-Grained Rules (from rule-templates)
+### 4. Fine-Grained Rules (from templates/rules)
 
-When the recommendations include `fine_rules[]`, the composer generates granular rule files from the local template catalog at `~/.config/opencode/rule-templates/`:
+When the recommendations include `fine_rules[]`, the composer generates granular rule files from the local template catalog at `~/.config/opencode/templates/rules/`:
 
 ```bash
-RULE_TEMPLATES_DIR="$HOME/.config/opencode/rule-templates"
+RULE_TEMPLATES_DIR="$HOME/.config/opencode/templates/rules"
 PROJECT_RULES_DIR="$PROJECT_DIR/.opencode/rules"
 ```
 
@@ -212,7 +220,7 @@ For each recommended fine_rule, the composer:
 3. Writes the result to `$PROJECT_RULES_DIR/{category}-{name}.md`
 4. Adds the rule to `opencode.jsonc` under `instructions`
 
-**Example output** (from `rule-templates/framework/nextjs.md`):
+**Example output** (from `templates/rules/framework/nextjs.md`):
 
 ```markdown
 ---
@@ -265,9 +273,13 @@ Check for `--minimal` flag: when present, generate only `opencode.jsonc` with `r
 PROJECT_DIR="."  # or specified path
 mkdir -p "$PROJECT_DIR/.opencode/rules"
 mkdir -p "$PROJECT_DIR/.opencode/tools"
+mkdir -p "$PROJECT_DIR/.opencode/skills"
 mkdir -p "$PROJECT_DIR/.opencode/agents"
 mkdir -p "$PROJECT_DIR/.opencode/instructions"
 ```
+
+> **Also copy/link archetype skills/ and tools/ into the project's `.opencode/`:**
+> If an archetype was matched, copy its `skills/` and `tools/` directories into `.opencode/skills/` and `.opencode/tools/` respectively. These are needed by agents and rules that reference them — without their presence, per-project invocations will fail.
 
 ### Step 2: Generate opencode.jsonc
 
@@ -329,22 +341,22 @@ For each detected technology, generate a brief conventions rule file:
 - Database conventions (migration workflow, naming, indexing strategy)
 - CSS conventions (Tailwind class ordering, component styling approach)
 
-### Step 3a: Generate Tools (from tool-templates)
+### Step 3a: Generate Tools (from templates/tools)
 
 If the recommendations include `tools[]`:
 
-1. For each recommended tool, check if a matching template exists at `~/.config/opencode/tool-templates/{category}/{name}.ts`
+1. For each recommended tool, check if a matching template exists at `~/.config/opencode/templates/tools/{category}/{name}.ts`
 2. Read the template, replace `{{PLACEHOLDERS}}` with fingerprint values
 3. Write the result to `$PROJECT_DIR/.opencode/tools/{name}.ts`
 4. Add a `tools` entry to `opencode.jsonc` referencing the generated file
 
 If a tool template doesn't exist locally, suggest running `/init-project find-tools` to search registries.
 
-### Step 3b: Generate Fine-Grained Rules (from rule-templates)
+### Step 3b: Generate Fine-Grained Rules (from templates/rules)
 
 If the recommendations include `fine_rules[]`:
 
-1. For each recommended fine_rule, check if a matching template exists at `~/.config/opencode/rule-templates/{category}/{name}.md`
+1. For each recommended fine_rule, check if a matching template exists at `~/.config/opencode/templates/rules/{category}/{name}.md`
 2. Read the template, replace `{{PLACEHOLDERS}}` with fingerprint values
 3. Write the result to `$PROJECT_DIR/.opencode/rules/{category}-{name}.md`
 4. Add the rule to `opencode.jsonc` under `instructions`
@@ -364,15 +376,17 @@ For each identified gap, create a minimal agent that fills the missing capabilit
 - `.opencode/opencode.jsonc` — Project config (extends archetype/standalone)
 - `.opencode/rules/project-conventions.md` — Stack-specific conventions
 - `.opencode/rules/project-testing.md` — Testing guidelines
-- `.opencode/tools/{n}.ts` — N project-specific TypeScript tools (from tool-templates)
-- `.opencode/rules/{category}-{name}.md` — M fine-grained convention rules (from rule-templates)
+- `.opencode/tools/{n}.ts` — N project-specific TypeScript tools (from templates/tools)
+- `.opencode/rules/{category}-{name}.md` — M fine-grained convention rules (from templates/rules)
+- `.opencode/skills/` — Copied/linked from archetype skills/ directory
+- `.opencode/tools/` — Copied/linked from archetype tools/ directory
 
 ### Recommendations Applied
 - ✅ 3 skills activated via resource_tags
 - ✅ 2 agents available for subdelegation
 - ✅ 1 archetype matched (nextjs-webapp)
-- ✅ N tools generated from tool-templates
-- ✅ M fine-grained rules generated from rule-templates
+- ✅ N tools generated from templates/tools
+- ✅ M fine-grained rules generated from templates/rules
 
 ### Gaps Identified
 - ⚠️ No global skill for Next.js App Router → created project agent wrapper

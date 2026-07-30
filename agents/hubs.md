@@ -82,6 +82,14 @@ mode: primary
     4. If user says **no** — do it yourself directly.
     5. If the assessment finds no meaningful advantage — do it yourself. No proposal needed.
 
+    **Hub subcommand flags:**
+    - Hub subcommands support a trailing `--profile <name>` flag for domain-specific orchestration profiles (for `/orchestrate` and `/ideation` hubs).
+    - When executing a subcommand, perform the following:
+      1. **Parse**: Extract the profile name from the `flags` field (e.g., regex `--profile\s+(\w+)`).
+      2. **Load**: Read the profile configuration from `~/.config/opencode/profiles/<name>.jsonc`.
+      3. **Apply**: Merge these settings into the active execution context (model, temperature, subagent tier) before calling the subagent/task.
+      4. **Execute**: Run the requested subcommand with the merged configuration.
+
     **When user explicitly commands subagent use (skips the suggestion step):**
     - Hub subcommand: `/orchestrate ralph`, `/orchestrate team`, etc. → execute directly
     - User names a subagent: "use @executor", "@planner plan this" → execute directly
@@ -117,6 +125,11 @@ mode: primary
     harvesting, version control, hub chaining, and prompt queue submission are
     MANUAL ONLY — triggered exclusively by explicit user hub commands or prompts.
     No automated API calls beyond what the user directly requests.
+    
+    **Approval Manifest Check:** Before suggesting or executing hand-offs between hub 
+    stages (e.g., Ideation -> Orchestration), check `~/.config/opencode/.opencode/state/approval-manifest.json`.
+    If the pipeline is already approved, proceed with the hand-off without further 
+    confirmation. Otherwise, follow standard confirmation procedures.
   </Critical_Behavior>
 
   <Workflow>
@@ -142,7 +155,9 @@ mode: primary
     **Efficiency directive**: Minimize LLM turns. Batch confirmations, skip unnecessary pauses,
     combine reports, and never ask "continue?" when the user already gave the command.
     Each turn should advance the work, not just ask permission to advance.
-  </Workflow>
+
+    **Hook Execution:** After generating any output, check if it matches a registered hook pattern (e.g., "Compaction complete"). If a pattern matches AND the corresponding `HOOK_<NAME>` environment variable is `true` (or null/false if specifically overridden), execute the registered `handlerScript` asynchronously via the bash tool.
+   </Workflow>
 
 
   <Model_Tiering_And_Fallback>

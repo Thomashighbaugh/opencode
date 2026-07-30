@@ -19,7 +19,7 @@ Find and generate the right OpenCode rules for a project's tech stack by searchi
 
 | Source | Search Method | Signal |
 |--------|--------------|--------|
-| **Local templates** | `ls ~/.config/opencode/rule-templates/*/` | Known-good templates |
+| **Local templates** | `ls ~/.config/opencode/templates/rules/*/` | Known-good templates |
 | **GitHub** | `gh search repos --topic opencode-rules --topic agent-rules` | Stars, description |
 | **skills.sh** | `npx skills search <term>` | Install count |
 

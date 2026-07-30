@@ -17,7 +17,6 @@ File templates used by skills and agents for generating new files (agents, conte
 
 | Directory | Purpose |
 |-----------|---------|
-| `agent-tests/` | Templates for agent testing scenarios |
 | `reasoning/` | CoT (Chain-of-Thought) reasoning templates referenced by agent definitions — structured step-by-step guides for architect, planner, debugger, tracer, reviewer, verifier, and skill-creator agents |
 
 ## For AI Agents

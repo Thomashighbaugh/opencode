@@ -1,135 +1,238 @@
 {
-  "$schema": "https://opencode.ai/config.json",
-  "model": "ollama/deepseek-v4-flash:cloud",
-  "default_agent": "hubs",
-  "formatter": true,
-  "lsp": true,
-  "provider": {
-    "ollama": {
-      "name": "Ollama",
-      "npm": "@ai-sdk/openai-compatible",
-      "options": {
-        "baseURL": "http://127.0.0.1:11434/v1"
-      },
-      "models": {
-        "deepseek-v4-pro:cloud": {
-          "name": "deepseek-v4-pro:cloud",
-          "limit": {
-            "context": 1048576,
-            "output": 131072
-          }
+    "$schema": "https://opencode.ai/config.json",
+    "model": "ollama/deepseek-v4-flash:cloud",
+    "default_agent": "hubs",
+    "formatter": true,
+    "lsp": true,
+    "provider": {
+        "ollama": {
+            "name": "Ollama",
+            "npm": "@ai-sdk/openai-compatible",
+            "options": {
+                "baseURL": "http://127.0.0.1:11434/v1"
+            },
+            "models": {
+                "deepseek-v4-pro:cloud": {
+                    "name": "deepseek-v4-pro:cloud",
+                    "limit": {
+                        "context": 1048576,
+                        "output": 131072
+                    }
+                },
+                "deepseek-v4-flash:cloud": {
+                    "name": "deepseek-v4-flash:cloud",
+                    "limit": {
+                        "context": 1048576,
+                        "output": 131072
+                    }
+                },
+                "glm-5.2:cloud": {
+                    "name": "glm-5.2:cloud",
+                    "limit": {
+                        "context": 202752,
+                        "output": 131072
+                    }
+                },
+                "nemotron-3-ultra:cloud": {
+                    "name": "nemotron-3-ultra:cloud",
+                    "limit": {
+                        "context": 262144,
+                        "output": 131072
+                    }
+                }
+            }
         },
-        "deepseek-v4-flash:cloud": {
-          "name": "deepseek-v4-flash:cloud",
-          "limit": {
-            "context": 1048576,
-            "output": 131072
-          }
-        },
-        "glm-5.2:cloud": {
-          "name": "glm-5.2:cloud",
-          "limit": {
-            "context": 202752,
-            "output": 131072
-          }
-        },
-        "nemotron-3-ultra:cloud": {
-          "name": "nemotron-3-ultra:cloud",
-          "limit": {
-            "context": 262144,
-            "output": 131072
-          }
+        "opencode-go": {
+            "models": {
+                "deepseek-v4-pro": {
+                    "name": "deepseek-v4-pro",
+                    "limit": {
+                        "context": 1048576,
+                        "output": 131072
+                    }
+                },
+                "deepseek-v4-flash": {
+                    "name": "deepseek-v4-flash",
+                    "limit": {
+                        "context": 1048576,
+                        "output": 131072
+                    }
+                },
+                "glm-5.2": {
+                    "name": "glm-5.2",
+                    "limit": {
+                        "context": 202752,
+                        "output": 131072
+                    }
+                },
+                "nemotron-3-ultra": {
+                    "name": "nemotron-3-ultra",
+                    "limit": {
+                        "context": 262144,
+                        "output": 131072
+                    }
+                }
+            }
         }
-      }
     },
-    "opencode-go": {
-      "models": {
-        "deepseek-v4-pro": {
-          "name": "deepseek-v4-pro",
-          "limit": {
-            "context": 1048576,
-            "output": 131072
-          }
+    "permission": {
+        "edit": {
+            ".opencode/**": "allow"
         },
-        "deepseek-v4-flash": {
-          "name": "deepseek-v4-flash",
-          "limit": {
-            "context": 1048576,
-            "output": 131072
-          }
+        "websearch": "allow",
+        "webfetch": "allow",
+        "lsp": "allow",
+        "bash": "allow",
+        "read": "allow",
+        "grep": "allow",
+        "glob": "allow",
+        "skill": "allow",
+        "task": "allow",
+        "todowrite": "allow",
+        "question": "allow"
+    },
+    "mcp": {
+        "context7": {
+            "enabled": true,
+            "headers": {
+                "CONTEXT7_API_KEY": "{env:CONTEXT7_API_KEY}"
+            },
+            "type": "remote",
+            "url": "https://mcp.context7.com/mcp"
         },
-        "glm-5.2": {
-          "name": "glm-5.2",
-          "limit": {
-            "context": 202752,
-            "output": 131072
-          }
-        },
-        "nemotron-3-ultra": {
-          "name": "nemotron-3-ultra",
-          "limit": {
-            "context": 262144,
-            "output": 131072
-          }
+        "searxng": {
+            "args": [
+                "-y",
+                "mcp-searxng"
+            ],
+            "command": "npx",
+            "enabled": true,
+            "env": {
+                "SEARXNG_URL": "https://localhost:8080"
+            },
+            "type": "stdio"
         }
-      }
-    }
-  },
-  "permission": {
-    "edit": {
-      ".hubs/**": "allow",
-      ".opencode/**": "allow"
     },
-    "websearch": "allow",
-    "webfetch": "allow",
-    "lsp": "allow",
-    "bash": "allow",
-    "read": "allow",
-    "grep": "allow",
-    "glob": "allow",
-    "skill": "allow",
-    "task": "allow",
-    "todowrite": "allow",
-    "question": "allow"
-  },
-  "mcp": {
-    "context7": {
-      "enabled": true,
-      "headers": {
-        "CONTEXT7_API_KEY": "{env:CONTEXT7_API_KEY}"
-      },
-      "type": "remote",
-      "url": "https://mcp.context7.com/mcp"
+    "plugin": [
+        "./plugins/hooks/hooks.ts",
+        "@opencode-plugins/env-protection",
+        "@franlol/opencode-md-table-formatter@0.0.3"
+    ],
+    "instructions": [
+        "AGENTS.md",
+        "./rules/shell_strategy.md",
+        "./rules/context-strategy.md",
+        "./rules/file-operations.md",
+        "./rules/security.md",
+        "./rules/karpathy-guidelines.md",
+        "./rules/hub-description-directive.md",
+        "./rules/completion-guardrail.md",
+        "./rules/output-compression.md"
+    ],
+    "references": {
+        "context": {
+            "path": "./.opencode/context",
+            "description": "Durable project knowledge base — decisions, patterns, research, frameworks, and theory. Use when seeking project-specific context, ADRs, or discovered patterns."
+        },
+        "openhands": {
+            "repository": "All-Hands-AI/OpenHands",
+            "description": "OpenHands AI agent platform — reference for agent harness patterns and autonomous coding architectures",
+            "hidden": true
+        },
+        "caveman": {
+            "repository": "JuliusBrussee/caveman",
+            "description": "Caveman — OpenCode plugin for deterministic agent workflows. Reference for structured agent execution patterns",
+            "hidden": true
+        },
+        "opencode-dux": {
+            "repository": "bakhtiar-personal-work/opencode-dux",
+            "description": "opencode-dux — Agent orchestration plugin for OpenCode. Reference for orchestration architecture patterns",
+            "hidden": true
+        },
+        "opencode-deep-memory": {
+            "repository": "BD7PIL/opencode-deep-memory",
+            "description": "Persistent cross-session memory for OpenCode. Reference for durable memory implementations",
+            "hidden": true
+        },
+        "ponytail": {
+            "repository": "DietrichGebert/ponytail",
+            "description": "Ponytail — OpenCode plugin. Reference for plugin architecture and hook patterns",
+            "hidden": true
+        },
+        "opencode-websearch-cited": {
+            "repository": "ghoulr/opencode-websearch-cited",
+            "description": "LLM-grounded web search with citations for OpenCode. Reference for cited search integration",
+            "hidden": true
+        },
+        "opro": {
+            "repository": "google-deepmind/opro",
+            "description": "Optimization by PROmpting — Google DeepMind. Reference for prompt optimization research",
+            "hidden": true
+        },
+        "openloops": {
+            "repository": "hasna/loops",
+            "description": "OpenLoops — persistent loop and workflow runner. Reference for loop-based agent execution",
+            "hidden": true
+        },
+        "opencode-codebase-index": {
+            "repository": "Helweg/opencode-codebase-index",
+            "description": "Open Manifold — multi-agent development system. Reference for multi-agent architecture and persistent knowledge",
+            "hidden": true
+        },
+        "relearning-flow": {
+            "repository": "kedbin/relearning-flow",
+            "description": "Relearning Flow — OpenCode skills for AI-assisted content creation. Reference for skill workflow patterns",
+            "hidden": true
+        },
+        "lit-search-cite": {
+            "repository": "luffysolution-svg/lit-search-cite",
+            "description": "Multi-source academic literature search and citation skill. Reference for research skill patterns",
+            "hidden": true
+        },
+        "mastra": {
+            "repository": "mastra-ai/mastra",
+            "description": "Mastra — observational memory framework. Reference for agent memory and observation patterns",
+            "hidden": true
+        },
+        "karpathy-skills": {
+            "repository": "multica-ai/andrej-karpathy-skills",
+            "description": "Karpathy Guidelines skills collection. Reference for coding guideline patterns",
+            "hidden": true
+        },
+        "superpowers": {
+            "repository": "obra/superpowers",
+            "description": "Systematic debugging methodology. Reference for structured debugging approaches",
+            "hidden": true
+        },
+        "group-income": {
+            "repository": "okTurtles/group-income",
+            "description": "Short Leash AI coding method. Reference for constrained AI execution patterns",
+            "hidden": true
+        },
+        "agent-systems-handbook": {
+            "repository": "Prompthon-IO/agent-systems-handbook",
+            "description": "Agent Systems Handbook. Reference for agent architecture patterns and best practices",
+            "hidden": true
+        },
+        "arcanum": {
+            "repository": "runecraftai/arcanum",
+            "description": "Arcanum — Runecraft ecosystem monorepo. Reference for ecosystem architecture patterns",
+            "hidden": true
+        },
+        "bros-harness": {
+            "repository": "Thanhbinh1905/bros",
+            "description": "BROS Harness — OpenCode plugin for disciplined agent delivery. Reference for agent delivery workflows",
+            "hidden": true
+        },
+        "qmd": {
+            "repository": "tobi/qmd",
+            "description": "QMD — LLM Wiki pattern by Karpathy. Reference for wiki and knowledge base architecture",
+            "hidden": true
+        },
+        "opencode-memoir": {
+            "repository": "zhangfengcdt/memoir",
+            "description": "opencode-memoir — Git-versioned memory for OpenCode. Reference for persistent memory implementations",
+            "hidden": true
+        }
     },
-    "searxng": {
-      "args": [
-        "-y",
-        "mcp-searxng"
-      ],
-      "command": "npx",
-      "enabled": true,
-      "env": {
-        "SEARXNG_URL": "https://localhost:8080"
-      },
-      "type": "stdio"
-    }
-  },
-  "plugin": [
-    "./plugins/core/hooks.ts",
-    "./plugins/hubs-tui/index.js",
-    "@opencode-plugins/env-protection",
-    "@franlol/opencode-md-table-formatter@0.0.3"
-  ],
-  "instructions": [
-    "AGENTS.md",
-    "./rules/shell_strategy.md",
-    "./rules/context-strategy.md",
-    "./rules/file-operations.md",
-    "./rules/security.md",
-    "./rules/karpathy-guidelines.md",
-    "./rules/hub-description-directive.md",
-    "./rules/completion-guardrail.md",
-    "./rules/output-compression.md"
-  ],
-  "small_model": "ollama/deepseek-v4-flash:cloud"
 }

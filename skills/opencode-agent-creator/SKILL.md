@@ -363,3 +363,14 @@ This will:
 - Model format: `provider/model-id` (e.g., `ollama/glm-5.2:cloud`)
 - Hidden subagents (`hidden: true`) don't appear in autocomplete but can still be invoked programmatically
 - Task permissions control which subagents an agent can invoke
+
+## Supplementary Community Skills
+
+These community skills extend the agent-creator workflow with advanced patterns and reference material. Load them via `/harvest-context agent` or reference them when creating specialized agents:
+
+| Skill | Purpose | When to Load |
+|-------|---------|-------------|
+| `creating-opencode-agents` | In-depth guide on agent definitions, model selection, permission scoping, and best practices | For complex agent designs with custom models and permission tiers |
+| `custom-agent-definitions` | Advanced agent patterns: isolated research agent, read-only explorer, security auditor, plugin layout | For production-grade agents with strict security boundaries |
+
+Both skills are pre-configured as related skills on `/harvest-context agent` and `/init-project provision` — they load automatically when those subcommands are invoked.

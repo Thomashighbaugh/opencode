@@ -18,7 +18,7 @@ const spec: HubSubcommandSpec = {
 The new skill is immediately available for future sessions. Use when you notice the agent did something useful and repeatable — "extract this as a skill so it's available next time".`,
 
   tools: TOOLS_LOADSKILL_BASH,
-  relatedSkills: ["learner", "skillify"],
+  relatedSkills: ["learner", "skillify", "create-opencode-plugin"],
 }
 
 export default spec

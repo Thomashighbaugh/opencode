@@ -9,7 +9,7 @@ const spec: HubSubcommandSpec = {
 
   detailedDescription: `Discovers TypeScript tools relevant to the project. Searches registries (GitHub, npm) and the local template catalog for automation tools matching the project's needs.
 
-Installed tools go to .opencode/tools/ (project scope) or tools/ (user scope) and are auto-discovered by OpenCode.
+Installed tools go to .opencode/tools/ (project scope — never user/global scope) and are auto-discovered by OpenCode.
 
 Use during setup/refresh or standalone when you want project-specific automation tools (e.g. a deploy tool, a migration tool).`,
 

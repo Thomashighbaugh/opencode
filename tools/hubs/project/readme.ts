@@ -9,9 +9,11 @@ const spec: HubSubcommandSpec = {
 
   detailedDescription: `Updates the README to reflect the current codebase state via the readme-updater skill. Scans:
 
-- Agents, skills, tools, rules, commands, archetypes, plugins.
+- Agents, skills, tools, rules, commands, archetypes (each with agents/, rules/, skills/, tools/ subdirs), plugins.
 - Project structure and configuration.
 - Existing README content.
+
+When documenting archetypes, note that each contains four subdirectories (agents/, rules/, skills/, tools/) — all four must be provisioned per-project: agents/ and rules/ go in opencode.jsonc, skills/ and tools/ are copied/linked into .opencode/.
 
 Preserves the existing tone, links, and structure — it updates content, doesn't rewrite from scratch. Output is SEO-optimized and technically proficient.
 

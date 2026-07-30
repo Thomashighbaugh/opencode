@@ -14,6 +14,29 @@ const spec: HubSubcommandSpec = {
 
 **Full mode** (\`--full\`): Re-runs all 9 phases (0-8) in merge mode. In addition to the default behavior, it re-runs Phase 6 (deep codebase mapping via parallel agents, context synthesis, agent upgrade) and Phase 7 (routing integration validation) — preserving existing context and manual edits while refreshing the deep analysis.
 
+## References Sync (always runs)
+
+After Phase 3 (Configuration), ensure the project's \`.opencode/opencode.jsonc\` has a \`references\` key configured per https://opencode.ai/docs/references/:
+
+1. **Context reference**: Ensure a \`references.context\` entry exists pointing to \`./.opencode/context\` (local path reference) so the durable knowledge base is accessible to agents. Example:
+   \`\`\`jsonc
+   "references": {
+     "context": {
+       "path": "./.opencode/context",
+       "description": "Durable project knowledge base — decisions, patterns, research, frameworks, and theory."
+     }
+   }
+   \`\`\`
+
+2. **Git repository references**: Scan all files in \`.opencode/context/\` for GitHub repository URLs matching \`github.com/owner/repo\`. For each substantive project reference (not gists, not forks, not passing mentions), ensure a \`references\` entry exists with:
+   - \`repository\` set to \`owner/repo\` (GitHub shorthand)
+   - \`description\` explaining when an agent should use it
+   - Deduplicate variant names to the primary repo
+   - If \`references\` already exists, merge new entries without removing existing ones
+   - Only add repos that are substantive project references — skip gists, forks, and casual mentions
+
+3. **Validate**: After adding references, verify the \`opencode.jsonc\` still passes schema validation (the \`references\` key is a valid top-level key per the OpenCode config schema).
+
 ## Phases (all run in merge mode)
 
 | Phase | Name | Default | --full | Merge Behavior |
@@ -21,7 +44,7 @@ const spec: HubSubcommandSpec = {
 | 0 | Verify Hubs | ✓ | ✓ | Check global health |
 | 1 | Detection | ✓ | ✓ | Re-detect stack, diff against last fingerprint, report changes |
 | 2 | Planning | ✓ | ✓ | Merge new recommendations with existing config |
-| 3 | Configuration | ✓ | ✓ | Merge new fields into opencode.jsonc, don't remove user-set values. Validate merged config against schema (fetch https://opencode.ai/config.json, reject invalid keys like extends/agents/project/rules/state/context/cache) |
+| 3 | Configuration | ✓ | ✓ | Merge new fields into opencode.jsonc, don't remove user-set values. Validate merged config against schema (fetch https://opencode.ai/config.json, reject invalid keys like extends/agents/project/rules/state/context/cache). **Then run References Sync (see above).** |
 | 4 | Provisioning | ✓ | ✓ | Add new agents/skills/tools/rules, preserve manually edited ones, flag stale resources |
 | 5 | Documentation | ✓ | ✓ | Update generated AGENTS.md sections, preserve \`<!-- MANUAL -->\` blocks |
 | 6 | Context Capture | — | ✓ | Re-spawn parallel agents, diff context against existing, update changed sections only |

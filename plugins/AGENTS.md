@@ -4,26 +4,27 @@
 # plugins
 
 ## Purpose
-OpenCode plugin system components — hook system plugin for lifecycle events and TUI plugin for visual hub interfaces.
+OpenCode plugin system components — hook system plugin for lifecycle events, session focus management, and TUI plugin for visual hub interfaces.
 
 ## Key Files
 
 | File | Description |
 |------|-------------|
-| `hubs-plugin.ts` | Hook system plugin — session lifecycle, tool lifecycle, chat messages, permission auto-approval, context preservation, context injection |
-| `focus.ts` | Session focus/goal management — set, clear, pause, resume focus; state persistence; progress tracking with turn/token budgets; auto-continue message generation |
+| `hooks/hooks.ts` | Hook system plugin entry point — session lifecycle, tool lifecycle, chat messages, permission auto-approval, context preservation, context injection |
+| `hooks/focus.ts` | Session focus/goal management — set, clear, pause, resume focus; state persistence; progress tracking with turn/token budgets; auto-continue message generation |
 
 ## Subdirectories
 
 | Directory | Purpose |
 |-----------|---------|
+| `hooks/` | Hook system modules — session.ts, modes.ts, keywords.ts, telemetry.ts, cache-hook.ts, vectorize-hook.ts (imported by hooks.ts) |
 | `hubs-tui/` | TUI plugin with hub dialogs and visual interface components (see `hubs-tui/AGENTS.md`) |
 
 ## For AI Agents
 
 ### Working In This Directory
-- `hubs-plugin.ts` registers hooks for: `session.created`, `session.deleted`, `tool.execute.before`, `tool.execute.after`, `chat.message`, `permission.ask`, `experimental.session.compacting`, `experimental.chat.system.transform`
-- `focus.ts` provides session focus management — imported by `hooks.ts` for system prompt injection; state persisted to `.opencode/state/focus/state.json`
+- `hooks/hooks.ts` registers hooks for: `session.created`, `session.deleted`, `tool.execute.before`, `tool.execute.after`, `chat.message`, `permission.ask`, `experimental.session.compacting`, `experimental.chat.system.transform`
+- `focus.ts` provides session focus management — imported by `hooks/hooks.ts` for system prompt injection; state persisted to `.opencode/state/focus/state.json`
 - The TUI plugin provides native DialogSelect menus for hub command palettes
 - Plugins are registered via `opencode.jsonc` npm plugin entries
 

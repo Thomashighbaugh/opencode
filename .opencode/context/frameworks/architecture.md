@@ -35,7 +35,7 @@ The hub menu router (`tools/hubMenu.ts` + `tools/hub-data.ts`) implements a two-
 
 ## Plugin Hooks System
 
-Main plugin: `plugins/core/hooks.ts`. Registered in `opencode.jsonc`.
+Main plugin: `plugins/hooks/hooks.ts`. Registered in `opencode.jsonc`.
 
 | Hook | Purpose |
 |------|---------|

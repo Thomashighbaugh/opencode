@@ -163,6 +163,6 @@ Files changed: {count}
 
 ## Related
 
-- The compaction hook in `plugins/core/hooks.ts` (`experimental.session.compacting`) auto-saves artifacts for long sessions (>75 tool calls, >15 min, or >5 subagent invocations). This skill provides a manual trigger for the same behavior.
+- The compaction hook in `plugins/hooks/hooks.ts` (`experimental.session.compacting`) auto-saves artifacts for long sessions (>75 tool calls, >15 min, or >5 subagent invocations). This skill provides a manual trigger for the same behavior.
 - Use `/harvest-context session` to extract session knowledge into durable context after compaction.
 - Use `remember` skill to promote key findings into project memory.

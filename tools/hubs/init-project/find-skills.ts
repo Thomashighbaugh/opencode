@@ -17,7 +17,7 @@ Process:
 1. Search all registries in parallel for skills matching the project's stack and needs.
 2. Security-scan top results (check for dangerous patterns, secrets, suspicious code).
 3. Present ranked recommendations with descriptions, source reputation, and security scan results.
-4. User selects which to install; the skill installs them to the appropriate scope.
+4. User selects which to install; the skill installs them to the project's .opencode/ directory (project scope).
 
 Use during /init-project setup/refresh or standalone when you want to extend the project's skill set with community skills.`,
 

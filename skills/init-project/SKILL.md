@@ -108,7 +108,7 @@ flowchart LR
 
 1. **`/init-project detect`** — runs `@stack-detector` agent, analyzes every tech dimension (language, framework, build, test, ORM, CSS, CI/CD, infra, etc.), outputs a structured JSON fingerprint saved to `.opencode/state/init/stack-fingerprint.json`
 2. **`/init-project recommend`** — runs `stack-recommender` skill, maps the fingerprint to recommended global resources (skills, agents, rules, archetype), outputs recommendations saved to `.opencode/state/init/stack-recommendations.json`
-3. **`/init-project provision`** — runs `project-config-composer` skill, takes the fingerprint + recommendations, auto-generates `.opencode/opencode.jsonc`, project-specific rules, and optional agent wrappers
+3. **`/init-project provision`** — runs `project-config-composer` skill, takes the fingerprint + recommendations, auto-generates `.opencode/opencode.jsonc`, project-specific rules, and optional agent wrappers. **All four archetype subdirectories (agents/, rules/, skills/, tools/) must be provisioned** — agents/ and rules/ are referenced in opencode.jsonc, while skills/ and tools/ must be copied/linked into the project's .opencode/ directory.
 
 ### Running the full pipeline
 
