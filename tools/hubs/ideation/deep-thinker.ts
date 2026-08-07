@@ -4,8 +4,7 @@ const spec: HubSubcommandSpec = {
   label: "deep-thinker",
   description: "Structured thinking partner — pass instructions directly to @deep-thinker",
   reminder: "Delegating to @deep-thinker.",
-  agent: "@deep-thinker",
-  inline: true,
+  agent: "deep-thinker",
   detailedDescription: "Delegates directly to the @deep-thinker agent. The remainder of your prompt will be passed as specific instructions to the agent.",
 }
 

@@ -2,10 +2,26 @@
   "name": "react-library",
   "version": "1.0.0",
   "description": "React component library — TypeScript, Storybook, Rollup/Vite for bundling, testing-library",
-  "tags": ["typescript", "react", "library", "storybook", "ui", "frontend", "nix"],
-  "languages": ["typescript", "javascript"],
-  "frameworks": ["react"],
-  "stacks": ["react-library", "ui-library"],
+  "tags": [
+    "typescript",
+    "react",
+    "library",
+    "storybook",
+    "ui",
+    "frontend",
+    "nix"
+  ],
+  "languages": [
+    "typescript",
+    "javascript"
+  ],
+  "frameworks": [
+    "react"
+  ],
+  "stacks": [
+    "react-library",
+    "ui-library"
+  ],
   "extends": null,
   "recommended_skills": [
     "react-key-prop",
@@ -14,16 +30,41 @@
     "context7-docs",
     "mui"
   ],
-  "recommended_agents": ["test-engineer", "code-reviewer"],
-  "recommended_rules": ["coding-style.md", "testing.md"],
+  "recommended_agents": [
+    "test-engineer",
+    "code-reviewer"
+  ],
+  "recommended_rules": [
+    "coding-style.md",
+    "testing.md",
+    "anti-sycophancy.md"
+  ],
   "default_model": "opencode/deepseek-v4-flash-free",
   "resource_tags": {
-    "include": ["typescript", "react", "frontend", "storybook"],
-    "exclude": ["python", "rust", "go", "python-api"]
+    "include": [
+      "typescript",
+      "react",
+      "frontend",
+      "storybook"
+    ],
+    "exclude": [
+      "python",
+      "rust",
+      "go",
+      "python-api"
+    ]
   },
   "nix": {
     "flake": true,
-    "channels": ["nixpkgs-unstable"],
-    "packages": ["nodejs", "pnpm", "typescript", "vscode-langservers-extracted", "just"]
+    "channels": [
+      "nixpkgs-unstable"
+    ],
+    "packages": [
+      "nodejs",
+      "pnpm",
+      "typescript",
+      "vscode-langservers-extracted",
+      "just"
+    ]
   }
 }

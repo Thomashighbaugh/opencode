@@ -36,6 +36,7 @@ import webResearch from "./web-research"
 import techEval from "./tech-eval"
 import competitiveAnalysis from "./competitive-analysis"
 import treeOfThoughts from "./tree-of-thoughts"
+import deepThinker from "./deep-thinker"
 import opro from "./opro"
 import analyzePatterns from "./analyze-patterns"
 import resume from "./resume"
@@ -48,7 +49,7 @@ export const specs = [
   topDown, bottomUp, adversarialDebate, cleanroom, pwf, rpikit, hive,
   storyMapping, leanCanvas, constitution, quality, architecture, redesign,
   grill, modularity, archPrep, webResearch, techEval, competitiveAnalysis,
-  treeOfThoughts, opro, analyzePatterns, resume, status
+  treeOfThoughts, deepThinker, opro, analyzePatterns, resume, status
 ]
 
 export const subcommands: HubSubcommand[] = specs.map(s => ({

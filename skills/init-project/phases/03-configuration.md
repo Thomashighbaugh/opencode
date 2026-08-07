@@ -52,7 +52,7 @@ generate_opencode_jsonc() {
     cat > "$output" << 'JSONC_EOF'
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "ollama/deepseek-v4-flash:cloud",
+  "model": "ollama/deepseek-v4-flash:0731-cloud",
   "default_agent": "hubs",
   "formatter": true,
   "lsp": true,
@@ -65,7 +65,7 @@ generate_opencode_jsonc() {
       },
       "models": {
         "deepseek-v4-pro:cloud": { "name": "deepseek-v4-pro:cloud", "limit": { "context": 1048576, "output": 131072 } },
-        "deepseek-v4-flash:cloud": { "name": "deepseek-v4-flash:cloud", "limit": { "context": 1048576, "output": 131072 } },
+        "deepseek-v4-flash:0731-cloud": { "name": "deepseek-v4-flash:0731-cloud", "limit": { "context": 1048576, "output": 131072 } },
         "glm-5.2:cloud": { "name": "glm-5.2:cloud", "limit": { "context": 202752, "output": 131072 } },
         "nemotron-3-ultra:cloud": { "name": "nemotron-3-ultra:cloud", "limit": { "context": 262144, "output": 131072 } }
       }

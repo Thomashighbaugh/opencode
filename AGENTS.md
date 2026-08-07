@@ -54,6 +54,7 @@ Every turn, every subagent invocation, every verification round costs an API req
 | `hub-description-directive.md` | Hub subcommand description conventions |
 | `security.md` | Security rules — mandatory checks, secret management |
 | `completion-guardrail.md` | **MANDATORY STOP** after planning/analysis — no auto-implementation |
+| `anti-sycophancy.md` | No sycophantic agreement — assess claims independently, conclusion-first |
 
 **On-demand rules** (load via tool when needed): `hub-routing.md`, `resource-tags.md`, `global-reference.md`, `hub-state.md`
 
@@ -78,12 +79,14 @@ Each tier has a failover chain: Primary → F1 → F2 → (F3). Stop on first su
 | Tier | Primary | F1 | F2 | F3 | Agents |
 |------|---------|----|----|----|--------|
 | **Pro** | `o/dsv4-pro:cloud` | `og/dsv4-pro` | `oc/dsv4-flash-free` | _(NVIDIA)_ | architect, planner, security-reviewer, requirements-analyzer, tracer, analyst, critic |
-| **Default** | `oc/dsv4-flash-free` | `o/dsv4-flash:cloud` | `og/dsv4-flash` | _(NVIDIA)_ | hubs, executor, debugger, test-engineer, designer, frontend-design, git-master, config-orchestrator, skill-creator, refactoring, code-simplifier, qa-tester, code-reviewer, scientist, deep-thinker |
+| **Default** | `oc/dsv4-flash-free` | `o/dsv4-flash:0731-cloud` | `og/dsv4-flash` | _(NVIDIA)_ | hubs, executor, debugger, test-engineer, designer, frontend-design, git-master, config-orchestrator, skill-creator, refactoring, code-simplifier, qa-tester, code-reviewer, scientist, deep-thinker |
 | **Fast** | `oc/dsv4-flash-free` | `o/glm-5.2:cloud` | `og/glm-5.2` | — | writer, verifier, document-specialist, effort-estimator, explore, commit-drafter, prompt-simplifier, convention-extractor |
 
 **Routing:** Pro → complex reasoning. Default → implementation/testing/debugging/design. Fast → docs/verification/search.
 
-**Session model:** `o/dsv4-flash:cloud` (set in `agents/hubs.md` frontmatter).
+**Ambiguity default:** In ambiguous situations (uncertain tier/model routing, unclear task fit), default to `oc/dsv4-flash-free` — the free, always-available model. Never default to paid/cloud models when uncertain.
+
+**Session model:** `o/dsv4-flash:0731-cloud` (set in `agents/hubs.md` frontmatter).
 
 **Failover:** Provider errors advance chain after 60s. Task errors → fix prompt, don't advance. Chain exhausted → escalate via `question` tool.
 
@@ -103,10 +106,10 @@ If no output after the max turns, terminate and escalate. Looping/hanging subage
 | Command | Purpose | Subcommands |
 |---------|---------|-------------|
 | `/init-project` | Project init | setup, detect, recommend, docs, context, verify, refresh, status, map-codebase, doctor, reset, provision, tag, find-skills, find-agents, find-tools, find-rules |
-| `/ideation` | Planning/research | plan, brainstorm, decomposition, refine, overhaul, deep, graph, research, ralplan, ddd, event-storming, double-diamond, jtbd, impact-mapping, spiral, top-down, bottom-up, adversarial-debate, cleanroom, pwf, rpikit, hive, story-mapping, lean-canvas, constitution, quality, architecture, redesign, grill, modularity, arch-prep, web-research, tech-eval, competitive-analysis, tree-of-thoughts, opro, analyze-patterns |
+| `/ideation` | Planning/research | plan, brainstorm, decomposition, refine, overhaul, deep, graph, research, ralplan, ddd, event-storming, double-diamond, jtbd, impact-mapping, spiral, top-down, bottom-up, adversarial-debate, cleanroom, pwf, rpikit, hive, story-mapping, lean-canvas, constitution, quality, architecture, redesign, grill, modularity, arch-prep, web-research, tech-eval, competitive-analysis, tree-of-thoughts, deep-thinker, opro, analyze-patterns |
 | `/orchestrate` | Execution | ralph, team, deep, ccg, ultrawork, autopilot, sciomc, swarm, state-machine, consensus, evolutionary, spec-driven, react, plan-execute, hive, tdd, pair, pipeline, gsd, self-assess, remediate, devin, maestro, metaswarm, cc10x, gastown, ruflo, harden, subagent-driven, brownfield, vibe-code |
 | `/harvest-context` | Context mgmt | session, codebase, skill, agent, rule, command, memory, docs, web-research, compare, decompose, context, consume, compress, secondbrain, journal, search, prune, export, diff, sweep |
-| `/project` | Project ops | create-tests, commit, git-stage-thread, pr, gh, optimize, refactor, simplify, cleanup, modernize, icon, organize, changelog, converge, scan, sandbox, retrospect, purge, release, review, audit, archive, git-cleanup, workspace, readme |
+| `/project` | Project ops | create-tests, code-review, commit, git-stage-thread, pr, gh, optimize, refactor, simplify, simplify-code, cleanup, modernize, icon, organize, changelog, converge, scan, sandbox, retrospect, purge, release, review, audit, archive, git-cleanup, workspace, readme, extract-standards |
 | `/skills` | Skill management | list, add, create, remove, edit, search, info, update, package, validate, sync, setup, scan |
 
 ### Two-Tier Subcommand Routing

@@ -1,6 +1,6 @@
 ---
 description: Hubs - Generalist agent that handles tasks directly; only uses subagents when user explicitly requests via hub commands or named subagents
-model: ollama/deepseek-v4-flash:cloud
+model: ollama/deepseek-v4-flash:0731-cloud
 mode: primary
 ---
 
@@ -165,7 +165,7 @@ mode: primary
 
     ## Session Model
 
-    The hubs agent itself (this session) uses the model set in the agent's frontmatter (`agents/hubs.md` → `model:`). Currently: `ollama/deepseek-v4-flash:cloud`. If the session model is unreachable at startup, OpenCode falls back to its built-in default (`opencode/deepseek-v4-flash-free`).
+    The hubs agent itself (this session) uses the model set in the agent's frontmatter (`agents/hubs.md` → `model:`). Currently: `ollama/deepseek-v4-flash:0731-cloud`. If the session model is unreachable at startup, OpenCode falls back to its built-in default (`opencode/deepseek-v4-flash-free`).
 
     ## Tier-to-Model Mapping
 
@@ -174,7 +174,7 @@ mode: primary
     | Tier | Primary | Fallback 1 | Fallback 2 | Fallback 3 | Agents |
     |------|---------|------------|------------|------------|--------|
     | **Pro** | `ollama/deepseek-v4-pro:cloud` | `opencode-go/deepseek-v4-pro` | `opencode/deepseek-v4-flash-free` | _(NVIDIA NIM if configured)_ | architect, planner, security-reviewer, requirements-analyzer, tracer, analyst, critic |
-    | **Default** | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | _(NVIDIA NIM if configured)_ | hubs, executor, debugger, test-engineer, designer, frontend-design, git-master, config-orchestrator, skill-creator, refactoring, code-simplifier, qa-tester, code-reviewer, scientist, deep-thinker |
+    | **Default** | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-flash:0731-cloud` | `opencode-go/deepseek-v4-flash` | _(NVIDIA NIM if configured)_ | hubs, executor, debugger, test-engineer, designer, frontend-design, git-master, config-orchestrator, skill-creator, refactoring, code-simplifier, qa-tester, code-reviewer, scientist, deep-thinker |
     | **Fast** | `opencode/deepseek-v4-flash-free` | `ollama/glm-5.2:cloud` | `opencode-go/glm-5.2` | — | writer, verifier, document-specialist, effort-estimator, explore, commit-drafter, prompt-simplifier |
 
     **Provider notes:**
@@ -194,6 +194,8 @@ mode: primary
     | Documentation, verification, codebase search, commit message drafting, external doc lookups | **Fast** | Simple or narrowly-scoped tasks, prioritises speed |
 
     **Override rule:** If the user explicitly names a specific subagent (`@architect`, `@executor`, etc.), use that subagent's default tier regardless of the task type. The task-to-tier mapping applies when you are choosing which subagent type to recommend.
+
+    **Ambiguity default (CRITICAL):** When the situation is ambiguous — the task doesn't clearly fit any tier, you are unsure which model to use, or the routing decision is uncertain — default to `opencode/deepseek-v4-flash-free` (the free, always-available model; primary of the Default tier). Do NOT default to a paid/cloud model in ambiguous cases. This applies to direct task handling as well as subagent dispatch.
 
     ## Fallback Protocol (CRITICAL — follow this on every subagent error)
 
@@ -215,7 +217,7 @@ mode: primary
     ```
     {agent_name}_{retries} → {chain_position}
     Example: executor_0 → Primary (opencode/deepseek-v4-flash-free)
-             executor_1 → Fallback 1 (ollama/deepseek-v4-flash:cloud)
+             executor_1 → Fallback 1 (ollama/deepseek-v4-flash:0731-cloud)
              executor_2 → Fallback 2 (opencode-go/deepseek-v4-flash)
     ```
 

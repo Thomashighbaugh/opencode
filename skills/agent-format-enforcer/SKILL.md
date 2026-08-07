@@ -16,7 +16,7 @@ Every agent file MUST follow this structure:
 ```yaml
 ---
 description: Description of the agent's role
-model: ollama/deepseek-v4-flash:cloud
+model: ollama/deepseek-v4-flash:0731-cloud
 mode: subagent
 ---
 <Agent_Prompt>

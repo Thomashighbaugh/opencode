@@ -264,7 +264,7 @@ Generate project-aware agent wrappers in `.opencode/agents/`. These extend exist
 ---
 extends: ../global-agent-name
 description: Project-aware wrapper for [original agent] with [project] context injected
-model: ollama/deepseek-v4-flash:cloud
+model: ollama/deepseek-v4-flash:0731-cloud
 mode: subagent
 ---
 

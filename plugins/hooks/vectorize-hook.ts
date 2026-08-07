@@ -1,39 +1,45 @@
-import { watch, existsSync, readdirSync } from "fs";
+import { existsSync } from "fs";
 import { join } from "path";
 
 /**
- * Vectorize hook — watches .opencode/context/ for markdown file changes
- * and vectorizes them via veclib.mjs for semantic search.
+ * Vectorize hook — watches all scoped per-project markdown sources
+ * (.opencode/context/, .opencode/rules/, .opencode/docs/, AGENTS.md)
+ * and vectorizes changed files via veclib.mjs for semantic injection.
  *
  * Uses polling fallback on Linux (recursive watch not supported).
+ * Storage: .opencode/state/vector/context.db (gitignored).
  */
 export function setupVectorizeHook(directory: string): void {
-  const contextDir = join(directory, ".opencode", "context");
+  const scopedDirs = [
+    join(directory, ".opencode", "context"),
+    join(directory, ".opencode", "rules"),
+    join(directory, ".opencode", "docs"),
+  ];
+  const agentsFile = join(directory, "AGENTS.md");
   const veclibPath = join(directory, "skills", "vectorize-context", "scripts", "veclib.mjs");
 
-  if (!existsSync(contextDir)) return;
-
-  // Poll for new/changed .md files. Recursive watch is not supported on Linux.
   const pollInterval = 10000; // 10 seconds
   const seenFiles = new Map<string, number>(); // path → mtime
 
   const checkAndVectorize = async () => {
     try {
-      if (!existsSync(contextDir)) return;
-      const entries = readdirSync(contextDir, { recursive: true }) as string[];
-      for (const entry of entries) {
-        if (typeof entry !== "string" || !entry.endsWith(".md")) continue;
-        const fullPath = join(contextDir, entry);
+      if (!existsSync(veclibPath)) return;
+      const { vectorizeFile } = await import(veclibPath);
+      const candidates: string[] = [];
+      for (const dir of scopedDirs) {
+        if (!existsSync(dir)) continue;
+        candidates.push(...listMarkdownRecursive(dir));
+      }
+      if (existsSync(agentsFile)) candidates.push(agentsFile);
+
+      for (const fullPath of candidates) {
         try {
           const stat = require("fs").statSync(fullPath);
           const mtime = stat.mtimeMs;
           const prev = seenFiles.get(fullPath);
           if (prev !== mtime) {
             seenFiles.set(fullPath, mtime);
-            if (existsSync(veclibPath)) {
-              const { vectorizeFile } = await import(veclibPath);
-              await vectorizeFile(fullPath);
-            }
+            await vectorizeFile(fullPath, directory);
           }
         } catch {}
       }
@@ -41,4 +47,22 @@ export function setupVectorizeHook(directory: string): void {
   };
 
   setInterval(checkAndVectorize, pollInterval);
+}
+
+function listMarkdownRecursive(dir: string): string[] {
+  const { readdirSync, statSync } = require("fs");
+  const out: string[] = [];
+  try {
+    const entries = readdirSync(dir, { withFileTypes: true }) as any[];
+    for (const entry of entries) {
+      const fullPath = join(dir, entry.name);
+      if (entry.isDirectory()) {
+        if (entry.name.startsWith(".") || entry.name === "node_modules") continue;
+        out.push(...listMarkdownRecursive(fullPath));
+      } else if (entry.isFile() && entry.name.endsWith(".md")) {
+        out.push(fullPath);
+      }
+    }
+  } catch {}
+  return out;
 }

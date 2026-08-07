@@ -69,7 +69,7 @@ Three tiers, each with failover chain (Primary → F1 → F2 → F3):
 
 **Failover protocol**: Each subagent invocation starts at Primary. Provider/agent errors within 60s advance chain. Task errors (wrong output) do NOT advance — fix prompt. Chain exhausted → escalate via `question` tool.
 
-**Session model**: `agents/hubs.md` frontmatter sets session model (currently `ollama/deepseek-v4-flash:cloud`). Falls back to `opencode/deepseek-v4-flash-free` if unreachable.
+**Session model**: `agents/hubs.md` frontmatter sets session model (currently `ollama/deepseek-v4-flash:0731-cloud`). Falls back to `opencode/deepseek-v4-flash-free` if unreachable.
 
 ## Architectural Evolution
 

@@ -13,4 +13,3 @@ opencode-notifier.json
 # Project-level .opencode/ state and cache (gitignored, ephemeral)
 .opencode/state/
 .opencode/cache/
-.opencode/.vector/

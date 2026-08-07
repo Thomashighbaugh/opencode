@@ -310,8 +310,7 @@
     "label": "deep-thinker",
     "description": "Structured thinking partner — pass instructions directly to @deep-thinker",
     "reminder": "Delegating to @deep-thinker.",
-    "agent": "@deep-thinker",
-    "inline": true,
+    "agent": "deep-thinker",
     "detailedDescription": "Delegates directly to the @deep-thinker agent. The remainder of your prompt will be passed as specific instructions to the agent."
   },
   "ideation/deep-dive": {
@@ -719,11 +718,31 @@
     "description": "Analyze code patterns and anti-patterns — consistencies, convention violations",
     "reminder": "Analyze codebase patterns and anti-patterns.",
     "inline": true,
-    "detailedDescription": "Analyzes code patterns and anti-patterns across the codebase. Scans for:\n\n- Repeated patterns (good — candidates for extraction).\n- Anti-patterns (bad — should be refactored).\n- Inconsistent patterns (same problem solved different ways).\n- Convention violations (naming, structure, error handling).\n\nOutput: a pattern analysis report with locations and recommendations. Use to understand the codebase's conventions before refactoring or extending.\n\nThis is a read-only analysis — no code is modified. The report is saved to .opencode/state/ for reference. Use before refactoring, extending, or when onboarding to a new codebase.",
+    "detailedDescription": "Analyzes code patterns and anti-patterns across the codebase. Parameterized for scoped, repeatable analysis.\n\n## Parameters\n\n| Flag | Values | Default | Purpose |\n|------|--------|---------|---------|\n| `--pattern <name>` | error-handling, naming, structure, state, concurrency, io, api, ui | all | Which pattern family to analyze |\n| `--language <lang>` | typescript, python, go, rust, java, all | all | Restrict scan to one language |\n| `--depth <level>` | shallow, medium, deep | medium | Scan breadth: shallow = single pass; medium = pattern extraction; deep = full convention audit |\n| `--output <fmt>` | json, markdown | markdown | Report format |\n\nPositional argument (e.g. `/ideation analyze-patterns \"error handling\"`) is treated as `--pattern error-handling`.\n\n## Predefined Pattern Families\n\n- **error-handling** — try-catch vs promise rejection vs result types; error wrapping; swallowed errors\n- **naming** — casing conventions, abbreviations, single-letter names, prefix/suffix consistency\n- **structure** — module boundaries, file organization, dependency direction, god objects\n- **state** — global mutable state, prop drilling, state management patterns, caching\n- **concurrency** — race conditions, async/await vs callbacks, thread-safety patterns\n- **io** — sync vs async I/O, retry patterns, timeout handling, resource cleanup\n- **api** — endpoint conventions, validation, error response shape, pagination\n- **ui** — component patterns, styling conventions, accessibility, responsive patterns\n\n## Scan Behavior\n\n- **Repeated patterns** (good — candidates for extraction).\n- **Anti-patterns** (bad — should be refactored).\n- **Inconsistent patterns** (same problem solved different ways).\n- **Convention violations** (naming, structure, error handling).\n\n## Output\n\n- **Markdown** (default): grouped report with locations (file:line), detected pattern instances, and recommendations per group.\n- **JSON**: structured output for programmatic use — `{ \"families\": [{ \"name\", \"instances\": [{ \"file\", \"line\", \"match\" }], \"recommendation\" }] }`.\n\nThe report is saved to .opencode/state/ideation/work-products/ with ISO date prefix. Read-only analysis — no code is modified.\n\n## Registry\n\nThe analysis results can be persisted to the durable context registry (.\\.opencode/context/patterns/) for cross-session reuse via /harvest-context.",
     "tools": [
       "bash"
     ],
-    "relatedSkills": []
+    "relatedSkills": [
+      "convention-extractor"
+    ],
+    "examples": [
+      {
+        "input": "/ideation analyze-patterns \"error handling\" --language typescript --depth deep",
+        "approach": "Deep audit of error-handling patterns in TS files: extract all try/catch, promise rejection, and result-type patterns; group by style; flag inconsistent handling with file:line references."
+      },
+      {
+        "input": "/ideation analyze-patterns --pattern naming --output json",
+        "approach": "Programmatic naming-convention audit: scan identifiers, group by detected convention, output JSON for downstream tooling or diffing against a conventions fingerprint."
+      },
+      {
+        "input": "/ideation analyze-patterns --depth shallow",
+        "approach": "Quick single-pass sweep for obvious anti-patterns and inconsistencies — fast triage before a deeper refactoring analysis."
+      }
+    ],
+    "warnings": [
+      "Deep scans traverse the whole codebase — use --language and --pattern to scope on large repos.",
+      "Read-only: this subcommand never modifies code. Use /orchestrate with a refactoring skill to act on findings."
+    ]
   },
   "ideation/analyst": {
     "label": "analyst",
@@ -852,6 +871,31 @@
       }
     ]
   },
+  "project/simplify-code": {
+    "label": "simplify-code",
+    "description": "Simplify code for clarity — five-principle process: preserve behavior, follow conventions, prefer clarity, balance, scope",
+    "reminder": "Simplify code while preserving exact behavior.",
+    "skill": "code-simplification",
+    "detailedDescription": "Code simplification via the code-simplification skill — a process-driven, model-agnostic workflow that reduces complexity while preserving exact behavior.\n\nThe skill's five principles:\n1. **Preserve behavior exactly** — same outputs, error behavior, side effects, edge cases. No test modifications to make changes pass.\n2. **Follow project conventions** — match the codebase's style, don't impose external preferences.\n3. **Prefer clarity over cleverness** — explicit code beats compact code that needs a mental pause to parse.\n4. **Maintain balance** — avoid over-simplification traps: over-inlining, combining unrelated logic, removing useful abstractions, optimizing for line count.\n5. **Scope to what changed** — default to recently modified code; no drive-by refactors.\n\nProcess: understand before touching (Chesterton's Fence — check git blame for context) → identify opportunities (deep nesting, long functions, nested ternaries, boolean flags, generic names, duplication, dead code, unnecessary abstractions) → apply changes incrementally with tests after each change (Rule of 500: automate beyond 500 lines) → verify the result and revert if not genuinely simpler.\n\nDistinct from /project simplify (which delegates to @code-simplifier agent): this subcommand runs the skill's structured checklist directly. Use either per preference — the skill is ideal when you want the full process-driven pass with explicit verification gates.\n\nIncludes language-specific guidance for TypeScript/JavaScript, Python, and React/JSX, a common-rationalizations table, red flags, and a verification checklist.",
+    "tools": [
+      "loadSkill",
+      "bash"
+    ],
+    "rules": [
+      "karpathy-guidelines"
+    ],
+    "relatedSkills": [],
+    "examples": [
+      {
+        "input": "/project simplify-code src/services/payment.ts",
+        "approach": "Load the code-simplification skill, apply Chesterton's Fence understanding pass, scan for structural/naming/redundancy signals, simplify incrementally with tests after each change, then run the verification checklist."
+      },
+      {
+        "input": "/project simplify-code --review-only",
+        "approach": "Run the skill's signal-scanning pass without applying changes — report opportunities (deep nesting, duplication, naming) so the user decides what to simplify."
+      }
+    ]
+  },
   "project/readme": {
     "label": "readme",
     "description": "Update README to reflect current codebase state — scans agents, skills, tools, rules, commands; preserves tone, links, and structure; SEO-optimized output via readme-updater skill",
@@ -864,6 +908,35 @@
     ],
     "relatedSkills": [
       "crafting-effective-readmes"
+    ]
+  },
+  "project/extract-standards": {
+    "label": "extract-standards",
+    "description": "Extract coding standards from existing files — infer style guide from codebase syntax",
+    "reminder": "Extract coding standards from existing file(s).",
+    "skill": "code-standards-extractor",
+    "detailedDescription": "Extracts coding standards from existing source files via the code-standards-extractor skill. Uses the existing syntax of the given file(s) to establish the project's style guidelines.\n\nParameters:\n- fileName (required): the file to analyze — indentation, variable naming, commenting, conditional/functional procedures, and other syntax-related data for the file's language.\n- folderName (optional): aggregate data from all files in the folder into one dataset, then analyze as a single instance. Loops through each file, appending data to temporary memory, then treats the aggregate as one input.\n- instructions (optional): additional rules/procedures for unique cases.\n- Config flags as parameters (optional): addStandardsTest, addToREADME, addToREADMEInsertions, createNewFile, fetchStyleURL, findInconsistencies, fixInconsistencies, newFileName, outputSpecToPrompt, useTemplate. Passing any of these overrides its default.\n\nOutput modes (default: create a new standards file):\n- New file: picks the first unused name from [CONTRIBUTING.md, STYLE.md, CODE_OF_CONDUCT.md, CODING_STANDARDS.md, DEVELOPING.md, CONTRIBUTION_GUIDE.md, GUIDELINES.md, PROJECT_STANDARDS.md, BEST_PRACTICES.md, HACKING.md].\n- addToREADME=true: inserts standards into README.md (atBegin | middle | beforeEnd | bestFitUsingContext).\n- outputSpecToPrompt=true: prints standards to the prompt instead.\n\nAlso detects syntax inconsistencies (indentation, line-breaks, comments, nesting, quote wrappers): categorizes, counts, flags low-count items; optionally fixes them to match the majority (fixInconsistencies, default true — auto-disabled when analyzing multiple files/folders). Optionally fetches the language's official style guide as extra context (fetchStyleURL, default true). Optionally writes a standards-adherence test (addStandardsTest, default false).\n\nUse when the user wants a style guide derived from an existing codebase, or wants consistency fixes applied per the majority convention.",
+    "tools": [
+      "loadSkill",
+      "bash"
+    ],
+    "relatedSkills": [
+      "rule-generator",
+      "convention-extractor"
+    ],
+    "examples": [
+      {
+        "input": "/project extract-standards src/main.py",
+        "approach": "Analyze src/main.py's syntax conventions (indentation, naming, comments), fetch the Python style guide (PEP 8), compose a standards doc using the verbose template, write to the first unused file name (e.g. STYLE.md)."
+      },
+      {
+        "input": "/project extract-standards src/ --outputSpecToPrompt --useTemplate=minimal",
+        "approach": "Aggregate all files in src/ into one dataset, analyze as a single instance, print a minimal standards spec to the prompt instead of creating a file."
+      },
+      {
+        "input": "/project extract-standards app.js --addToREADME=beforeEnd",
+        "approach": "Extract standards from app.js and append them to README.md after the last character on a new line, instead of creating a new file."
+      }
     ]
   },
   "project/git-cleanup": {
@@ -1068,7 +1141,7 @@
     "label": "code-review",
     "description": "Delegated code review — pass instructions directly to @code-reviewer",
     "reminder": "Delegating review to @code-reviewer agent.",
-    "agent": "@code-reviewer",
+    "agent": "code-reviewer",
     "detailedDescription": "Delegates code review to the @code-reviewer agent. The remainder of your prompt will be passed as specific instructions to the agent."
   },
   "project/refactor": {
@@ -2612,16 +2685,15 @@
   },
   "init-project/config": {
     "label": "config",
-    "description": "Create or modify opencode.jsonc with mandatory schema validation — wraps opencode-config, opencode-configure, opencode-config-workflow; always fetches and validates final output against https://opencode.ai/config.json",
+    "description": "Create or modify opencode.jsonc with mandatory schema validation — wraps opencode-configure, opencode-config-workflow; always fetches and validates final output against https://opencode.ai/config.json",
     "reminder": "Create/modify opencode.jsonc with mandatory schema validation.",
-    "skill": "opencode-config",
-    "detailedDescription": "Creates or modifies opencode.jsonc (or .opencode/opencode.jsonc for project scope) with mandatory schema validation against the canonical OpenCode schema.\n\n## Workflow\n\n1. **Load config skills** — loads `opencode-config`, `opencode-configure`, and `opencode-config-workflow` for comprehensive config surface knowledge.\n\n2. **Elicit intent** — if the user hasn't specified exact changes, interview them to determine: scope (global vs project), what to change (model, provider, MCP, plugins, permissions, instructions, tools, etc.), and target values.\n\n3. **Apply changes** — edit the target config file using the loaded skills' guidance. Allowed keys per the schema: `$schema`, `shell`, `logLevel`, `server`, `command`, `skills`, `references`, `watcher`, `snapshot`, `plugin`, `share`, `autoupdate`, `disabled_providers`, `enabled_providers`, `model`, `small_model`, `default_agent`, `username`, `agent`, `provider`, `mcp`, `formatter`, `lsp`, `instructions`, `permission`, `tools`, `attachment`, `enterprise`, `tool_output`, `compaction`, `experimental`.\n\n4. **Fetch schema** — fetch `https://opencode.ai/config.json` and validate the final config against it.\n\n5. **Validate** — check for:\n   - Invalid keys (anything not in the allowed list above)\n   - Type mismatches (e.g. `model` should be string, not object)\n   - Missing required fields\n   - Broken plugin paths, MCP URL format, provider model references\n\n6. **Fix and re-validate** — if validation fails, fix the issues and re-validate. Loop until clean.\n\n7. **Report** — output a validation report showing which checks passed, what was fixed (if anything), and the final config diff.\n\n## MANDATORY\n\n**This subcommand MUST ALWAYS validate the final output against `https://opencode.ai/config.json` before reporting completion.** Do not skip this step even if the change seems trivial. Schema violations cause runtime errors that are hard to debug.",
+    "skill": "opencode-configure",
+    "detailedDescription": "Creates or modifies opencode.jsonc (or .opencode/opencode.jsonc for project scope) with mandatory schema validation against the canonical OpenCode schema.\n\n## Workflow\n\n1. **Load config skills** — loads `opencode-configure` and `opencode-config-workflow` for comprehensive config surface knowledge.\n\n2. **Elicit intent** — if the user hasn't specified exact changes, interview them to determine: scope (global vs project), what to change (model, provider, MCP, plugins, permissions, instructions, tools, etc.), and target values.\n\n3. **Apply changes** — edit the target config file using the loaded skills' guidance. Allowed keys per the schema: `$schema`, `shell`, `logLevel`, `server`, `command`, `skills`, `references`, `watcher`, `snapshot`, `plugin`, `share`, `autoupdate`, `disabled_providers`, `enabled_providers`, `model`, `small_model`, `default_agent`, `username`, `agent`, `provider`, `mcp`, `formatter`, `lsp`, `instructions`, `permission`, `tools`, `attachment`, `enterprise`, `tool_output`, `compaction`, `experimental`.\n\n4. **Fetch schema** — fetch `https://opencode.ai/config.json` and validate the final config against it.\n\n5. **Validate** — check for:\n   - Invalid keys (anything not in the allowed list above)\n   - Type mismatches (e.g. `model` should be string, not object)\n   - Missing required fields\n   - Broken plugin paths, MCP URL format, provider model references\n\n6. **Fix and re-validate** — if validation fails, fix the issues and re-validate. Loop until clean.\n\n7. **Report** — output a validation report showing which checks passed, what was fixed (if anything), and the final config diff.\n\n## MANDATORY\n\n**This subcommand MUST ALWAYS validate the final output against `https://opencode.ai/config.json` before reporting completion.** Do not skip this step even if the change seems trivial. Schema violations cause runtime errors that are hard to debug.",
     "tools": [
       "loadSkill",
       "bash"
     ],
     "relatedSkills": [
-      "opencode-configure",
       "opencode-config-workflow"
     ],
     "warnings": [

@@ -31,9 +31,9 @@ Hubs uses Opencode Zen models as the primary provider, with ollama cloud (Fallba
 
 | Model | Context | Output | Tier | Best For | Fallback | Notes |
 |-------|---------|--------|------|----------|----------|-------|
-| **opencode/deepseek-v4-flash-free** | 1M | 131K | **All** | All agents (primary) | `ollama/deepseek-v4-flash:cloud` (FB1), `opencode-go/deepseek-v4-flash` (FB2) | Default for all agents |
+| **opencode/deepseek-v4-flash-free** | 1M | 131K | **All** | All agents (primary) | `ollama/deepseek-v4-flash:0731-cloud` (FB1), `opencode-go/deepseek-v4-flash` (FB2) | Default for all agents |
 | **ollama/deepseek-v4-pro:cloud** | 1M | 131K | **Top** | Complex reasoning, architecture, security review | `opencode-go/deepseek-v4-pro` (FB2) | Fallback 1 for Top tier |
-| **ollama/deepseek-v4-flash:cloud** | 1M | 131K | **Mid** | Implementation, execution, general work | `opencode-go/deepseek-v4-flash` (FB2) | Fallback 1 for Mid tier |
+| **ollama/deepseek-v4-flash:0731-cloud** | 1M | 131K | **Mid** | Implementation, execution, general work | `opencode-go/deepseek-v4-flash` (FB2) | Fallback 1 for Mid tier |
 | **ollama/glm-5.2:cloud** | 202K | 131K | **Fast** | Exploration, documentation, simple tasks | `opencode-go/glm-5.2` (FB2) | Fallback 1 for Fast tier |
 | **kimi-k2.6:cloud** | 262K | 262K | — | Extended context, long documents | — | Same input/output context |
 | **minimax-m2.7:cloud** | 205K | 128K | — | High performance tasks | — | Balanced performance |
@@ -113,10 +113,10 @@ The `_launch` property controls automatic model startup:
     },
     "ollama": {
       "models": {
-        "deepseek-v4-flash:cloud": {
+        "deepseek-v4-flash:0731-cloud": {
           "_launch": true,
           "limit": { "context": 1048576, "output": 131072 },
-          "name": "deepseek-v4-flash:cloud"
+          "name": "deepseek-v4-flash:0731-cloud"
         },
         "deepseek-v4-pro:cloud": {
           "_launch": true,
@@ -150,7 +150,7 @@ The `_launch` property controls automatic model startup:
     },
     "ollama": {
       "models": {
-        "deepseek-v4-flash:cloud": { "_launch": true },
+        "deepseek-v4-flash:0731-cloud": { "_launch": true },
         "deepseek-v4-pro:cloud": { "_launch": true },
         "glm-5.2:cloud": { "_launch": true },
         "kimi-k2.5:cloud": { "_launch": true }
@@ -183,7 +183,7 @@ The `_launch` property controls automatic model startup:
     },
     "ollama": {
       "models": {
-        "deepseek-v4-flash:cloud": {
+        "deepseek-v4-flash:0731-cloud": {
           "_launch": true,
           "env": {
             "OLLAMA_HOST": "${OLLAMA_HOST}",
@@ -205,7 +205,7 @@ When the Opencode Zen provider fails (connection errors, model unavailable, time
 | Tier | Primary (opencode zen) | Fallback 1 (ollama) | Fallback 2 (opencode-go) |
 |------|----------------------|---------------------|--------------------------|
 | **Top** | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-pro:cloud` | `opencode-go/deepseek-v4-pro` |
-| **Mid** | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` |
+| **Mid** | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-flash:0731-cloud` | `opencode-go/deepseek-v4-flash` |
 | **Fast** | `opencode/deepseek-v4-flash-free` | `ollama/glm-5.2:cloud` | `opencode-go/glm-5.2` |
 
 ### Configuration
@@ -221,7 +221,7 @@ When the Opencode Zen provider fails (connection errors, model unavailable, time
       },
       "mid": {
         "primary": "opencode/deepseek-v4-flash-free",
-        "fallback1": "ollama/deepseek-v4-flash:cloud",
+        "fallback1": "ollama/deepseek-v4-flash:0731-cloud",
         "fallback2": "opencode-go/deepseek-v4-flash"
       },
       "fast": {
@@ -286,8 +286,8 @@ Add models to `opencode.jsonc` for the three providers:
           "_launch": true,
           "limit": { "context": 1048576, "output": 131072 }
         },
-        "deepseek-v4-flash:cloud": {
-          "name": "deepseek-v4-flash:cloud",
+        "deepseek-v4-flash:0731-cloud": {
+          "name": "deepseek-v4-flash:0731-cloud",
           "_launch": true,
           "limit": { "context": 1048576, "output": 131072 }
         },
@@ -413,7 +413,7 @@ Configured in `opencode.jsonc` under `hubs.modelTiering`:
 | Tier | Models | Use Case |
 |------|--------|----------|
 | **Top** | opencode/deepseek-v4-flash-free (primary), ollama/deepseek-v4-pro:cloud (fallback) | Complex architecture, security review, deep reasoning |
-| **Mid** | opencode/deepseek-v4-flash-free (primary), ollama/deepseek-v4-flash:cloud (fallback) | Implementation, agent orchestration, most tasks |
+| **Mid** | opencode/deepseek-v4-flash-free (primary), ollama/deepseek-v4-flash:0731-cloud (fallback) | Implementation, agent orchestration, most tasks |
 | **Fast** | opencode/deepseek-v4-flash-free (primary), ollama/glm-5.2:cloud (fallback) | Search, explore, documentation, simple generation |
 
 ### Model Routing

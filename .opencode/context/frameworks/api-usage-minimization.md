@@ -19,10 +19,10 @@ OpenCode Hubs burns through API tokens because:
 | Task Type | Model | Cost Multiplier | Why |
 |-----------|-------|----------------|-----|
 | File listing, git status, simple grep | **No model** — use tools directly | 0x | Don't invoke LLM at all |
-| Documentation lookup, simple search | `deepseek-v4-flash:cloud` (cheap, fast) | 1x | 1M context, fast inference |
-| Standard code generation | `deepseek-v4-flash:cloud` | 1x | Good enough for most tasks |
+| Documentation lookup, simple search | `deepseek-v4-flash:0731-cloud` (cheap, fast) | 1x | 1M context, fast inference |
+| Standard code generation | `deepseek-v4-flash:0731-cloud` | 1x | Good enough for most tasks |
 | Complex architecture decisions | `deepseek-v4-pro:cloud` | 3-5x | Only when flash fails |
-| Test generation, code review | `deepseek-v4-flash:cloud` | 1x | Flash handles this fine |
+| Test generation, code review | `deepseek-v4-flash:0731-cloud` | 1x | Flash handles this fine |
 
 **Rule**: Never use `pro` for anything that `flash` can do. Default all agents to `flash`. Only escalate to `pro` when flash fails 3 times.
 

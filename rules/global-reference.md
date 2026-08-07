@@ -36,7 +36,8 @@
 │   ├── shell_strategy.md
 │   ├── context-strategy.md
 │   ├── karpathy-guidelines.md
-│   └── ...                # 15 total rules
+│   ├── anti-sycophancy.md
+│   └── ...                # 16 total rules
 ├── templates/
 │   ├── projects/          # Project archetype templates for /init-project
 │   │   ├── bare-bones/

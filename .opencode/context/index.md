@@ -3,7 +3,7 @@ title: "LLM Wiki Index"
 type: concept
 tags: [wiki, index, catalog]
 created: 2026-07-04
-updated: 2026-07-29
+updated: 2026-08-07
 status: active
 ---
 
@@ -46,6 +46,9 @@ Auto-maintained catalog of all wiki pages. Organized by category.
 | [[ponytail]] | research | ai-coding, lazy-dev | active |
 | [[karpathy-guidelines]] | research | coding-standards, ai-coding | active |
 | [[opencode-joc-overview]] | source-summary | hubs, orchestration, agents, skills, commands, patterns | active |
+| [[recursive-self-improvement]] | source-summary | rsi, self-improving-agent, claude-code, trust-scoring, graduation, autonomy | active |
+| [[agentic-self-improvement-2026]] | source-summary | rsi, self-improving-agent, trust-layer, autonomy, agenttrust, aide2, guardrails | active |
+| [[opencode-self-improvement-2026]] | source-summary | opencode, self-improvement, skillforge, curator, autoresearch, reflexion, memory, rule-promotion | active |
 
 | [[llm-wiki/karpathy-llm-wiki]] | — | — | — |
 

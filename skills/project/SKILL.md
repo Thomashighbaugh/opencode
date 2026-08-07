@@ -20,7 +20,7 @@ Unified entry point for project operations. Each subcommand delegates to an exis
 
 ## No-Argument Behavior
 
-When invoked without arguments, list the subcommands as plain text and ask the user to choose. Do NOT call `hubMenu` or any other tool — just output the list directly. Available operations: create-tests, commit, git-stage-thread, pr, gh, optimize, refactor, simplify, cleanup, modernize, icon, organize, changelog, converge, scan, sandbox, retrospect, purge, release, review, audit, archive, git-cleanup, workspace, readme.
+When invoked without arguments, list the subcommands as plain text and ask the user to choose. Do NOT call `hubMenu` or any other tool — just output the list directly. Available operations: create-tests, code-review, commit, git-stage-thread, pr, gh, optimize, refactor, simplify, simplify-code, cleanup, modernize, icon, organize, changelog, converge, scan, sandbox, retrospect, purge, release, review, audit, archive, git-cleanup, workspace, readme, extract-standards.
 
 ## With-Argument Behavior
 
@@ -31,6 +31,7 @@ Directly invoke the matching subcommand. Print the reminder, then delegate.
 | Subcommand | Skill/Delegate | What It Does |
 |------------|----------------|--------------|
 | `create-tests` | `create-tests` command | Generate 8-type test suite for an OpenCode agent |
+| `code-review` | `@code-reviewer` agent | Delegated review — pass instructions directly to the reviewer |
 | `commit` | `conventional-commit` skill | Create a conventional commit with emoji prefixes |
 | `git-stage-thread` | `git-stage-thread` command | Stage all files modified in the current conversation thread |
 | `pr` | `github-ops` skill | Create, view, merge, manage GitHub pull requests |
@@ -38,6 +39,7 @@ Directly invoke the matching subcommand. Print the reminder, then delegate.
 | `optimize` | inline | Analyze code for performance, security, and maintainability bottlenecks |
 | `refactor` | `@refactoring` agent | Behavior-preserving restructuring — extract, split, reduce coupling |
 | `simplify` | `@code-simplifier` agent | Reduce complexity — flatten nesting, clarify naming, remove abstractions |
+| `simplify-code` | `code-simplification` skill | Process-driven clarity pass — preserve behavior, follow conventions, verify checklist |
 | `cleanup` | `ai-slop-cleaner` skill | Regression-safe deletion-first cleanup of AI-generated code artifacts |
 | `modernize` | `@refactoring` agent | Update code patterns to modern language/framework conventions |
 | `icon` | `icon-generator` skill | Generate web/PWA/UE icon assets from a single source image |
@@ -55,6 +57,7 @@ Directly invoke the matching subcommand. Print the reminder, then delegate.
 | `git-cleanup` | inline | Repair CHANGELOG entries with orphaned commit hash references |
 | `workspace` | inline | Manage `.opencode` across projects — list, sync, init, health check |
 | `readme` | `readme-updater` skill | Update README to reflect current codebase state |
+| `extract-standards` | `code-standards-extractor` skill | Extract coding standards from existing files — infer style guide from codebase syntax |
 
 ### Subcommand Behavior
 
@@ -78,6 +81,7 @@ Each subcommand follows the hub pattern:
 | `optimize` | Optimize: Analyze code for bottlenecks, vulnerabilities, and maintainability issues. |
 | `refactor` | Refactor: Plan and implement behavior-preserving restructuring. |
 | `simplify` | Simplify: Reduce complexity, flatten nesting, clarify naming, remove abstractions. |
+| `simplify-code` | Simplify-code: Process-driven clarity pass — preserve behavior, follow conventions. |
 | `cleanup` | Cleanup: Remove AI-generated slop — dead code, unused exports, redundant comments. |
 | `modernize` | Modernize: Update code patterns to modern language/framework conventions. |
 | `icon` | Icon: Generate web/PWA/UE icon assets from a source image. |
@@ -86,6 +90,7 @@ Each subcommand follows the hub pattern:
 | `release` | Release: Tag, bump version, generate changelog, create GitHub release in one flow. |
 | `audit` | Audit: Comprehensive health check — deps, security, quality, coverage, bundle size. |
 | `readme` | Readme: Scan codebase and update README with current state. |
+| `extract-standards` | Extract-standards: Infer coding standards from existing file(s) syntax. |
 | `git-cleanup` | Git-cleanup: Repair CHANGELOG entries with orphaned commit hash references. |
 
 ---

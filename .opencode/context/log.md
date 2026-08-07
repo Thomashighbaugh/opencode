@@ -3,7 +3,7 @@ title: "LLM Wiki Operation Log"
 type: concept
 tags: [wiki, log, changelog]
 created: 2026-07-04
-updated: 2026-07-19
+updated: 2026-08-07
 status: active
 ---
 
@@ -167,3 +167,51 @@ Chronological record of all wiki operations. Append-only.
   - wshobson/agents has 16 multi-agent orchestrators + adapter framework for 6 harnesses
   - Files_To_Add/docs/new-agents.md has research-backed agent creation methodology with 8-test-type validation
 - **Cross-references**: Links to existing `/project`, `/orchestrate`, `/harvest-context`, `/init-project` hub subcommands
+
+## [2026-08-07] consume | recursive-self-improvement
+
+- **Operation**: Ingested David R. Oliver's Medium article on building a self-improving agent with Claude Code
+- **Source**: Medium article (via freedium mirror — `https://freedium-mirror.cfd/...`)
+- **Files created**:
+  - `research/recursive-self-improvement.md` — full source summary with YAML frontmatter
+- **Key findings**:
+  - Confidence-scored graduation mechanism: pattern keys `{strategy}:{context}`, start score 0, +1 per approval, −2 per rejection, graduate at ≥5, instant demotion on post-graduation rejection; 7 fix strategies with priority order
+  - Results: 1,308 broken links over 4 batches → ~850 remaining; 0% → 95% autonomous fix rate; per-pattern trust, `learnings.json` persistence
+  - Prevention layer: pre-commit hook requiring ≥2 inbound references to catch recurrence
+  - Lessons: trust earned not configured; asymmetric rejection (−2) vs approval (+1); prevention beats repair; loop is the product
+  - Future directions: trust decay (lastSeen), hierarchical trust transfer (80% variant rule → warm-start at score 3), rollback chains (git SHA), cross-domain transfer
+  - 2026 landscape: MiniMax M2.7 (+30% after 100+ RL iterations), OpenAI Codex 5.3 (first self-creating model claim), Google AlphaEvolve (first improvement on Strassen 1969 matrix multiplication), Claude Code authored 70–90% of Anthropic's training code, Karpathy's autoresearch (630-line script)
+  - Series roadmap: Part 2 (Auto MoC system), Part 3 (prompt that improves itself)
+- **Cross-references**: [[short-leash-ai-method-okturtles]], [[opencode-dispatcher]], [[observational-memory-mastra]]
+
+## [2026-08-07] web-research | agentic-self-improvement-2026
+
+- **Operation**: Multi-source web research on agentic coding agent self-improvement methodologies and mechanisms (3 parallel searches + 2 parallel fetches)
+- **Source**: datasciencedojo.com, arxiv.org (AgentTrust 2606.08539), curvelabs.org, claudepluginhub.com, mcpmarket.com, medium.com, zylos.ai, mindstudio.ai, borghei/claude-skills, alirezarezvani/claude-skills, weco.ai, ICLR 2026 workshop
+- **Files created**:
+  - `research/agentic-self-improvement-2026.md` — multi-source synthesis report with YAML frontmatter
+- **Key findings**:
+  - All 2026 RSI is bounded/supervised — agents rewrite prompts/tools/code around a fixed model; no self-weight modification
+  - Convergent design principles: act→measure→adjust autonomy, trust earned not configured, separate evaluation from generation (hidden scores, corroboration guards), persist what worked, prevention before repair
+  - AgentTrust v2: lexical threats → distilled deterministic rules (cheaper over time, judge rate 50%→44%); semantic threats → guarded RAG memory (smarter over time, 71%→80%); never hard-block benign actions; 0 benign hard-blocks across 45k actions
+  - Autonomy taxonomies (Zylos): L2 = Claude Code tiered permission rules; March 2026 Auto Mode two-layer classifier (0.4% FPR/5.7% FNR), 3 consecutive denials → human escalation
+  - Concrete systems: Weco AIDE2 (outer/inner loop, public+hidden scores, ~9/10 rewrites rejected), Karpathy AutoResearch (630-line, 700 experiments/2 days, 20 genuine speedups), Agent0 (adversarial task generator + solver, +18% math), SICA, AlphaEvolve (48-vs-49 matrix multiplication), OpenAI RSI Index (GPT-5.6 Sol +16.2), MiniMax M2.7
+  - Learning stores: learnings.md with binary evals (7/10 subjective scoring fails), builder-validator chains, memory curation → promotion ladder (2–3× recurrences → MEMORY.md → user approval → CLAUDE.md enforced rule)
+  - Guardrails: hard iteration caps, token budgets, circuit breakers, stopping conditions BEFORE loop starts; weak self-evaluation compounds
+- **Cross-references**: [[recursive-self-improvement]], [[short-leash-ai-method-okturtles]], [[observational-memory-mastra]], [[opencode-dispatcher]]
+
+## [2026-08-07] web-research | opencode-self-improvement-2026
+
+- **Operation**: Multi-source web research on OpenCode self-improvement methodologies and mechanisms (3 parallel searches + 1 targeted fetch)
+- **Source**: github.com (Svtter/opencode-self-improve, mittalsuraj18/opencode-auto-research, rajibmahata/opencode, Tah10n/opencode-harness, joshuadavidthomas/opencode-agent-memory, different-ai/agent-bank), skillsmp.com, gist.github.com, hindsight.vectorize.io, arxiv.org
+- **Files created**:
+  - `research/opencode-self-improvement-2026.md` — multi-source synthesis report with YAML frontmatter
+- **Key findings**:
+  - 6 distinct mechanisms identified: skill lifecycle loop (SkillForge/Curator/SkillInjector), benchmark-driven optimization (autoresearch), config/rules evolution (evolve skill), evidence-gated prompt engineering (agent-self-improvement workflow), memory blocks (Letta-style), guarded self-improvement harness (opencode-learning-guard)
+  - Convergent principles: evidence-gating before promotion, queues separate capture from promotion, asymmetric removal (demotion cheaper than promotion), injection at system-prompt point, structural (not advisory) guardrails, measurement closes the loop, separation of concerns, manual-by-default autonomy-by-graduation
+  - evolve v2 (twidxuga): capture → queue → lint → promote → measure pipeline; rule_id Reflexion feedback; demotion to queue for no-impact rules; public/private dual logs
+  - rajibmahata workflow: gate failures logged inline to MEMORY.md → periodic Prompt Engineer review → prompt changes with rationale → measured recurrence; never bypasses quality gates; incremental edits only
+  - Tah10n harness: `oc_learning_*` deny at root / ask only on improver agent; toolset narrowing (memory-read/write, skills-write, improver, none); persistence rules ban secrets/raw logs; audit-first cleanup
+  - autoresearch plugin: MAD-based confidence, auto-compaction per iteration, git commit-on-keep/reset-on-discard, METRIC/ASI structured protocol
+  - Context: this report complements [[agentic-self-improvement-2026]] (general RSI survey) — opencode-specific angle
+- **Cross-references**: [[agentic-self-improvement-2026]], [[recursive-self-improvement]], [[short-leash-ai-method-okturtles]], [[opencode-dispatcher]], [[observational-memory-mastra]]

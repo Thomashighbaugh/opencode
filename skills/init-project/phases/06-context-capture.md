@@ -302,7 +302,7 @@ Read the three map files and re-generate each agent in `.opencode/agents/`:
 ---
 extends: ../../agents/{name}.md
 description: Project-aware wrapper for {name} with deep {lang}/{fw} context
-model: ollama/deepseek-v4-flash:cloud
+model: ollama/deepseek-v4-flash:0731-cloud
 mode: subagent
 ---
 

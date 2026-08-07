@@ -14,7 +14,7 @@ Unified entry point for all planning and research methods. Each subcommand is a 
 
 ## No-Argument Behavior
 
-When invoked without arguments (`/ideation`), list the subcommands as plain text and ask the user to choose. Do NOT call `hubMenu` or any other tool — just output the list directly. Available methods: plan, brainstorm, decomposition, refine, overhaul, deep, graph, research, ralplan, ddd, event-storming, double-diamond, jtbd, impact-mapping, spiral, spark, top-down, bottom-up, adversarial-debate, cleanroom, pwf, rpikit, hive, story-mapping, lean-canvas, constitution, quality, modularity, arch-prep, web-research, tech-eval, competitive-analysis, tree-of-thoughts, opro, analyze-patterns, resume, status.
+When invoked without arguments (`/ideation`), list the subcommands as plain text and ask the user to choose. Do NOT call `hubMenu` or any other tool — just output the list directly. Available methods: plan, brainstorm, decomposition, refine, overhaul, deep, graph, research, ralplan, ddd, event-storming, double-diamond, jtbd, impact-mapping, spiral, spark, top-down, bottom-up, adversarial-debate, cleanroom, pwf, rpikit, hive, story-mapping, lean-canvas, constitution, quality, modularity, arch-prep, web-research, tech-eval, competitive-analysis, tree-of-thoughts, deep-thinker, opro, analyze-patterns, resume, status.
 
 ## With-Argument Behavior
 
@@ -60,6 +60,7 @@ Directly invoke the matching subcommand. Print the reminder, then delegate to th
 | `tech-eval` | inline | Technology evaluation — structured pros/cons comparison against alternatives |
 | `competitive-analysis` | inline | Competitive landscape — feature comparison matrix |
 | `tree-of-thoughts` | `tree-of-thoughts` skill | ⚠️ EXPENSIVE: Explore parallel solution branches for open-ended problems |
+| `deep-thinker` | `@deep-thinker` agent | Structured thinking partner — clarify Who/What/Why, apply thinking frameworks, end with action |
 | `opro` | `opro` skill | ⚠️ EXPENSIVE: Optimize prompts by testing variations against benchmarks |
 | `analyze-patterns` | inline | Analyze code patterns and anti-patterns — consistencies, convention violations |
 | `resume` | self (inline) | Resume last ideation session |

@@ -12,7 +12,7 @@ Subagents use a failover chain per tier. Primary → F1 → F2 → (F3 NVIDIA NI
 | Tier | Primary | F1 | F2 | Agents |
 |------|---------|----|----|--------|
 | **Pro** | `ollama/deepseek-v4-pro:cloud` | `opencode-go/deepseek-v4-pro` | `opencode/deepseek-v4-flash-free` | architect, planner, security-reviewer, etc. |
-| **Default** | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | executor, debugger, test-engineer, etc. |
+| **Default** | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-flash:0731-cloud` | `opencode-go/deepseek-v4-flash` | executor, debugger, test-engineer, etc. |
 | **Fast** | `opencode/deepseek-v4-flash-free` | `ollama/glm-5.2:cloud` | `opencode-go/glm-5.2` | writer, verifier, document-specialist, etc. |
 
 **Rules:**
@@ -21,6 +21,7 @@ Subagents use a failover chain per tier. Primary → F1 → F2 → (F3 NVIDIA NI
 - Task errors (wrong output) → fix prompt, don't advance
 - Tool errors (file not found) → fix cause, don't advance
 - Chain exhausted → escalate via `question` tool
+- **Ambiguity default:** When routing is uncertain (task doesn't clearly fit a tier, unclear model choice), default to `opencode/deepseek-v4-flash-free` — the free, always-available model. Never default to paid/cloud models when uncertain.
 
 ## Task-to-Tier Routing
 

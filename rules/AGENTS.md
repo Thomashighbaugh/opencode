@@ -22,6 +22,7 @@ Shared rule files loaded as agent instructions. These provide behavioral guidanc
 | `performance.md` | Performance rules — model selection strategy, context window management, algorithm efficiency |
 | `git-workflow.md` | Git workflow rules — commit message format, PR workflow, branch naming, feature implementation |
 | `file-operations.md` | Artifact placement + script elimination — no standalone scripts at project root; use file-editing tools, not inline scripts |
+| `anti-sycophancy.md` | Anti-sycophancy — extract core claim, assess independently, conclusion-first; pushback categorized as new evidence vs repeated opinion |
 
 ## For AI Agents
 

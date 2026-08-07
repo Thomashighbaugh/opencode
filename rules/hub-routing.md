@@ -110,8 +110,9 @@ tools/
 | ideation | tech-eval | inline | true |
 | ideation | competitive-analysis | inline | true |
 | ideation | tree-of-thoughts | skill | tree-of-thoughts |
+| ideation | deep-thinker | agent | deep-thinker |
 | ideation | opro | skill | opro |
-| ideation | analyze-patterns | command | analyze-patterns |
+| ideation | analyze-patterns | inline | true |
 | ideation | resume | inline | true |
 | ideation | status | inline | true |
 | orchestrate | ralph | skill | ralph |
@@ -169,6 +170,7 @@ tools/
 | harvest-context | diff | inline | true |
 | harvest-context | sweep | inline | true |
 | project | create-tests | command | create-tests |
+| project | code-review | agent | code-reviewer |
 | project | commit | skill | conventional-commit |
 | project | git-stage-thread | command | git-stage-thread |
 | project | pr | command | pr |
@@ -176,6 +178,7 @@ tools/
 | project | optimize | command | optimize |
 | project | refactor | agent | refactoring |
 | project | simplify | agent | code-simplifier |
+| project | simplify-code | skill | code-simplification |
 | project | cleanup | skill | ai-slop-cleaner |
 | project | modernize | agent | refactoring |
 | project | icon | skill | icon-generator |
@@ -193,6 +196,7 @@ tools/
 | project | git-cleanup | inline | true |
 | project | workspace | inline | true |
 | project | readme | skill | readme-updater |
+| project | extract-standards | skill | code-standards-extractor |
 | skills | list | inline | true |
 | skills | add | inline | true |
 | skills | create | skill | skill-creator |

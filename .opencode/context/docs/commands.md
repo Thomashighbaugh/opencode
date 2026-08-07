@@ -555,23 +555,27 @@ Skill management operations.
 
 | Property | Value |
 |----------|-------|
-| **Description** | Analyze codebase for patterns and similar implementations |
+| **Description** | Analyze code patterns and anti-patterns — consistencies, convention violations |
 
 **Purpose:**
 
-Finds patterns and similar code in the codebase.
+Finds patterns, anti-patterns, and inconsistent implementations in the codebase, grouped by pattern family.
 
 **Arguments:**
-- `pattern`: Pattern to analyze
-- `--output`: Output format
+- `pattern`: Pattern to analyze (positional shorthand for `--pattern`)
+- `--pattern <name>`: error-handling, naming, structure, state, concurrency, io, api, ui (default: all)
+- `--language <lang>`: typescript, python, go, rust, java, all (default: all)
+- `--depth <level>`: shallow, medium, deep (default: medium)
+- `--output <fmt>`: json, markdown (default: markdown)
 
 **Example:**
 
 ```bash
-/analyze-patterns "error handling"
+/ideation analyze-patterns "error handling" --language typescript --depth deep
 
-# Finds all error handling patterns
-# Grouped by: try-catch, promises, callbacks
+# Deep audit of error-handling patterns in TS files
+# Grouped by: try-catch, promises, result types
+# With file:line references and recommendations
 ```
 
 ---

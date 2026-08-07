@@ -812,7 +812,7 @@ function generateAgentWrapper(name, config, detection) {
   return `---
 extends: ../../agents/${name}.md
 description: Project-aware wrapper for ${name} agent with ${lang}/${fw} context injected
-model: ollama/deepseek-v4-flash:cloud
+model: ollama/deepseek-v4-flash:0731-cloud
 mode: subagent
 ---
 
@@ -1661,7 +1661,7 @@ function generateInstall(generated, detection, opts) {
 
     const configContent = `{
   "$schema": "https://opencode.ai/config.json",
-  "model": "ollama/deepseek-v4-flash:cloud",
+  "model": "ollama/deepseek-v4-flash:0731-cloud",
   "default_agent": "hubs",
   "formatter": true,
   "lsp": ${hasLsp ? 'true' : 'false'},

@@ -3,15 +3,15 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_LOADSKILL_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "config",
-  description: "Create or modify opencode.jsonc with mandatory schema validation — wraps opencode-config, opencode-configure, opencode-config-workflow; always fetches and validates final output against https://opencode.ai/config.json",
+  description: "Create or modify opencode.jsonc with mandatory schema validation — wraps opencode-configure, opencode-config-workflow; always fetches and validates final output against https://opencode.ai/config.json",
   reminder: "Create/modify opencode.jsonc with mandatory schema validation.",
-  skill: "opencode-config",
+  skill: "opencode-configure",
 
   detailedDescription: `Creates or modifies opencode.jsonc (or .opencode/opencode.jsonc for project scope) with mandatory schema validation against the canonical OpenCode schema.
 
 ## Workflow
 
-1. **Load config skills** — loads \`opencode-config\`, \`opencode-configure\`, and \`opencode-config-workflow\` for comprehensive config surface knowledge.
+1. **Load config skills** — loads \`opencode-configure\` and \`opencode-config-workflow\` for comprehensive config surface knowledge.
 
 2. **Elicit intent** — if the user hasn't specified exact changes, interview them to determine: scope (global vs project), what to change (model, provider, MCP, plugins, permissions, instructions, tools, etc.), and target values.
 
@@ -34,7 +34,7 @@ const spec: HubSubcommandSpec = {
 **This subcommand MUST ALWAYS validate the final output against \`https://opencode.ai/config.json\` before reporting completion.** Do not skip this step even if the change seems trivial. Schema violations cause runtime errors that are hard to debug.`,
 
   tools: TOOLS_LOADSKILL_BASH,
-  relatedSkills: ["opencode-configure", "opencode-config-workflow"],
+  relatedSkills: ["opencode-config-workflow"],
   warnings: [
     "Schema validation requires network access to https://opencode.ai/config.json — if offline, use cached schema from last fetch.",
     "Fetches the full config.json schema (~50KB) — avoid unnecessary repeated fetches within a session.",

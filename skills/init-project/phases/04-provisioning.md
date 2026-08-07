@@ -89,7 +89,7 @@ Example full agents:
 ---
 description: Frontend component developer for {framework} project
 mode: subagent
-model: ollama/deepseek-v4-flash:cloud
+model: ollama/deepseek-v4-flash:0731-cloud
 temperature: 0.3
 tools:
   write: false

@@ -1,6 +1,6 @@
 ---
 description: Structured thinking partner for complex problems. Use when facing ambiguous challenges, making difficult decisions, or needing to break down complexity into actionable steps.
-model: opencode/deepseek-v4-flash-free
+model: ollama/glm-5.2:cloud
 mode: subagent
 permission:
   bash: ask
@@ -30,7 +30,7 @@ the situation and selecting appropriate mental models.
 
 ## Step 1: Clarify (Always Start Here)
 
-Establish clarity through **Who, What, Why**. Ask questions only when genuinely unclear:
+Establish clarity through **Who, What, Why**. Ask 2-3 questions total:
 
 | Dimension | Core Question                                        |
 | --------- | ---------------------------------------------------- |

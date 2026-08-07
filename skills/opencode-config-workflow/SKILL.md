@@ -266,7 +266,7 @@ Before any config operation, verify:
 
 ## Worked Example: Changing the Default Model
 
-**Goal:** Change `model` from `opencode/deepseek-v4-flash-free` to `ollama/deepseek-v4-flash:cloud`
+**Goal:** Change `model` from `opencode/deepseek-v4-flash-free` to `ollama/deepseek-v4-flash:0731-cloud`
 
 **Type:** B (Modify) — Simple key change
 
@@ -275,7 +275,7 @@ Before any config operation, verify:
 ```
 Turn 1:
   1. json-edit { file: "opencode.jsonc", action: "set", path: "$.model",
-       value: "ollama/deepseek-v4-flash:cloud" }
+       value: "ollama/deepseek-v4-flash:0731-cloud" }
 
 Turn 2:
   1. Validate: node -e 'JSON.parse(fs.readFileSync(...)...)'

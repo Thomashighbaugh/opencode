@@ -17,16 +17,18 @@ status: active
 | Tier | Primary (opencode zen) | Fallback 1 (ollama) | Fallback 2 (opencode-go) | Context | Output | Best For |
 |------|----------------------|---------------------|--------------------------|---------|--------|----------|
 | **Top** | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-pro:cloud` | `opencode-go/deepseek-v4-pro` | 1M | 131K | Complex reasoning, architecture, security review |
-| **Mid** | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | 1M | 131K | Implementation, execution, general work |
+| **Mid** | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-flash:0731-cloud` | `opencode-go/deepseek-v4-flash` | 1M | 131K | Implementation, execution, general work |
 | **Fast** | `opencode/deepseek-v4-flash-free` | `ollama/glm-5.2:cloud` | `opencode-go/glm-5.2` | 202K | 131K | Exploration, documentation, simple tasks |
 
 - **Top tier** agents need deep reasoning, nuanced analysis, or read-only review authority. Fallback 1: `ollama/deepseek-v4-pro:cloud`. Fallback 2: `opencode-go/deepseek-v4-pro`.
-- **Mid tier** agents implement, execute, or orchestrate — they need strong coding and moderate reasoning. Fallback 1: `ollama/deepseek-v4-flash:cloud`. Fallback 2: `opencode-go/deepseek-v4-flash`.
+- **Mid tier** agents implement, execute, or orchestrate — they need strong coding and moderate reasoning. Fallback 1: `ollama/deepseek-v4-flash:0731-cloud`. Fallback 2: `opencode-go/deepseek-v4-flash`.
 - **Fast tier** agents search, summarize, draft, or estimate — they need speed over deep reasoning. Fallback 1: `ollama/glm-5.2:cloud`. Fallback 2: `opencode-go/glm-5.2`.
 
 ## Fallback Behavior
 
 When a subagent fails with a provider-level error (connection refused, model unavailable, timeout, 502/503/504), the orchestrating agent retries with Fallback 1 (ollama cloud), then Fallback 2 (opencode-go hosted). After 3 fallback retries, the orchestrating agent escalates to the user via the `question` tool. Task-level errors (wrong output, incorrect implementation) do NOT trigger provider fallback — fix the task prompt instead.
+
+**Ambiguity default:** When routing is ambiguous (task doesn't clearly fit a tier, uncertain model choice), default to `opencode/deepseek-v4-flash-free` — the free, always-available model. Never default to paid/cloud models when uncertain.
 
 ## Agent-to-Tier Mapping
 
@@ -47,7 +49,7 @@ Deep reasoning, architectural judgment, security analysis, and critical review.
 | **analyst** | `opencode/deepseek-v4-flash-free` | READ-ONLY pre-planning consultant. Catches requirement gaps, undefined guardrails, scope risks. Thoroughness demands strong reasoning. |
 | **critic** | `opencode/deepseek-v4-flash-free` | READ-ONLY final quality gate. Multi-perspective review, gap analysis, pre-commitment predictions. Maximum effort required. |
 
-### Mid Tier — opencode/deepseek-v4-flash-free (fallback 1: ollama/deepseek-v4-flash:cloud, fallback 2: opencode-go/deepseek-v4-flash)
+### Mid Tier — opencode/deepseek-v4-flash-free (fallback 1: ollama/deepseek-v4-flash:0731-cloud, fallback 2: opencode-go/deepseek-v4-flash)
 
 Implementation, execution, configuration, and interactive testing.
 
@@ -94,18 +96,18 @@ Search, summarization, drafting, estimation — speed over depth.
 | tracer | Top | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-pro:cloud` | `opencode-go/deepseek-v4-pro` | Causal investigation |
 | analyst | Top | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-pro:cloud` | `opencode-go/deepseek-v4-pro` | Gap analysis (READ-ONLY) |
 | critic | Top | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-pro:cloud` | `opencode-go/deepseek-v4-pro` | Quality gate (READ-ONLY) |
-| hubs | Mid | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | Generalist primary |
-| executor | Mid | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | Implementation |
-| debugger | Mid | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | Debugging and build fixes |
-| test-engineer | Mid | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | Test writing and TDD |
-| designer | Mid | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | UI/UX implementation |
-| frontend-design | Mid | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | Frontend interfaces |
-| git-master | Mid | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | Git operations |
-| config-orchestrator | Mid | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | Configuration management |
-| skill-creator | Mid | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | Skill creation |
-| refactoring | Mid | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | Code restructuring |
-| code-simplifier | Mid | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | Code cleanup |
-| qa-tester | Mid | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | Interactive testing |
+| hubs | Mid | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-flash:0731-cloud` | `opencode-go/deepseek-v4-flash` | Generalist primary |
+| executor | Mid | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-flash:0731-cloud` | `opencode-go/deepseek-v4-flash` | Implementation |
+| debugger | Mid | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-flash:0731-cloud` | `opencode-go/deepseek-v4-flash` | Debugging and build fixes |
+| test-engineer | Mid | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-flash:0731-cloud` | `opencode-go/deepseek-v4-flash` | Test writing and TDD |
+| designer | Mid | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-flash:0731-cloud` | `opencode-go/deepseek-v4-flash` | UI/UX implementation |
+| frontend-design | Mid | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-flash:0731-cloud` | `opencode-go/deepseek-v4-flash` | Frontend interfaces |
+| git-master | Mid | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-flash:0731-cloud` | `opencode-go/deepseek-v4-flash` | Git operations |
+| config-orchestrator | Mid | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-flash:0731-cloud` | `opencode-go/deepseek-v4-flash` | Configuration management |
+| skill-creator | Mid | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-flash:0731-cloud` | `opencode-go/deepseek-v4-flash` | Skill creation |
+| refactoring | Mid | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-flash:0731-cloud` | `opencode-go/deepseek-v4-flash` | Code restructuring |
+| code-simplifier | Mid | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-flash:0731-cloud` | `opencode-go/deepseek-v4-flash` | Code cleanup |
+| qa-tester | Mid | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-flash:0731-cloud` | `opencode-go/deepseek-v4-flash` | Interactive testing |
 | writer | Fast | `opencode/deepseek-v4-flash-free` | `ollama/glm-5.2:cloud` | `opencode-go/glm-5.2` | Documentation |
 | verifier | Fast | `opencode/deepseek-v4-flash-free` | `ollama/glm-5.2:cloud` | `opencode-go/glm-5.2` | Completion verification |
 | document-specialist | Fast | `opencode/deepseek-v4-flash-free` | `ollama/glm-5.2:cloud` | `opencode-go/glm-5.2` | External docs lookup |
@@ -119,7 +121,7 @@ Search, summarization, drafting, estimation — speed over depth.
 | Tier | Count | Primary Model | Fallback 1 (ollama) | Fallback 2 (opencode-go) | Agents |
 |------|-------|---------------|---------------------|--------------------------|--------|
 | **Top** | 10 | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-pro:cloud` | `opencode-go/deepseek-v4-pro` | architect, planner, code-reviewer, security-reviewer, scientist, deep-thinker, requirements-analyzer, tracer, analyst, critic |
-| **Mid** | 12 | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-flash:cloud` | `opencode-go/deepseek-v4-flash` | hubs, executor, debugger, test-engineer, designer, frontend-design, git-master, config-orchestrator, skill-creator, refactoring, code-simplifier, qa-tester |
+| **Mid** | 12 | `opencode/deepseek-v4-flash-free` | `ollama/deepseek-v4-flash:0731-cloud` | `opencode-go/deepseek-v4-flash` | hubs, executor, debugger, test-engineer, designer, frontend-design, git-master, config-orchestrator, skill-creator, refactoring, code-simplifier, qa-tester |
 | **Fast** | 7 | `opencode/deepseek-v4-flash-free` | `ollama/glm-5.2:cloud` | `opencode-go/glm-5.2` | writer, verifier, document-specialist, effort-estimator, explore, commit-drafter, prompt-simplifier |
 
 ## Fallback Guidelines for Orchestrators

@@ -92,6 +92,31 @@ function off(event: string, handler: EventHandler): void {
   _eventHandlers.get(event)?.delete(handler)
 }
 
+// ── [Change 8]: Latest User Prompt Store ─────────────────────────────────────
+// Captured in chat.message, consumed by experimental.chat.system.transform for
+// vector-search injection. The transform hook cannot read the user's message
+// directly (it only sees sessionID + model), so we bridge via this map.
+// Cleared after each transform use to avoid stale-query injection.
+const latestUserPromptBySession = new Map<string, string>()
+
+function extractUserText(msg: any): string {
+  if (!msg) return ''
+  const content = msg.content
+  if (typeof content === 'string') return content
+  if (Array.isArray(content)) {
+    return content
+      .map((p: any) => {
+        if (!p) return ''
+        if (p.type === 'text') return p.text || ''
+        return p.text || ''
+      })
+      .filter(Boolean)
+      .join(' ')
+      .trim()
+  }
+  return ''
+}
+
 // ── [Change 4]: Shared Context Protocol ──────────────────────────────────────
 // Interface for structured context messages with dedup metadata.
 interface ContextMessage {
@@ -777,8 +802,7 @@ Propose the mode to the user and ask before activating.
 
   // ── Context Injection Helpers ──────────────────────────────────────
   // Task-complexity keywords that trigger Tier 2 context injection
-  const COMPLEXITY_KEYWORDS = new Set([
-    'refactor', 'architecture', 'design', 'why', 'how', 'debug', 'fix',
+  const COMPLEXITY_KEYWORDS = new Set([    'refactor', 'architecture', 'design', 'why', 'how', 'debug', 'fix',
     'implement', 'build', 'create', 'optimize', 'security', 'performance',
     'test', 'review', 'plan', 'decompose', 'analyze', 'overhaul', 'modular',
     'pattern', 'convention', 'dependency', 'integration', 'migrate', 'upgrade',
@@ -807,6 +831,9 @@ Propose the mode to the user and ask before activating.
     return Math.ceil(text.length / 4)
   }
 
+  // Token budget for injected <Relevant_Context> blocks (local retrieval only)
+  const CONTEXT_TOKEN_BUDGET = 1000
+
   // Truncate context to fit within a token budget
   function truncateToTokens(text: string, maxTokens: number): string {
     const maxChars = maxTokens * 4
@@ -834,57 +861,55 @@ Propose the mode to the user and ask before activating.
     } catch { /* focus plugin unavailable */ }
 
     // ── NEW: Vector-search-based context injection ──────────────────
-    // Search .opencode/context/ for semantically relevant content and inject
-    // top results as a <Relevant_Context> block. Cached in session namespace.
+    // Search per-project data (.opencode/context/, rules/, docs/, AGENTS.md)
+    // for semantically relevant content and inject top results as a
+    // <Relevant_Context> block. Local-only retrieval (Ollama embed+rerank)
+    // — zero additional provider API requests. Cached in session namespace.
     try {
       const contextDir = join(directory, '.opencode', 'context')
       if (!existsSync(contextDir)) return
 
-      // Get the user's latest message to use as search query
-      // We can't directly access messages here, but the vector index
-      // can search based on the system prompt content itself.
-      // Use the model's context as the query — extract from input.
-      const queryText = (input as any)?.model?.modelID || ''
+      // Use the user's latest actual prompt as the search query.
+      // (Captured in chat.message — the transform hook itself only
+      // receives sessionID + model, not message content.)
+      const queryText = latestUserPromptBySession.get(sessionId) || ''
+      if (queryText.length < 10) return
 
       // ── [Change 1]: Context Injection Throttling — skip vector search for simple prompts ──
       const lowerQuery = queryText.toLowerCase()
       const hasComplexity = [...COMPLEXITY_KEYWORDS].some(kw => lowerQuery.includes(kw))
       if (!hasComplexity) return
-      
-      // Skip context injection for simple operations
-      // (We can't read the user's prompt directly here, but we can
-      // use a session-level flag set in tool.execute.before for
-      // complexity detection. For now, always inject if context exists.)
-      
+
       const sessionCache = getCache('session')
       const cacheKey = CacheManager.key('ctx-search', queryText || 'default')
       const cached = sessionCache.get<string>(cacheKey)
+
+      // Clear stored prompt after this turn — prevents stale-query injection later
+      latestUserPromptBySession.delete(sessionId)
 
       if (cached) {
         // Use cached search results
         const parsed = JSON.parse(cached)
         if (parsed.length > 0) {
           const ctxBlock = `<Relevant_Context>\n${parsed.join('\n\n---\n\n')}\n</Relevant_Context>`
-          output.system.push(truncateToTokens(ctxBlock, 500))
+          output.system.push(truncateToTokens(ctxBlock, CONTEXT_TOKEN_BUDGET))
         }
       } else {
-        // Run vector search via veclib.mjs
+        // Run vector search via veclib.mjs (Ollama embed → rerank → top-N)
         const veclibPath = join(directory, 'skills', 'vectorize-context', 'scripts', 'veclib.mjs')
         if (!existsSync(veclibPath)) return
 
         try {
           const { queryChunks } = await import(veclibPath)
-          const results = await queryChunks(directory, queryText || 'project architecture', 5)
+          const results = await queryChunks(directory, queryText, 5, { useReranker: true })
           if (results && results.length > 0) {
-            // Filter by relevance (distance < 0.8) and build context snippets
             const relevant = results
-              .filter((r: any) => r.distance < 0.8)
               .map((r: any) => `**${r.source || r.file_path || 'context'}**\n${r.content || ''}`)
               .slice(0, 5)
 
             if (relevant.length > 0) {
               const ctxBlock = `<Relevant_Context>\n${relevant.join('\n\n---\n\n')}\n</Relevant_Context>`
-              output.system.push(truncateToTokens(ctxBlock, 500))
+              output.system.push(truncateToTokens(ctxBlock, CONTEXT_TOKEN_BUDGET))
               // Cache for session
               sessionCache.set(cacheKey, JSON.stringify(relevant), 300_000) // 5 min
             }
@@ -1070,6 +1095,17 @@ ${notes ? `### Custom Notes:\n${notes}` : ''}
 
   hooks["chat.message"] = async (input, output) => {
     const sessionId = input.sessionID
+
+    // ── Capture latest user prompt for vector-search injection ──────
+    try {
+      const msg = (input as any)?.message
+      if (msg && (msg.role === 'user' || typeof msg.content === 'string')) {
+        const text = extractUserText(msg)
+        if (text.length > 0) {
+          latestUserPromptBySession.set(sessionId, text.slice(0, 2000))
+        }
+      }
+    } catch { /* best effort */ }
 
     // Only inject mode context if we detect a stall — not on every chat message
     // This prevents the "dumb continue" spam that consumed subagent context

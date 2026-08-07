@@ -30,13 +30,15 @@ import gitCleanup from "./git-cleanup"
 import workspace from "./workspace"
 import readme from "./readme"
 import consolidateTelemetry from "./consolidate-telemetry"
+import extractStandards from "./extract-standards"
+import simplifyCode from "./simplify-code"
 
 export const specs = [
   codeReview, ponytailReview, ponytailAudit, ponytailDebt, ponytailGain,
   createTests, commit, gitStageThread, pr, gh, optimize, refactor, simplify, cleanup,
   modernize, icon, organize, changelog, converge, scan, sandbox,
   retrospect, purge, release, review, audit, archive, gitCleanup, workspace, readme,
-  consolidateTelemetry
+  consolidateTelemetry, extractStandards, simplifyCode
 ]
 
 export const subcommands: HubSubcommand[] = specs.map(s => ({
