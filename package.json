@@ -14,16 +14,18 @@
   "dependencies": {
     "@franlol/opencode-md-table-formatter": "0.0.3",
     "@huggingface/transformers": "^4.2.0",
-    "@opencode-ai/plugin": "^1.17.18",
-    "@opencode-ai/sdk": "^1.17.18",
+    "@opencode-ai/plugin": "1.18.13",
+    "@opencode-ai/sdk": "^1.18.15",
     "@opencode-plugins/env-protection": "^1.0.4",
+    "@opentui/react": "^0.5.1",
+    "@opentui/solid": "^0.5.1",
     "better-sqlite3": "^13.0.3",
     "fast-xml-parser": "^5.10.1",
     "fs-extra": "^11.4.0",
     "glob": "^13.0.6",
-    "js-yaml": "^5.2.1",
+    "js-yaml": "^5.2.3",
     "jsonpath-plus": "^10.4.0",
-    "opencode-ai": "^1.17.18",
+    "opencode-ai": "^1.18.15",
     "sqlite-vec": "^0.1.9",
     "typescript": "^6.0.3",
     "typescript-language-server": "^5.3.0",
@@ -33,6 +35,6 @@
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^25.9.5",
-    "vitest": "^2.1.0"
+    "vitest": "^2.1.9"
   }
 }

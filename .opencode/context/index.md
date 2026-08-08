@@ -49,6 +49,7 @@ Auto-maintained catalog of all wiki pages. Organized by category.
 | [[recursive-self-improvement]] | source-summary | rsi, self-improving-agent, claude-code, trust-scoring, graduation, autonomy | active |
 | [[agentic-self-improvement-2026]] | source-summary | rsi, self-improving-agent, trust-layer, autonomy, agenttrust, aide2, guardrails | active |
 | [[opencode-self-improvement-2026]] | source-summary | opencode, self-improvement, skillforge, curator, autoresearch, reflexion, memory, rule-promotion | active |
+| [[auto-moc-rsi]] | source-summary | rsi, maps-of-content, moc, zettelkasten, taxonomy-learning, quality-scoring, rule-improvement, evidence-gating | active |
 
 | [[llm-wiki/karpathy-llm-wiki]] | — | — | — |
 

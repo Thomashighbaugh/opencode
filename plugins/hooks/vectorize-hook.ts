@@ -1,68 +1,64 @@
+import { spawn } from "child_process";
 import { existsSync } from "fs";
 import { join } from "path";
 
 /**
- * Vectorize hook — watches all scoped per-project markdown sources
- * (.opencode/context/, .opencode/rules/, .opencode/docs/, AGENTS.md)
- * and vectorizes changed files via veclib.mjs for semantic injection.
+ * Vectorize hook — keeps the per-project vector stores (context.db, code.db)
+ * fresh as files change.
  *
- * Uses polling fallback on Linux (recursive watch not supported).
- * Storage: .opencode/state/vector/context.db (gitignored).
+ * ARCHITECTURE (kernel-panic hardening): this hook NEVER imports veclib or
+ * any native module (better-sqlite3, sqlite-vec, @huggingface/transformers)
+ * into the plugin process. It spawns sync-hook.mjs as a short-lived CHILD
+ * process per poll tick:
+ *   - One child at a time (overlapping runs are impossible)
+ *   - Child is SIGKILLed after a hard timeout (no runaway loops)
+ *   - Child runs in maintenance mode: stores that don't exist yet are
+ *     SKIPPED — the full initial build is the job of /project vectorize.
+ *     A fresh store can therefore never trigger a first-run index storm.
+ *
+ * Storage: .opencode/state/vector/context.db + code.db (gitignored).
  */
 export function setupVectorizeHook(directory: string): void {
-  const scopedDirs = [
-    join(directory, ".opencode", "context"),
-    join(directory, ".opencode", "rules"),
-    join(directory, ".opencode", "docs"),
-  ];
-  const agentsFile = join(directory, "AGENTS.md");
-  const veclibPath = join(directory, "skills", "vectorize-context", "scripts", "veclib.mjs");
+  const syncScript = join(directory, "skills", "vectorize-context", "scripts", "sync-hook.mjs");
 
   const pollInterval = 10000; // 10 seconds
-  const seenFiles = new Map<string, number>(); // path → mtime
+  const childTimeoutMs = 90000; // hard kill after 90s
+  let childRunning = false;
 
-  const checkAndVectorize = async () => {
-    try {
-      if (!existsSync(veclibPath)) return;
-      const { vectorizeFile } = await import(veclibPath);
-      const candidates: string[] = [];
-      for (const dir of scopedDirs) {
-        if (!existsSync(dir)) continue;
-        candidates.push(...listMarkdownRecursive(dir));
-      }
-      if (existsSync(agentsFile)) candidates.push(agentsFile);
+  const checkAndSync = (): void => {
+    if (childRunning) return; // never overlap
+    if (!existsSync(syncScript)) return;
 
-      for (const fullPath of candidates) {
-        try {
-          const stat = require("fs").statSync(fullPath);
-          const mtime = stat.mtimeMs;
-          const prev = seenFiles.get(fullPath);
-          if (prev !== mtime) {
-            seenFiles.set(fullPath, mtime);
-            await vectorizeFile(fullPath, directory);
-          }
-        } catch {}
+    childRunning = true;
+    let stderr = "";
+    const child = spawn(process.execPath, [syncScript], {
+      env: { ...process.env, OPCODE_DIR: directory },
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+
+    child.stderr?.on("data", (d: Buffer) => {
+      stderr += d.toString();
+    });
+
+    const killTimer = setTimeout(() => {
+      try { child.kill("SIGKILL"); } catch { /* already gone */ }
+    }, childTimeoutMs);
+
+    child.on("close", () => {
+      clearTimeout(killTimer);
+      childRunning = false;
+      if (/fatal|Fatal/.test(stderr)) {
+        console.error(`[vectorize-hook] sync error:\n${stderr.slice(0, 500)}`);
       }
-    } catch {}
+    });
+
+    child.on("error", () => {
+      clearTimeout(killTimer);
+      childRunning = false;
+    });
   };
 
-  setInterval(checkAndVectorize, pollInterval);
-}
-
-function listMarkdownRecursive(dir: string): string[] {
-  const { readdirSync, statSync } = require("fs");
-  const out: string[] = [];
-  try {
-    const entries = readdirSync(dir, { withFileTypes: true }) as any[];
-    for (const entry of entries) {
-      const fullPath = join(dir, entry.name);
-      if (entry.isDirectory()) {
-        if (entry.name.startsWith(".") || entry.name === "node_modules") continue;
-        out.push(...listMarkdownRecursive(fullPath));
-      } else if (entry.isFile() && entry.name.endsWith(".md")) {
-        out.push(fullPath);
-      }
-    }
-  } catch {}
-  return out;
+  // First sync shortly after startup (session init takes priority), then poll.
+  setTimeout(checkAndSync, 3000);
+  setInterval(checkAndSync, pollInterval);
 }

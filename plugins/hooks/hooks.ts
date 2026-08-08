@@ -12,6 +12,7 @@ import type { Plugin, Hooks } from "@opencode-ai/plugin"
 import type { Event } from "@opencode-ai/sdk"
 import { join } from "path"
 import { existsSync, readdirSync, unlinkSync, statSync } from "fs"
+import { spawn } from "child_process"
 
 import { getCache, CacheManager, withToolCache, invalidateToolCache, invalidateAllToolCaches } from "../../tools/cache-utils"
 import promptCompilerTool from "../../tools/prompt-compiler"
@@ -169,7 +170,6 @@ function isTaskComplete(directory: string, sessionId: string): boolean {
   return false
 }
 
-import { setupVectorizeHook } from "./vectorize-hook"
 import { setupCacheHook } from "./cache-hook"
 import { cacheCompactionOutput } from "./compaction-hook"
 
@@ -182,7 +182,14 @@ export const JocPlugin: Plugin = async ({ project, client, directory, worktree }
   initializeJocState(directory)
   
   // Initialize hooks
-  setupVectorizeHook(directory)
+  // Vectorize hook loads dynamically + defensively: it spawns a child process
+  // for indexing, and a failure here must never take down plugin startup.
+  try {
+    const { setupVectorizeHook } = await import("./vectorize-hook")
+    setupVectorizeHook(directory)
+  } catch (err) {
+    console.error("[hooks] vectorize hook unavailable:", err instanceof Error ? err.message : err)
+  }
   setupCacheHook(directory)
 
   const hooks: Hooks = {}
@@ -834,6 +841,9 @@ Propose the mode to the user and ask before activating.
   // Token budget for injected <Relevant_Context> blocks (local retrieval only)
   const CONTEXT_TOKEN_BUDGET = 1000
 
+  // Token budget for injected <Relevant_Code> blocks (local retrieval only)
+  const CODE_TOKEN_BUDGET = 800
+
   // Truncate context to fit within a token budget
   function truncateToTokens(text: string, maxTokens: number): string {
     const maxChars = maxTokens * 4
@@ -860,11 +870,13 @@ Propose the mode to the user and ask before activating.
       }
     } catch { /* focus plugin unavailable */ }
 
-    // ── NEW: Vector-search-based context injection ──────────────────
-    // Search per-project data (.opencode/context/, rules/, docs/, AGENTS.md)
-    // for semantically relevant content and inject top results as a
-    // <Relevant_Context> block. Local-only retrieval (Ollama embed+rerank)
-    // — zero additional provider API requests. Cached in session namespace.
+    // ── Vector-search-based context + code injection ────────────────
+    // Searches per-project stores (.opencode/context/ etc. → context.db;
+    // source tree → code.db) and injects <Relevant_Context> + <Relevant_Code>
+    // blocks. Runs query-hook.mjs as a CHILD PROCESS — native deps
+    // (better-sqlite3, sqlite-vec, ONNX reranker) never load inside the
+    // plugin process (crash hardening). Local-only, zero provider API
+    // requests. Results cached in session namespace (5 min).
     try {
       const contextDir = join(directory, '.opencode', 'context')
       if (!existsSync(contextDir)) return
@@ -875,48 +887,80 @@ Propose the mode to the user and ask before activating.
       const queryText = latestUserPromptBySession.get(sessionId) || ''
       if (queryText.length < 10) return
 
-      // ── [Change 1]: Context Injection Throttling — skip vector search for simple prompts ──
+      // ── Context Injection Throttling — skip vector search for simple prompts ──
       const lowerQuery = queryText.toLowerCase()
       const hasComplexity = [...COMPLEXITY_KEYWORDS].some(kw => lowerQuery.includes(kw))
       if (!hasComplexity) return
 
-      const sessionCache = getCache('session')
-      const cacheKey = CacheManager.key('ctx-search', queryText || 'default')
-      const cached = sessionCache.get<string>(cacheKey)
-
       // Clear stored prompt after this turn — prevents stale-query injection later
       latestUserPromptBySession.delete(sessionId)
 
-      if (cached) {
-        // Use cached search results
-        const parsed = JSON.parse(cached)
-        if (parsed.length > 0) {
-          const ctxBlock = `<Relevant_Context>\n${parsed.join('\n\n---\n\n')}\n</Relevant_Context>`
-          output.system.push(truncateToTokens(ctxBlock, CONTEXT_TOKEN_BUDGET))
-        }
-      } else {
-        // Run vector search via veclib.mjs (Ollama embed → rerank → top-N)
-        const veclibPath = join(directory, 'skills', 'vectorize-context', 'scripts', 'veclib.mjs')
-        if (!existsSync(veclibPath)) return
+      const queryScriptPath = join(directory, 'skills', 'vectorize-context', 'scripts', 'query-hook.mjs')
+      if (!existsSync(queryScriptPath)) return
 
-        try {
-          const { queryChunks } = await import(veclibPath)
-          const results = await queryChunks(directory, queryText, 5, { useReranker: true })
-          if (results && results.length > 0) {
-            const relevant = results
-              .map((r: any) => `**${r.source || r.file_path || 'context'}**\n${r.content || ''}`)
-              .slice(0, 5)
+      const sessionCache = getCache('session')
 
-            if (relevant.length > 0) {
-              const ctxBlock = `<Relevant_Context>\n${relevant.join('\n\n---\n\n')}\n</Relevant_Context>`
-              output.system.push(truncateToTokens(ctxBlock, CONTEXT_TOKEN_BUDGET))
-              // Cache for session
-              sessionCache.set(cacheKey, JSON.stringify(relevant), 300_000) // 5 min
-            }
+      // Query both stores in one child process; each block cached separately.
+      const runQueryHook = (): Promise<{ context: any[]; code: any[] }> =>
+        new Promise((resolve) => {
+          let stdout = ''
+          const child = spawn(process.execPath, [queryScriptPath, queryText], {
+            env: { ...process.env, OPCODE_DIR: directory },
+            stdio: ['ignore', 'pipe', 'pipe'],
+          })
+          child.stdout?.on('data', (d: Buffer) => { stdout += d.toString() })
+          const killTimer = setTimeout(() => {
+            try { child.kill('SIGKILL') } catch { /* already gone */ }
+          }, 25000) // 25s hard cap — never block the request
+          child.on('close', () => {
+            clearTimeout(killTimer)
+            try { resolve(JSON.parse(stdout)) } catch { resolve({ context: [], code: [] }) }
+          })
+          child.on('error', () => {
+            clearTimeout(killTimer)
+            resolve({ context: [], code: [] })
+          })
+        })
+
+      const ctxCacheKey = CacheManager.key('ctx-search', queryText || 'default')
+      const cachedCtx = sessionCache.get<string>(ctxCacheKey)
+      let ctxRelevant: string[] | null = cachedCtx ? JSON.parse(cachedCtx) : null
+
+      const codeCacheKey = CacheManager.key('code-search', queryText || 'default')
+      const cachedCode = sessionCache.get<string>(codeCacheKey)
+      let codeRelevant: string[] | null = cachedCode ? JSON.parse(cachedCode) : null
+
+      // Only spawn the child if at least one block isn't cached
+      if (ctxRelevant === null || codeRelevant === null) {
+        const results = await runQueryHook()
+
+        if (ctxRelevant === null) {
+          ctxRelevant = results.context
+            .map((r: any) => `**${r.file}**\n${r.content || ''}`)
+            .slice(0, 5)
+          if (ctxRelevant.length > 0) {
+            sessionCache.set(ctxCacheKey, JSON.stringify(ctxRelevant), 300_000) // 5 min
           }
-        } catch {
-          // veclib not available or failed — skip context injection silently
         }
+
+        if (codeRelevant === null) {
+          codeRelevant = results.code
+            .map((r: any) => `**${r.file}${r.heading ? ' — ' + r.heading : ''}**\n${r.content || ''}`)
+            .slice(0, 4)
+          if (codeRelevant.length > 0) {
+            sessionCache.set(codeCacheKey, JSON.stringify(codeRelevant), 300_000) // 5 min
+          }
+        }
+      }
+
+      if (ctxRelevant && ctxRelevant.length > 0) {
+        const ctxBlock = `<Relevant_Context>\n${ctxRelevant.join('\n\n---\n\n')}\n</Relevant_Context>`
+        output.system.push(truncateToTokens(ctxBlock, CONTEXT_TOKEN_BUDGET))
+      }
+
+      if (codeRelevant && codeRelevant.length > 0) {
+        const codeBlock = `<Relevant_Code>\n${codeRelevant.join('\n\n---\n\n')}\n</Relevant_Code>`
+        output.system.push(truncateToTokens(codeBlock, CODE_TOKEN_BUDGET))
       }
     } catch {}
   }

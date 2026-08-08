@@ -8,13 +8,18 @@
  * provider API requests.
  *
  * Store: .opencode/state/vector/context.db (gitignored — ephemeral, per-project).
+ *        .opencode/state/vector/code.db  (same, source-code store)
  *
  * Exports:
  *   resolvePaths(inputDir?)       — path resolution (accepts project root OR .opencode dir)
  *   ensureIndexed(inputDir?)      — lazy re-index of scoped sources (context/ + rules/ + docs/ + AGENTS.md)
- *   vectorizeFile(filePath, inputDir?) — index a single file (hook-friendly)
+ *   ensureCodeIndexed(inputDir?)  — lazy re-index of project source code (code.db)
+ *   vectorizeFile(filePath, inputDir?) — index a single markdown file (hook-friendly)
+ *   vectorizeCodeFile(filePath, inputDir?) — index a single code file (hook-friendly)
  *   queryChunks(inputDir, queryText, topK?, opts?) — embed → top-K candidates → rerank → top-N
- *   getIndexStats(inputDir?)      — stats about the current index
+ *   queryCodeChunks(inputDir, queryText, topK?, opts?) — same against the code store
+ *   getIndexStats(inputDir?)      — stats about the context index
+ *   getCodeIndexStats(inputDir?)  — stats about the code index
  *
  * Design principle: Lazy freshness. On every query we stat all scoped files and
  * re-index only what changed. Models load only when there is work.
@@ -30,17 +35,40 @@ const require = createRequire(import.meta.url);
 
 // ─── Config ────────────────────────────────────────────────────────────────
 
-const OLLAMA_URL = 'http://127.0.0.1:11434';
-const EMBED_MODEL = 'pedrohml/mxbai-embed-large:latest';
+// Env-overridable so tests can point at a mock embed endpoint and CI can
+// pin a specific embedding model. Production defaults match the docs.
+const OLLAMA_URL = process.env.OLLAMA_URL || 'http://127.0.0.1:11434';
+const EMBED_MODEL = process.env.EMBED_MODEL || 'pedrohml/mxbai-embed-large:latest';
 const RERANK_MODEL = process.env.RERANK_MODEL || 'Xenova/bge-reranker-base';
+const RERANK_DISABLED = process.env.RERANK_DISABLED === '1'; // force distance-only path (CI)
 const EMBEDDING_DIM = 1024;
 const MODEL_LOAD_TIMEOUT_MS = 30_000;
-const RERANK_TIMEOUT_MS = 10_000;
 const MIN_CHUNK_LENGTH = 50;
 const TOP_K_DEFAULT = 10;
 const RERANK_CANDIDATES = 20;   // candidates pulled from ANN search before rerank
 const RERANK_TOP_N_DEFAULT = 5;
 const DISTANCE_FLOOR = 0.8;     // hard filter before rerank (bounds reranker input)
+
+// ─── Code store config ────────────────────────────────────────────────────
+
+const CODE_EXTENSIONS = new Set([
+  '.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs', '.cts', '.mts',
+  '.py', '.go', '.rs', '.java', '.kt', '.kts', '.c', '.h', '.cpp', '.hpp', '.cc',
+  '.cs', '.rb', '.php', '.swift', '.scala', '.sh', '.bash', '.zsh', '.sql',
+  '.vue', '.svelte', '.css', '.scss', '.html', '.json', '.yaml', '.yml', '.toml',
+  '.proto', '.graphql', '.lua', '.r', '.dart', '.zig', '.ex', '.exs', '.tf',
+]);
+
+// Non-dot dirs to skip during code walks (dot dirs + node_modules are
+// skipped by the walker itself). Privacy: .opencode/state + /cache are
+// always skipped (session data may contain PII).
+const CODE_SKIP_DIRS = new Set([
+  'node_modules', 'dist', 'build', 'out', 'target', 'coverage', 'venv', 'vendor', 'tmp', 'Pods',
+]);
+
+const MAX_CODE_CHUNK_LINES = 60;
+const CODE_CHUNK_MAX_CHARS = 6000;
+const EMBED_BATCH_SIZE = 32; // texts per /api/embed call (amortizes request overhead)
 
 // ─── Path Resolution ───────────────────────────────────────────────────────
 
@@ -62,6 +90,7 @@ export function resolvePaths(inputDir) {
     agentsFile: path.join(projectRoot, 'AGENTS.md'),
     vectorDir: path.join(opencodeDir, 'state', 'vector'),
     dbPath: path.join(opencodeDir, 'state', 'vector', 'context.db'),
+    codeDbPath: path.join(opencodeDir, 'state', 'vector', 'code.db'),
   };
 }
 
@@ -204,6 +233,50 @@ export async function collectScopedFiles(paths) {
   return files;
 }
 
+/**
+ * Walk the project tree for indexable code files.
+ * Skips: dot dirs (except .opencode), node_modules, CODE_SKIP_DIRS,
+ * and .opencode/state + .opencode/cache (privacy — session data may
+ * contain PII; caches are not source).
+ */
+function isCodeSkipPath(fullPath) {
+  if (CODE_SKIP_DIRS.has(path.basename(fullPath))) return true;
+  if (/[\\/]\.opencode[\\/](state|cache)([\\/]|$)/.test(fullPath)) return true;
+  return false;
+}
+
+async function* walkCode(dir) {
+  let entries;
+  try {
+    entries = await fs.promises.readdir(dir, { withFileTypes: true });
+  } catch {
+    return;
+  }
+  for (const entry of entries) {
+    const fullPath = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      if (isCodeSkipPath(fullPath)) continue;
+      if (entry.name.startsWith('.') && entry.name !== '.opencode') continue;
+      yield* walkCode(fullPath);
+    } else if (entry.isFile() && CODE_EXTENSIONS.has(path.extname(entry.name))) {
+      yield fullPath;
+    }
+  }
+}
+
+/**
+ * Collect all indexable code files for a project (projectRoot tree).
+ * AGENTS.md / markdown are handled by the context store — not included.
+ */
+export async function collectCodeFiles(paths) {
+  if (!fs.existsSync(paths.projectRoot)) return [];
+  const files = [];
+  for await (const f of walkCode(paths.projectRoot)) {
+    files.push(f);
+  }
+  return files;
+}
+
 // ─── Chunking ──────────────────────────────────────────────────────────────
 
 function stripFrontmatter(content) {
@@ -212,7 +285,7 @@ function stripFrontmatter(content) {
   return m ? content.slice(m[0].length) : content;
 }
 
-function chunkMarkdown(content, sourcePath) {
+export function chunkMarkdown(content, sourcePath) {
   const body = stripFrontmatter(content);
   const lines = body.split('\n');
   const chunks = [];
@@ -248,6 +321,56 @@ function chunkMarkdown(content, sourcePath) {
   return chunks;
 }
 
+/**
+ * Language-agnostic code chunker. Splits at top-level declaration
+ * boundaries (function/class/const/def/… at column 0), with line and
+ * char caps so long files degrade to fixed-size chunks. Heading is the
+ * declaration line (or file name), which the cross-encoder reranker
+ * uses alongside the body.
+ */
+const CODE_BOUNDARY_RE = /^(export\s+)?(default\s+)?(async\s+)?(?:function|class|interface|type|enum|const|let|var|def|func|fn|impl|struct|trait|module|package|sub|public|private|protected|static)\b/;
+
+export function chunkCode(content, sourcePath) {
+  const lines = content.split('\n');
+  const chunks = [];
+  const fileName = path.basename(sourcePath);
+  let currentHeading = fileName;
+  let currentLines = [];
+  let currentChars = 0;
+
+  const isBoundary = (line) => {
+    if (!line.trim()) return false;
+    if (line[0] === ' ' || line[0] === '\t') return false; // inside a block
+    return CODE_BOUNDARY_RE.test(line);
+  };
+
+  function flush() {
+    const text = currentLines.join('\n').trim();
+    if (text.length >= MIN_CHUNK_LENGTH) {
+      chunks.push({ source: sourcePath, heading: currentHeading, content: text });
+    }
+  }
+
+  for (const line of lines) {
+    if (isBoundary(line) && currentLines.length > 0) {
+      flush();
+      currentLines = [];
+      currentChars = 0;
+      currentHeading = line.slice(0, 80);
+    }
+    currentLines.push(line);
+    currentChars += line.length + 1;
+    if (currentChars >= CODE_CHUNK_MAX_CHARS || currentLines.length >= MAX_CODE_CHUNK_LINES) {
+      flush();
+      currentLines = [];
+      currentChars = 0;
+      currentHeading = fileName;
+    }
+  }
+  flush();
+  return chunks;
+}
+
 // ─── Ollama Embedding (local, no provider API) ─────────────────────────────
 
 async function embedTexts(texts) {
@@ -277,13 +400,26 @@ let rerankerPromise = null;
  * XLMRobertaForSequenceClassification, single-logit). transformers.js has no
  * 'rerank' pipeline, so we use AutoModel directly and apply sigmoid to the
  * single logit per pair. Loaded once per process. Set RERANK_MODEL to override.
+ *
+ * Local-only guard: if the ONNX model files aren't already in the local cache,
+ * we throw immediately — never attempt a network download from the hot path.
+ * Missing model ⇒ distance-order fallback (same as rerank-less retrieval).
  */
 function getReranker() {
+  if (RERANK_DISABLED) {
+    return Promise.reject(new Error('RERANK_DISABLED=1 — reranking skipped (CI mode)'));
+  }
   if (!rerankerPromise) {
     rerankerPromise = (async () => {
       const { AutoTokenizer, AutoModel, env } = await import('@huggingface/transformers');
       // Cache models under the config node_modules/.cache (bundled, gitignored)
       env.cacheDir = path.join(__dirname, '..', '..', '..', 'node_modules', '@huggingface', 'transformers', '.cache');
+      const modelId = RERANK_MODEL.split('/').pop();
+      const modelDir = path.join(env.cacheDir, RERANK_MODEL.replace('/', path.sep));
+      const onnxFile = path.join(modelDir, 'onnx', 'model_quantized.onnx');
+      if (!fs.existsSync(onnxFile)) {
+        throw new Error(`rerank model ${RERANK_MODEL} not cached locally (${onnxFile}) — skipping rerank`);
+      }
       const tokenizer = await AutoTokenizer.from_pretrained(RERANK_MODEL);
       const model = await AutoModel.from_pretrained(RERANK_MODEL, { dtype: 'q8' });
       return { tokenizer, model };
@@ -299,19 +435,13 @@ function getReranker() {
  */
 async function rerankDocuments(query, documents) {
   const { tokenizer, model } = await getReranker();
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), RERANK_TIMEOUT_MS);
-  try {
-    const queries = documents.map(() => query);
-    const enc = await tokenizer(queries, { text_pair: documents, padding: true, truncation: true });
-    const { logits } = await model(enc);
-    const data = Array.from(logits.data);
-    return data
-      .map((logit, index) => ({ index, relevance_score: 1 / (1 + Math.exp(-logit)) }))
-      .sort((a, b) => b.relevance_score - a.relevance_score);
-  } finally {
-    clearTimeout(timeout);
-  }
+  const queries = documents.map(() => query);
+  const enc = await tokenizer(queries, { text_pair: documents, padding: true, truncation: true });
+  const { logits } = await model(enc);
+  const data = Array.from(logits.data);
+  return data
+    .map((logit, index) => ({ index, relevance_score: 1 / (1 + Math.exp(-logit)) }))
+    .sort((a, b) => b.relevance_score - a.relevance_score);
 }
 
 // ─── DB Operations ─────────────────────────────────────────────────────────
@@ -353,21 +483,43 @@ function insertChunks(db, chunks, mtime, filePath) {
 
 // ─── Public API ────────────────────────────────────────────────────────────
 
+// Store registry: context (markdown docs) and code (source tree) are kept in
+// separate DBs (context.db / code.db) with different collectors + chunkers.
+// floor: ANN distance cutoff before rerank — code embeddings sit at higher
+// distances than markdown, so the code store uses a looser floor.
+const STORES = {
+  context: {
+    dbPath: (paths) => paths.dbPath,
+    relBase: (paths) => paths.opencodeDir,
+    chunker: chunkMarkdown,
+    collector: collectScopedFiles,
+    floor: 0.8,
+  },
+  code: {
+    dbPath: (paths) => paths.codeDbPath,
+    relBase: (paths) => paths.projectRoot,
+    chunker: chunkCode,
+    collector: collectCodeFiles,
+    floor: 0.92,
+  },
+};
+
 /**
  * Index a single file (used by the vectorize hook for hot paths).
  * Opens the DB, computes chunks + embeddings, upserts.
  */
-export async function vectorizeFile(filePath, inputDir) {
+async function vectorizeStoreFile(filePath, inputDir, store) {
   const paths = resolvePaths(inputDir);
-  const relPath = path.relative(paths.opencodeDir, filePath);
+  const cfg = STORES[store];
+  const relPath = path.relative(cfg.relBase(paths), filePath);
   await fs.promises.mkdir(paths.vectorDir, { recursive: true });
-  const db = openDatabase(paths.dbPath);
+  const db = openDatabase(cfg.dbPath(paths));
   ensureSchema(db);
   try {
     const mtime = await getFileMtime(filePath);
     if (!mtime) return { file: relPath, chunks: 0 };
     const content = await fs.promises.readFile(filePath, 'utf-8');
-    const rawChunks = chunkMarkdown(content, relPath);
+    const rawChunks = cfg.chunker(content, relPath);
     if (rawChunks.length === 0) return { file: relPath, chunks: 0 };
     const texts = rawChunks.map(c => `${c.heading}\n${c.content}`);
     const embeddings = await embedTexts(texts);
@@ -380,14 +532,23 @@ export async function vectorizeFile(filePath, inputDir) {
   }
 }
 
+export async function vectorizeFile(filePath, inputDir) {
+  return vectorizeStoreFile(filePath, inputDir, 'context');
+}
+
+export async function vectorizeCodeFile(filePath, inputDir) {
+  return vectorizeStoreFile(filePath, inputDir, 'code');
+}
+
 /**
- * Ensure the vector DB is up-to-date with all scoped project files.
+ * Ensure a vector store is up-to-date with its scoped files.
  * Only re-indexes files whose mtime has changed (lazy/incremental).
  */
-export async function ensureIndexed(inputDir) {
+async function ensureStoreIndexed(inputDir, store) {
   const paths = resolvePaths(inputDir);
+  const cfg = STORES[store];
 
-  const scopedFiles = await collectScopedFiles(paths);
+  const scopedFiles = await cfg.collector(paths);
   if (scopedFiles.length === 0) {
     return { filesScanned: 0, filesIndexed: 0, filesSkipped: 0, totalChunks: 0, errors: 0 };
   }
@@ -395,9 +556,15 @@ export async function ensureIndexed(inputDir) {
   // Ensure directories
   await fs.promises.mkdir(paths.vectorDir, { recursive: true });
 
-  // Open DB
-  const db = openDatabase(paths.dbPath);
-  ensureSchema(db);
+  // Open DB. Corrupt/unreadable store ⇒ report the error, never crash —
+  // sync is a maintenance path (hook child) and must stay alive.
+  let db;
+  try {
+    db = openDatabase(cfg.dbPath(paths));
+    ensureSchema(db);
+  } catch {
+    return { filesScanned: scopedFiles.length, filesIndexed: 0, filesSkipped: 0, totalChunks: 0, errors: 1 };
+  }
 
   try {
     // Check mtimes — use relative paths consistently
@@ -406,7 +573,7 @@ export async function ensureIndexed(inputDir) {
     const filesToSkip = [];
 
     for (const filePath of scopedFiles) {
-      const relPath = path.relative(paths.opencodeDir, filePath);
+      const relPath = path.relative(cfg.relBase(paths), filePath);
       const currentMtime = await getFileMtime(filePath);
       if (!currentMtime) { filesToSkip.push({ path: filePath, rel: relPath, reason: 'unreadable' }); continue; }
       if (storedMtimes[relPath] === currentMtime) {
@@ -431,51 +598,89 @@ export async function ensureIndexed(inputDir) {
       return { filesScanned: scopedFiles.length, filesIndexed: 0, filesSkipped: filesToSkip.length, totalChunks, errors: 0 };
     }
 
-    // Process changed files
+    // Process changed files — chunk first, then embed in shared batches
+    // (one /api/embed call per batch instead of one per file).
     let totalChunks = 0;
     let errors = 0;
+    const pending = []; // { rel, mtime, chunks }
 
     for (const { path: filePath, rel: relPath, mtime } of filesToIndex) {
       try {
         const content = await fs.promises.readFile(filePath, 'utf-8');
-        const rawChunks = chunkMarkdown(content, relPath);
+        const rawChunks = cfg.chunker(content, relPath);
         if (rawChunks.length === 0) continue;
-
-        const texts = rawChunks.map(c => `${c.heading}\n${c.content}`);
-        const embeddings = await embedTexts(texts);
-        const chunksWithEmbeddings = rawChunks.map((chunk, i) => ({ ...chunk, embedding: embeddings[i] }));
-
-        if (storedMtimes[relPath]) deleteFileChunks(db, relPath);
-        totalChunks += insertChunks(db, chunksWithEmbeddings, mtime, relPath);
+        pending.push({ rel: relPath, mtime, chunks: rawChunks });
       } catch (err) {
         errors++;
       }
     }
 
-    return { filesScanned: scopedFiles.length, filesIndexed: filesToIndex.length, filesSkipped: filesToSkip.length, totalChunks, errors };
+    const allTexts = [];
+    for (const p of pending) {
+      for (const c of p.chunks) allTexts.push(`${c.heading}\n${c.content}`);
+    }
+
+    const embeddings = [];
+    for (let i = 0; i < allTexts.length; i += EMBED_BATCH_SIZE) {
+      const batch = allTexts.slice(i, i + EMBED_BATCH_SIZE);
+      const emb = await embedTexts(batch);
+      if (emb.length !== batch.length) throw new Error(`embed batch size mismatch: ${emb.length} != ${batch.length}`);
+      embeddings.push(...emb);
+    }
+
+    let offset = 0;
+    for (const p of pending) {
+      try {
+        const chunkEmbs = p.chunks.map((c, j) => ({ ...c, embedding: embeddings[offset + j] }));
+        offset += p.chunks.length;
+        if (storedMtimes[p.rel]) deleteFileChunks(db, p.rel);
+        totalChunks += insertChunks(db, chunkEmbs, p.mtime, p.rel);
+      } catch (err) {
+        errors++;
+      }
+    }
+
+    // Report the FULL chunk count in the store, not just what changed
+    const storeTotal = db.prepare('SELECT COUNT(*) as c FROM chunks').get().c;
+    return { filesScanned: scopedFiles.length, filesIndexed: filesToIndex.length, filesSkipped: filesToSkip.length, totalChunks: storeTotal, errors };
   } finally {
     db.close();
   }
 }
 
+export async function ensureIndexed(inputDir) {
+  return ensureStoreIndexed(inputDir, 'context');
+}
+
+export async function ensureCodeIndexed(inputDir) {
+  return ensureStoreIndexed(inputDir, 'code');
+}
+
 /**
- * Query the vector DB for semantically similar chunks.
+ * Query a vector store for semantically similar chunks.
  * Two-stage retrieval: ANN top-K (distance floor) → in-process cross-encoder rerank → top-N.
  *
  * opts: { useReranker?: boolean, rerankCandidates?: number, rerankTopN?: number }
  * Reranker failure degrades gracefully to distance-only ordering.
  */
-export async function queryChunks(inputDir, queryText, topK = TOP_K_DEFAULT, opts = {}) {
+async function queryStoreChunks(inputDir, queryText, topK = TOP_K_DEFAULT, opts = {}, store) {
   const paths = resolvePaths(inputDir);
+  const cfg = STORES[store];
   const useReranker = opts.useReranker !== false;
   const candidates = opts.rerankCandidates || RERANK_CANDIDATES;
   const rerankTopN = opts.rerankTopN || RERANK_TOP_N_DEFAULT;
 
   // Lazy freshness: ensure indexed before query
-  await ensureIndexed(inputDir);
+  await ensureStoreIndexed(inputDir, store);
 
-  // Open DB (readonly for query)
-  const db = openDatabase(paths.dbPath, true);
+  // Open DB (readonly for query). Missing/unreadable store ⇒ empty results —
+  // the query path runs in the hot transform hook and must NEVER throw.
+  let db;
+  try {
+    db = openDatabase(cfg.dbPath(paths), true);
+  } catch {
+    return [];
+  }
 
   try {
     // Verify schema
@@ -497,7 +702,7 @@ export async function queryChunks(inputDir, queryText, topK = TOP_K_DEFAULT, opt
         AND k = ?
         AND v.distance < ?
       ORDER BY v.distance
-    `).all(new Float32Array(embedding), candidates, DISTANCE_FLOOR);
+    `).all(new Float32Array(embedding), candidates, cfg.floor);
 
     if (rows.length === 0) return [];
 
@@ -518,22 +723,31 @@ export async function queryChunks(inputDir, queryText, topK = TOP_K_DEFAULT, opt
     }
 
     return rows.slice(0, Math.min(topK, rows.length));
+  } catch {
+    // Corrupt DB or unexpected query error — degrade to no results, never throw.
+    return [];
   } finally {
     db.close();
   }
 }
 
-/**
- * Get stats about the current vector index.
- */
-export async function getIndexStats(inputDir) {
-  const paths = resolvePaths(inputDir);
+export async function queryChunks(inputDir, queryText, topK = TOP_K_DEFAULT, opts = {}) {
+  return queryStoreChunks(inputDir, queryText, topK, opts, 'context');
+}
 
-  if (!fs.existsSync(paths.dbPath)) {
+export async function queryCodeChunks(inputDir, queryText, topK = TOP_K_DEFAULT, opts = {}) {
+  return queryStoreChunks(inputDir, queryText, topK, opts, 'code');
+}
+
+/**
+ * Get stats about a vector index.
+ */
+async function getStoreStats(dbPath) {
+  if (!fs.existsSync(dbPath)) {
     return { exists: false, totalChunks: 0, totalFiles: 0, files: [], embedding: null };
   }
 
-  const db = openDatabase(paths.dbPath, true);
+  const db = openDatabase(dbPath, true);
   try {
     const totalChunks = db.prepare('SELECT COUNT(*) as c FROM chunks').get().c;
     const files = db.prepare('SELECT file_path, COUNT(*) as chunk_count, mtime FROM chunks GROUP BY file_path').all();
@@ -550,4 +764,14 @@ export async function getIndexStats(inputDir) {
   } finally {
     db.close();
   }
+}
+
+export async function getIndexStats(inputDir) {
+  const paths = resolvePaths(inputDir);
+  return getStoreStats(paths.dbPath);
+}
+
+export async function getCodeIndexStats(inputDir) {
+  const paths = resolvePaths(inputDir);
+  return getStoreStats(paths.codeDbPath);
 }

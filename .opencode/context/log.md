@@ -215,3 +215,17 @@ Chronological record of all wiki operations. Append-only.
   - autoresearch plugin: MAD-based confidence, auto-compaction per iteration, git commit-on-keep/reset-on-discard, METRIC/ASI structured protocol
   - Context: this report complements [[agentic-self-improvement-2026]] (general RSI survey) — opencode-specific angle
 - **Cross-references**: [[agentic-self-improvement-2026]], [[recursive-self-improvement]], [[short-leash-ai-method-okturtles]], [[opencode-dispatcher]], [[observational-memory-mastra]]
+
+## [2026-08-07] consume | auto-moc-rsi
+
+- **Operation**: Ingested a Medium article (via freedium mirror) as durable context — the Auto MoC system, Part 2 of the Recursive Self-Improvement series
+- **Source**: medium.com/@davidroliver (freedium-mirror.cfd mirror) — "Claude Code & AI Agents: Three Levels of Recursive Self-Improvement"
+- **Files created**:
+  - `research/auto-moc-rsi.md` — source-summary with YAML frontmatter
+- **Key findings**:
+  - Three levels of RSI: L1 autonomy learning (when to act), L2 domain learning (what exists — auto-patch taxonomy config on ≥5-note evidence), L3 rule improvement (propose own code changes, human-gated)
+  - auto-moc: 7-phase MOC generator for Obsidian; Phases 5 (taxonomy learning), 6 (5-dimension quality rubric), 7 (generative rule proposals)
+  - Phase 7 is never auto-applied — human review always; min 5 runs history; audit log + regression detection
+  - Key principle: escalating safeguards per level — scoring threshold (L1), evidence threshold (L2), human-in-loop (L3)
+  - Complement: Part 1 ([[recursive-self-improvement]]) covers the link fixer / Level 1 autonomy learning
+- **Cross-references**: [[recursive-self-improvement]], [[agentic-self-improvement-2026]], [[opencode-self-improvement-2026]], [[observational-memory-mastra]], [[opencode-dispatcher]]

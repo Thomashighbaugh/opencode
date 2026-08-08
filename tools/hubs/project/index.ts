@@ -19,6 +19,7 @@ import organize from "./organize"
 import changelog from "./changelog"
 import converge from "./converge"
 import scan from "./scan"
+import vectorize from "./vectorize"
 import sandbox from "./sandbox"
 import retrospect from "./retrospect"
 import purge from "./purge"
@@ -36,7 +37,7 @@ import simplifyCode from "./simplify-code"
 export const specs = [
   codeReview, ponytailReview, ponytailAudit, ponytailDebt, ponytailGain,
   createTests, commit, gitStageThread, pr, gh, optimize, refactor, simplify, cleanup,
-  modernize, icon, organize, changelog, converge, scan, sandbox,
+  modernize, icon, organize, changelog, converge, scan, vectorize, sandbox,
   retrospect, purge, release, review, audit, archive, gitCleanup, workspace, readme,
   consolidateTelemetry, extractStandards, simplifyCode
 ]

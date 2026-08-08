@@ -186,6 +186,7 @@ tools/
 | project | changelog | skill | changelog-generator |
 | project | converge | inline | true |
 | project | scan | inline | true |
+| project | vectorize | inline | true |
 | project | sandbox | inline | true |
 | project | retrospect | inline | true |
 | project | purge | inline | true |
