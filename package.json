@@ -35,6 +35,6 @@
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^25.9.5",
-    "vitest": "^2.1.9"
+    "vitest": "^4.1.10"
   }
 }
