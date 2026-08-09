@@ -65,7 +65,7 @@ export const HUBS: Hub[] = [
       },
       {
         "label": "config",
-        "description": "Create or modify opencode.jsonc with mandatory schema validation — wraps opencode-config, opencode-configure, opencode-config-workflow; always fetches and validates final output against https://opencode.ai/config.json"
+        "description": "Create or modify opencode.jsonc with mandatory schema validation — wraps opencode-configure, opencode-config-workflow; always fetches and validates final output against https://opencode.ai/config.json"
       },
       {
         "label": "find-skills",
@@ -239,12 +239,20 @@ export const HUBS: Hub[] = [
         "description": "⚠️ EXPENSIVE: Explore parallel solution branches for open-ended problems"
       },
       {
+        "label": "deep-thinker",
+        "description": "Structured thinking partner — pass instructions directly to @deep-thinker"
+      },
+      {
         "label": "opro",
         "description": "⚠️ EXPENSIVE: Optimize prompts by testing variations against benchmarks"
       },
       {
         "label": "analyze-patterns",
         "description": "Analyze code patterns and anti-patterns — consistencies, convention violations"
+      },
+      {
+        "label": "improvements",
+        "description": "Project audit — major & minor improvement items with proposed fixes, ordered for approval"
       },
       {
         "label": "resume",
@@ -572,6 +580,10 @@ export const HUBS: Hub[] = [
         "description": "Security vulnerability scan — SAST rules, secrets detection, dependency audit, compliance checks"
       },
       {
+        "label": "vectorize",
+        "description": "Embed codebase + context into local vector DB for semantic retrieval"
+      },
+      {
         "label": "sandbox",
         "description": "Sandbox enforcement — policy-based tool control, file protection, network filtering for agent tool calls"
       },
@@ -614,6 +626,34 @@ export const HUBS: Hub[] = [
       {
         "label": "consolidate-telemetry",
         "description": "Consolidate SRCL telemetry log into proposed ADRs in decisions.md"
+      },
+      {
+        "label": "extract-standards",
+        "description": "Extract coding standards from existing files — infer style guide from codebase syntax"
+      },
+      {
+        "label": "simplify-code",
+        "description": "Simplify code for clarity — five-principle process: preserve behavior, follow conventions, prefer clarity, balance, scope"
+      },
+      {
+        "label": "deep-bug-hunt",
+        "description": "Critical bug hunt on recent changes — regressions, data loss, security holes"
+      },
+      {
+        "label": "insights",
+        "description": "Session-history analysis — work patterns, tool usage, friction points, strategic recommendations from your OpenCode usage"
+      },
+      {
+        "label": "delegate",
+        "description": "Hand a bounded task to a separate OpenCode CLI session — write brief, dispatch via relay, review diff, land it yourself"
+      },
+      {
+        "label": "self-improve",
+        "description": "Per-project self-optimization — capture learnings, triage failures, promote recurring fixes into .opencode/ config"
+      },
+      {
+        "label": "graph",
+        "description": "Per-project knowledge graph — entity/relationship store + hybrid retrieval (vector → graph refine)"
       }
     ]
   },
