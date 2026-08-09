@@ -55,6 +55,7 @@ Every turn, every subagent invocation, every verification round costs an API req
 | `security.md` | Security rules — mandatory checks, secret management |
 | `completion-guardrail.md` | **MANDATORY STOP** after planning/analysis — no auto-implementation |
 | `anti-sycophancy.md` | No sycophantic agreement — assess claims independently, conclusion-first |
+| `hub-menu-rebuild.md` | Rebuild TUI menus after hub subcommand changes (`bun run generate-menus`) |
 
 **On-demand rules** (load via tool when needed): `hub-routing.md`, `resource-tags.md`, `global-reference.md`, `hub-state.md`
 

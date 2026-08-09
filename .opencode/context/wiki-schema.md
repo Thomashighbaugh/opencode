@@ -21,6 +21,7 @@ This directory (`/home/tlh/.config/opencode/.opencode/context/`) is a self-maint
 ├── research/             # Raw sources + source summaries (consume, context7, web-research)
 ├── frameworks/           # Entity/concept pages (architecture, design, conventions)
 ├── patterns/             # Pattern pages (discovered patterns, anti-patterns, solutions)
+├── sessions/             # Session compacts (durable session summaries, resumable)
 ├── decisions.md          # Decision records (ADRs)
 └── theory.md             # Living synthesis / overview
 ```

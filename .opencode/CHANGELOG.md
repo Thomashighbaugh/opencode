@@ -92,3 +92,10 @@
 
 - **feat(models): NVIDIA Nemotron 3 Ultra** (`f86da55`)
 - **chore: ingest Agent Systems Handbook** (`08a1987`)
+## 2026-08-09
+
+- **feat: knowledge graph hybrid retrieval + self-improvement loop** (`8d50525`)
+  - graph-context skill (sqlite graph store + hybrid retrieval, probe gate passed 8/10 vs 5/10)
+  - /project graph subcommand; self-improvement/insights/delegate/session-memory skills
+- **fix: regenerate TUI hub menus** (`79280b0`) — /project graph was invisible in TUI dialog; missing graph, self-improve, delegate, insights
+- **rule: hub-menu-rebuild.md** — rebuild TUI menus after hub subcommand changes

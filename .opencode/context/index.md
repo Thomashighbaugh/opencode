@@ -87,6 +87,13 @@ Auto-maintained catalog of all wiki pages. Organized by category.
 | Page | Type | Tags | Status |
 |------|------|------|--------|
 | [[theory]] | — | — | — |
+| [[sessions/2026-08-09-session-compact-knowledge-graph]] | synthesis | session-compact, knowledge-graph, hybrid-retrieval, self-improvement, graph-context, tui-menu | active |
+
+## Sessions
+
+| Page | Type | Tags | Status |
+|------|------|------|--------|
+| [[sessions/2026-08-09-session-compact-knowledge-graph]] | synthesis | session-compact, knowledge-graph, hybrid-retrieval, self-improvement, graph-context, tui-menu | active |
 
 ## Docs (Reference Documentation)
 

@@ -229,3 +229,11 @@ Chronological record of all wiki operations. Append-only.
   - Key principle: escalating safeguards per level — scoring threshold (L1), evidence threshold (L2), human-in-loop (L3)
   - Complement: Part 1 ([[recursive-self-improvement]]) covers the link fixer / Level 1 autonomy learning
 - **Cross-references**: [[recursive-self-improvement]], [[agentic-self-improvement-2026]], [[opencode-self-improvement-2026]], [[observational-memory-mastra]], [[opencode-dispatcher]]
+
+## [2026-08-09] session-compact | Knowledge Graph + Self-Improvement Loop
+
+- **Operation**: Compacted session `ses_02e087a55ffe6ukLpbPyqbtfo3` (Aug 7–9) into durable context after deliverable completion + commit/push
+- **Files created**:
+  - `sessions/2026-08-09-session-compact-knowledge-graph.md` — synthesis page: deliverables (graph-context skill, /project graph, self-improvement loop, /ideation improvements, insights/delegate/session-memory), decisions (graph beside vector store, skill node id convention, graph-title fallback, relatedSkills edges), validation (probe 8/10 vs 5/10), follow-ups
+- **Also this session**: added `rules/hub-menu-rebuild.md` (TUI menu regeneration after hub subcommand changes — root cause of missing /project graph) + registered in opencode.jsonc instructions + AGENTS.md core rules
+- **Cross-references**: [[vectorize-context]], [[graph-context]], [[self-improvement]], hub-menu-rebuild rule

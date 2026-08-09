@@ -128,7 +128,8 @@
         "./rules/hub-description-directive.md",
         "./rules/completion-guardrail.md",
         "./rules/output-compression.md",
-        "./rules/anti-sycophancy.md"
+        "./rules/anti-sycophancy.md",
+        "./rules/hub-menu-rebuild.md"
     ],
     "references": {
         "context": {
