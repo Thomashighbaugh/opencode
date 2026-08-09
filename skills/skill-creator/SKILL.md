@@ -1,6 +1,7 @@
 ---
 name: skill-creator
 description: Guide for creating effective skills. Use when users want to create a new skill or update an existing skill that extends capabilities with specialized knowledge, workflows, or tool integrations.
+relatedSkills: learner, tool-creator, opencode-command-creator
 level: 3
 license: MIT
 ---
@@ -43,6 +44,14 @@ skill-name/
 #### SKILL.md (required)
 
 **Metadata Quality:** The `name` and `description` in YAML frontmatter determine when the AI will use the skill. Be specific about what the skill does and when to use it. Use the third-person (e.g. "This skill should be used when..." instead of "Use this skill when...").
+
+**Hard validation constraints (OpenCode-enforced, do not violate):**
+
+- `name` **must match the skill directory name exactly** and match `^[a-z0-9]+(-[a-z0-9]+)*$` — lowercase letters, digits, single hyphens between segments; 1-64 chars. No uppercase, underscores, spaces, leading/trailing/consecutive hyphens.
+- `description` **required**, 1-1024 chars. It is what the model sees for routing — write it as when-to-use guidance.
+- Frontmatter is parsed as YAML — if the description contains special characters, quote it (e.g. `description: >-` folded style) and test with `quick_validate.py`.
+- Skill discovery walks up from the working directory to the git worktree root: `.opencode/skills/<name>/SKILL.md` (project-scoped, highest priority) then `~/.config/opencode/skills/<name>/SKILL.md` (global). A skill in a non-worktree directory is found only if the working dir is inside it.
+- `permission.skill` in `opencode.jsonc` controls skill *execution*: `allow` / `ask` / `deny` (glob patterns against skill names). `deny` hides the skill from the model entirely.
 
 #### Bundled Resources (optional)
 

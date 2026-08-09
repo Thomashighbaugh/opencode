@@ -66,6 +66,25 @@ Before marking work complete:
 - [ ] No hardcoded values
 - [ ] Immutable patterns used
 
+## Two-Gate Review Discipline (from opencode-ts)
+
+Before submitting any diff, run BOTH gates. A diff that fails either gate goes back for fixing.
+
+**CHECK GATE — code must pass all of these before review:**
+- [ ] No `try`/`catch` where a typed result or error channel exists; no `else` after early return; no `any`
+- [ ] `const` + ternary over `let` + mutation
+- [ ] Project's boundary/schema conventions applied (annotate identifiers/descriptions; typed schemas, not loose objects)
+- [ ] No speculative abstraction — inline first, extract only when awkwardness repeats
+- [ ] Module/file ends with the project's export-barrel convention (no ad-hoc namespace objects)
+
+**REVIEW GATE — the diff MUST NOT contain any of these:**
+- [ ] Changes to files outside the task scope
+- [ ] `as any` or `as unknown as` casts
+- [ ] Custom utilities that duplicate existing helpers or community primitives
+- [ ] Code removal without a clear reason documented in the commit
+- [ ] Unexplained variable renames or structural changes
+- [ ] Abstraction a reviewer would ask to remove
+
 ## [CUSTOMIZE] Project-Specific Style
 
 Add your project-specific coding style rules here:

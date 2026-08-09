@@ -33,13 +33,18 @@ import readme from "./readme"
 import consolidateTelemetry from "./consolidate-telemetry"
 import extractStandards from "./extract-standards"
 import simplifyCode from "./simplify-code"
+import deepBugHunt from "./deep-bug-hunt"
+import insights from "./insights"
+import delegate from "./delegate"
+import selfImprove from "./self-improve"
+import graph from "./graph"
 
 export const specs = [
   codeReview, ponytailReview, ponytailAudit, ponytailDebt, ponytailGain,
   createTests, commit, gitStageThread, pr, gh, optimize, refactor, simplify, cleanup,
   modernize, icon, organize, changelog, converge, scan, vectorize, sandbox,
   retrospect, purge, release, review, audit, archive, gitCleanup, workspace, readme,
-  consolidateTelemetry, extractStandards, simplifyCode
+  consolidateTelemetry, extractStandards, simplifyCode, deepBugHunt, insights, delegate, selfImprove, graph
 ]
 
 export const subcommands: HubSubcommand[] = specs.map(s => ({

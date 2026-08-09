@@ -1,6 +1,7 @@
 ---
 name: vectorize-context
 description: Vector DB for semantic retrieval over context, rules, docs, AGENTS.md AND project source code — Ollama embeddings + ONNX rerank, injected via hooks, maintained by /project vectorize
+relatedSkills: graph-context, self-improvement, wiki, harvest-context
 level: 2
 license: MIT
 ---

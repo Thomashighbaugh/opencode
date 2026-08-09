@@ -1,6 +1,7 @@
 ---
 name: remember
 description: Review reusable project knowledge and decide what belongs in project memory, notepad, or durable docs
+relatedSkills: self-improvement, learner, wiki
 level: 2
 license: MIT
 ---

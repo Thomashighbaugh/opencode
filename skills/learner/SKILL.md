@@ -1,6 +1,7 @@
 ---
 name: learner
 description: Extract a learned skill from the current conversation
+relatedSkills: self-improvement, skill-creator, remember
 level: 7
 license: MIT
 ---

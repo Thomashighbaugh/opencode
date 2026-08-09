@@ -113,6 +113,7 @@ tools/
 | ideation | deep-thinker | agent | deep-thinker |
 | ideation | opro | skill | opro |
 | ideation | analyze-patterns | inline | true |
+| ideation | improvements | inline | true |
 | ideation | resume | inline | true |
 | ideation | status | inline | true |
 | orchestrate | ralph | skill | ralph |
@@ -198,6 +199,11 @@ tools/
 | project | workspace | inline | true |
 | project | readme | skill | readme-updater |
 | project | extract-standards | skill | code-standards-extractor |
+| project | deep-bug-hunt | inline | true |
+| project | insights | skill | insights |
+| project | delegate | skill | opencode-delegate |
+| project | self-improve | skill | self-improvement |
+| project | graph | skill | graph-context |
 | skills | list | inline | true |
 | skills | add | inline | true |
 | skills | create | skill | skill-creator |

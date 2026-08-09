@@ -744,6 +744,35 @@
       "Read-only: this subcommand never modifies code. Use /orchestrate with a refactoring skill to act on findings."
     ]
   },
+  "ideation/improvements": {
+    "label": "improvements",
+    "description": "Project audit — major & minor improvement items with proposed fixes, ordered for approval",
+    "reminder": "Audit project and present improvement proposals for approve/deny.",
+    "inline": true,
+    "detailedDescription": "Audits the project you are running in and produces a list of improvement items — each with a proposed solution — ending with an ordered proposal list for the user to approve or deny.\n\n**Phase 1 — Initial audit (breadth-first scan):**\n\n1. Map the project: language, framework, entry points, module layout, build/test commands.\n2. Scan each dimension quickly (evidence over vibes — cite files/lines):\n   - Architecture — coupling, layering, circular deps, dead modules\n   - Code quality — complexity hotspots, duplication, naming, error handling gaps\n   - Testing — coverage gaps, brittle tests, missing integration/e2e\n   - Dependencies — outdated, vulnerable, unused\n   - Developer experience — build speed, tooling friction, onboarding docs\n   - Config — project .opencode/ assets (rules, skills, agents) that are stale, missing, or mis-wired\n3. Keep the audit proportionate: 5–15 minutes of scanning, not an exhaustive review.\n\n**Phase 2 — Itemize findings (major vs minor):**\n\n- **Major**: structural impact — security vulnerabilities, architectural problems, systemic test gaps, broken workflows, stale config assets.\n- **Minor**: contained impact — naming, small refactors, doc gaps, single-file issues, one-line config fixes.\n\nEvery item has the shape:\n\n```\n- [MAJOR|MINOR] <short title>\n  - Evidence: <file:line or observed behavior>\n  - Proposed solution: <concrete, file-specific fix — what would be changed>\n  - Impact: <what improves>\n  - Effort: <S / M / L>\n```\n\n**Phase 3 — Ordered proposal list:**\n\nAt the end of the audit, present the **ordered list** — sorted by impact/effort ratio (highest first), majors before minors within the same ratio tier. Number the items 1..N.\n\n**Phase 4 — User approve/deny:**\n\n1. Present the ordered list to the user.\n2. Ask for approval item-by-item (or as a batch) via the `question` tool: Approve / Deny per item.\n3. Record decisions: approved items are the actionable backlog; denied items are dropped or deferred with the reason noted.\n4. **STOP after the approval pass** — do NOT implement anything. Per the completion-guardrail, implementation starts only when the user explicitly says so (e.g., \"/orchestrate\" or \"implement item 1-3\").\n\n**Output & state:**\n\n- Write the audit + proposal list to `.opencode/state/ideation/work-products/YYYYMMDD_HHMMSS_improvements_{topic-slug}_{stage}.md` using the ideation naming convention.\n- Terminal summary table: item # | severity | title | effort | status (approved/denied).\n\n**Pairs with:** /ideation overhaul (8-dimension phased plan), /ideation quality (code quality deep-dive), /project optimize, /project refactor. Use this when the user wants a quick \"what should I improve?\" sweep with a decision gate; use overhaul when they want the full phased plan.",
+    "tools": [
+      "bash"
+    ],
+    "rules": [
+      "completion-guardrail"
+    ],
+    "relatedSkills": [],
+    "examples": [
+      {
+        "input": "what should I improve in this project?",
+        "approach": "Audit dimensions, find e.g. 2 majors (unpinned deps with CVE, no e2e tests) + 3 minors (naming in utils/, stale README, dead code in legacy/). Ordered list: 1. pin deps, 2. e2e smoke, 3. README update, 4. rename utils, 5. delete legacy. Ask approve/deny per item, then stop."
+      },
+      {
+        "input": "/ideation improvements",
+        "approach": "Run the 4-phase flow: audit → itemize major/minor → ordered proposal list → approve/deny gate. Save work-product to state; do not implement approved items without explicit go-ahead."
+      }
+    ],
+    "warnings": [
+      "Audit is evidence-based — every item must cite files/lines, no vague 'the codebase feels' claims",
+      "STOP after the approve/deny pass — implementation requires a separate explicit command",
+      "Proportionate depth: this is a sweep, not an exhaustive review (use /ideation overhaul for that)"
+    ]
+  },
   "ideation/analyst": {
     "label": "analyst",
     "description": "Strategic analyst — pass instructions directly to @analyst",
@@ -939,6 +968,40 @@
       }
     ]
   },
+  "project/graph": {
+    "label": "graph",
+    "description": "Per-project knowledge graph — entity/relationship store + hybrid retrieval (vector → graph refine)",
+    "reminder": "Build/query the project knowledge graph.",
+    "skill": "graph-context",
+    "detailedDescription": "Builds and queries the per-project knowledge graph — a sqlite store (.opencode/state/vector/graph.db) of knowledge entities (patterns, decisions, concepts, learnings, rules, skills, hub-subcommands) connected by typed edges (applies_to, supersedes, touches, related_to, part_of, used_by, derived_from).\n\nLoad the `graph-context` skill and run its CLI:\n\n**Build (backfill):**\n```\nnode skills/graph-context/scripts/graph.mjs build\n```\nIdempotent, mtime-lazy. Sources: wiki pages (.opencode/context/**), learnings (.opencode/context/learnings/**), rules, skill manifests, and spec-registry.json (hub-subcommand nodes + used_by edges). Run after /harvest-context, /project consolidate-telemetry, or learnings capture to fold new knowledge in.\n\n**Hybrid query (vector recall → graph refine):**\n```\nnode skills/graph-context/scripts/graph.mjs query \"what is the caching strategy?\"\n```\nTwo-stage: vector top-K candidates → BFS depth-2 graph refinement (decaying score) → merged ranked list tagged kind=vector|graph with the connecting edge type.\n\n**Navigation:**\n```\nnode skills/graph-context/scripts/graph.mjs neighbors <node-id>      # traverse edges\nnode skills/graph-context/scripts/graph.mjs impact <node-id>        # what depends on this (impact analysis before editing config assets)\nnode skills/graph-context/scripts/graph.mjs path <from> <to>        # BFS shortest path\nnode skills/graph-context/scripts/graph.mjs stats                   # counts by type/edge\nnode skills/graph-context/scripts/graph.mjs probe                   # precision probe vs vector-only\n```\n\nNode id convention: {type}:{slug-or-path}, e.g. pattern:context-strategy, hub-subcommand:project/self-improve.\n\n**Validation commands:**\n- `node skills/graph-context/scripts/graph.mjs stats` — graph exists with counts\n- `node skills/graph-context/scripts/graph.mjs query \"<known phrase>\"` — spot-check retrieval\n- `node skills/graph-context/scripts/graph.mjs probe` — precision probe vs baseline\n\nSee the `graph-context` skill for the full schema, workflow, and design constraints. Related: `vectorize-context` (sibling vector store), `self-improvement` (learnings → edges), `graph-thinking` (model).",
+    "tools": [
+      "loadSkill",
+      "bash"
+    ],
+    "rules": [
+      "karpathy-guidelines"
+    ],
+    "relatedSkills": [
+      "vectorize-context",
+      "self-improvement",
+      "graph-thinking"
+    ],
+    "examples": [
+      {
+        "input": "what touches the session-memory skill?",
+        "approach": "/project graph — build, then query 'session memory' or neighbors skill:session-memory to see used_by/related edges"
+      },
+      {
+        "input": "what breaks if I edit rule:context-strategy?",
+        "approach": "/project graph — impact rule:context-strategy shows all hub subcommands and skills that reference it"
+      }
+    ],
+    "warnings": [
+      "Wiki markdown stays canonical — never hand-edit graph.db",
+      "Run graph build after harvest/consolidate/learnings to keep the graph fresh",
+      "Query path never throws — empty graph degrades to vector-only results"
+    ]
+  },
   "project/git-cleanup": {
     "label": "git-cleanup",
     "description": "Fix orphaned CHANGELOG entries referencing commits not in git history after .git/ rebuild — preserves entries, removes bad refs",
@@ -980,6 +1043,35 @@
     "relatedSkills": [
       "vitest",
       "test-coverage-improver"
+    ]
+  },
+  "project/delegate": {
+    "label": "delegate",
+    "description": "Hand a bounded task to a separate OpenCode CLI session — write brief, dispatch via relay, review diff, land it yourself",
+    "reminder": "Delegate a bounded coding task to the OpenCode CLI and review its output.",
+    "skill": "opencode-delegate",
+    "detailedDescription": "Delegates a bounded coding task to the OpenCode CLI as a background implementer, then reviews its diff and lands it.\n\nThe five-step loop (orchestrator owns judgment, OpenCode does the typing):\n1. **Write the brief** — self-contained: goal, current state, what to change/leave, the repo's REAL gate commands, report contract. OpenCode sees only the brief + working tree.\n2. **Dispatch** — node <skill-dir>/scripts/relay.mjs --brief brief.txt --model <provider/model> --cd <repo>. Requires an explicit --model (or --lane) on fresh runs; --read-only for review-only (plan agent); --resume-last for delta briefs; --timeout as watchdog.\n3. **Wait** — blocks until result.json is written and process exits; read the tree, not status lines.\n4. **Review** — re-run gates yourself, read the diff against the brief, watch for scope creep; never trust the self-report.\n5. **Land** — the orchestrator commits (relay never does); delta brief via --resume-last for rework.\n\nKey mechanics: relay defaults to the write-capable build agent with --auto (no permission prompts in headless runs); plan runs never get --auto. Workspace stays clean — artifacts go to a temp dir. Model choice is the human's (flat-rate subscriptions) — if no usable set is stated in AGENTS.md, ask the user rather than guessing from the metered catalog.\n\nUse when the user wants implementation work handed to OpenCode (or a queue of tasks) while they stay the reviewer. NOT for inline-size tasks or when the user wants direct implementation.",
+    "tools": [
+      "loadSkill",
+      "bash"
+    ],
+    "relatedSkills": [
+      "verify"
+    ],
+    "examples": [
+      {
+        "input": "/project delegate \"rename X to Y across src/ and update imports\"",
+        "approach": "Load opencode-delegate skill, check opencode CLI present, write self-contained brief with gate commands, dispatch via relay.mjs with a fast model, wait for result.json, re-run gates + read diff, then commit the verified work."
+      },
+      {
+        "input": "/project delegate --read-only \"review the auth refactor for security holes\"",
+        "approach": "Load skill, dispatch with --read-only (plan agent, no --auto), review the returned diagnosis without touching the tree."
+      }
+    ],
+    "warnings": [
+      "relay.mjs requires an explicit --model on fresh runs — a bare `opencode run` errors",
+      "Never trust the implementer's gate claims — re-run tests/lint/build yourself",
+      "The orchestrator commits; the relay never does"
     ]
   },
   "project/qa-tester": {
@@ -1081,6 +1173,35 @@
     ],
     "relatedSkills": []
   },
+  "project/insights": {
+    "label": "insights",
+    "description": "Session-history analysis — work patterns, tool usage, friction points, strategic recommendations from your OpenCode usage",
+    "reminder": "Analyze session history and produce an insights report.",
+    "skill": "insights",
+    "detailedDescription": "Analyzes local OpenCode session history (SQLite DB, read-only) and produces a structured insights report: what was worked on, how tools were used, where friction happened, and what to do next.\n\nThe analysis covers:\n1. **Stats** — messages, files touched, active days, sessions per project.\n2. **Project Areas** — clusters sessions into 3-5 main topics.\n3. **Big Wins** — evidence-backed achievements (multi-file edits, long autonomous runs, completed orchestrations).\n4. **Friction** — categorized failures: tool failures, API/network errors, ambiguous requests, retry loops, user rejections.\n5. **Strategic Horizons** — data-grounded recommendations (skills to create, workflows to automate, rules to update).\n\nData is gathered via the session-memory skill's read-only SQLite queries (last 20 sessions or 2 weeks default; range or session ID override supported). The report is written to .opencode/state/insights/insights-{YYYYMMDD}.md.\n\nDistinct from /project retrospect (post-run lessons-learned for a single orchestration): this analyzes cross-session usage history. Use insights when the question is \"what have I been working on / where am I losing time\" — use retrospect when finishing a specific run.\n\nRules: read-only DB access (mode=ro), evidence over vibes (every claim traces to transcript text), synthesize don't dump.",
+    "tools": [
+      "loadSkill",
+      "bash"
+    ],
+    "relatedSkills": [
+      "session-memory"
+    ],
+    "examples": [
+      {
+        "input": "/project insights",
+        "approach": "Load the insights skill, gather session data via read-only SQLite queries (default last 20 sessions), cluster into project areas, count friction categories, write .opencode/state/insights/insights-{date}.md, summarize top findings."
+      },
+      {
+        "input": "/project insights --range 2weeks",
+        "approach": "Same analysis scoped to the last 2 weeks — stats, wins, friction categories, and horizon recommendations grounded in that window."
+      }
+    ],
+    "warnings": [
+      "Read-only on the OpenCode DB — never modify it",
+      "Avoid auth/provider tables (account, credential, control_account, account_state)",
+      "Claims in the report must trace to transcript evidence, not vibes"
+    ]
+  },
   "project/changelog": {
     "label": "changelog",
     "description": "Generate user-facing changelog from git commits",
@@ -1172,6 +1293,40 @@
       "karpathy-guidelines"
     ],
     "relatedSkills": []
+  },
+  "project/self-improve": {
+    "label": "self-improve",
+    "description": "Per-project self-optimization — capture learnings, triage failures, promote recurring fixes into .opencode/ config",
+    "reminder": "Run the self-improvement capture/triage/promotion loop for this project.",
+    "skill": "self-improvement",
+    "detailedDescription": "Runs the per-project self-optimization loop: the project's own .opencode/ config (rules, skills, AGENTS.md) adapts as it is used, so that recurring failures and corrections compound into durable, evidence-gated improvements.\n\nLoad the `self-improvement` skill and follow its workflow:\n\n**1. Capture** — append typed entries to .opencode/context/learnings/ (LEARNINGS.md / ERRORS.md / FEATURE_REQUESTS.md) for anything that failed, was corrected, went stale, or lacks a capability. Dedupe by Pattern-Key; increment Recurrence-Count on repeats. Entry ID format: LRN-/ERR-/FEAT-YYYYMMDD-NNNNNN.\n\n**2. Triage** — classify each failure into one of two root buckets BEFORE proposing changes:\n   - **Config problem**: the project .opencode/ asset (skill/rule/command/spec) is wrong, stale, or missing → fix the asset.\n   - **Agent problem**: the asset is fine; the agent misused it → no config change.\n   Pre-triage: verify the asset exists, is registered, and loads before blaming the agent.\n\n**3. Promote (bounded, human-approved)** — only when Recurrence-Count >= 3 across 2+ tasks within 30 days, with verified before/after evidence:\n   - Promotion targets, in order: project AGENTS.md / rules/*.md (prevention rule), project skills/ (reusable workflow), FEATURE_REQUESTS.md → provision.\n   - Guardrail format: BEFORE <op>: <checks> / TRIGGERED BY / ADDED BECAUSE: <entry ID> / EFFECTIVENESS: <tracked>.\n   - Promotions are bounded edits (one surface, minimal delta) and are NEVER auto-applied — present to the user for approval.\n\n**4. Validate** — mark entries promoted, track EFFECTIVENESS. Every 10 sessions run /project retrospect + /project consolidate-telemetry to fold telemetry into the loop.\n\n**Signals to act on (rolling 10 sessions):** first-attempt success < 80%, avg revisions >= 1.5, error recurrence >= 10%, user corrections >= 5%, time-to-completion accuracy outside 0.8–1.2.\n\n**Anti-patterns:** no measurement without thresholds, no config change on a single error, no >5-item checklists, no promotion without 2+ examples, no monolithic rule rewrites, no same-agent self-evaluation.\n\n**Validation commands:**\n- `ls .opencode/context/learnings/` — capture files exist\n- `grep -c \"Recurrence-Count: 3\" .opencode/context/learnings/LEARNINGS.md` — promotion candidates\n\nSee the `self-improvement` skill for the full capture format, triage table, and promotion rules. Related: `remember` (memory surfaces), `learner` (skill extraction), `self-improve` (evolutionary code engine), /project retrospect, /project consolidate-telemetry.",
+    "tools": [
+      "loadSkill",
+      "bash"
+    ],
+    "rules": [
+      "karpathy-guidelines"
+    ],
+    "relatedSkills": [
+      "remember",
+      "learner",
+      "self-improve"
+    ],
+    "examples": [
+      {
+        "input": "Tool keeps failing the same way",
+        "approach": "/project self-improve — capture the error, triage to config vs agent bucket, promote if Recurrence-Count >= 3"
+      },
+      {
+        "input": "User keeps correcting the same thing",
+        "approach": "/project self-improve — log corrections to LEARNINGS.md, check for a knowledge gap in project rules"
+      }
+    ],
+    "warnings": [
+      "Never auto-apply config changes — promotions require user approval",
+      "Do not log one-off errors or generic knowledge — high-signal entries only",
+      "Triage to config-vs-agent bucket before editing any asset"
+    ]
   },
   "project/pt-review": {
     "label": "pt-review",
@@ -1265,7 +1420,7 @@
     "description": "Analyze code for performance and security issues, then apply targeted fixes",
     "reminder": "Analyze and optimize code for performance/security.",
     "inline": true,
-    "detailedDescription": "Analyzes code for performance and security issues, then applies targeted fixes. Invoked via /project optimize <target> [--perf] [--security].\n\n## Workflow\n\n1. **Identify the target**: parse the file, directory, or module to optimize from **the user's project codebase** (not the global OpenCode configuration). If no target is given, **ask the user** what to optimize — do NOT default to the current working directory (~/.config/opencode/). The user's project is the workspace root, not the OpenCode config directory.\n\n2. **Read the target code**: load the source file(s). Understand what the code does, its data flow, dependencies, and hot paths.\n\n3. **Performance scan** (unless --security only):\n   - **N+1 queries**: loops that execute DB queries per iteration. Flag the loop and suggest batch fetching or eager loading.\n   - **Unnecessary allocations**: objects/arrays created inside hot loops that could be hoisted. Redundant copies.\n   - **Missing indexes**: if the code does DB queries, check for obvious missing indexes on filter/join columns.\n   - **O(n²) or worse**: nested loops over the same data structure. Suggest hash maps or sorted-then-merge.\n   - **Redundant work**: repeated computations that could be memoized. Repeated regex compilations that could be hoisted. Repeated JSON parses of the same string.\n   - **Lazy evaluation opportunities**: generators instead of materialized arrays, early returns before expensive work.\n\n4. **Security scan** (unless --perf only):\n   - **Injection vectors**: string concatenation in queries (SQL, NoSQL, shell), unsanitized input in templates, dynamic eval.\n   - **Auth bypass**: missing auth checks, IDOR (insecure direct object reference), missing ownership verification.\n   - **Secret exposure**: secrets in error messages, logs, or responses. Hardcoded secrets.\n   - **Unsafe deserialization**: JSON.parse on untrusted input without validation. YAML.load without safe loader.\n   - **Path traversal**: user input in file paths without normalization.\n   - **CSRF**: state-changing endpoints without CSRF tokens.\n   - **Rate limiting**: sensitive endpoints without rate limits.\n\n5. **For each finding**:\n   - Classify: performance issue or security issue, severity (critical/high/medium/low).\n   - Propose a fix: the minimal change that addresses the root cause. No refactoring theater.\n   - Apply the fix (unless --dry-run flag): edit the source file with the targeted change only.\n\n6. **Verify** (after applying): run tests if they exist. Run linter. Confirm the fix doesn't break behavior.\n\n7. **Report**: list all findings (found + fixed, found + skipped), severity, location (file:line), and what was changed.\n\n## Constraints\n\n- Surgical changes only — fix the finding, don't \"improve\" adjacent code (Karpathy guideline #3).\n- Do NOT change behavior. The optimized code must produce the same outputs for the same inputs.\n- Do NOT add features or abstractions. This is optimization, not enhancement.\n- If a fix would change behavior or is risky (e.g. changing a query might affect other consumers), flag it but don't apply — ask the user.\n- Security findings classified as critical (exposed secrets, auth bypass) get fixed immediately per security.md rule.\n- Performance fixes that trade readability for speed: only apply if the gain is meaningful. Note the tradeoff in the report.\n\n## Output\n\n- Source file(s) modified with targeted optimizations.\n- Test/lint verification result.\n- Report: each finding with location, severity, fix applied (or skipped with reason).",
+    "detailedDescription": "Analyzes code for performance and security issues, then applies targeted fixes. Invoked via /project optimize <target> [--perf] [--security] [--dry-run] [--measure].\n\n## Workflow\n\n### 0. Pre-edit repo sync (mandatory before any file change)\n1. Check the current branch — if already on a feature branch for this task, skip.\n2. Check repo branch naming conventions; create one following the convention, fallback: feat/optimize-<target>.\n3. Sync with remote: git fetch origin && git pull --rebase origin \"$(git rev-parse --abbrev-ref HEAD)\". If the working tree is dirty, stash first (git stash push -u -m \"pre-sync\"), sync, then pop.\n4. If origin is missing, pull is unavailable, or rebase/stash conflicts occur — STOP and ask the user before continuing.\n\n### 1. Identify the target\nParse the file, directory, or module to optimize from **the user's project codebase** (not the global OpenCode configuration). If no target is given, **ask the user** what to optimize — do NOT default to the current working directory (~/.config/opencode/). The user's project is the workspace root, not the OpenCode config directory.\n\n### 2. Read and understand the code\nLoad the source file(s). Identify language, framework, and runtime context (Node.js, Python, Go, Rust, Java, browser, etc.). Understand data flow, dependencies, and hot paths before analyzing.\n\n### 3. Analysis — priority order (analyze each category in this order)\n1. **Performance bottlenecks** — O(n²)+ operations, inefficient loops, unnecessary iterations, blocking operations on hot paths.\n2. **Memory leaks** — unreleased resources, circular references, growing collections. Distinguish caches from leaks: a collection with a trim/eviction mechanism is a cache, not a leak — don't \"fix\" it.\n3. **Algorithm improvements** — better algorithms or data structures for the use case (hash maps vs nested scans, sorted-then-merge, etc.).\n4. **Caching opportunities** — repeated computations, redundant I/O, memoization candidates, repeated regex compilation / JSON parsing of the same string that could be hoisted.\n5. **Concurrency issues** — race conditions, deadlocks, thread-safety problems, goroutine/worker leaks, unprotected shared state.\n\n**N+1 queries** (loops executing DB queries per iteration) and **missing indexes** on filter/join columns are checked wherever the code touches a database. For each issue found, **estimate the quantitative impact** (e.g., \"reduces API response from ~500ms to ~50ms\", \"O(n²) → O(n log n)\", \"1000 round-trips → 1 batched query\"). Report findings sorted by severity (Critical first).\n\n### 4. Language-specific checklists (apply the matching one; never cross-apply)\n- **JavaScript/TypeScript**: array methods inside loops (map/filter/find inside forEach), missing async/await causing blocking, event listener leaks, unbounded arrays/objects.\n- **Python**: list comprehensions vs generator expressions for large data, GIL considerations, context manager usage for resources, N+1 query patterns.\n- **Go**: goroutine leaks (unbounded go func() without context cancellation), unnecessary allocations in hot paths (sync.Pool, pre-allocated slices), string concatenation in loops (strings.Builder), missing defer for resource cleanup.\n- **Rust**: unnecessary cloning (references or Cow<> instead), lock contention (RwLock vs Mutex), unbounded Vec growth without with_capacity, blocking operations in async contexts.\n- **Java**: autoboxing in tight loops (primitive types), string concatenation with + in loops (StringBuilder), over-broad synchronized blocks, Stream API misuse (unnecessary intermediate collections).\n- **General**: DB query patterns (N+1, missing indexes), I/O in hot paths.\n- **Mixed-language projects**: analyze each language with its own checklist — do not apply JavaScript heuristics to Python code.\n\n### 5. Root-cause discipline (measure-first, not symptom-patching)\n- Use git blame / git log on the perf-critical or leaking code. Read the commit message, PR description, and linked issues — a guard like \"if (this._isDisposed) return\" may exist because removing it once caused crashes. Understand the original intent before changing it.\n- Trace the full lifecycle, not just the leak/hot site. If cleanup is silently dropped, ask why the parent is disposed before the child — the answer determines whether to fix the guard, the disposal order, or add a different cleanup path.\n- Check for prior art: sibling pools/services that handle the same lifecycle correctly — follow that pattern.\n- Prefer a warmed-up baseline over startup measurements. Startup, first-use model loads, login, and extension activation are expected allocations — don't report them.\n\n### 6. Security scan (unless --perf only)\n- **Injection vectors**: string concatenation in queries (SQL, NoSQL, shell), unsanitized input in templates, dynamic eval.\n- **Auth bypass**: missing auth checks, IDOR (insecure direct object reference), missing ownership verification.\n- **Secret exposure**: secrets in error messages, logs, or responses. Hardcoded secrets.\n- **Unsafe deserialization**: JSON.parse on untrusted input without validation. YAML.load without safe loader.\n- **Path traversal**: user input in file paths without normalization.\n- **CSRF**: state-changing endpoints without CSRF tokens.\n- **Rate limiting**: sensitive endpoints without rate limits.\n\n### 7. For each finding\n- Classify: performance or security issue; severity (definitions below).\n- Propose a fix: the minimal change that addresses the root cause, with a code example. No refactoring theater.\n- Apply the fix (unless --dry-run): edit the source file with the targeted change only.\n- **Run existing tests after each change** to verify no regressions. If a fix breaks tests, revert that change immediately and re-examine the approach. If no tests exist, warn the user before applying changes.\n\n### 8. Verify (--measure flag, or whenever a memory/perf claim is made)\n- Define the repeatable scenario: one warmup action, one repeatable iteration, one quiescent point where it is fair to measure.\n- Before/after comparison: rerun the same scenario with the same labels/samples after the fix. A successful fix shows flat or decreasing memory / improved latency in the iteration phase — not just in the startup phase.\n- Run all unit and integration tests for changed files; run the linter. A unit test failure after your change is your regression — fix it.\n\n### 9. Report\nFor each issue: Location (file:line), Category (Performance | Memory | Algorithm | Caching | Concurrency | Security), Problem, Impact (quantitative), Fix. Findings sorted by severity; state which were fixed vs skipped (with reason). If no issues found, say the code is already well-optimized and suggest profiling with runtime tools (perf, py-spy, Chrome DevTools) — do NOT invent low-severity findings to fill the report.\n\n## Severity levels\n- **Critical**: crashes, severe memory leaks, O(n³)+ complexity, exposed secrets, auth bypass.\n- **High**: significant performance impact (O(n²), blocking operations, resource exhaustion), injection, IDOR.\n- **Medium**: noticeable impact under load (redundant operations, suboptimal algorithms), unsafe deserialization, path traversal.\n- **Low**: minor improvements (micro-optimizations, style improvements with perf benefit).\n\n## Constraints\n- Surgical changes only — fix the finding, don't \"improve\" adjacent code (Karpathy guideline #3).\n- Do NOT change behavior. The optimized code must produce the same outputs for the same inputs.\n- Do NOT add features or abstractions. This is optimization, not enhancement.\n- If a fix would change behavior or is risky (e.g. changing a query might affect other consumers), flag it but don't apply — ask the user.\n- Security findings classified as critical (exposed secrets, auth bypass) get fixed immediately per security.md rule.\n- Performance fixes that trade readability for speed: only apply if the gain is meaningful. Note the tradeoff in the report.\n- Target file >2000 lines: ask the user which functions/sections to focus on; analyze the most performance-critical paths first. Do not silently truncate.\n- Premature optimization: skip micro-optimizations unless a measurable hot path is identified — flag as Low only when a profile or benchmark backs the claim.\n\n## Output\n- Source file(s) modified with targeted optimizations, on a feature branch.\n- Test/lint verification result.\n- Report: each finding with location, severity, category, impact, and fix applied (or skipped with reason).",
     "tools": [
       "bash"
     ],
@@ -1273,24 +1428,27 @@
       "security",
       "karpathy-guidelines"
     ],
-    "relatedSkills": [],
+    "relatedSkills": [
+      "verify"
+    ],
     "examples": [
       {
         "input": "/project optimize src/api/users.ts --perf",
-        "approach": "Performance scan only. Finds N+1 query in user list endpoint (loop calling User.find inside map). Fix: switch to eager loading with JOIN. Verify: tests pass. Report: 1 finding (high), fixed."
+        "approach": "Priority-ordered analysis finds N+1 query in listUsers (loop calling User.find inside map). Impact: 1000 users → ~1000 round-trips (~2000ms) → 1 batched query (~50ms), 40x. Fix with eager loading (JOIN or IN clause). Run tests after the change. Report: 1 finding (Critical), fixed, impact quantified."
       },
       {
         "input": "/project optimize src/ --security",
-        "approach": "Security scan only across src/. Finds hardcoded API key in config.ts (critical — fix immediately). Finds SQL injection in search endpoint (high — parameterize query). Report: 2 findings (1 critical fixed, 1 high fixed)."
+        "approach": "Security scan only across src/. Finds hardcoded API key in config.ts (Critical — fix immediately). Finds SQL injection in search endpoint (High — parameterize query). Report: 2 findings (1 critical fixed, 1 high fixed)."
       },
       {
-        "input": "/project optimize src/payment.ts --dry-run",
-        "approach": "Full scan in dry-run mode. Finds 3 performance issues (redundant JSON.parse in hot path, O(n²) loop, unnecessary allocation) and 1 security issue (unsafe deserialization). Reports all findings with proposed fixes but applies nothing."
+        "input": "/project optimize src/payment.ts --measure",
+        "approach": "Full scan with measurement. Defines the repeatable scenario (warmup + N iterations + quiescent point), measures baseline, applies fixes (redundant JSON.parse in hot path, O(n²) loop, missing memory cleanup), reruns the same scenario, compares before/after. Reports findings with quantitative before/after numbers."
       }
     ],
     "warnings": [
       "Performance fixes that change query patterns may affect other consumers — risky changes are flagged but not auto-applied.",
-      "Security critical findings (exposed secrets, auth bypass) are fixed immediately per security.md — no dry-run override for critical security issues."
+      "Security critical findings (exposed secrets, auth bypass) are fixed immediately per security.md — no dry-run override for critical security issues.",
+      "Memory claims without a before/after measurement on the same scenario are not verified — use --measure for reproducible evidence."
     ]
   },
   "project/gh": {
@@ -1384,6 +1542,42 @@
     "agent": "@writer",
     "inline": true,
     "detailedDescription": "Delegates directly to the @writer agent. The remainder of your prompt will be passed as specific instructions to the agent."
+  },
+  "project/deep-bug-hunt": {
+    "label": "deep-bug-hunt",
+    "description": "Critical bug hunt on recent changes — regressions, data loss, security holes",
+    "reminder": "Hunt recent commits for critical correctness bugs.",
+    "inline": true,
+    "detailedDescription": "Deep bug hunt — inspect recent changes and find critical correctness bugs that escaped review. Synthesizes three methodologies: post-merge blast-radius triage (deep-bug-hunt), engagement-mode confirmation + false-positive discipline (bb-methodology), and the 4-phase Root Cause → Pattern → Hypothesis → Fix investigation (bug-hunt).\n\n## Modes\n\n| Invocation | Mode | Use when |\n|------------|------|----------|\n| `deep-bug-hunt` (no args) | Recent-commit sweep | Auditing what merged recently |\n| `deep-bug-hunt <symptom>` | Investigation | A known bug or failure needs root cause |\n| `deep-bug-hunt --audit <scope>` | Proactive audit | Sweeping a package/dir for unreported bugs |\n\n## Step 0: Mode confirmation (before anything else)\n\nState what counts as a finding. Default is **internal audit** discipline: only issues with a concrete trigger scenario and meaningful blast radius (data loss, security hole, crash on critical path, silent truncation, race that loses writes, auth/permission bypass, resource leak). Reject: style, minor edge cases, theoretical concerns without a concrete trigger, low-severity UX degradation.\n\n**Confidence bar:** you must be able to write a concrete trigger scenario (precondition → action → expected → actual). If you cannot construct a plausible trigger, do NOT fix or open a PR — report uncertainty instead.\n\n## Workflow\n\n### 1. Scope recent changes\nDefault: commits merged in the last 24 hours on the default branch.\n```bash\ngit log --oneline --since=\"24 hours ago\" origin/main\ngit diff origin/main~N..origin/main   # N = commits in scope\n```\nFor a branch/PR: diff against the merge base:\n```bash\ngit merge-base HEAD origin/main\ngit diff <merge-base>..HEAD\ngit log --oneline <merge-base>..HEAD\n```\nFor --audit <scope>: list files in scope; if broad (>50 files), narrow to recently changed ones:\n```bash\ngit log --since=\"2 weeks ago\" --name-only --pretty=format: -- <scope> | sort -u\n```\n\n### 2. Triage by blast radius\nPrioritize changes touching: persistence/migrations/sync/serialization; auth/permissions/multi-tenant boundaries; concurrency and shared mutable state; error handling on critical paths (startup, save, payment, delete); public API contracts and IPC boundaries.\nRead surrounding code — not just the diff hunk — until you can state who calls the changed code and what happens on failure.\n\n### 3. Investigation mode: 4-phase structure\n- **Phase 1 Root Cause**: reproduce first (expected vs actual, consistently?). Then locate the symptom (grep error text / names), git archaeology (git log <file>, git blame, git log --grep), trace the execution path from entry point backward to the bad data/state origin. Identify what/where (file:line)/when (commit)/why.\n- **Phase 2 Pattern**: find similar functionality that WORKS; document ALL differences between broken code and working reference.\n- **Phase 3 Hypothesis**: ONE hypothesis at a time (\"I think X is wrong because Y\"). Test with the SMALLEST possible change. After 3 countable failures, escalate to architecture review — do not keep guessing.\n- **Phase 4 Fix**: design the fix first (edge cases, breakage, tests to update); write a failing test BEFORE fixing; implement at the ROOT CAUSE, not symptoms; verify the test passes.\n\n### 4. Audit mode: systematic read\nRead every file in scope line by line — do not skim (proven methodology: careful reading finds bugs, heuristic scanning does not). Check per file: resource leaks (unclosed handles, missing cleanup), string safety (UTF-8 truncation, unsanitized input), dead code, hardcoded values (paths/URLs/repo assumptions), edge cases (empty/nil/boundary), concurrency (unprotected shared state, leaked goroutines), error handling (swallowed errors, wrong types).\nClassify severity: **HIGH** = data loss, security, resource leak, process orphaning. **MEDIUM** = wrong output, incorrect defaults, silent corruption. **LOW** = dead code, cosmetic.\nAlso check missing failure-injection test coverage (BF4): for every file making external calls, verify timeout/connection-failure/permission-denied/corrupt-input tests exist — flag gaps as findings.\n\n### 5. False-positive discipline (hard rules)\n- **Statistical-sample rule**: timing-based claims (user-enum, blind injection) need n≥10 interleaved trials per group; signal = suspect group mean ≥2σ above control. Single outliers are jitter.\n- **Body-diff rule**: a bypass/reflection claim requires response BODY differential, not just status code. Diff baseline vs claim side-by-side.\n- **Shell-loop ban**: >5 iterations → use Python with try/except per iteration, never zsh for-loops (zsh array expansion fails silently). Always count results.\n- **Marker discipline**: any injected marker must be unique, 8+ random alphanumeric chars — never \"test\"/\"marker\"/domain words; verify it does not appear in the baseline.\n\n### 6. Act on findings\n| Outcome | Action |\n|---------|--------|\n| No critical bug | Post short \"no critical bugs found\" summary (expected most days) — scope, areas checked, notes |\n| Possible bug, low confidence | Report with scenario + open questions — NO fix, NO PR |\n| Confirmed critical bug | Minimal fix + test, then report. Keep changes scoped to the bug only. |\n\nPresent findings as a summary table (`# | Bug | Severity | File | Fix`). If a durable report is wanted, save to `.opencode/state/project/` or the repo's `.agents/research/YYYY-MM-DD-bug-<scope>.md`. Report includes: root cause (or \"not yet\"), file:line, proposed fix, and failure count (hypothesis tests that didn't confirm).\n\nSTOP after reporting — do not continue into unrelated refactors. Per karpathy-guidelines: surgical changes only, fix verified before claiming done.",
+    "tools": [
+      "bash"
+    ],
+    "rules": [
+      "completion-guardrail",
+      "karpathy-guidelines"
+    ],
+    "relatedSkills": [
+      "systematic-debugging",
+      "verify",
+      "trace"
+    ],
+    "examples": [
+      {
+        "input": "/project deep-bug-hunt",
+        "approach": "Sweep last 24h commits on the default branch for critical correctness bugs; report a summary table; fix only confirmed high-severity issues."
+      },
+      {
+        "input": "/project deep-bug-hunt 'feature X broke after yesterday's deployment'",
+        "approach": "Reproduce, git-archaeology to find the breaking commit (git log --since, git bisect), compare against working reference, single-hypothesis test, minimal root-cause fix with a failing test first."
+      },
+      {
+        "input": "/project deep-bug-hunt --audit src/auth/",
+        "approach": "Line-by-line systematic read of the auth package; classify findings HIGH/MEDIUM/LOW; check failure-injection test coverage; report summary table with file:line and proposed fixes."
+      }
+    ],
+    "warnings": [
+      "⚠️ --audit on large scopes (>50 files) is expensive — narrow to recently changed files first."
+    ]
   },
   "harvest-context/session": {
     "label": "session",
