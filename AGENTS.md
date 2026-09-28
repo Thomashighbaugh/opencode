@@ -4,8 +4,8 @@
 
 ## Overview
 
-- **31 specialized agents** for different task types
-- **105 workflow skills** for development tasks
+- **1 primary agent** (`hubs`) — the specialist roster was retired in favor of auto-selecting skills, see `agents/hubs.md`
+- **137 workflow skills** for development tasks
 - **30 TypeScript tools** for session management and file editing
 - **154 hub subcommand specs** across 6 hub directories
 - **Hook system plugin** for mode detection, state persistence, and context injection
@@ -73,34 +73,30 @@ Every turn, every subagent invocation, every verification round costs an API req
 
 Magic keywords (`ralph`, `autopilot`, `ultrawork`, `build me`, `create me`, etc.) do **NOT** auto-activate modes. The plugin detects them and injects a context message, but the agent must **propose** the mode to the user and get explicit confirmation before activating.
 
-## Agent Model Tiers
+## Model & Fallback
 
-Each tier has a failover chain: Primary → F1 → F2 → (F3). Stop on first success. Model key: `o=`ollama, `og=`opencode-go, `oc=`opencode (free).
+As of 2026-09-27, the 30-agent specialist roster was retired in favor of skills that auto-select by
+description (see `agents/hubs.md` → `<Specialist_Skills>` for the full list and
+`claude/knowledge-claude-config/agents-to-skills-2026-09-27.md` for the retirement mapping). Skills
+load inline at whatever model the current session is already running — there's no per-specialty
+tier table to maintain anymore.
 
-| Tier | Primary | F1 | F2 | F3 | Agents |
-|------|---------|----|----|----|--------|
-| **Pro** | `o/dsv4-pro:cloud` | `og/dsv4-pro` | `oc/dsv4-flash-free` | _(NVIDIA)_ | architect, planner, security-reviewer, requirements-analyzer, tracer, analyst, critic |
-| **Default** | `oc/dsv4-flash-free` | `o/dsv4-flash:0731-cloud` | `og/dsv4-flash` | _(NVIDIA)_ | hubs, executor, debugger, test-engineer, designer, frontend-design, git-master, config-orchestrator, skill-creator, refactoring, code-simplifier, qa-tester, code-reviewer, scientist, deep-thinker |
-| **Fast** | `oc/dsv4-flash-free` | `o/glm-5.2:cloud` | `og/glm-5.2` | — | writer, verifier, document-specialist, effort-estimator, explore, commit-drafter, prompt-simplifier, convention-extractor |
+The two exceptions are `architect-review` and `plan-critic`, the only roles that still warrant an
+isolated Task dispatch (they need a perspective uncontaminated by the current conversation). When
+dispatching either: try `o/dsv4-pro:cloud` → `og/dsv4-pro` → `oc/space-bunny-free`, stop on first
+success. Everything else in this section still applies to that dispatch:
 
-**Routing:** Pro → complex reasoning. Default → implementation/testing/debugging/design. Fast → docs/verification/search.
+**Session model:** `opencode-go/deepseek-v4.1-flash` (set in `agents/hubs.md` frontmatter).
 
-**Ambiguity default:** In ambiguous situations (uncertain tier/model routing, unclear task fit), default to `oc/dsv4-flash-free` — the free, always-available model. Never default to paid/cloud models when uncertain.
+**Ambiguity default:** in ambiguous situations (unclear which model to use), default to
+`oc/space-bunny-free` — the free, always-available model. Never default to a paid/cloud model when
+uncertain.
 
-**Session model:** `o/dsv4-flash:0731-cloud` (set in `agents/hubs.md` frontmatter).
+**Failover:** provider errors advance the chain after 60s. Task errors → fix the prompt, don't
+advance the chain. Chain exhausted → escalate via the `question` tool.
 
-**Failover:** Provider errors advance chain after 60s. Task errors → fix prompt, don't advance. Chain exhausted → escalate via `question` tool.
-
-### Subagent Timeout
-Max turns per subagent, configurable by agent type:
-
-| Agent Type | Max Turns | Rationale |
-|------------|-----------|----------|
-| writer, verifier, document-specialist, effort-estimator, explore, commit-drafter, prompt-simplifier, convention-extractor | 3 | Simple or narrowly-scoped tasks — rarely need more |
-| executor, debugger, test-engineer, designer, frontend-design, git-master, config-orchestrator, skill-creator, refactoring, code-simplifier, qa-tester, code-reviewer, scientist, deep-thinker | 5 | Standard dev tasks — may need iteration |
-| architect, planner, security-reviewer, requirements-analyzer, tracer, analyst, critic | 7 | Complex reasoning tasks — may need deep analysis |
-
-If no output after the max turns, terminate and escalate. Looping/hanging subagents waste API requests — needs a better prompt or different approach.
+**Timeout:** 5 turns is a reasonable default max for a fork dispatch. If no output by then, terminate
+and escalate rather than letting it loop.
 
 ## Hub Commands
 
@@ -139,8 +135,8 @@ See `rules/hub-routing.md` for the complete delegation table and architecture de
 ~/.config/opencode/
 ├── opencode.jsonc       # Main configuration
 ├── AGENTS.md            # This file (core instructions)
-├── agents/              # 31 agent definitions
-├── skills/              # 105 workflow skills
+├── agents/              # hubs.md only — the specialist roster now lives in skills/
+├── skills/              # 137 workflow skills
 ├── commands/            # (empty — all subcommands live in hub menus)
 ├── templates/
 │   ├── projects/         # Project archetype templates (bare-bones, cli-tool, docker, go, nextjs, etc.)

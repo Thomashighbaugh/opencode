@@ -14,6 +14,7 @@
   "dependencies": {
     "@franlol/opencode-md-table-formatter": "0.0.3",
     "@huggingface/transformers": "^4.2.0",
+    "@modelcontextprotocol/sdk": "^1.30.1",
     "@opencode-ai/plugin": "1.18.13",
     "@opencode-ai/sdk": "^1.18.15",
     "@opencode-plugins/env-protection": "^1.0.4",

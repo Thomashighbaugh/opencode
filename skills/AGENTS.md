@@ -4,7 +4,7 @@
 # skills
 
 ## Purpose
-67 specialized workflow skills organized into functional hubs. Each skill provides domain-specific instructions, workflows, and bundled resources (scripts, references, templates) that agents load at runtime.
+137 specialized workflow skills organized into functional hubs. Each skill provides domain-specific instructions, workflows, and bundled resources (scripts, references, templates) that agents load at runtime. Includes the 14 skills the former per-specialty agent roster (`agents/*.md`) was folded into on 2026-09-27 — see the **Specialist (ex-agents)** row below and `claude/knowledge-claude-config/agents-to-skills-2026-09-27.md`.
 
 ## For AI Agents
 
@@ -28,6 +28,7 @@
 | **Meta** | `self-improve`, `learner`, `agent-md-refactor`, `agent-format-enforcer`, `config-sync`, `hubs-reference`, `hubs-teams`, `project-session-manager` |
 | **QA/Verify** | `verify`, `visual-verdict`, `ultraqa`, `debug` |
 | **Docs** | `crafting-effective-readmes`, `writer-memory`, `naming-cheatsheet`, `web-to-markdown`, `professional-communication`, `deliberate-practice`, `hud`, `dependency-updater`, `configure-notifications` |
+| **Specialist (ex-agents)** | `architect-review`, `plan-critic`, `requirements-analysis`, `deep-thinker`, `data-analysis`, `effort-estimator`, `prompt-simplifier`, `stack-detector`, `git-master`, `implementation-discipline`, `interactive-cli-testing`, `technical-documentation`, `convention-extractor`, `distinctive-frontend-design` |
 
 ### Testing Requirements
 - Skill consistency validated by Hubs doctor

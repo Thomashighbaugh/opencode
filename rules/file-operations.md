@@ -44,13 +44,13 @@ This rule applies to:
 
 ## Enforcement
 
-- **Hubs agent**: Has a hard constraint in `<Constraints>` section
-- **Executor agent**: Has a hard constraint in `<Constraints>` section
-- **Skill-creator agent**: Has a dedicated section documenting the rule
-- **Refactoring agent**: Has a dedicated section documenting the rule
-- **Provision skill**: Generates tools into `.opencode/tools/` by default
-- **Code review**: `@code-reviewer` should flag root-level scripts as a smell
-- **Verification**: `@verifier` should check for root-level scripts during completion checks
+- **Hubs agent** (`agents/hubs.md`): has a hard constraint in `<Constraints>` section
+- **`implementation-discipline` skill**: carries this rule for general implementation work (replaces the old executor agent's hard constraint)
+- **`skill-creator` skill**: has a dedicated section documenting the rule
+- **`code-simplification` skill**: has a dedicated section documenting the rule (replaces the old refactoring agent's)
+- **Provision skill**: generates tools into `.opencode/tools/` by default
+- **Code review**: the native `code-review` skill should flag root-level scripts as a smell
+- **Verification**: the `verify` skill should check for root-level scripts during completion checks
 
 ## Exceptions
 
@@ -135,8 +135,8 @@ There are exactly two situations where an inline script is acceptable:
 
 ## Enforcement
 
-- `@code-reviewer` checks for inline script file-edit patterns and flags them
-- `@verifier` checks for leftover script artifacts during completion verification
+- The `code-review` skill checks for inline script file-edit patterns and flags them
+- The `verify` skill checks for leftover script artifacts during completion verification
 - If you catch yourself writing `python3 -c`, `node -e`, or a `sed -i` pipeline, stop and use the appropriate tool
 
 ## Tool Availability
