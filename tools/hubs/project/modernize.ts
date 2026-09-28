@@ -3,11 +3,11 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_LISTAGENTS_BASH, RULES_KARPAHTY_GUIDELINES } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "modernize",
-  description: "Update code patterns to modern language/framework conventions — targeted, behavior-preserving modernization via @refactoring agent",
+  description: "Update code patterns to modern language/framework conventions — targeted, behavior-preserving modernization via the code-simplification skill",
   reminder: "Modernize code patterns and conventions.",
-  agent: "refactoring",
+  skill: "code-simplification",
 
-  detailedDescription: `Modernizes code patterns to current language/framework conventions via the @refactoring agent. Behavior-preserving — the code does the same thing, just in the modern way.
+  detailedDescription: `Modernizes code patterns to current language/framework conventions via the code-simplification skill. Behavior-preserving — the code does the same thing, just in the modern way.
 
 Examples:
 - var → let/const (JavaScript).

@@ -3,11 +3,11 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_LISTAGENTS_BASH, RULES_KARPAHTY_GUIDELINES } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "simplify",
-  description: "Reduce code complexity — flatten nesting, simplify conditionals, clarify naming via @code-simplifier agent",
+  description: "Reduce code complexity — flatten nesting, simplify conditionals, clarify naming via the code-simplification skill",
   reminder: "Reduce code complexity and improve clarity.",
-  agent: "code-simplifier",
+  skill: "code-simplification",
 
-  detailedDescription: `Code simplification via the @code-simplifier agent. Reduces complexity while preserving behavior:
+  detailedDescription: `Code simplification via the code-simplification skill. Reduces complexity while preserving behavior:
 
 - Flatten deep nesting (early returns, guard clauses).
 - Simplify complex conditionals (extract predicates, use lookup tables).

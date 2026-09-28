@@ -5,10 +5,10 @@ const spec: HubSubcommandSpec = {
   label: "verify",
   description: "Validate configuration completeness, file existence, and reference integrity",
   reminder: "Validate configuration completeness and integrity.",
-  agent: "verifier",
+  skill: "verify",
   phases: "7",
 
-  detailedDescription: `Validates that the project configuration is complete and all references resolve. The @verifier agent checks:
+  detailedDescription: `Validates that the project configuration is complete and all references resolve. The verify skill checks:
 
 - opencode.jsonc: valid schema keys per https://opencode.ai/config.json (fetch schema, extract valid keys, reject invalid keys like extends/agents/project/rules/state/context/cache), all referenced files exist.
 - Agents: all agent files referenced in config exist and have valid frontmatter.
@@ -17,6 +17,7 @@ const spec: HubSubcommandSpec = {
 - Commands: all command references resolve to .md files.
 - Rules: all rule references resolve to .md files.
 - Hub delegations: all skill/agent/command references in hub subcommands resolve (runs validate-delegation tool).
+- Memory plane: \`.opencode/rules/graph-context.md\` exists and is registered in \`instructions\`; \`.opencode/state/\` is gitignored; when \`.opencode/context/\` is non-empty, \`node skills/graph-context/scripts/graph.mjs stats\` reports nodes > 0 and edges > 0.
 
 Schema validation step:
 1. Fetch https://opencode.ai/config.json

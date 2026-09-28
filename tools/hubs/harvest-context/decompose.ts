@@ -5,9 +5,9 @@ const spec: HubSubcommandSpec = {
   label: "decompose",
   description: "Break down a concept or goal into smaller actionable units",
   reminder: "Decompose concept into actionable tasks.",
-  agent: "planner",
+  skill: "planning-and-task-breakdown",
 
-  detailedDescription: `Decomposes a concept or goal into smaller actionable units via the @planner agent. The planner breaks the concept into a tree of sub-concepts or tasks, each small enough to be independently actionable.
+  detailedDescription: `Decomposes a concept or goal into smaller actionable units via the planning-and-task-breakdown skill. It breaks the concept into a tree of sub-concepts or tasks, each small enough to be independently actionable.
 
 Output: a decomposition tree (markdown) saved to .opencode/context/frameworks/ with wiki compliance. Use when a concept is too abstract to act on directly and needs to be broken into concrete steps.`,
 
