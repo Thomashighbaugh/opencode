@@ -36,6 +36,12 @@
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^25.9.5",
-    "vitest": "^2.1.9"
+    "vitest": "^4.1.11"
+  },
+  "overrides": {
+    "adm-zip": "0.6.1",
+    "sharp": "0.35.5",
+    "@babel/core": "7.29.6",
+    "toml": "4.2.0"
   }
 }
