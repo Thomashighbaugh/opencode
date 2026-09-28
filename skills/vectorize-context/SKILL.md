@@ -17,7 +17,7 @@ Indexes scoped project markdown (`.opencode/context/`, `.opencode/rules/`, `.ope
 | **context** | `.opencode/state/vector/context.db` | `.opencode/context/**`, `.opencode/rules/**`, `.opencode/docs/**`, `AGENTS.md` | `##`/`###` heading boundaries |
 | **code** | `.opencode/state/vector/code.db` | Project source tree (`.ts .js .py .go .rs …`), skipping `node_modules`, `.git`, `dist/build/vendor` dirs, and `.opencode/state` + `.opencode/cache` (privacy) | Declaration boundaries (function/class/const/def at col 0), 60-line / 6KB caps |
 
-The code store uses a looser ANN distance floor (0.92 vs 0.8) — code embeddings sit at higher distances than markdown.
+Both stores share a single ANN distance floor (**1.0 ≈ cosine 0.5**). Measurement showed markdown and code distance distributions are near-identical (medians 0.848 vs 0.856), so the earlier split floor (0.8 / 0.92) was unjustified and starved real queries — the cross-encoder reranker is the quality gate, and `k` already bounds its input.
 
 ## How It Works
 
@@ -84,7 +84,7 @@ const stats = await getIndexStats();
 // { exists, totalChunks, totalFiles, embedding: { model, dim }, files: [...] }
 ```
 
-`queryChunks(projectRoot, query, topN, { useReranker: true })` — two-stage retrieval: ANN distance floor (0.8 context / 0.92 code) on ~20 candidates, then in-process cross-encoder rerank to top-N. If the reranker fails (model missing, timeout), it falls back to distance ordering — same behavior as rerank-less retrieval.
+`queryChunks(projectRoot, query, topN, { useReranker: true })` — two-stage retrieval: ANN distance floor (1.0 ≈ cosine 0.5) on ~20 candidates, then in-process cross-encoder rerank to top-N. If the reranker fails (model missing, timeout), it falls back to distance ordering — same behavior as rerank-less retrieval.
 
 ## CLI Usage
 
@@ -202,7 +202,7 @@ rm -f .opencode/state/vector/context.db    # Delete the DB
 3. If no files changed → returns immediately, no model loaded
 4. If files changed → calls Ollama `/api/embed` (1024-dim `mxbai-embed-large`) in **batches of 32 texts** (one request per batch, not per file), chunks changed files (`##`/`###` headers for markdown; declaration boundaries for code)
 5. Deletes old chunks for changed files, inserts new ones
-6. Query: ANN L2-distance search (floor 0.8 context / 0.92 code, ~20 candidates) → in-process cross-encoder rerank (bge-reranker-base, sigmoid on single logit) → top-N
+6. Query: ANN L2-distance search (floor 1.0 ≈ cosine 0.5, ~20 candidates) → in-process cross-encoder rerank (bge-reranker-base, sigmoid on single logit) → top-N
 7. Query always runs against the freshly-updated index
 
 The vec0 virtual table uses L2 distance. Since embeddings are normalized (unit vectors), L2 distance sorts equivalently to cosine similarity — nearest neighbors are the most semantically similar chunks.

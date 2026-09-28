@@ -47,7 +47,14 @@ const MIN_CHUNK_LENGTH = 50;
 const TOP_K_DEFAULT = 10;
 const RERANK_CANDIDATES = 20;   // candidates pulled from ANN search before rerank
 const RERANK_TOP_N_DEFAULT = 5;
-const DISTANCE_FLOOR = 0.8;     // hard filter before rerank (bounds reranker input)
+const RERANK_DOC_MAX_CHARS = 2000; // cap per-doc text before cross-encoder tokenization
+// ANN distance floor before rerank. L2 on normalised embeddings ⇒ floor 1.0
+// = cosine 0.5. Measured retrieval distributions sit between ~0.58 and ~0.98
+// for BOTH stores (context median 0.848, code median 0.856), so the old
+// 0.8/0.92 split starved 4/10 real queries to zero. k (= RERANK_CANDIDATES)
+// already bounds reranker input; this floor is now only a loose
+// obvious-irrelevance cap for the distance-only fallback path.
+const ANN_FLOOR = 1.0;
 
 // ─── Code store config ────────────────────────────────────────────────────
 
@@ -68,7 +75,23 @@ const CODE_SKIP_DIRS = new Set([
 
 const MAX_CODE_CHUNK_LINES = 60;
 const CODE_CHUNK_MAX_CHARS = 6000;
+// Markdown chunk caps — headings are the primary boundary, but an oversized
+// section (e.g. a 400KB research file) must not become one giant chunk: that
+// stalls both embedding and the cross-encoder tokenizer.
+const MAX_MD_CHUNK_LINES = 120;
+const MAX_MD_CHUNK_CHARS = 6000;
+// Bump when the chunkers change → stores rebuild on next use (prevents stale
+// chunks silently persisting because a file's mtime did not change).
+const CHUNKER_VERSION = '2';
 const EMBED_BATCH_SIZE = 32; // texts per /api/embed call (amortizes request overhead)
+
+// ─── Graph recovery config (substitutionary retrieval) ─────────────────────
+// When vector recall is empty (the ANN distance floor filtered everything),
+// the graph acts as the asset index of last resort: graph-title recall seeds
+// matching page chunks into the SAME rerank pool. No new lane, no new block,
+// no extra tokens — top-N and injection budget are unchanged.
+const GRAPH_EXPAND_MAX_EXTRA = 20;   // max seed pages pulled for recovery
+const GRAPH_POOL_MAX = RERANK_CANDIDATES + GRAPH_EXPAND_MAX_EXTRA;
 
 // ─── Path Resolution ───────────────────────────────────────────────────────
 
@@ -128,7 +151,7 @@ function setMeta(db, key, value) {
   db.prepare('INSERT INTO meta (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value').run(key, value);
 }
 
-function ensureSchema(db) {
+function ensureSchema(db, store = 'context') {
   db.exec(`
     CREATE TABLE IF NOT EXISTS meta (
       key TEXT PRIMARY KEY,
@@ -148,11 +171,16 @@ function ensureSchema(db) {
   // Embedding schema is versioned: if the model/dim changes, rebuild.
   const storedModel = getMeta(db, 'embedding_model');
   const storedDim = getMeta(db, 'embedding_dim');
+  const storedChunker = getMeta(db, 'chunker_version');
   const currentModel = EMBED_MODEL;
   const currentDim = String(EMBEDDING_DIM);
+  // Chunker versioning tracks the markdown (context) chunker. The code chunker
+  // is independent, so gate per-store to avoid nuking the code store when only
+  // markdown chunking changes.
+  const currentChunker = store === 'code' ? storedChunker : CHUNKER_VERSION;
 
-  if (storedModel !== currentModel || storedDim !== currentDim) {
-    // Drop and rebuild — vector data is incompatible across embedder/dim changes
+  if (storedModel !== currentModel || storedDim !== currentDim || storedChunker !== currentChunker) {
+    // Drop and rebuild — vector data is incompatible across embedder/dim/chunker changes
     db.exec('DROP TABLE IF EXISTS chunks_vec');
     db.exec('DROP TABLE IF EXISTS chunks');
     db.exec(`
@@ -173,6 +201,7 @@ function ensureSchema(db) {
     `);
     setMeta(db, 'embedding_model', currentModel);
     setMeta(db, 'embedding_dim', currentDim);
+    if (store !== 'code') setMeta(db, 'chunker_version', CHUNKER_VERSION);
   } else {
     db.exec(`
       CREATE VIRTUAL TABLE IF NOT EXISTS chunks_vec USING vec0(
@@ -292,6 +321,7 @@ export function chunkMarkdown(content, sourcePath) {
   let currentHeading = '(no heading)';
   let currentLines = [];
   let headingLevel = 0;
+  let currentChars = 0;
 
   function flush() {
     const text = currentLines.join('\n').trim();
@@ -303,18 +333,21 @@ export function chunkMarkdown(content, sourcePath) {
   for (const line of lines) {
     const h2Match = line.match(/^## (.*)/);
     const h3Match = line.match(/^### (.*)/);
-    if (h2Match) {
+    if (h2Match || h3Match) {
       flush();
-      currentHeading = h2Match[1].trim();
+      currentHeading = (h2Match || h3Match)[1].trim();
+      headingLevel = h2Match ? 2 : 3;
       currentLines = [line];
-      headingLevel = 2;
-    } else if (h3Match) {
+      currentChars = line.length + 1;
+      continue;
+    }
+    currentLines.push(line);
+    currentChars += line.length + 1;
+    // Split oversized sections; continuation chunks keep the section heading.
+    if (currentChars >= MAX_MD_CHUNK_CHARS || currentLines.length >= MAX_MD_CHUNK_LINES) {
       flush();
-      currentHeading = h3Match[1].trim();
-      currentLines = [line];
-      headingLevel = 3;
-    } else {
-      currentLines.push(line);
+      currentLines = [];
+      currentChars = 0;
     }
   }
   flush();
@@ -436,7 +469,11 @@ function getReranker() {
 async function rerankDocuments(query, documents) {
   const { tokenizer, model } = await getReranker();
   const queries = documents.map(() => query);
-  const enc = await tokenizer(queries, { text_pair: documents, padding: true, truncation: true });
+  // Cap per-doc chars BEFORE tokenizing: the cross-encoder truncates at its
+  // 512-token limit anyway, but the tokenizer still walks the whole string —
+  // an oversized chunk would otherwise stall the hot path.
+  const pairs = documents.map((d) => (d.length > RERANK_DOC_MAX_CHARS ? d.slice(0, RERANK_DOC_MAX_CHARS) : d));
+  const enc = await tokenizer(queries, { text_pair: pairs, padding: true, truncation: true });
   const { logits } = await model(enc);
   const data = Array.from(logits.data);
   return data
@@ -485,22 +522,20 @@ function insertChunks(db, chunks, mtime, filePath) {
 
 // Store registry: context (markdown docs) and code (source tree) are kept in
 // separate DBs (context.db / code.db) with different collectors + chunkers.
-// floor: ANN distance cutoff before rerank — code embeddings sit at higher
-// distances than markdown, so the code store uses a looser floor.
+// Both share the single ANN_FLOOR cutoff — measured distance distributions are
+// near-identical across the two stores, so a split floor was unjustified.
 const STORES = {
   context: {
     dbPath: (paths) => paths.dbPath,
     relBase: (paths) => paths.opencodeDir,
     chunker: chunkMarkdown,
     collector: collectScopedFiles,
-    floor: 0.8,
   },
   code: {
     dbPath: (paths) => paths.codeDbPath,
     relBase: (paths) => paths.projectRoot,
     chunker: chunkCode,
     collector: collectCodeFiles,
-    floor: 0.92,
   },
 };
 
@@ -514,7 +549,7 @@ async function vectorizeStoreFile(filePath, inputDir, store) {
   const relPath = path.relative(cfg.relBase(paths), filePath);
   await fs.promises.mkdir(paths.vectorDir, { recursive: true });
   const db = openDatabase(cfg.dbPath(paths));
-  ensureSchema(db);
+  ensureSchema(db, store);
   try {
     const mtime = await getFileMtime(filePath);
     if (!mtime) return { file: relPath, chunks: 0 };
@@ -561,7 +596,7 @@ async function ensureStoreIndexed(inputDir, store) {
   let db;
   try {
     db = openDatabase(cfg.dbPath(paths));
-    ensureSchema(db);
+    ensureSchema(db, store);
   } catch {
     return { filesScanned: scopedFiles.length, filesIndexed: 0, filesSkipped: 0, totalChunks: 0, errors: 1 };
   }
@@ -663,6 +698,47 @@ export async function ensureCodeIndexed(inputDir) {
  * opts: { useReranker?: boolean, rerankCandidates?: number, rerankTopN?: number }
  * Reranker failure degrades gracefully to distance-only ordering.
  */
+/**
+ * Graph expansion for retrieval. Given ANN-hit file paths, traverse graph.db
+ * (depth ≤ GRAPH_EXPAND_MAX_HOPS) and return the relative paths of neighbouring
+ * pages. These join the same rerank candidate pool — no new lane, no new
+ * tokens, no extra spawns. Absent graph.db or any error ⇒ [] (pure vector).
+ */
+const GRAPH_TITLE_STOP = new Set(['the', 'and', 'for', 'with', 'from', 'into', 'onto', 'that', 'this', 'your', 'you', 'how', 'what', 'when', 'where', 'why', 'who', 'are', 'was', 'via', 'use', 'used', 'new']);
+
+/**
+ * Graph-title recall — token-match node titles/paths when vector recall is
+ * empty (the ANN distance floor filtered everything). Returns the relative
+ * paths of matching nodes so their chunks can enter the SAME rerank pool.
+ * This is the recovery path: the graph is the asset index of last resort.
+ */
+function graphTitleSeedPaths(paths, queryText, limit = 8) {
+  const graphDbPath = path.join(paths.vectorDir, 'graph.db');
+  if (!fs.existsSync(graphDbPath)) return [];
+  const tokens = String(queryText).toLowerCase().split(/[^a-z0-9-]+/).filter(t => t.length >= 3 && !GRAPH_TITLE_STOP.has(t));
+  if (tokens.length === 0) return [];
+  let Database;
+  try { Database = require('better-sqlite3'); } catch { return []; }
+  let db;
+  try { db = new Database(graphDbPath, { readonly: true }); } catch { return []; }
+  try {
+    const nodes = db.prepare('SELECT id, title, path FROM nodes WHERE path IS NOT NULL').all();
+    const scored = [];
+    for (const n of nodes) {
+      const hay = `${n.title} ${n.path} ${n.id}`.toLowerCase();
+      let hits = 0;
+      for (const t of tokens) if (hay.includes(t)) hits++;
+      if (hits > 0) scored.push({ path: n.path, score: hits });
+    }
+    scored.sort((a, b) => b.score - a.score);
+    return [...new Set(scored.slice(0, limit).map(s => s.path))];
+  } catch {
+    return [];
+  } finally {
+    try { db.close(); } catch { /* ignore */ }
+  }
+}
+
 async function queryStoreChunks(inputDir, queryText, topK = TOP_K_DEFAULT, opts = {}, store) {
   const paths = resolvePaths(inputDir);
   const cfg = STORES[store];
@@ -702,27 +778,48 @@ async function queryStoreChunks(inputDir, queryText, topK = TOP_K_DEFAULT, opts 
         AND k = ?
         AND v.distance < ?
       ORDER BY v.distance
-    `).all(new Float32Array(embedding), candidates, cfg.floor);
+    `).all(new Float32Array(embedding), candidates, ANN_FLOOR);
 
-    if (rows.length === 0) return [];
+    const graphEnabled = store === 'context' && opts.expandGraph !== false;
+
+    // Recovery path — graph as the asset index of last resort. When the ANN
+    // distance floor filters everything (common for short/abstract prompts),
+    // graph-title recall seeds matching page chunks into the SAME rerank pool.
+    // When vector recall already produced hits, behaviour is byte-for-byte
+    // unchanged: zero extra work, zero precision risk. Substitutionary, never
+    // additive — no new lane, no new block, same top-N and injection budget.
+    let pool = rows;
+    if (rows.length === 0 && graphEnabled) {
+      try {
+        const seedPaths = graphTitleSeedPaths(paths, queryText, GRAPH_EXPAND_MAX_EXTRA * 2);
+        if (seedPaths.length > 0) {
+          pool = db.prepare(
+            `SELECT source, heading, content, file_path, NULL AS distance FROM chunks WHERE file_path IN (${seedPaths.map(() => '?').join(',')}) LIMIT ?`
+          ).all(...seedPaths, GRAPH_POOL_MAX);
+        }
+      } catch {
+        // Recovery is best-effort — an empty vector result stands
+      }
+    }
+    if (pool.length === 0) return [];
 
     // Stage 2: rerank (optional, graceful degradation)
-    if (useReranker && rows.length > 1) {
+    if (useReranker && pool.length > 1) {
       try {
-        const documents = rows.map(r => `${r.heading}\n${r.content}`);
+        const documents = pool.map(r => `${r.heading}\n${r.content}`);
         const reranked = await rerankDocuments(queryText, documents);
         if (reranked.length > 0) {
           const scoreByIndex = new Map(reranked.map(r => [r.index, r.relevance_score]));
-          rows.forEach((r, i) => { r.rerank_score = scoreByIndex.get(i) ?? null; });
-          rows.sort((a, b) => (b.rerank_score ?? 0) - (a.rerank_score ?? 0));
-          return rows.slice(0, Math.min(topK, rows.length));
+          pool.forEach((r, i) => { r.rerank_score = scoreByIndex.get(i) ?? null; });
+          pool.sort((a, b) => (b.rerank_score ?? 0) - (a.rerank_score ?? 0));
+          return pool.slice(0, Math.min(topK, pool.length));
         }
       } catch {
         // Reranker unavailable — fall through to distance ordering
       }
     }
 
-    return rows.slice(0, Math.min(topK, rows.length));
+    return pool.slice(0, Math.min(topK, pool.length));
   } catch {
     // Corrupt DB or unexpected query error — degrade to no results, never throw.
     return [];
