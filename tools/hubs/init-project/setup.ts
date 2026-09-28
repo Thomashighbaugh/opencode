@@ -22,10 +22,10 @@ const spec: HubSubcommandSpec = {
 | 1 | Detection | ✓ | ✓ | Deep stack detection via @stack-detector |
 | 2 | Planning | ✓ | ✓ | Recommend global resources matching detected stack |
 | 3 | Configuration | ✓ | ✓ | Create/update .opencode/opencode.jsonc with project config, then validate against schema (fetch https://opencode.ai/config.json, reject invalid keys) |
-| 4 | Provisioning | ✓ | ✓ | Generate project-specific agents, skills, tools, rules into .opencode/ |
+| 4 | Provisioning | ✓ | ✓ | Generate project-specific agents, skills, tools, rules into .opencode/. Also provision the stack-independent memory plane (graph-context rule + graph.db bootstrap) |
 | 5 | Documentation | ✓ | ✓ | Generate hierarchical AGENTS.md via deepinit |
-| 6 | Context Capture | — | ✓ | Parallel @architect + @convention-extractor + @explore map codebase, synthesize context, upgrade Phase 4 agents with deep knowledge |
-| 7 | Routing & Integration | — | ✓ | Validate agent inheritance, skill discoverability, tool exports, rule registration, context integrity, config syntax, .gitignore |
+| 6 | Context Capture | — | ✓ | Parallel @architect + @convention-extractor + @explore map codebase, synthesize context, upgrade Phase 4 agents with deep knowledge. Then \`graph build\` folds the synthesized context into the knowledge graph |
+| 7 | Routing & Integration | — | ✓ | Validate agent inheritance, skill discoverability, tool exports, rule registration, context integrity, config syntax, .gitignore, and memory-plane health (graph nodes/edges) |
 | 8 | Verification | ✓ | ✓ | Final health check and summary report |
 
 ## When to use --full

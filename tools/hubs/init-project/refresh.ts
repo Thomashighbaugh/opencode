@@ -45,10 +45,10 @@ After Phase 3 (Configuration), ensure the project's \`.opencode/opencode.jsonc\`
 | 1 | Detection | ✓ | ✓ | Re-detect stack, diff against last fingerprint, report changes |
 | 2 | Planning | ✓ | ✓ | Merge new recommendations with existing config |
 | 3 | Configuration | ✓ | ✓ | Merge new fields into opencode.jsonc, don't remove user-set values. Validate merged config against schema (fetch https://opencode.ai/config.json, reject invalid keys like extends/agents/project/rules/state/context/cache). **Then run References Sync (see above).** |
-| 4 | Provisioning | ✓ | ✓ | Add new agents/skills/tools/rules, preserve manually edited ones, flag stale resources |
+| 4 | Provisioning | ✓ | ✓ | Add new agents/skills/tools/rules, preserve manually edited ones, flag stale resources. Also (re)ensure the **memory plane**: \`graph-context.md\` rule, \`graph.db\` bootstrap, \`.opencode/state/\` gitignore |
 | 5 | Documentation | ✓ | ✓ | Update generated AGENTS.md sections, preserve \`<!-- MANUAL -->\` blocks |
-| 6 | Context Capture | — | ✓ | Re-spawn parallel agents, diff context against existing, update changed sections only |
-| 7 | Routing & Integration | — | ✓ | Validate all cross-references, fix broken ones, generate updated integration report |
+| 6 | Context Capture | — | ✓ | Re-spawn parallel agents, diff context against existing, update changed sections only. Then run \`graph build\` to fold new/changed context into the knowledge graph |
+| 7 | Routing & Integration | — | ✓ | Validate all cross-references, fix broken ones, generate updated integration report. Validate memory-plane health (\`graph stats\` shows nodes/edges when context is non-empty) |
 | 8 | Verification | ✓ | ✓ | Final health check + diff report showing what changed |
 
 ## What --full adds to refresh

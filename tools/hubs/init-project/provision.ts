@@ -19,6 +19,8 @@ const spec: HubSubcommandSpec = {
 
 The generated config references global resources (skills, agents, rules in ~/.config/opencode/) rather than duplicating them — minimal footprint, maximum context.
 
+**Memory plane (always provisioned).** In addition to the stack-specific resources, provisioning writes the stack-independent memory plane: a thin \`.opencode/rules/graph-context.md\` rule (registered under \`instructions\`), a bootstrapping \`node skills/graph-context/scripts/graph.mjs build\` to create \`graph.db\`, and a \`.opencode/state/\` gitignore entry. The global \`vectorize-context\` + \`graph-context\` skills are referenced, never copied — so every project (and every archetype) inherits knowledge-graph retrieval without per-archetype duplication.
+
 Use after /init-project detect + /init-project recommend to generate the actual config files. Or as part of /init-project setup (phase 3).`,
 
   tools: TOOLS_LOADSKILL_BASH,

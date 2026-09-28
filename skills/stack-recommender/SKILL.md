@@ -78,6 +78,18 @@ A resource recommendation object:
 
 ## Recommendation Mapping Tables
 
+### Memory Meta-Plane (stack-independent — always recommended)
+
+The retrieval/memory plane applies to **every** project regardless of stack, because it indexes the project's own durable knowledge and source tree. Always include it:
+
+| Resource            | Type  | Reason                                                                              |
+| ------------------- | ----- | ----------------------------------------------------------------------------------- |
+| `vectorize-context` | skill | Semantic retrieval over context/rules/docs/AGENTS.md + project source (local, no provider API) |
+| `graph-context`     | skill | Knowledge graph (entities/edges) + hybrid retrieval refine + impact analysis + `graph-query` tool |
+| `graph-context.md`  | rule  | Memory-plane rule written by the composer — when to use graph vs vector, impact checks |
+
+These are **referenced** from the global config, never copied into the project. `project-config-composer` provisions the rule + graph bootstrap; no archetype edits are needed.
+
 ### Language → Resources
 
 | Language    | Skills                                         | Agents             | Rules                     |

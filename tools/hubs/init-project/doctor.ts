@@ -15,6 +15,7 @@ const spec: HubSubcommandSpec = {
 - All skill files exist with valid SKILL.md.
 - All tool files compile/resolve.
 - State directories are consistent.
+- Memory plane: graph-context rule registered, \`.opencode/state/\` gitignored, and the knowledge graph is consistent with \`.opencode/context/\` (rebuildable via \`graph build\`).
 - Hook system is installed and functional.
 - Plugin system is configured.
 
