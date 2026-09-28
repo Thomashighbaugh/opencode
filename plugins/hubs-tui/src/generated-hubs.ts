@@ -17,7 +17,7 @@ export const HUBS: Hub[] = [
       },
       {
         "label": "detect",
-        "description": "Deep stack detection — analyze codebase for languages, frameworks, build tools, testing, ORM, CSS, CI/CD, etc. via @stack-detector agent"
+        "description": "Deep stack detection — analyze codebase for languages, frameworks, build tools, testing, ORM, CSS, CI/CD, etc. via the stack-detector skill"
       },
       {
         "label": "recommend",
@@ -240,7 +240,7 @@ export const HUBS: Hub[] = [
       },
       {
         "label": "deep-thinker",
-        "description": "Structured thinking partner — pass instructions directly to @deep-thinker"
+        "description": "Structured thinking partner — load the deep-thinker skill directly"
       },
       {
         "label": "opro",
@@ -501,7 +501,7 @@ export const HUBS: Hub[] = [
     "subs": [
       {
         "label": "code-review",
-        "description": "Delegated code review — pass instructions directly to @code-reviewer"
+        "description": "Delegated code review by smell taxonomy — pass instructions directly to the code-smell-review skill"
       },
       {
         "label": "pt-review",
@@ -545,11 +545,11 @@ export const HUBS: Hub[] = [
       },
       {
         "label": "refactor",
-        "description": "Restructure code without changing behavior — extract functions, split modules, reduce coupling via @refactoring agent"
+        "description": "Restructure code without changing behavior — extract functions, split modules, reduce coupling via the code-simplification skill"
       },
       {
         "label": "simplify",
-        "description": "Reduce code complexity — flatten nesting, simplify conditionals, clarify naming via @code-simplifier agent"
+        "description": "Reduce code complexity — flatten nesting, simplify conditionals, clarify naming via the code-simplification skill"
       },
       {
         "label": "cleanup",
@@ -557,7 +557,7 @@ export const HUBS: Hub[] = [
       },
       {
         "label": "modernize",
-        "description": "Update code patterns to modern language/framework conventions — targeted, behavior-preserving modernization via @refactoring agent"
+        "description": "Update code patterns to modern language/framework conventions — targeted, behavior-preserving modernization via the code-simplification skill"
       },
       {
         "label": "icon",
