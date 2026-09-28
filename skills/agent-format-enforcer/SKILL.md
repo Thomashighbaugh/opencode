@@ -16,7 +16,6 @@ Every agent file MUST follow this structure:
 ```yaml
 ---
 description: Description of the agent's role
-model: ollama/deepseek-v4-flash:0731-cloud
 mode: subagent
 ---
 <Agent_Prompt>
@@ -49,7 +48,7 @@ loadSkill agent-format-enforcer
 |-------|--------|
 | YAML frontmatter | `---` delimiters present |
 | `description` | Required field |
-| `model` | Required field |
+| `model` | Optional — this config pins no models |
 | `mode` | Required field (subagent or primary) |
 | `<Agent_Prompt>` | Opening wrapper tag present |
 | `<Role>` | Sub-tag inside Agent_Prompt |

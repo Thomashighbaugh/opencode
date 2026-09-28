@@ -1,7 +1,6 @@
 ---
 description: Focused debugging with investigation tools
 mode: primary
-model: ollama/glm-5.2:cloud
 temperature: 0.2
 tools:
   write: false

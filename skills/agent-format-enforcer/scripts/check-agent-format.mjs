@@ -40,8 +40,11 @@ function checkAgent(filePath) {
   } else {
     const fm = fmMatch[1];
     if (!fm.includes('description:')) issues.push('Missing description: in frontmatter');
-    if (!fm.includes('model:')) issues.push('Missing model: in frontmatter');
     if (!fm.includes('mode:')) issues.push('Missing mode: in frontmatter');
+    // model: is intentionally NOT required. This config pins no models anywhere —
+    // model choice is made at runtime by OpenCode or explicitly by the user.
+    // Flagging a missing model: here would push agents back into hardcoding a
+    // provider, which is the thing this config deliberately avoids.
   }
 
   // Check 2: Agent_Prompt wrapper

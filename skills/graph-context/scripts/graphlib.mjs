@@ -17,9 +17,6 @@
  *   upsertTag(inputDir, nodeId, tag)
  *   backfillFromWiki(inputDir?)    — wiki frontmatter + learnings → nodes/edges
  *   backfillFromRegistry(inputDir?)— spec-registry.json → nodes/edges (config hubs)
- *   backfillFromDecisions(inputDir?)— per-ADR decision nodes + supersedes edges
- *   backfillFromCode(inputDir?)    — file nodes + learning→file touches edges
- *   parseLearningEntries(content)  — split a learnings file into typed entries
  *   queryHybrid(inputDir, queryText, topK?, opts?) — vector recall → graph refine
  *   getNode(inputDir, nodeId)
  *   getNeighbors(inputDir, nodeId, depth?, direction?)
@@ -245,35 +242,6 @@ export function parseFrontmatter(content) {
   return fm;
 }
 
-/**
- * Parse a learnings file into individual entries. Headers look like
- *   ## LRN-20260808-000001 — <title>      (ERR-/FEAT- for the other files)
- * with bullet fields including **Pattern-Key** and **Area**.
- */
-export function parseLearningEntries(content) {
-  const headerRe = /^##\s+((?:LRN|ERR|FEAT)-[A-Za-z0-9-]+)\s*[—:-]\s*(.*)$/gm;
-  const heads = [...content.matchAll(headerRe)];
-  const entries = [];
-  for (let i = 0; i < heads.length; i++) {
-    const start = heads[i].index;
-    const end = i + 1 < heads.length ? heads[i + 1].index : content.length;
-    const body = content.slice(start, end);
-    const field = (name) => {
-      const m = body.match(new RegExp(`\\*\\*${name}\\*\\*\\s*:\\s*(.+)`, 'i'));
-      return m ? m[1].trim().replace(/^[`'"]|[`'"]$/g, '').replace(/\s*\(.*$/, '') : null;
-    };
-    entries.push({
-      entryId: heads[i][1].trim(),
-      title: (heads[i][2] || '').trim() || heads[i][1].trim(),
-      patternKey: field('Pattern-Key'),
-      area: field('Area'),
-      status: field('Status'),
-      recurrence: field('Recurrence-Count'),
-    });
-  }
-  return entries;
-}
-
 // ─── Backfill: wiki + rules + learnings + registry → nodes/edges ───────────
 
 async function walk(dir) {
@@ -305,14 +273,13 @@ async function getMtime(filePath) {
   }
 }
 
-const mtimeCache = new Map(); // `${ns}|${filePath}` -> mtime (per process)
-function hasChanged(filePath, ns = 'wiki') {
+const mtimeCache = new Map(); // filePath -> mtime (per process)
+function hasChanged(filePath) {
   const stat = fs.existsSync(filePath) ? fs.statSync(filePath) : null;
   if (!stat) return true;
   const mtime = stat.mtime.toISOString();
-  const key = `${ns}|${filePath}`;
-  const prev = mtimeCache.get(key);
-  mtimeCache.set(key, mtime);
+  const prev = mtimeCache.get(filePath);
+  mtimeCache.set(filePath, mtime);
   return prev !== mtime;
 }
 
@@ -344,15 +311,7 @@ export async function backfillFromWiki(inputDir) {
     }
 
     const allMd = [];
-    // Union of .opencode/{context,rules} plus a repo-root rules/ dir — the
-    // global-config meta-repo keeps rules at <root>/rules, normal projects at
-    // <root>/.opencode/rules. Deduped by resolved path.
-    const scanDirs = new Set([
-      paths.contextDir,
-      paths.rulesDir,
-      path.join(paths.projectRoot, 'rules'),
-    ]);
-    for (const dir of scanDirs) {
+    for (const dir of [paths.contextDir, paths.rulesDir]) {
       if (fs.existsSync(dir)) allMd.push(...(await walk(dir)));
     }
     // Learnings are inside contextDir — avoid double-scanning (walk already covers them)
@@ -397,34 +356,12 @@ export async function backfillFromWiki(inputDir) {
         title = path.basename(path.dirname(filePath));
       }
       if (isLearning) {
-        // One node PER ENTRY (LRN/ERR/FEAT), not per file. Pattern-Key + Area
-        // are carried in meta for exact resolution in Pass 2. No file-level node.
-        for (const entry of parseLearningEntries(content)) {
-          const entryId = nodeId('learning', entry.entryId.toLowerCase());
-          upsertNodeInner(db, {
-            id: entryId, type: 'learning',
-            title: `${entry.entryId} — ${entry.title}`,
-            path: rel, mtime,
-            meta: { patternKey: entry.patternKey, area: entry.area, status: entry.status, recurrence: entry.recurrence, file: rel },
-          });
-          stats.nodes++;
-          titleToId.set(slugify(entry.title), entryId);
-          if (entry.patternKey) {
-            db.prepare('INSERT OR IGNORE INTO node_tags (node_id, tag) VALUES (?, ?)').run(entryId, String(entry.patternKey).toLowerCase());
-            stats.tags++;
-          }
-        }
-        continue;
+        type = 'learning';
+        const m = content.match(/^## (LRN|ERR|FEAT)-\d+[^\n]*/m);
+        if (m) title = m[0].replace(/^## /, '');
       }
 
-      if (!isSkillManifest && !isLearning && filePath.includes(`${path.sep}rules${path.sep}`)) {
-        // Rule nodes use the file basename — matches the registry's
-        // rules:["<slug>"] edge targets (used_by edges must resolve).
-        type = 'rule';
-        title = path.basename(filePath).replace(/\.md$/, '');
-      }
-
-      const id = (isSkillManifest || type === 'rule') ? nodeId(type, title) : nodeId(type, rel || slugify(title));
+      const id = isSkillManifest ? nodeId('skill', title) : nodeId(type, rel || slugify(title));
       const meta = fm ? { tags: Array.isArray(fm.tags) ? fm.tags : (fm.tags ? [fm.tags] : []), status: fm.status, sources: fm.sources, relatedSkills: fm.relatedSkills } : {};
       upsertNodeInner(db, { id, type, title, path: rel, meta, mtime });
       stats.nodes++;
@@ -483,138 +420,23 @@ export async function backfillFromWiki(inputDir) {
       }
     }
 
-    // learnings → touches → exact Pattern-Key tag match, then Area slug match
+    // learnings → touches → matching nodes
     const learnings = db.prepare("SELECT id, meta FROM nodes WHERE type = 'learning'").all();
     for (const l of learnings) {
       let meta = null;
       try { meta = l.meta ? JSON.parse(l.meta) : null; } catch { /* ignore */ }
       if (!meta) continue;
-      const targets = new Set();
-      if (meta.patternKey) {
-        const pk = String(meta.patternKey).toLowerCase();
-        for (const r of db.prepare('SELECT node_id FROM node_tags WHERE LOWER(tag) = ?').all(pk)) targets.add(r.node_id);
-        for (const r of db.prepare('SELECT id FROM nodes WHERE LOWER(id) LIKE ? OR LOWER(title) LIKE ? LIMIT 5').all(`%${pk}%`, `%${pk}%`)) targets.add(r.id);
-      }
-      if (meta.area) {
-        const slug = slugify(meta.area);
-        if (slug.length >= 3) {
-          for (const r of db.prepare('SELECT id FROM nodes WHERE LOWER(id) LIKE ? OR LOWER(title) LIKE ? LIMIT 5').all(`%${slug}%`, `%${slug}%`)) targets.add(r.id);
-        }
-      }
-      for (const t of targets) {
-        if (t === l.id) continue;
-        db.prepare('INSERT OR IGNORE INTO edges (src_id, dst_id, type) VALUES (?, ?, ?)').run(l.id, t, 'touches');
+      const area = meta.area || meta['Pattern-Key'] || '';
+      if (!area) continue;
+      const match = db.prepare('SELECT id FROM nodes WHERE LOWER(title) LIKE ? OR LOWER(id) LIKE ? LIMIT 3')
+        .all(`%${String(area).toLowerCase()}%`, `%${String(area).toLowerCase()}%`);
+      for (const m of match) {
+        if (m.id === l.id) continue;
+        db.prepare('INSERT OR IGNORE INTO edges (src_id, dst_id, type) VALUES (?, ?, ?)').run(l.id, m.id, 'touches');
         stats.edges++;
       }
     }
 
-    // part_of — rules and skills belong to the project entity node
-    const projectId = nodeId('entity', path.basename(paths.projectRoot));
-    for (const row of db.prepare("SELECT id FROM nodes WHERE type IN ('rule','skill')").all()) {
-      db.prepare('INSERT OR IGNORE INTO edges (src_id, dst_id, type) VALUES (?, ?, ?)').run(row.id, projectId, 'part_of');
-      stats.edges++;
-    }
-
-    return stats;
-  } finally {
-    db.close();
-  }
-}
-
-/**
- * Backfill per-ADR decision nodes from .opencode/context/decisions.md.
- * The file is a monolith of `# ADR: <title>` sections; each becomes a
- * `decision:<slug>` node. Explicit `**Supersedes**: <title>` lines emit
- * supersedes edges. Deterministic — no LLM, no provider tokens.
- */
-export async function backfillFromDecisions(inputDir) {
-  const paths = resolvePaths(inputDir);
-  const decisionsFile = path.join(paths.contextDir, 'decisions.md');
-  if (!fs.existsSync(decisionsFile)) return { skipped: 'no decisions.md' };
-  if (!hasChanged(decisionsFile, 'decisions')) return { skipped: 'unchanged' };
-
-  const content = await fs.promises.readFile(decisionsFile, 'utf-8');
-  const db = ensureGraphReady(inputDir);
-  const stats = { nodes: 0, edges: 0, tags: 0 };
-  try {
-    const headline = /^#\s+ADR:\s*(.+)$/gm;
-    const heads = [...content.matchAll(headline)];
-    for (let i = 0; i < heads.length; i++) {
-      const title = heads[i][1].trim();
-      const start = heads[i].index;
-      const end = i + 1 < heads.length ? heads[i + 1].index : content.length;
-      const body = content.slice(start, end);
-      const id = nodeId('decision', slugify(title));
-      upsertNodeInner(db, { id, type: 'decision', title, path: 'context/decisions.md', meta: { file: 'context/decisions.md' } });
-      stats.nodes++;
-
-      const tagLine = body.match(/\*\*Tags\*\*:\s*(.+)/i);
-      if (tagLine) {
-        for (const tag of tagLine[1].split(',').map(s => s.trim().toLowerCase()).filter(Boolean)) {
-          db.prepare('INSERT OR IGNORE INTO node_tags (node_id, tag) VALUES (?, ?)').run(id, tag);
-          stats.tags++;
-        }
-      }
-
-      const supersedes = body.match(/\*\*Supersedes\*\*:\s*(.+)/i);
-      if (supersedes) {
-        const targetId = nodeId('decision', slugify(supersedes[1].trim()));
-        db.prepare('INSERT OR IGNORE INTO edges (src_id, dst_id, type) VALUES (?, ?, ?)').run(id, targetId, 'supersedes');
-        stats.edges++;
-      }
-    }
-    return stats;
-  } finally {
-    db.close();
-  }
-}
-
-/**
- * Backfill `file` nodes for the project source tree (reusing the exact
- * vectorize-context code skip rules via veclib.collectCodeFiles), then link
- * learnings/patterns/decisions to the files their Area/Pattern-Key names.
- * Gives code↔knowledge impact analysis. Local-only, deterministic.
- */
-export async function backfillFromCode(inputDir) {
-  const paths = resolvePaths(inputDir);
-  if (!fs.existsSync(paths.projectRoot)) return { skipped: 'no project root' };
-
-  let collectCodeFiles;
-  try {
-    ({ collectCodeFiles } = await import(path.join(__dirname, '..', '..', 'vectorize-context', 'scripts', 'veclib.mjs')));
-  } catch {
-    return { skipped: 'veclib unavailable' };
-  }
-  const files = await collectCodeFiles(paths);
-  if (files.length === 0) return { skipped: 'no code files' };
-
-  const db = ensureGraphReady(inputDir);
-  const stats = { nodes: 0, edges: 0 };
-  try {
-    const insertEdge = db.prepare('INSERT OR IGNORE INTO edges (src_id, dst_id, type) VALUES (?, ?, ?)');
-    for (const filePath of files) {
-      const rel = path.relative(paths.opencodeDir, filePath).replace(/\\/g, '/');
-      let mtime = null;
-      try { mtime = (await fs.promises.stat(filePath)).mtime.toISOString(); } catch { /* ignore */ }
-      upsertNodeInner(db, { id: nodeId('file', rel), type: 'file', title: path.basename(filePath), path: rel, mtime });
-      stats.nodes++;
-    }
-
-    const sources = db.prepare("SELECT id, meta FROM nodes WHERE type IN ('learning','pattern','decision')").all();
-    for (const s of sources) {
-      let meta = null;
-      try { meta = s.meta ? JSON.parse(s.meta) : null; } catch { /* ignore */ }
-      if (!meta) continue;
-      const key = String(meta.area || meta.patternKey || '').trim();
-      if (!key) continue;
-      const slug = slugify(key);
-      if (slug.length < 3) continue;
-      const matches = db.prepare("SELECT id FROM nodes WHERE type = 'file' AND (LOWER(id) LIKE ? OR LOWER(title) LIKE ?)").all(`%${slug}%`, `%${slug}%`);
-      for (const m of matches) {
-        insertEdge.run(s.id, m.id, 'touches');
-        stats.edges++;
-      }
-    }
     return stats;
   } finally {
     db.close();
@@ -674,16 +496,6 @@ export async function backfillFromRegistry(inputDir) {
           stats.edges++;
         } catch { /* dangling ok */ }
       }
-      if (Array.isArray(spec.rules)) {
-        for (const ruleName of spec.rules) {
-          const slug = String(ruleName).replace(/\.md$/, '').trim();
-          if (!slug) continue;
-          try {
-            db.prepare('INSERT OR IGNORE INTO edges (src_id, dst_id, type) VALUES (?, ?, ?)').run(id, nodeId('rule', slug), 'used_by');
-            stats.edges++;
-          } catch { /* dangling ok */ }
-        }
-      }
     }
     return stats;
   } finally {
@@ -733,9 +545,7 @@ export async function queryHybrid(inputDir, queryText, topK = 8, opts = {}) {
   let vecResults = [];
   try {
     const { queryChunks } = await import(path.join(__dirname, '..', '..', 'vectorize-context', 'scripts', 'veclib.mjs'));
-    // expandGraph:false — this function performs its own graph refine; asking the
-    // vector layer to expand too would be redundant work on the same graph.
-    vecResults = await queryChunks(inputDir, queryText, topK * 2, { useReranker: opts.useReranker, expandGraph: false });
+    vecResults = await queryChunks(inputDir, queryText, topK * 2, { useReranker: opts.useReranker });
   } catch {
     // Vector store unavailable — graph-only (neighbors of nothing = empty)
   }

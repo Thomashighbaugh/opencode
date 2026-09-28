@@ -41,7 +41,7 @@ fi
 
 ### Step 2: Generate opencode.jsonc
 
-Read language-specific template and generate a valid OpenCode config. Only use keys from the official schema: `$schema`, `model`, `default_agent`, `provider`, `permission`, `mcp`, `plugin`, `instructions`, `skills`, `formatter`, `lsp`, `experimental`, `tool_output`, `compaction`. The `tools` key is NOT valid — tools are auto-discovered from the `tools/` directory.
+Read language-specific template and generate a valid OpenCode config. Only use keys from the official schema: `$schema`, `default_agent`, `provider`, `permission`, `mcp`, `plugin`, `instructions`, `skills`, `formatter`, `lsp`, `experimental`, `tool_output`, `compaction`. The `tools` key is NOT valid — tools are auto-discovered from the `tools/` directory.
 
 ```bash
 generate_opencode_jsonc() {
@@ -52,7 +52,6 @@ generate_opencode_jsonc() {
     cat > "$output" << 'JSONC_EOF'
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "ollama/deepseek-v4-flash:0731-cloud",
   "default_agent": "hubs",
   "formatter": true,
   "lsp": true,
@@ -62,12 +61,6 @@ generate_opencode_jsonc() {
       "npm": "@ai-sdk/openai-compatible",
       "options": {
         "baseURL": "http://127.0.0.1:11434/v1"
-      },
-      "models": {
-        "deepseek-v4-pro:cloud": { "name": "deepseek-v4-pro:cloud", "limit": { "context": 1048576, "output": 131072 } },
-        "deepseek-v4-flash:0731-cloud": { "name": "deepseek-v4-flash:0731-cloud", "limit": { "context": 1048576, "output": 131072 } },
-        "glm-5.2:cloud": { "name": "glm-5.2:cloud", "limit": { "context": 202752, "output": 131072 } },
-        "nemotron-3-ultra:cloud": { "name": "nemotron-3-ultra:cloud", "limit": { "context": 262144, "output": 131072 } }
       }
     }
   },

@@ -24,7 +24,7 @@ cat | npx tsx <handler>.ts
 ## TypeScript Handler Pattern
 ```typescript
 interface HookInput {
-  // Event-specific fields — see `hook-developer` for the field list per event
+  // Event-specific fields
 }
 
 async function main() {
@@ -32,29 +32,22 @@ async function main() {
 
   // Process input
 
-  // Real output shape (there is no generic result/message pair — it's
-  // per-event; this is the PreToolUse/UserPromptSubmit shape):
   const output = {
-    hookSpecificOutput: {
-      hookEventName: "PreToolUse",
-      permissionDecision: "allow", // or "deny" / "ask"
-      additionalContext: "Optional context for Claude",
-    },
+    result: 'continue',  // or 'block'
+    message: 'Optional system reminder'
   };
 
   console.log(JSON.stringify(output));
 }
 ```
-A plain executable script (shebang + execute bit) needs no shell wrapper at all — `type: "command"` can point straight at it. See `~/.config/opencode/claude/hooks/*.mjs` for two working examples.
 
 ## Hook Events
-The full set is ~28 events (see `hook-developer` skill for the complete reference, refreshed 2026-09-27). The ones you'll reach for most:
 - **PreToolUse** - Before tool execution (can block)
-- **PostToolUse** - After tool execution (can only add context, NOT block — use `tool_response`, not `tool_result`)
-- **UserPromptSubmit** - Before processing user prompt (can block)
-- **PreCompact** / **PostCompact** - Before / after context compaction
-- **SessionStart** / **SessionEnd** - On session start/resume/compact / on session end
-- **Stop** / **SubagentStop** - When agent/subagent finishes (can block — check `stop_hook_active` to avoid looping)
+- **PostToolUse** - After tool execution
+- **UserPromptSubmit** - Before processing user prompt
+- **PreCompact** - Before context compaction
+- **SessionStart** - On session start/resume/compact
+- **Stop** - When agent finishes
 
 ## Testing
 Test hooks manually:

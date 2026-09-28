@@ -75,9 +75,11 @@ describe('opencode.jsonc schema compliance', () => {
       expect(config['$schema']).toBe('https://opencode.ai/config.json')
     })
 
-    it('should have a model configured', () => {
-      expect(config.model).toBeDefined()
-      expect(typeof config.model).toBe('string')
+    it('should NOT pin a model — model is chosen at runtime', () => {
+      // This config deliberately pins no model. OpenCode (or the user) selects
+      // the model at runtime, so a hardcoded `model` here would override that.
+      expect(config.model).toBeUndefined()
+      expect(config.small_model).toBeUndefined()
     })
 
     it('should have a default_agent configured', () => {

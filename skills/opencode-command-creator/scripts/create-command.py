@@ -11,7 +11,7 @@ Usage:
 Examples:
     ./create-command.py test --description "Run tests" --global
     ./create-command.py component --agent code --template "Create component $ARGUMENTS"
-    ./create-command.py review --subtask --model "ollama/glm-5.2:cloud"
+    ./create-command.py review --subtask
 """
 
 import argparse
@@ -19,7 +19,6 @@ import json
 import os
 import sys
 from pathlib import Path
-from typing import Optional
 
 
 def create_command_file(
@@ -27,7 +26,6 @@ def create_command_file(
     template: str,
     description: Optional[str] = None,
     agent: Optional[str] = None,
-    model: Optional[str] = None,
     subtask: bool = False,
     global_cmd: bool = False,
     output_dir: Optional[str] = None,
@@ -40,7 +38,6 @@ def create_command_file(
         template: Command template/prompt content
         description: Brief description for TUI
         agent: Agent to execute command
-        model: Model override
         subtask: Force subagent invocation
         global_cmd: Create in global config directory
         output_dir: Custom output directory
@@ -69,8 +66,6 @@ def create_command_file(
         frontmatter["description"] = description
     if agent:
         frontmatter["agent"] = agent
-    if model:
-        frontmatter["model"] = model
     if subtask:
         frontmatter["subtask"] = subtask
 
@@ -103,7 +98,7 @@ def main() -> int:
 Examples:
   %(prog)s test --description "Run tests" --global
   %(prog)s component --agent code --template "Create component $ARGUMENTS"
-  %(prog)s review --subtask --model "ollama/glm-5.2:cloud"
+  %(prog)s review --subtask
         """,
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
@@ -134,7 +129,6 @@ Examples:
 
     parser.add_argument(
         "-m",
-        "--model",
         help="Model override (e.g., ollama/glm-5.2:cloud)",
     )
 
@@ -182,8 +176,6 @@ Examples:
                 config["command"][args.name]["description"] = args.description
             if args.agent:
                 config["command"][args.name]["agent"] = args.agent
-            if args.model:
-                config["command"][args.name]["model"] = args.model
             if args.subtask:
                 config["command"][args.name]["subtask"] = True
 
@@ -196,7 +188,6 @@ Examples:
             template=args.template,
             description=args.description,
             agent=args.agent,
-            model=args.model,
             subtask=args.subtask,
             global_cmd=args.global_cmd,
             output_dir=args.output,

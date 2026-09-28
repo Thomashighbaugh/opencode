@@ -325,7 +325,6 @@ fi
 cat > "$GLOBAL_DIR/opencode.jsonc" << 'EOF'
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "ollama/deepseek-v4-flash:0731-cloud",
   "default_agent": "hubs",
   "formatter": true,
   "lsp": true,

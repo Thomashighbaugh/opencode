@@ -63,7 +63,6 @@
 ```yaml
 ---
 description: <one-line trigger description — when to use this agent>
-model: opencode/deepseek-v4-flash-free   # from the model tier table
 mode: subagent                            # or "primary" (only hubs.md)
 permission:
   bash: ask                               # or "allow" / "deny"

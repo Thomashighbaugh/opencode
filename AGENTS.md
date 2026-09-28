@@ -4,13 +4,22 @@
 
 ## Overview
 
-- **1 primary agent** (`hubs`) — the specialist roster was retired in favor of auto-selecting skills, see `agents/hubs.md`
-- **137 workflow skills** for development tasks
-- **30 TypeScript tools** for session management and file editing
-- **154 hub subcommand specs** across 6 hub directories
+- **1 primary agent** (`hubs`) — the only primary. It handles tasks directly and is the sole entry point.
+- **30 subagents** — all `mode: subagent`, dispatched by `hubs` or by an explicit user request. See `agents/hubs.md`
+- **123 workflow skills** for development tasks
+- **38 TypeScript tools** for session management and file editing
+- **188 hub subcommand specs** across 7 hub directories
 - **Hook system plugin** for mode detection, state persistence, and context injection
 - **Multi-tier cache system** — tool, file, session, vector search caching
 - **Durable context storage** — knowledge compounds across sessions
+
+### Model Policy
+
+**This config pins no models.** There is no `model` key in `opencode.jsonc`, no `model:` in any agent
+frontmatter, and no model in any profile. Model choice is made at runtime by OpenCode or explicitly by
+the user. Never hardcode a model, and never select or fail over between specific models on your own
+initiative — if a subagent fails, escalate to the user instead of switching providers.
+`tests/global/schema.test.ts` and `tests/global/agent-format.test.ts` enforce this.
 
 ## API Request Efficiency (CRITICAL)
 
@@ -41,7 +50,7 @@ Every turn, every subagent invocation, every verification round costs an API req
 **Cache file reads within a session.** When reading a file that was already read earlier in the same session, use the cached content instead of re-reading. The `file` cache namespace (24h TTL, memory-only) is available for this. Invalidate on write to the same file.
 
 ### Intelligent Retry Gating
-**Classify subagent errors before retrying.** Provider errors (connection refused, model unavailable, 502/503/504, timeout, rate limit) → retry with fallback. Task errors (incorrect output, wrong implementation) → fix the task prompt, don't retry. Tool errors (file not found, permission denied) → fix the root cause, don't retry. Never retry more than 3 times total.
+**Classify subagent errors before retrying.** Provider errors (connection refused, 502/503/504, timeout, rate limit) → retry once, then escalate. Task errors (incorrect output, wrong implementation) → fix the task prompt, don't retry. Tool errors (file not found, permission denied) → fix the root cause, don't retry. Never retry more than 3 times total.
 
 ## Core Rules (Loaded at Startup)
 
@@ -73,30 +82,31 @@ Every turn, every subagent invocation, every verification round costs an API req
 
 Magic keywords (`ralph`, `autopilot`, `ultrawork`, `build me`, `create me`, etc.) do **NOT** auto-activate modes. The plugin detects them and injects a context message, but the agent must **propose** the mode to the user and get explicit confirmation before activating.
 
-## Model & Fallback
+## Subagent Dispatch
 
-As of 2026-09-27, the 30-agent specialist roster was retired in favor of skills that auto-select by
-description (see `agents/hubs.md` → `<Specialist_Skills>` for the full list and
-`claude/knowledge-claude-config/agents-to-skills-2026-09-27.md` for the retirement mapping). Skills
-load inline at whatever model the current session is already running — there's no per-specialty
-tier table to maintain anymore.
+There is **one primary agent** (`hubs`) and **30 subagents** — all `mode: subagent`. The subagent
+roster is live, not retired: `agents/` holds 30 specialists spanning planning, implementation,
+review, research, design, and workflow, each with its own `<Agent_Prompt>`.
 
-The two exceptions are `architect-review` and `plan-critic`, the only roles that still warrant an
-isolated Task dispatch (they need a perspective uncontaminated by the current conversation). When
-dispatching either: try `o/dsv4-pro:cloud` → `og/dsv4-pro` → `oc/space-bunny-free`, stop on first
-success. Everything else in this section still applies to that dispatch:
+**`hubs` is never retired.** It is the sole entry point and the only agent a session starts as
+(`default_agent: "hubs"`). It handles work directly by default and proposes subagent patterns
+rather than deploying them unprompted.
 
-**Session model:** `opencode-go/deepseek-v4.1-flash` (set in `agents/hubs.md` frontmatter).
+### Model selection is not a dispatch concern
 
-**Ambiguity default:** in ambiguous situations (unclear which model to use), default to
-`oc/space-bunny-free` — the free, always-available model. Never default to a paid/cloud model when
-uncertain.
+Do not choose, pin, or fail over between models when dispatching a subagent — this config pins none
+(see **Model Policy** above). The dispatched subagent runs on whatever model the runtime gives it.
+If a subagent fails:
 
-**Failover:** provider errors advance the chain after 60s. Task errors → fix the prompt, don't
-advance the chain. Chain exhausted → escalate via the `question` tool.
+| Error type | Action |
+|------------|--------|
+| Provider error (connection refused, 502/503/504, timeout, rate limit) | Retry once, then escalate via `question` |
+| Task error (wrong output, wrong implementation) | Fix the task prompt — do **not** retry or switch agents |
+| Tool error (file not found, permission denied) | Fix the root cause |
 
-**Timeout:** 5 turns is a reasonable default max for a fork dispatch. If no output by then, terminate
-and escalate rather than letting it loop.
+Retries are per-subagent: one stuck subagent never blocks the others. Subagent timeout is
+60s without error; beyond that let it finish. Full detail in `agents/hubs.md` → `<Error_Handling>`.
+
 
 ## Hub Commands
 
@@ -135,8 +145,8 @@ See `rules/hub-routing.md` for the complete delegation table and architecture de
 ~/.config/opencode/
 ├── opencode.jsonc       # Main configuration
 ├── AGENTS.md            # This file (core instructions)
-├── agents/              # hubs.md only — the specialist roster now lives in skills/
-├── skills/              # 137 workflow skills
+├── agents/              # hubs.md (primary) + 30 subagents
+├── skills/              # 123 workflow skills
 ├── commands/            # (empty — all subcommands live in hub menus)
 ├── templates/
 │   ├── projects/         # Project archetype templates (bare-bones, cli-tool, docker, go, nextjs, etc.)
@@ -174,3 +184,48 @@ See `rules/hub-routing.md` for the complete delegation table and architecture de
 Use Context7 MCP to fetch current documentation when the user asks about a library, framework, SDK, API, CLI tool, or cloud service. Always start with `resolve-library-id`, then `query-docs`. Do not use for: refactoring, debugging business logic, code review, or general programming concepts.
 
 **Before fetching:** Check `.opencode/context/research/{library-slug}/` for cached results. If a cached result exists and is less than 7 days old, use it instead of making a new API call. **After fetching:** Save results to `.opencode/context/research/{library-slug}/{query-hash}.md` for future reuse.
+
+## Web Search Directive (SearXNG — Default Engine)
+
+**Use SearXNG MCP as the first and default engine for all web search.** It is wired in
+`opencode.jsonc` as the `searxng` MCP server, backed by the locally hosted instance at
+`http://localhost:8080` (`SEARXNG_URL`). Prefer it over the generic `websearch` tool, and prefer
+it over any hosted search backend.
+
+- **Use SearXNG** for: factual/current lookups, docs pages, error messages and their upstream
+  issues, library behaviour, release notes, "what does X do", anything where a fresh web result
+  is the point.
+- **Fall back to `websearch`** only when SearXNG is unreachable, returns nothing usable, or the
+  user explicitly asks for a different engine. Say which one you used and why.
+- **Scope queries narrowly.** Prefer site-scoped queries (`site:github.com ...`) over broad ones.
+
+## Code Snippet Directive (gh_grep)
+
+**Use the `gh_grep` MCP server (`https://mcp.grep.app`) to search real code** when you need to
+know how something is actually written in the wild, rather than guessing.
+
+Use it when:
+
+- You are **not sure** how to do something and an example would remove the guesswork.
+- A task requires **performing a specific function** in a **specific language**, and idiomatic
+  examples would materially improve the result.
+- You need **library or framework usage patterns** that the local codebase does not contain.
+- An API's exact call shape, import path, or option names are **uncertain**.
+
+Skip it when the answer is already in the repo (`grep`/`glob` are faster and authoritative here),
+for general programming concepts, or when Context7 already documented the usage.
+
+### Caching retrieved snippets (REQUIRED)
+
+Retrieved snippets are expensive to re-fetch and are the kind of knowledge worth compounding.
+**After using a `gh_grep` result, save it:**
+
+1. Write the useful snippets to `.opencode/context/research/code-snippets/{topic-slug}.md`.
+2. Include the source repo/file, the language, and why the pattern matters — not just a raw paste.
+3. **Before searching again, check that directory first** and reuse a cached hit if it covers the
+   question. Grep there before spending a network call.
+4. Keep entries current: if a cached snippet turns out to be outdated, correct it in place rather
+   than adding a near-duplicate.
+
+
+

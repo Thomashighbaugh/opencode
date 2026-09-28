@@ -11,7 +11,6 @@ snippets.
 ---
 name: research-agent
 description: Research questions without modifying main context
-model: sonnet
 context: fork
 allowed-tools: WebSearch, WebFetch, Read
 ---
@@ -32,7 +31,6 @@ experiments, background tasks that run independently.
 ---
 name: read-only-explorer
 description: Explore codebase without modifications
-model: sonnet
 allowed-tools: Bash, Read, Grep, Glob
 disallowedTools: Write, Edit, NotebookEdit
 ---
@@ -52,7 +50,6 @@ specific tasks, security-sensitive contexts.
 ---
 name: security-auditor
 description: Security-focused code review agent
-model: sonnet
 context: fork
 allowed-tools: Read, Grep, Glob, WebSearch, TodoWrite
 disallowedTools: Bash, Write, Edit

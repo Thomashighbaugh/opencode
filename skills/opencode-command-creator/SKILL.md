@@ -34,7 +34,7 @@ Create `.md` files in:
 ---
 description: Brief description of command
 agent: agent-name (optional)
-model: model-identifier (optional)
+# model: intentionally omitted — this config pins no models
 subtask: true/false (optional)
 ---
 
@@ -47,7 +47,6 @@ and other prompt content.
 ---
 description: Run tests with coverage
 agent: build
-model: ollama/glm-5.2:cloud
 ---
 
 Run the full test suite with coverage report and show any failures.
@@ -66,7 +65,6 @@ Add to `opencode.jsonc`:
       "template": "Prompt template text",
       "description": "Brief description",
       "agent": "agent-name",
-      "model": "model-identifier",
       "subtask": false
     }
   }
@@ -155,7 +153,6 @@ Review these changes and suggest improvements.
 ---
 description: Full code review
 agent: reviewer
-model: ollama/glm-5.2:cloud
 subtask: true
 ---
 

@@ -48,7 +48,7 @@ Create `.md` files in:
 ---
 description: Brief description of agent purpose
 mode: primary|subagent|all
-model: provider/model-id (optional)
+# model: intentionally omitted — this config pins no models
 temperature: 0.0-1.0 (optional)
 maxSteps: number (optional)
 tools:
@@ -85,7 +85,6 @@ Add to `opencode.jsonc`:
     "agent-name": {
       "description": "Brief description",
       "mode": "primary",
-      "model": "ollama/glm-5.2:cloud",
       "prompt": "{file:./prompts/agent.txt}",
       "temperature": 0.3,
       "maxSteps": 10,
@@ -218,7 +217,6 @@ Look for:
 ---
 description: Reviews code for best practices and potential issues
 mode: subagent
-model: ollama/glm-5.2:cloud
 temperature: 0.1
 tools:
   write: false
@@ -272,7 +270,6 @@ Approach:
 ---
 description: High-effort reasoning for complex problems
 mode: subagent
-model: openai/gpt-5
 temperature: 0.1
 reasoningEffort: high
 textVerbosity: low

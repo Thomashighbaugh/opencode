@@ -33,8 +33,9 @@
  *   --brief <file>          Path to the brief. If omitted, the brief is read from stdin.
  *   --cd <dir>              Working root for OpenCode (default: current directory).
  *   --lane <name>           Fleet lane from delegate-setup config (dials apply; explicit flags win).
- *   --model <name>          Model as provider/model. REQUIRED for a fresh run — OpenCode has no
- *                           safe default; a resumed run inherits its session's model.
+ *   --model <name>          Model as provider/model. Optional — when omitted, the relay inherits
+ *                           the invoking session's model from the local session DB, so the run uses
+ *                           the same model the caller already chose. Pass it to override.
  *   --agent <name>          OpenCode agent (default: build). Use plan for read-only review.
  *   --read-only             Shortcut for --agent plan (review/diagnosis, no edits).
  *   --variant <name>        Provider reasoning effort (e.g. high, max, minimal).
@@ -71,7 +72,8 @@ import {spawn, execFileSync, spawnSync } from "node:child_process";
 import { mkdirSync, writeFileSync, renameSync, readFileSync, existsSync, appendFileSync } from "node:fs";
 import {join, resolve, basename, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { constants, tmpdir } from "node:os";
+import { constants, tmpdir, homedir } from "node:os";
+import { createRequire } from "node:module";
 import { StringDecoder } from "node:string_decoder";
 
 const VERSION_PROBE_TIMEOUT_MS = 10_000;
@@ -646,6 +648,73 @@ function dispatchToOpenCode(opts, brief, run, writeResult) {
   child.stdin.end();
 }
 
+/**
+ * Resolve the model of the session that is invoking this relay.
+ *
+ * This is inheritance, not selection: the relay is called from inside a session whose
+ * model the user already chose, so a child run should use that same model rather than
+ * forcing the caller to restate it. An explicit --model always wins; this is only the
+ * fallback. If nothing can be resolved we return null and the caller errors as before.
+ *
+ * Reads only the local OpenCode session database (node:sqlite, a Node built-in) — no
+ * network, no credentials, no writes. Returns "provider/id".
+ */
+function resolveInheritedModel(opts) {
+  if (opts.model) return opts.model; // explicit flag always wins
+  let db;
+  try {
+    // node:sqlite is a Node built-in (>=22.5). createRequire keeps this ESM module able to
+    // load it lazily, so an older Node degrades to "could not inherit" instead of crashing.
+    const { DatabaseSync } = createRequire(import.meta.url)("node:sqlite");
+    const dataDir = process.env.OPENCODE_DATA || join(homedir(), ".local", "share", "opencode");
+    const dbPath = join(dataDir, "opencode.db");
+    if (!existsSync(dbPath)) return null;
+    db = new DatabaseSync(dbPath, { readOnly: true });
+  } catch {
+    return null; // node:sqlite unavailable or db unreadable — caller falls back to erroring
+  }
+
+  const toModelId = (raw) => {
+    if (!raw) return null;
+    try {
+      const parsed = typeof raw === "string" ? JSON.parse(raw) : raw;
+      if (parsed && parsed.providerID && parsed.id) return `${parsed.providerID}/${parsed.id}`;
+    } catch {
+      // Older/alternate shape: already a "provider/id" string.
+    }
+    return typeof raw === "string" && raw.includes("/") ? raw : null;
+  };
+
+  try {
+    // 1. A pinned session: use exactly that session's model.
+    if (opts.session) {
+      const row = db.prepare("SELECT model FROM session WHERE id = ?").get(opts.session);
+      return toModelId(row && row.model);
+    }
+    // 2. A resumed run already inherits; no need to pin a model ourselves.
+    if (opts.resumeLast) return null;
+    // 3. Most recently updated top-level session in the target directory. Restrict to
+    //    parent_id IS NULL so a subagent's own session isn't mistaken for the caller's.
+    let row = db
+      .prepare(
+        "SELECT model FROM session WHERE directory = ? AND parent_id IS NULL ORDER BY time_updated DESC LIMIT 1",
+      )
+      .get(opts.cd);
+    // 4. Fall back to the newest top-level session anywhere, then any session.
+    if (!row) {
+      row = db
+        .prepare("SELECT model FROM session WHERE parent_id IS NULL ORDER BY time_updated DESC LIMIT 1")
+        .get();
+    }
+    if (!row) row = db.prepare("SELECT model FROM session ORDER BY time_updated DESC LIMIT 1").get();
+    return toModelId(row && row.model);
+  } catch {
+    return null;
+  } finally {
+    try { db.close(); } catch { /* nothing useful to do */ }
+  }
+}
+
 function main() {
   const opts = parseArgs(process.argv.slice(2));
   const brief = readBrief(opts);
@@ -655,10 +724,15 @@ function main() {
   if (opts.session && opts.resumeLast) {
     fail("--session and --resume-last are mutually exclusive; pass only one");
   }
-  // OpenCode has no safe default model (a bare `opencode run` errors), so a fresh run must name one.
-  // A resumed run inherits its session's model, so --model is optional there.
+  // No --model: inherit the invoking session's model rather than making the caller restate it.
+  // This is inheritance of the user's own choice, not model selection. If it can't be resolved,
+  // fall through to the hard error below rather than guessing at a provider.
   if (!opts.model && !opts.resumeLast && !opts.session) {
-    fail("no model given: pass --model provider/model — opencode has no safe default (e.g. a plan you're subscribed to, like opencode-go/kimi-k2.7-code)");
+    const inherited = resolveInheritedModel(opts);
+    if (inherited) opts.model = inherited;
+  }
+  if (!opts.model && !opts.resumeLast && !opts.session) {
+    fail("no model given and could not inherit one from the current session: pass --model provider/model explicitly");
   }
 
   // Prepare the run dir before probing, so a preflight that times out or fails still has

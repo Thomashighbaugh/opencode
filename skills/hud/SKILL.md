@@ -219,7 +219,7 @@ Shows everything including multi-line agent details:
 
 When agents are running, the HUD shows detailed information on separate lines:
 - **Tree characters** (`├─`, `└─`) show visual hierarchy
-- **Agent code** (O, e, s) indicates agent type with model tier color
+- **Agent code** (O, e, s) indicates agent type, color-coded by kind
 - **Duration** shows how long each agent has been running
 - **Description** shows what each agent is doing (up to 45 chars)
 
@@ -311,7 +311,7 @@ When `safeMode` is `true` (default), the HUD strips ANSI codes and uses ASCII-on
 ### agentsFormat Options
 
 - `count`: agents:2
-- `codes`: agents:Oes (type-coded with model tier casing)
+- `codes`: agents:Oes (type-coded by casing)
 - `codes-duration`: agents:O(2m)es (codes with duration)
 - `detailed`: agents:[architect(2m),explore,exec]
 - `descriptions`: O:analyzing code | e:searching (codes + what they're doing)

@@ -38,7 +38,6 @@ context configuration. They are defined in `.claude/agents/` or via plugin
 ---
 name: my-custom-agent
 description: What this agent does
-model: sonnet
 allowed-tools: Bash, Read, Grep, Glob
 ---
 
@@ -136,7 +135,7 @@ Worked YAML for each practice is in [REFERENCE.md → Best-practice snippets](RE
 | Exploratory research | `context: fork`, minimal read-only tools |
 | Security analysis | `context: fork`, `disallowedTools: Bash, Write, Edit` |
 | Quick lookups | minimal tools |
-| Complex implementation | `model: sonnet`, full tools |
+| Complex implementation | Full tools |
 
 ## Quick Reference
 

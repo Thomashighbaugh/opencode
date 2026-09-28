@@ -64,8 +64,6 @@ Always read the current state before proposing changes:
 // opencode.jsonc structure — only valid top-level keys:
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "provider/model-id",
-  "small_model": "provider/model-id",
   "default_agent": "agent-name",
   "username": "string",
   "shell": "/bin/zsh",
@@ -91,7 +89,7 @@ Always read the current state before proposing changes:
   "instructions": [ "AGENTS.md", "./rules/*" ],
   "skills": { "paths": ["./.opencode/skills"] },
   "command": { "my-cmd": { "template": "...", "description": "..." } },
-  "agent": { "my-agent": { "model": "...", "mode": "subagent", "description": "..." } },
+  "agent": { "my-agent": { "mode": "subagent", "description": "..." } },
   "references": { "docs": { "path": "../docs", "description": "..." } },
   "tool_output": { "max_lines": 200, "max_bytes": 8192 },
   "compaction": { "auto": true, "tail_turns": 15 },
@@ -285,7 +283,7 @@ Commands are markdown files. See `opencode-command-creator` skill for details.
 ---
 description: Brief description of command
 agent: agent-name (optional)
-model: model-identifier (optional)
+# model: intentionally omitted — this config pins no models
 ---
 
 Command template with $ARGUMENTS placeholder.
@@ -462,7 +460,6 @@ Common JSONC mistakes:
 ```jsonc
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "anthropic/claude-sonnet-4-20250514",
   "permission": {
     "edit": "ask",
     "bash": "ask"
@@ -474,7 +471,6 @@ Common JSONC mistakes:
 ```jsonc
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "anthropic/claude-sonnet-4-20250514",
   "autoupdate": true,
   "permission": {
     "edit": "allow",
@@ -492,7 +488,6 @@ Common JSONC mistakes:
 ```jsonc
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "anthropic/claude-sonnet-4-20250514",
   "share": "auto",
   "instructions": [
     "docs/development.md",

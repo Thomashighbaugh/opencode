@@ -1,6 +1,5 @@
 {
     "$schema": "https://opencode.ai/config.json",
-    "model": "opencode-go/deepseek-v4.1-flash",
     "default_agent": "hubs",
     "formatter": true,
     "lsp": true,
@@ -10,75 +9,6 @@
             "npm": "@ai-sdk/openai-compatible",
             "options": {
                 "baseURL": "http://127.0.0.1:11434/v1"
-            },
-            "models": {
-                "deepseek-v4-pro:cloud": {
-                    "name": "deepseek-v4-pro:cloud",
-                    "limit": {
-                        "context": 1048576,
-                        "output": 131072
-                    }
-                },
-                "deepseek-v4-flash:0731-cloud": {
-                    "name": "deepseek-v4-flash:0731-cloud",
-                    "limit": {
-                        "context": 1048576,
-                        "output": 131072
-                    }
-                },
-                "glm-5.2:cloud": {
-                    "name": "glm-5.2:cloud",
-                    "limit": {
-                        "context": 202752,
-                        "output": 131072
-                    }
-                },
-                "nemotron-3-ultra:cloud": {
-                    "name": "nemotron-3-ultra:cloud",
-                    "limit": {
-                        "context": 262144,
-                        "output": 131072
-                    }
-                }
-            }
-        },
-        "opencode-go": {
-            "models": {
-                "deepseek-v4-pro": {
-                    "name": "deepseek-v4-pro",
-                    "limit": {
-                        "context": 1048576,
-                        "output": 131072
-                    }
-                },
-                "deepseek-v4-flash": {
-                    "name": "deepseek-v4-flash",
-                    "limit": {
-                        "context": 1048576,
-                        "output": 131072
-                    }
-                },
-                "deepseek-v4.1-flash": {
-                    "name": "deepseek-v4.1-flash",
-                    "limit": {
-                        "context": 1048576,
-                        "output": 131072
-                    }
-                },
-                "glm-5.2": {
-                    "name": "glm-5.2",
-                    "limit": {
-                        "context": 202752,
-                        "output": 131072
-                    }
-                },
-                "nemotron-3-ultra": {
-                    "name": "nemotron-3-ultra",
-                    "limit": {
-                        "context": 262144,
-                        "output": 131072
-                    }
-                }
             }
         }
     },
@@ -115,9 +45,14 @@
             "command": "npx",
             "enabled": true,
             "env": {
-                "SEARXNG_URL": "https://localhost:8080"
+                "SEARXNG_URL": "http://localhost:8080"
             },
             "type": "stdio"
+        },
+        "gh_grep": {
+            "enabled": true,
+            "type": "remote",
+            "url": "https://mcp.grep.app"
         }
     },
     "plugin": [

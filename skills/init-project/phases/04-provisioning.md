@@ -81,7 +81,7 @@ Focus on:
 **Full (thorough) mode** — create detailed agents with:
 - Stack-specific prompts with framework conventions
 - Tool permissions scoped to project needs
-- Temperature and model preferences
+- Temperature preferences
 - Custom subagent instructions for the project's patterns
 
 Example full agents:
@@ -89,7 +89,6 @@ Example full agents:
 ---
 description: Frontend component developer for {framework} project
 mode: subagent
-model: ollama/deepseek-v4-flash:0731-cloud
 temperature: 0.3
 tools:
   write: false

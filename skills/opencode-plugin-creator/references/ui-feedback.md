@@ -41,7 +41,6 @@ await client.session.prompt({
   body: {
     noReply: true, // Prevents LLM from responding
     agent: agent, // Optional: specify agent
-    model: model, // Optional: specify model
     parts: [
       {
         type: "text",

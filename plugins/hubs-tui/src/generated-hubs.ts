@@ -17,7 +17,7 @@ export const HUBS: Hub[] = [
       },
       {
         "label": "detect",
-        "description": "Deep stack detection — analyze codebase for languages, frameworks, build tools, testing, ORM, CSS, CI/CD, etc. via the stack-detector skill"
+        "description": "Deep stack detection — analyze codebase for languages, frameworks, build tools, testing, ORM, CSS, CI/CD, etc. via @stack-detector agent"
       },
       {
         "label": "recommend",
@@ -240,7 +240,7 @@ export const HUBS: Hub[] = [
       },
       {
         "label": "deep-thinker",
-        "description": "Structured thinking partner — load the deep-thinker skill directly"
+        "description": "Structured thinking partner — pass instructions directly to @deep-thinker"
       },
       {
         "label": "opro",
@@ -501,7 +501,7 @@ export const HUBS: Hub[] = [
     "subs": [
       {
         "label": "code-review",
-        "description": "Delegated code review by smell taxonomy — pass instructions directly to the code-smell-review skill"
+        "description": "Delegated code review — pass instructions directly to @code-reviewer"
       },
       {
         "label": "pt-review",

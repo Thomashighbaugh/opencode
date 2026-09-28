@@ -62,7 +62,6 @@ The composer creates the following structure under the project's `.opencode/`:
 ├── rules/                      # From archetype rules/ + generated rules
 │   ├── project-conventions.md  # Auto-generated conventions from detected stack
 │   ├── project-testing.md      # Testing guidelines specific to detected frameworks
-│   ├── graph-context.md        # Memory-plane rule — when to use the knowledge graph
 │   ├── {category}-{name}.md    # Fine-grained rules from templates/rules (if recommended)
 │   └── ...                     # One per recommended fine_rule
 ├── tools/                      # From archetype tools/ + generated tools
@@ -248,7 +247,6 @@ If a gap in global resources is detected, the composer generates a minimal proje
 ```markdown
 ---
 description: Project-specific Prisma schema review and database migration guidance
-model: opencode/deepseek-v4-flash-free
 mode: subagent
 ---
 <Agent_Prompt>
@@ -366,26 +364,7 @@ If the recommendations include `fine_rules[]`:
 
 If a rule template doesn't exist locally, suggest running `/init-project find-rules` to search registries.
 
-### Step 4: Provision the Memory Plane (always — stack-independent)
-
-Reference, don't copy. The memory plane is the *global* `vectorize-context` +
-`graph-context` skills, wired into the project by a thin rule and one build:
-
-1. **Rule** — write `.opencode/rules/graph-context.md` (frontmatter `name: graph-context`, `tags: [memory, knowledge-graph, retrieval]`) stating:
-   - Durable knowledge lives in `.opencode/context/` (markdown is canonical).
-   - Retrieval is automatic (vector + graph recovery, injected each turn) — no manual step.
-   - Before editing a rule/skill/spec, run `graph impact <node-id>` to see dependents.
-   - Use the `graph-query` tool for `neighbors` / `path` / `impact` / `build`.
-2. **Register** the rule in `opencode.jsonc` under `instructions`.
-3. **Bootstrap** the graph (idempotent, mtime-lazy, local-only — zero provider tokens):
-   ```bash
-   node "$HOME/.config/opencode/skills/graph-context/scripts/graph.mjs" build
-   ```
-4. **Gitignore** `.opencode/state/` so `graph.db` + vector stores stay local.
-
-Do **not** copy `graph-context/` or `vectorize-context/` into the project — they are referenced from the global config, exactly like every other global skill.
-
-### Step 5: Generate Agent Wrappers (if gaps)
+### Step 4: Generate Agent Wrappers (if gaps)
 
 For each identified gap, create a minimal agent that fills the missing capability.
 

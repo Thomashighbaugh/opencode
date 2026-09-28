@@ -57,10 +57,12 @@ describe('agent format compliance', () => {
       expect(frontmatterHasField(fm!, 'description'), `${name}: missing description:`).toBe(true)
     })
 
-    it.each(agents)('$name has model in frontmatter', ({ name, content }) => {
+    it.each(agents)('$name does not pin a model in frontmatter', ({ name, content }) => {
       const fm = extractFrontmatter(content)
       expect(fm, `${name}: no frontmatter`).not.toBeNull()
-      expect(frontmatterHasField(fm!, 'model'), `${name}: missing model:`).toBe(true)
+      // This config pins no models anywhere. Model choice is made at runtime by
+      // OpenCode or explicitly by the user, so an agent must NOT hardcode one.
+      expect(frontmatterHasField(fm!, 'model'), `${name}: pins a model in frontmatter`).toBe(false)
     })
 
     it.each(agents)('$name has mode in frontmatter', ({ name, content }) => {

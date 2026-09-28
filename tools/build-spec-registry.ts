@@ -102,7 +102,15 @@ function main(): void {
   const registry = buildRegistry()
   const count = Object.keys(registry).length
 
-  fs.writeFileSync(OUTPUT_PATH, JSON.stringify(registry, null, 2), "utf-8")
+  // Sort keys so the output is deterministic. Directory traversal order from
+  // readdirSync varies by filesystem, which otherwise rewrites the whole file
+  // on every rebuild and buries real changes in a ~2000-line phantom diff.
+  // Consumers treat this as a keyed lookup (hub-data.ts loadSpecRegistry), and
+  // TUI display order comes from the tools/hub-*.ts manifests, so key order
+  // here is not load-bearing.
+  const sorted = Object.fromEntries(Object.entries(registry).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)))
+
+  fs.writeFileSync(OUTPUT_PATH, JSON.stringify(sorted, null, 2), "utf-8")
 
   if (isWatch) {
     console.log("\nWatching for changes... (Ctrl+C to stop)")

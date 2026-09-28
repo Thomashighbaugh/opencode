@@ -54,13 +54,9 @@ async function main() {
     case 'build': {
       const wikiStats = await g.backfillFromWiki(dir);
       const regStats = await g.backfillFromRegistry(dir);
-      const decStats = g.backfillFromDecisions ? await g.backfillFromDecisions(dir) : { skipped: 'n/a' };
-      const codeStats = g.backfillFromCode ? await g.backfillFromCode(dir) : { skipped: 'n/a' };
       console.log('Backfill complete.');
       console.log('  wiki:', JSON.stringify(wikiStats));
       console.log('  registry:', JSON.stringify(regStats));
-      console.log('  decisions:', JSON.stringify(decStats));
-      console.log('  code:', JSON.stringify(codeStats));
       console.log('  overall:', JSON.stringify(g.getGraphStats(dir)));
       break;
     }
@@ -146,7 +142,7 @@ async function main() {
         const hyb = await g.queryHybrid(dir, q, 5, { depth: 2 });
         const hybTop = hyb.slice(0, 5).map(r => (r.title + ' ' + (r.path || '') + ' ' + (r.heading || '')).toLowerCase());
         // Honest vector-only baseline: direct veclib call, no graph involvement
-        const vecOnly = await queryChunks(dir, q, 5, { useReranker: false, expandGraph: false });
+        const vecOnly = await queryChunks(dir, q, 5, { useReranker: false });
         const vecTop = vecOnly.slice(0, 5).map(r => (r.heading + ' ' + (r.file_path || '')).toLowerCase());
         const anyToken = t => tokens.some(tok => t.includes(tok));
         const hybMatch = hybTop.some(anyToken);

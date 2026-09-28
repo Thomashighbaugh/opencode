@@ -1,7 +1,6 @@
 ---
 description: Writes and maintains project documentation
 mode: subagent
-model: ollama/glm-5.2:cloud
 temperature: 0.3
 tools:
   bash: false

@@ -5,9 +5,9 @@ const spec: HubSubcommandSpec = {
   label: "arch-prep",
   description: "Architecture prep for upcoming features — extension points, refactoring runway",
   reminder: "Design architecture to accommodate upcoming features.",
-  skill: "architect-review",
+  agent: "architect",
 
-  detailedDescription: `Architecture preparation: designs the architectural runway for upcoming features BEFORE coding begins. The architect-review skill:
+  detailedDescription: `Architecture preparation: designs the architectural runway for upcoming features BEFORE coding begins. The @architect agent:
 
 1. Reviews the upcoming feature(s) and their requirements.
 2. Identifies extension points: where should the new code attach? Are existing interfaces sufficient, or do they need to grow?

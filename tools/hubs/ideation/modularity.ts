@@ -5,9 +5,9 @@ const spec: HubSubcommandSpec = {
   label: "modularity",
   description: "Module boundary analysis — detect circular dependencies, suggest reorg",
   reminder: "Analyze module boundaries and coupling.",
-  skill: "architect-review",
+  agent: "architect",
 
-  detailedDescription: `Module boundary analysis via the architect-review skill (forked, for an uncontaminated pass). Examines:
+  detailedDescription: `Module boundary analysis via the @architect agent. Examines:
 
 - Coupling: which modules depend on which (dependency graph).
 - Cohesion: are module contents related (high cohesion = good) or grab-bags (low cohesion = bad)?

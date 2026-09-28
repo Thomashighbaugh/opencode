@@ -46,18 +46,10 @@ node skills/graph-context/scripts/graph.mjs neighbors pattern:cache   # traverse
 node skills/graph-context/scripts/graph.mjs impact rule:context-strategy  # who uses it
 node skills/graph-context/scripts/graph.mjs path skill:vectorize-context hub-subcommand:project/graph
 node skills/graph-context/scripts/graph.mjs stats
-node skills/graph-context/scripts/graph.mjs probe          # precision probe vs vector-only (passes expandGraph:false to keep the baseline honest)
+node skills/graph-context/scripts/graph.mjs probe          # precision probe vs vector-only
 ```
 
 Flags: `--dir PATH` (project root or .opencode dir), `--depth N`, `--topK N`, `--queries "a|b|c"` (probe).
-
-Agents can also call the **`graph-query` tool** (`query`/`neighbors`/`impact`/`path`/`build`/`stats`/`node`) instead of shelling out — the tool schema is self-documenting, so no skill load is needed per call. It resolves the library from the project `.opencode/skills/` first, then the global config.
-
-### 2b. Retrieval integration (substitutionary — live session path)
-
-The graph is wired into the **existing** context lane, not a new one. In `veclib.queryChunks`, when the ANN distance floor (0.8) filters out every vector hit — common for short or abstract prompts — the graph acts as the asset index of last resort: graph-title recall seeds matching page chunks into the SAME rerank pool. Result: the same top-N, the same `<Relevant_Context>` budget, no new lane, no new tokens. When vector recall already produced hits, behaviour is byte-for-byte unchanged (zero overhead, zero precision risk).
-
-Freshness is **piggybacked**, not a new hook: the existing 10s `sync-hook.mjs` child also rebuilds `graph.db` when a scoped source is newer than the DB (skipped when `graph.db` is absent — no first-run storm).
 
 ## Workflow
 
@@ -69,12 +61,10 @@ node <skill-dir>/scripts/graph.mjs build
 
 Backfill is **idempotent and lazy** — mtime-skipped re-runs; safe to call any time. Sources:
 - `.opencode/context/**` wiki pages (node per page, type from frontmatter, tags from `tags:`, `derived_from` edges from `sources:`)
-- `.opencode/context/learnings/**` → **one `learning` node per entry** (LRN/ERR/FEAT), carrying `Pattern-Key` + `Area`; exact tag/id match → `touches` edges
-- `.opencode/context/decisions.md` → **one `decision` node per `# ADR:` section**; explicit `**Supersedes**:` → `supersedes` edges
-- `.opencode/rules/**` and repo-root `rules/**` (rule nodes, id = basename slug)
-- `.opencode/skills/**/SKILL.md` (skill nodes — global + project); rule/skill → `part_of` → project `entity`
-- project source tree (`file` nodes, reusing the vectorize-context code skip rules); learnings/patterns → `touches` → matching files
-- `tools/hubs/spec-registry.json` (hub-subcommand nodes + `used_by` edges → skills/agents/**rules**) — config-hub projects only
+- `.opencode/context/learnings/**` (LRN/ERR/FEAT entries → `learning` nodes)
+- `.opencode/rules/**` (rule nodes)
+- `.opencode/skills/**/SKILL.md` (skill nodes — global + project)
+- `tools/hubs/spec-registry.json` (hub-subcommand nodes + `used_by` edges → skills/agents) — config-hub projects only
 - Markdown `[[wikilinks]]` / `[text](file.md)` → `related_to` edges
 
 ### 2. Query (hybrid retrieval)
@@ -92,7 +82,7 @@ node <skill-dir>/scripts/graph.mjs impact rule:context-strategy
 node <skill-dir>/scripts/graph.mjs path skill:self-improvement hub-subcommand:harvest-context/session
 ```
 
-Use before editing rules/skills/hub specs — reveals what depends on the asset. Rule impact resolves because the spec-registry emits `used_by` edges from hub subcommands to their referenced rules.
+Use before editing rules/skills/hub specs — reveals what depends on the asset.
 
 ### 4. Compounding (harvest-time edge writing)
 
@@ -112,7 +102,7 @@ Run `graph build` after any of these to fold new knowledge into the graph.
 
 - **Markdown stays canonical** — the wiki is the source of truth; the graph is a derived index. Never hand-edit `graph.db`.
 - **Local-only, zero provider API** — sqlite + WAL, same pattern as vectorize-context. No graph servers, no network.
-- **Lazy freshness** — rebuild on demand; freshness is piggybacked onto the existing 10s vector sync child (mtime-gated), never a new hot-path hook.
+- **Lazy freshness** — rebuild on demand; no hooks in the hot path (MVP).
 - **Never throws in query** — hybrid query degrades to vector-only results on graph errors.
 - **Bounded traversal** — depth ≤ 2 keeps hot-path queries fast; `WITH RECURSIVE` style BFS in JS.
 - **Dangling edges allowed** — edges to not-yet-indexed nodes are fine; they resolve on the next build.
