@@ -1,0 +1,8 @@
+{
+  "name": "execution-modes",
+  "description": "Autonomous execution and orchestration patterns ported from OpenCode's /orchestrate hub",
+  "author": {
+    "name": "Thomas Leon Highbaugh",
+    "email": "me@thomasleonhighbaugh.me"
+  }
+}
