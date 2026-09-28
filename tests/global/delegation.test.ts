@@ -4,16 +4,24 @@ import * as path from 'path'
 import { getGlobalConfigDir } from '../helpers/load-config'
 
 // Import each hub manifest directly (vitest resolves .ts imports via vite)
-import initProjectHub from '../../tools/hub-init-project'
-import ideationHub from '../../tools/hub-ideation'
-import orchestrateHub from '../../tools/hub-orchestrate'
-import harvestContextHub from '../../tools/hub-harvest-context'
-import projectHub from '../../tools/hub-project'
-import skillsHub from '../../tools/hub-skills'
+import scaffoldHub from '../../tools/hub-scaffold-hub'
+import resourceHub from '../../tools/hub-resource-hub'
+import memoryHub from '../../tools/hub-memory-hub'
+import researchHub from '../../tools/hub-research-hub'
+import designHub from '../../tools/hub-design-hub'
+import ideateHub from '../../tools/hub-ideate-hub'
+import planHub from '../../tools/hub-plan-hub'
+import verifyHub from '../../tools/hub-verify-hub'
+import swarmHub from '../../tools/hub-swarm-hub'
+import buildHub from '../../tools/hub-build-hub'
+import orchestrateHub from '../../tools/hub-orchestrate-hub'
+import gitHub from '../../tools/hub-git-hub'
+import maintainHub from '../../tools/hub-maintain-hub'
+import skillsHub from '../../tools/hub-skills-hub'
 
 const GLOBAL_DIR = getGlobalConfigDir()
 
-const hubs = [initProjectHub, ideationHub, orchestrateHub, harvestContextHub, projectHub, skillsHub]
+const hubs = [scaffoldHub, resourceHub, memoryHub, researchHub, designHub, ideateHub, planHub, verifyHub, swarmHub, buildHub, orchestrateHub, gitHub, maintainHub, skillsHub]
 
 function checkDelegation(
   label: string,
@@ -68,17 +76,10 @@ function checkDelegation(
 }
 
 describe('hub subcommand delegation', () => {
-  it('loads all 6 hub definitions', () => {
-    expect(hubs.length).toBe(6)
+  it('loads all 14 hub definitions', () => {
+    expect(hubs.length).toBe(14)
     const names = hubs.map((h) => h.name).sort()
-    expect(names).toEqual([
-      'harvest-context',
-      'ideation',
-      'init-project',
-      'orchestrate',
-      'project',
-      'skills',
-    ])
+    expect(names).toEqual(['build-hub', 'design-hub', 'git-hub', 'ideate-hub', 'maintain-hub', 'memory-hub', 'orchestrate-hub', 'plan-hub', 'research-hub', 'resource-hub', 'scaffold-hub', 'skills-hub', 'swarm-hub', 'verify-hub'].sort())
   })
 
   for (const hub of hubs) {

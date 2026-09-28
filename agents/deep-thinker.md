@@ -1,6 +1,7 @@
 ---
 description: Structured thinking partner for complex problems. Use when facing ambiguous challenges, making difficult decisions, or needing to break down complexity into actionable steps.
 mode: subagent
+hidden: true
 permission:
   bash: ask
   edit: deny

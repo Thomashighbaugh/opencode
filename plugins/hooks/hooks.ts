@@ -791,7 +791,7 @@ Propose the mode to the user and ask before activating.
     }
 
     // Prompt queue auto-submit REMOVED — manual-only per API call reduction directive.
-    // Queue state is still maintained for manual /orchestrate resume operations.
+    // Queue state is still maintained for manual /orchestrate-hub resume operations.
 
     // Only remind on actual failures (not on routine operations)
     const message = generatePostToolMessage(toolName, toolOutput, toolCount)

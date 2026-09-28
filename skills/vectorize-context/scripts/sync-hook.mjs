@@ -5,7 +5,7 @@
  * @huggingface/transformers) never run inside the plugin process.
  *
  * Semantics: only syncs stores that ALREADY exist (maintenance mode).
- * Fresh builds are the job of /project vectorize (vectorize.mjs). This
+ * Fresh builds are the job of /maintain-hub vectorize (vectorize.mjs). This
  * guarantees the hook can never trigger a full first-run index storm.
  *
  * Usage:
@@ -19,7 +19,7 @@ import { ensureIndexed, ensureCodeIndexed, resolvePaths } from './veclib.mjs';
 
 async function syncStore(name, ensure, dbPath) {
   if (!existsSync(dbPath)) {
-    console.error(`[sync-hook] ${name} store missing (${dbPath}) — skipping (build via /project vectorize)`);
+    console.error(`[sync-hook] ${name} store missing (${dbPath}) — skipping (build via /maintain-hub vectorize)`);
     return { skipped: true };
   }
   const t0 = Date.now();

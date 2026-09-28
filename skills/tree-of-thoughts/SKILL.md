@@ -1,6 +1,6 @@
 ---
 name: tree-of-thoughts
-description: Explore multiple solution branches in parallel, evaluate each, and recommend the best path. Use when the user explicitly invokes /ideation tree-of-thoughts or asks for "tree of thought" / "branching exploration".
+description: Explore multiple solution branches in parallel, evaluate each, and recommend the best path. Use when the user explicitly invokes /ideate-hub tree-of-thoughts or asks for "tree of thought" / "branching exploration".
 level: 2
 license: MIT
 ---
@@ -18,7 +18,7 @@ explicitly confirm before proceeding.
 
 ## When to Use
 
-- User invokes `/ideation tree-of-thoughts`
+- User invokes `/ideate-hub tree-of-thoughts`
 - User asks for "tree of thought" or "branching exploration"
 - **Never auto-invoke** — always get confirmation
 

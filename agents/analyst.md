@@ -1,6 +1,7 @@
 ---
 description: Pre-planning consultant for requirements analysis (Opus)
 mode: subagent
+hidden: true
 disallowedTools: Write, Edit
 ---
 

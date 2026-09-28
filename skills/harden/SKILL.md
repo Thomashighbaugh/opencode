@@ -22,7 +22,7 @@ Composable security and robustness hardening. Run `@security-reviewer` to audit 
 - The codebase is brand new with no implementation yet — security is built in during development
 - You need a full autonomous pipeline — use `autopilot` instead
 - The task is purely about adding features — use `plan-execute` or `tdd` instead
-- You need a comprehensive project health audit — use `/project audit` instead
+- You need a comprehensive project health audit — use `/verify-hub audit` instead
 
 ## Workflow
 

@@ -110,22 +110,35 @@ Retries are per-subagent: one stuck subagent never blocks the others. Subagent t
 
 ## Hub Commands
 
-| Command | Purpose | Subcommands |
-|---------|---------|-------------|
-| `/init-project` | Project init | setup, detect, recommend, docs, context, verify, refresh, status, map-codebase, doctor, reset, provision, tag, find-skills, find-agents, find-tools, find-rules |
-| `/ideation` | Planning/research | plan, brainstorm, decomposition, refine, overhaul, deep, graph, research, ralplan, ddd, event-storming, double-diamond, jtbd, impact-mapping, spiral, top-down, bottom-up, adversarial-debate, cleanroom, pwf, rpikit, hive, story-mapping, lean-canvas, constitution, quality, architecture, redesign, grill, modularity, arch-prep, web-research, tech-eval, competitive-analysis, tree-of-thoughts, deep-thinker, opro, analyze-patterns, improvements |
-| `/orchestrate` | Execution | ralph, team, deep, ccg, ultrawork, autopilot, sciomc, swarm, state-machine, consensus, evolutionary, spec-driven, react, plan-execute, hive, tdd, pair, pipeline, gsd, self-assess, remediate, devin, maestro, metaswarm, cc10x, gastown, ruflo, harden, subagent-driven, brownfield, vibe-code |
-| `/harvest-context` | Context mgmt | session, codebase, skill, agent, rule, command, memory, docs, web-research, compare, decompose, context, consume, compress, secondbrain, journal, search, prune, export, diff, sweep |
-| `/project` | Project ops | create-tests, code-review, commit, git-stage-thread, pr, gh, optimize, refactor, simplify, simplify-code, cleanup, modernize, icon, organize, changelog, converge, scan, vectorize, sandbox, retrospect, purge, release, review, audit, archive, git-cleanup, workspace, readme, extract-standards, deep-bug-hunt, insights, delegate, self-improve, graph |
-| `/skills` | Skill management | list, add, create, remove, edit, search, info, update, package, validate, sync, setup, scan |
+Menus are **topical** and every name carries a `-hub` suffix so a menu never collides with an
+OpenCode built-in slash command (`/git`, `/plan`, `/build`, ...). The pre-2026-09-28 menus
+(`/init-project`, `/ideation`, `/orchestrate`, `/harvest-context`, `/project`, `/skills`) still
+resolve via `LEGACY_ROUTE_MAP` in `tools/hub-data.ts`, so old invocations keep working.
+
+| Command | # | Subcommands |
+|--------|--:|-------------|
+| `/scaffold-hub` | 12 | config, detect, doctor, map-codebase, provision, recommend, refresh, reset, setup, status, tag, verify |
+| `/resource-hub` | 12 | agent, command, config-orchestrator, effort-estimator, find-agents, find-rules, find-skills, find-tools, knowledge-graph, prompt-simplifier, rule, skill |
+| `/memory-hub` | 18 | capture, codebase, compare, compress, consume, context, decompose, diff, export, journal, memory, prune, resume, search, secondbrain, session, sweep, web-research |
+| `/research-hub` | 13 | analyst, analyze-patterns, competitive-analysis, convention-extractor, document-specialist, explore, graph, library-docs, research, scientist, tech-eval, tracer, web-research |
+| `/design-hub` | 9 | arch-prep, architecture, designer, docs, frontend-design, modularity, readme, redesign, writer |
+| `/ideate-hub` | 16 | adversarial-debate, brainstorm, cleanroom, ddd, deep-dive, deep-thinker, double-diamond, event-storming, grill, interview, opro, pwf, refine, rpikit, spark, tree-of-thoughts |
+| `/plan-hub` | 16 | bottom-up, constitution, decomposition, impact-mapping, improvements, jtbd, lean-canvas, plan, plan-execute, quality, ralplan, requirements-analyzer, spiral, status, story-mapping, top-down |
+| `/verify-hub` | 11 | audit, code-review, create-tests, critic, debugger, deep-bug-hunt, qa-tester, review, security-reviewer, tdd, test-engineer |
+| `/swarm-hub` | 17 | cc10x, delegate, devin, gastown, gsd, harden, hive, hive-plan, maestro, metaswarm, pair, react, remediate, ruflo, self-assess, spec-driven, subagent-driven |
+| `/build-hub` | 12 | brownfield, cleanup, executor, extract-standards, modernize, optimize, overhaul, pipeline, refactor, simplify, simplify-code, vibe-code |
+| `/orchestrate-hub` | 12 | autopilot, ccg, consensus, evolutionary, ralph, resume, sciomc, state-machine, status, swarm, team, ultrawork |
+| `/git-hub` | 10 | archive, changelog, commit, commit-drafter, gh, git-cleanup, git-master, git-stage-thread, pr, release |
+| `/maintain-hub` | 12 | consolidate-telemetry, converge, icon, insights, organize, purge, retrospect, sandbox, scan, self-improve, vectorize, workspace |
+| `/skills-hub` | 13 | add, create, edit, info, list, package, remove, scan, search, setup, sync, update, validate |
 
 ### Two-Tier Subcommand Routing
 
 Each of the 155 hub subcommands has a dedicated spec file in `tools/hubs/<hub>/<subcommand>.ts` containing the full `HubSubcommandSpec` — `detailedDescription`, `tools`, `rules`, `relatedSkills`, `examples`, `warnings`.
 
-**Direct selection** (`/orchestrate ralph`): `hubMenu route` returns the full spec in one response (detailedDescription + inlined rules + related skill pointers + examples). No follow-up `loadSkill` or rule-read calls needed.
+**Direct selection** (`/orchestrate-hub ralph`): `hubMenu route` returns the full spec in one response (detailedDescription + inlined rules + related skill pointers + examples). No follow-up `loadSkill` or rule-read calls needed.
 
-**Routing required** (bare `/orchestrate` + NL task, or pure NL): `hubMenu menu` returns the slim identity slice (label + short description + reminder) for the model to pick from. Then `route` loads the full spec for the chosen subcommand.
+**Routing required** (a bare hub (e.g. `/orchestrate-hub`) + NL task, or pure NL): `hubMenu menu` returns the slim identity slice (label + short description + reminder) for the model to pick from. Then `route` loads the full spec for the chosen subcommand.
 
 See `rules/hub-routing.md` for the complete delegation table and architecture details.
 

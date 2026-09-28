@@ -127,11 +127,11 @@ Write a final checkpoint. Report results inline. Offer hand-off to other hubs (e
 
 ## Resume Behavior
 
-`/orchestrate resume` checks `.opencode/state/orchestration/checkpoints/` for the most recent checkpoint. Shows stage, completed items, and remaining items. Asks: "Resume from stage {n}? [yes / start fresh]"
+`/orchestrate-hub resume` checks `.opencode/state/orchestration/checkpoints/` for the most recent checkpoint. Shows stage, completed items, and remaining items. Asks: "Resume from stage {n}? [yes / start fresh]"
 
 ## Status Behavior
 
-`/orchestrate status` shows active checkpoints, progress reports, completed orchestrations, and current method/stage if active.
+`/orchestrate-hub status` shows active checkpoints, progress reports, completed orchestrations, and current method/stage if active.
 
 ## Plan From Ideation
 
@@ -139,7 +139,7 @@ When a plan comes from `/ideation` (`.opencode/state/ideation/`): reads the appr
 
 ## Interruption Recovery
 
-If interrupted: checkpoint records exact position. `/orchestrate resume` picks up from last checkpoint. Completed items are NOT repeated.
+If interrupted: checkpoint records exact position. `/orchestrate-hub resume` picks up from last checkpoint. Completed items are NOT repeated.
 
 ## Related
 

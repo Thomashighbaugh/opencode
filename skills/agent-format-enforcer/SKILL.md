@@ -30,13 +30,13 @@ mode: subagent
 - After creating or modifying an agent
 - When onboarding agents from external sources
 - During code review to catch format drift
-- As part of `/project review` or CI checks
+- As part of `/verify-hub review` or CI checks
 
 ## Usage
 
 ```
 # Scan all agents for compliance
-/init-project doctor  # delegates to this skill for agent check
+/scaffold-hub doctor  # delegates to this skill for agent check
 
 # Or manually:
 loadSkill agent-format-enforcer

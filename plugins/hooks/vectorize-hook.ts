@@ -13,7 +13,7 @@ import { join } from "path";
  *   - One child at a time (overlapping runs are impossible)
  *   - Child is SIGKILLed after a hard timeout (no runaway loops)
  *   - Child runs in maintenance mode: stores that don't exist yet are
- *     SKIPPED — the full initial build is the job of /project vectorize.
+ *     SKIPPED — the full initial build is the job of /maintain-hub vectorize.
  *     A fresh store can therefore never trigger a first-run index storm.
  *
  * Storage: .opencode/state/vector/context.db + code.db (gitignored).

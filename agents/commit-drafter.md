@@ -1,6 +1,7 @@
 ---
 description: Structures conventional commit messages based on user intent before coding starts.
 mode: subagent
+hidden: true
 permission:
   saveCommitMessage: allow
   getCommitMessage: allow

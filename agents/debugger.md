@@ -1,6 +1,7 @@
 ---
 description: Root-cause analysis, regression isolation, stack trace analysis, build/compilation error resolution
 mode: subagent
+hidden: true
 ---
 
 <Agent_Prompt>

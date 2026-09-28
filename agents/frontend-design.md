@@ -1,6 +1,7 @@
 ---
 description: Create distinctive, production-grade frontend interfaces with high design quality. Use this agent when the user asks to build web components, pages, or applications. Generates creative, polished code that avoids generic AI aesthetics.
 mode: subagent
+hidden: true
 ---
 
 <Agent_Prompt>

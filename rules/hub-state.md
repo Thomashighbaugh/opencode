@@ -1,6 +1,7 @@
 # Hub State Conventions
 
-OpenCode Hubs uses five hub commands. Four track state; `/project` is stateless. All state lives in `.opencode/state/` and is gitignored. Durable context lives in `.opencode/context/` and is committed. See `rules/context-strategy.md` for the full context model.
+OpenCode Hubs uses 14 `-hub` menus. Four track state (`/scaffold-hub`, `/ideate-hub` +
+`/plan-hub`, `/orchestrate-hub` + `/swarm-hub`, `/memory-hub`); the rest are stateless. All state lives in `.opencode/state/` and is gitignored. Durable context lives in `.opencode/context/` and is committed. See `rules/context-strategy.md` for the full context model.
 
 ## State vs Context Separation
 
@@ -13,11 +14,11 @@ OpenCode Hubs uses five hub commands. Four track state; `/project` is stateless.
 
 | Hub | In-Progress | Progress | Final Output | Checkpoints |
 |-----|-------------|----------|-------------|-------------|
-| `/init-project` | — | — | `.opencode/state/init/` | `.opencode/state/init/init-checkpoint.json` |
-| `/ideation` | `.opencode/state/ideation/work-products/` | — | `.opencode/state/ideation/` | — |
-| `/orchestrate` | `.opencode/state/orchestration/progress/` | `.opencode/state/orchestration/progress/` | `.opencode/state/orchestration/` | `.opencode/state/orchestration/checkpoints/` |
-| `/harvest-context` | — | — | `.opencode/context/` (durable) / `.opencode/state/harvest/` (session/PII) | — |
-| `/project` | — (stateless) | — | — | — |
+| `/scaffold-hub` | — | — | `.opencode/state/init/` | `.opencode/state/init/init-checkpoint.json` |
+| `/ideate-hub`, `/plan-hub` | `.opencode/state/ideation/work-products/` | — | `.opencode/state/ideation/` | — |
+| `/orchestrate-hub`, `/swarm-hub` | `.opencode/state/orchestration/progress/` | `.opencode/state/orchestration/progress/` | `.opencode/state/orchestration/` | `.opencode/state/orchestration/checkpoints/` |
+| `/memory-hub` | — | — | `.opencode/context/` (durable) / `.opencode/state/harvest/` (session/PII) | — |
+| all other menus | — (stateless) | — | — | — |
 
 ## Durable Context Paths
 

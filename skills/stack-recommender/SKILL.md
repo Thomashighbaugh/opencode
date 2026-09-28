@@ -1,6 +1,6 @@
 ---
 name: stack-recommender
-description: Maps a stack fingerprint (from @stack-detector or direct input) to recommended global OpenCode resources — skills, agents, rules, commands, archetypes. Used by /init-project setup and refresh to provision per-project configs.
+description: Maps a stack fingerprint (from @stack-detector or direct input) to recommended global OpenCode resources — skills, agents, rules, commands, archetypes. Used by /scaffold-hub setup and refresh to provision per-project configs.
 level: 2
 license: MIT
 tags: [init, config, detection, stack, provisioning]
@@ -12,8 +12,8 @@ Maps a technology stack fingerprint to recommended OpenCode global resources —
 
 ## When to Use
 
-- After `@stack-detector` has produced a stack fingerprint for `/init-project detect`
-- During `/init-project setup` and `/init-project refresh` to compose the right resource set
+- After `@stack-detector` has produced a stack fingerprint for `/scaffold-hub detect`
+- During `/scaffold-hub setup` and `/scaffold-hub refresh` to compose the right resource set
 - When the user says "recommend skills for my [language/framework] project"
 - Any time you need to know "what global resources apply to this tech stack?"
 
@@ -289,4 +289,4 @@ flowchart LR
 When a user says "I'm building a [description]" without a codebase:
 1. Use `@stack-detector` with the description to construct a synthetic fingerprint
 2. Pass through the same recommendation pipeline
-3. If description is too vague, use `/ideation grill` to sharpen it first
+3. If description is too vague, use `/ideate-hub grill` to sharpen it first

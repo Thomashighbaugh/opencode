@@ -1,6 +1,7 @@
 ---
 description: Data analysis and research execution specialist
 mode: subagent
+hidden: true
 disallowedTools: Write, Edit
 ---
 

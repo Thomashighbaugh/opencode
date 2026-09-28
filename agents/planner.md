@@ -1,6 +1,7 @@
 ---
 description: Strategic planning consultant with interview workflow (Opus)
 mode: subagent
+hidden: true
 ---
 
 <Agent_Prompt>

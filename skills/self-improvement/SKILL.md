@@ -15,8 +15,8 @@ This skill is the capture layer of a loop whose other stages live in:
 | Stage | Mechanism |
 |-------|-----------|
 | Capture (this skill) | `.opencode/context/learnings/` — typed entries with Pattern-Key dedup |
-| Measure | `.opencode/state/telemetry.ndjson` (SRCL hook, deterministic) → `/project consolidate-telemetry` |
-| Retro | `/project retrospect` — post-run lessons + workflow-asset improvements |
+| Measure | `.opencode/state/telemetry.ndjson` (SRCL hook, deterministic) → `/maintain-hub consolidate-telemetry` |
+| Retro | `/maintain-hub retrospect` — post-run lessons + workflow-asset improvements |
 | Triage | This skill §Triage — config-vs-agent root buckets before proposing fixes |
 | Promote | This skill §Promotion — Recurrence-Count >= 3 → project rules/AGENTS.md |
 | Evolve code | `self-improve` skill — evolutionary engine with tournament selection |
@@ -145,11 +145,11 @@ Same error > 2 times → guardrail. Same category > 3 times → pre-flight check
 ## Workflow (capture → triage → promote)
 
 1. **Capture**: append the entry to the right `.opencode/context/learnings/` file (create dirs if missing). Dedupe by Pattern-Key; increment Recurrence-Count on repeat.
-2. **Graph it**: run `node skills/graph-context/scripts/graph.mjs build` to fold the new learning into the knowledge graph as a `learning` node with `touches` edges to its Area/Pattern-Key matches (weight = Recurrence-Count). Keeps `/project graph` retrieval current.
+2. **Graph it**: run `node skills/graph-context/scripts/graph.mjs build` to fold the new learning into the knowledge graph as a `learning` node with `touches` edges to its Area/Pattern-Key matches (weight = Recurrence-Count). Keeps `/resource-hub knowledge-graph` retrieval current.
 3. **Triage**: classify into Config vs Agent bucket. If config, locate the exact asset.
-4. **Fix (bounded)**: if Recurrence-Count >= 3 → draft the promotion (guardrail format) and present to the user for approval. If < 3 → leave as logged learning; suggest `/project retrospect` at session end.
+4. **Fix (bounded)**: if Recurrence-Count >= 3 → draft the promotion (guardrail format) and present to the user for approval. If < 3 → leave as logged learning; suggest `/maintain-hub retrospect` at session end.
 5. **Validate**: after promotion, note the before/after in the entry (Status: promoted, EFFECTIVENESS tracker).
-6. **Close**: every 10 sessions, run `/project retrospect` and `/project consolidate-telemetry` to fold the session log into the loop.
+6. **Close**: every 10 sessions, run `/maintain-hub retrospect` and `/maintain-hub consolidate-telemetry` to fold the session log into the loop.
 
 ## Anti-Patterns (si6/si7)
 
@@ -167,6 +167,6 @@ Same error > 2 times → guardrail. Same category > 3 times → pre-flight check
 - `remember` skill — durable knowledge → memory surfaces
 - `learner` skill — extract a reusable skill from a conversation
 - `self-improve` skill — autonomous evolutionary code improvement engine
-- `/project retrospect` — post-run retrospective analysis
-- `/project consolidate-telemetry` — SRCL telemetry → ADR proposals
-- `/project graph` (`graph-context` skill) — knowledge graph store; learnings feed `learning` nodes + `touches` edges
+- `/maintain-hub retrospect` — post-run retrospective analysis
+- `/maintain-hub consolidate-telemetry` — SRCL telemetry → ADR proposals
+- `/resource-hub knowledge-graph` (`graph-context` skill) — knowledge graph store; learnings feed `learning` nodes + `touches` edges

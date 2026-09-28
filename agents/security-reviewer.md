@@ -1,6 +1,7 @@
 ---
 description: Security vulnerability detection specialist (OWASP Top 10, secrets, unsafe patterns)
 mode: subagent
+hidden: true
 disallowedTools: Write, Edit
 ---
 

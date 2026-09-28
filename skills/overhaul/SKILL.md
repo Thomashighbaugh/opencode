@@ -19,7 +19,7 @@ Analyzes an existing codebase across configurable dimensions (architecture, perf
 
 ## No-Argument Behavior
 
-When invoked without arguments (`/ideation overhaul`), start an interactive session:
+When invoked without arguments (`/build-hub overhaul`), start an interactive session:
 1. List the available refinement dimensions
 2. Ask which dimensions to analyze (choose one or many)
 3. Run analysis on selected dimensions
@@ -27,7 +27,7 @@ When invoked without arguments (`/ideation overhaul`), start an interactive sess
 
 ## With Dimension Argument
 
-When invoked with a dimension filter (`/ideation overhaul:arch`, `/ideation overhaul:perf`, etc.), skip the dimension selection and analyze only that dimension.
+When invoked with a dimension filter (`/build-hub overhaul:arch`, `/build-hub overhaul:perf`, etc.), skip the dimension selection and analyze only that dimension.
 
 ## Refinement Dimensions
 
@@ -35,7 +35,7 @@ Each dimension analyzes distinct concerns and produces a dedicated section in th
 
 | Subcommand Pattern | Dimension | What It Analyzes |
 |---|---|---|
-| `/ideation overhaul` or `overhaul:full` | **Comprehensive** | All 8 dimensions |
+| `/build-hub overhaul` or `overhaul:full` | **Comprehensive** | All 8 dimensions |
 | `overhaul:arch` | **Architecture** | Project structure, layering, coupling, patterns, boundaries |
 | `overhaul:perf` | **Performance** | Bottlenecks, N+1 queries, caching, bundle size, algorithmic efficiency |
 | `overhaul:sec` | **Security** | OWASP Top 10, secrets exposure, input validation, auth patterns, dependency CVEs |
@@ -208,9 +208,9 @@ Generate a structured, actionable plan stored to `.opencode/state/ideation/work-
 
 ## Orchestration Handoff
 This plan can be executed via `/orchestrate`:
-- `/orchestrate plan-execute "Phase 1: Foundation tasks"`
-- `/orchestrate ralph "fix all critical security issues"`
-- `/orchestrate ultrawork "run all quick wins in parallel"`
+- `/plan-hub plan-execute "Phase 1: Foundation tasks"`
+- `/orchestrate-hub ralph "fix all critical security issues"`
+- `/orchestrate-hub ultrawork "run all quick wins in parallel"`
 ```
 
 ### Step 4: Iterate Until Approved
@@ -229,7 +229,7 @@ On user approval:
 
 ## Resume Behavior
 
-`/ideation resume` checks `.opencode/state/ideation/work-products/` for in-progress overhaul plans and offers to continue.
+`/memory-hub resume` checks `.opencode/state/ideation/work-products/` for in-progress overhaul plans and offers to continue.
 
 ## Output
 
@@ -264,5 +264,5 @@ The final output is a markdown implementation plan saved to `.opencode/state/ide
 
 - `/orchestrate` — Execute the overhaul plan
 - `/harvest-context` — Extract overhaul context for documentation
-- `/ideation deep` — Deep-dive specific issues identified in the plan
-- `/project converge` — Quality gate convergence after implementation
+- `/ideate-hub interview` — Deep-dive specific issues identified in the plan
+- `/maintain-hub converge` — Quality gate convergence after implementation

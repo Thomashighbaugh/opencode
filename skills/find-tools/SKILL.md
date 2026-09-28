@@ -1,6 +1,6 @@
 ---
 name: find-tools
-description: Discover, vet, and generate project-relevant OpenCode tools by searching registries (GitHub, npm) and local template catalog. Used by /init-project setup/refresh to provision project-specific tools alongside skills and agents.
+description: Discover, vet, and generate project-relevant OpenCode tools by searching registries (GitHub, npm) and local template catalog. Used by /scaffold-hub setup/refresh to provision project-specific tools alongside skills and agents.
 level: 2
 license: MIT
 tags: [init, config, provisioning, tools, scaffolding]
@@ -12,7 +12,7 @@ Find and generate the right OpenCode tools for a project's tech stack by searchi
 
 ## When to Use
 
-- During `/init-project setup` or `/init-project refresh` to scaffold project tools
+- During `/scaffold-hub setup` or `/scaffold-hub refresh` to scaffold project tools
 - When the user asks "find a tool for X" or "is there a tool for X"
 - After `@stack-detector` has produced a stack fingerprint, before `project-config-composer` runs
 - To extend project capabilities with TypeScript-based utilities

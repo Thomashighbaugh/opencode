@@ -7,116 +7,214 @@ export interface Hub { name: string; title: string; description: string; subs: S
 
 export const HUBS: Hub[] = [
   {
-    "name": "init-project",
-    "title": "Init Project",
-    "description": "Initialize or refine project setup",
+    "name": "scaffold-hub",
+    "title": "Scaffold",
+    "description": "Project bootstrap and configuration — detect, provision, verify, repair",
     "subs": [
       {
-        "label": "setup",
-        "description": "Full project setup via 9-phase pipeline — detect stack, provision agents/skills/tools/rules, generate docs, optional --full adds deep codebase mapping + context capture + routing integration"
+        "label": "config",
+        "description": "Create or modify opencode.jsonc with mandatory schema validation — wraps opencode-configure, opencode-config-workflow; always fetches and validates final output against https://opencode.ai/config.json"
       },
       {
         "label": "detect",
         "description": "Deep stack detection — analyze codebase for languages, frameworks, build tools, testing, ORM, CSS, CI/CD, etc. via @stack-detector agent"
       },
       {
-        "label": "recommend",
-        "description": "Recommend global resources for detected stack — maps stack fingerprint to relevant skills, agents, rules, and archetype via stack-recommender skill"
-      },
-      {
-        "label": "docs",
-        "description": "Generate hierarchical AGENTS.md documentation across the codebase"
-      },
-      {
-        "label": "context",
-        "description": "Capture session knowledge, promote insights to project memory and docs"
-      },
-      {
-        "label": "verify",
-        "description": "Validate configuration completeness, file existence, and reference integrity"
-      },
-      {
-        "label": "refresh",
-        "description": "Update existing config preserving manual edits — re-detect stack, merge new recommendations, re-provision; --full adds deep codebase mapping, context synthesis, and routing integration validation"
-      },
-      {
-        "label": "status",
-        "description": "Show current initialization state and checkpoint progress"
+        "label": "doctor",
+        "description": "Run diagnostic health check — validate Hubs installation, config integrity, state consistency, and hook status"
       },
       {
         "label": "map-codebase",
         "description": "Analyze existing brownfield codebase — spawn parallel agents to map stack, architecture, conventions, and integration points before init"
       },
       {
-        "label": "doctor",
-        "description": "Run diagnostic health check — validate Hubs installation, config integrity, state consistency, and hook status"
+        "label": "provision",
+        "description": "Provision project config via project-config-composer — auto-generate .opencode/opencode.jsonc, project rules, and agent wrappers from stack fingerprint + recommendations"
+      },
+      {
+        "label": "recommend",
+        "description": "Recommend global resources for detected stack — maps stack fingerprint to relevant skills, agents, rules, and archetype via stack-recommender skill"
+      },
+      {
+        "label": "refresh",
+        "description": "Update existing config preserving manual edits — re-detect stack, merge new recommendations, re-provision; --full adds deep codebase mapping, context synthesis, and routing integration validation"
       },
       {
         "label": "reset",
         "description": "Reset project state — archive .opencode/state and .opencode/context, start fresh with clean slate"
       },
       {
-        "label": "provision",
-        "description": "Provision project config via project-config-composer — auto-generate .opencode/opencode.jsonc, project rules, and agent wrappers from stack fingerprint + recommendations"
+        "label": "setup",
+        "description": "Full project setup via 9-phase pipeline — detect stack, provision agents/skills/tools/rules, generate docs, optional --full adds deep codebase mapping + context capture + routing integration"
+      },
+      {
+        "label": "status",
+        "description": "Show current initialization state and checkpoint progress"
       },
       {
         "label": "tag",
         "description": "Audit and fix resource tags on global skills, agents, rules, and archetypes for resource_tags filtering — scan, classify, suggest, and apply tags via tag-resources skill"
       },
       {
-        "label": "config",
-        "description": "Create or modify opencode.jsonc with mandatory schema validation — wraps opencode-configure, opencode-config-workflow; always fetches and validates final output against https://opencode.ai/config.json"
-      },
+        "label": "verify",
+        "description": "Validate configuration completeness, file existence, and reference integrity"
+      }
+    ]
+  },
+  {
+    "name": "resource-hub",
+    "title": "Resource",
+    "description": "Authoring and discovery of agents, skills, rules, and commands",
+    "subs": [
       {
-        "label": "find-skills",
-        "description": "Discover skills relevant to the current project by searching across skill registries (skills.sh, GitHub) — fetches candidates, security-scans top results, presents recommendations for installation. Used by setup/refresh to find per-repo skills"
+        "label": "config-orchestrator",
+        "description": "OpenCode config orchestrator — pass instructions directly to @config-orchestrator"
       },
       {
         "label": "find-agents",
         "description": "Discover agents relevant to the current project by searching across agent registries and GitHub — finds specialized subagents for detected tech stack. Used by setup/refresh to find per-repo agents"
       },
       {
+        "label": "find-rules",
+        "description": "Discover OpenCode rules relevant to the current project by searching registries (GitHub, skills.sh) and local template catalog — finds project-specific conventions and guidelines. Used by setup/refresh to find per-repo rules"
+      },
+      {
+        "label": "find-skills",
+        "description": "Discover skills relevant to the current project by searching across skill registries (skills.sh, GitHub) — fetches candidates, security-scans top results, presents recommendations for installation. Used by setup/refresh to find per-repo skills"
+      },
+      {
         "label": "find-tools",
         "description": "Discover TypeScript tools relevant to the current project by searching registries (GitHub, npm) and local template catalog — finds project-specific automation tools. Used by setup/refresh to find per-repo tools"
       },
       {
-        "label": "find-rules",
-        "description": "Discover OpenCode rules relevant to the current project by searching registries (GitHub, skills.sh) and local template catalog — finds project-specific conventions and guidelines. Used by setup/refresh to find per-repo rules"
+        "label": "effort-estimator",
+        "description": "Estimate development effort — pass instructions directly to @effort-estimator"
+      },
+      {
+        "label": "prompt-simplifier",
+        "description": "Simplify prompt logic — pass instructions directly to @prompt-simplifier"
+      },
+      {
+        "label": "agent",
+        "description": "Create a project-specific agent"
+      },
+      {
+        "label": "command",
+        "description": "Create a project slash command"
+      },
+      {
+        "label": "rule",
+        "description": "Create a project rule (.opencode/rules/)"
+      },
+      {
+        "label": "skill",
+        "description": "Create a reusable skill from session knowledge"
+      },
+      {
+        "label": "graph",
+        "description": "Per-project knowledge graph — entity/relationship store + hybrid retrieval (vector → graph refine)"
       }
     ]
   },
   {
-    "name": "ideation",
-    "title": "Ideation",
-    "description": "Planning, research, and ideation hub",
+    "name": "memory-hub",
+    "title": "Memory",
+    "description": "Durable knowledge and session context — harvest, compress, search, journal",
     "subs": [
       {
-        "label": "plan",
-        "description": "Interview-style strategic planning — clarify goals, break into tasks"
+        "label": "context",
+        "description": "Capture session knowledge, promote insights to project memory and docs"
       },
       {
-        "label": "brainstorm",
-        "description": "Free-form idea generation — diverge then converge"
+        "label": "resume",
+        "description": "Resume last ideation session"
       },
       {
-        "label": "decomposition",
-        "description": "Break complex work into ordered, verifiable subtasks"
+        "label": "codebase",
+        "description": "Generate hierarchical AGENTS.md across the codebase"
       },
       {
-        "label": "refine",
-        "description": "Diverge/converge iteration — expand ideas, then sharpen them"
+        "label": "compare",
+        "description": "Compare alternatives via web research — research multiple options (libraries, tools, approaches) via websearch + webfetch, produce structured comparison table with recommendations"
       },
       {
-        "label": "overhaul",
-        "description": "8-dimension project audit — produce prioritized improvement plan"
+        "label": "compress",
+        "description": "Token compression strategies — density filtering (~29% savings), command output compression (~47%), library cache compression (~94%)"
       },
       {
-        "label": "deep",
-        "description": "Socratic interview with ambiguity gating — crystallize vague requirements"
+        "label": "consume",
+        "description": "Ingest a file, directory, or URL — extract text content, save as durable context, and update wiki index/log"
       },
       {
-        "label": "deep-dive",
-        "description": "2-stage pipeline: trace root cause, then crystallize requirements — evidence-first investigation"
+        "label": "context",
+        "description": "Manage context files — harvest, extract, organize, compact, map — updates wiki index/log on changes"
+      },
+      {
+        "label": "decompose",
+        "description": "Break down a concept or goal into smaller actionable units"
+      },
+      {
+        "label": "diff",
+        "description": "Context diff — compare current context state to a previous checkpoint, showing new decisions, patterns, and changes since last harvest"
+      },
+      {
+        "label": "export",
+        "description": "Export context as a readable summary, markdown bundle, or team report — share what the project knows"
+      },
+      {
+        "label": "journal",
+        "description": "Event-sourced journal for orchestration runs — deterministic replay, time-travel debugging, SHA-256 checksums"
+      },
+      {
+        "label": "memory",
+        "description": "Promote durable knowledge to project memory, notepad, or wiki — updates wiki index/log when promoting to .opencode/context/"
+      },
+      {
+        "label": "prune",
+        "description": "Stale context management — identify old or superseded context files, archive or delete them to keep .opencode/context/ healthy"
+      },
+      {
+        "label": "search",
+        "description": "Semantic search across all context files — find decisions, patterns, research matching a query across .opencode/context/"
+      },
+      {
+        "label": "secondbrain",
+        "description": "Privacy-first local knowledge base — markdown+Git with role packs and self-healing cross-references"
+      },
+      {
+        "label": "session",
+        "description": "Extract decisions, patterns, learnings from current session — promotes to wiki via /memory-hub memory"
+      },
+      {
+        "label": "sweep",
+        "description": "Scan .opencode/ for files that should be gitignored but aren't — prevents bloat that breaks git push"
+      },
+      {
+        "label": "web-research",
+        "description": "Multi-source web research — search multiple queries in parallel via websearch, fetch top results via webfetch, synthesize findings into a structured research report saved directly to .opencode/context/research/"
+      }
+    ]
+  },
+  {
+    "name": "research-hub",
+    "title": "Research",
+    "description": "Investigation and discovery — web, competitive, tech-eval, codebase analysis",
+    "subs": [
+      {
+        "label": "convention-extractor",
+        "description": "Extract coding conventions — pass instructions directly to @convention-extractor"
+      },
+      {
+        "label": "analyst",
+        "description": "Strategic analyst — pass instructions directly to @analyst"
+      },
+      {
+        "label": "analyze-patterns",
+        "description": "Analyze code patterns and anti-patterns — consistencies, convention violations"
+      },
+      {
+        "label": "competitive-analysis",
+        "description": "Competitive landscape — feature comparison matrix"
       },
       {
         "label": "graph",
@@ -127,235 +225,303 @@ export const HUBS: Hub[] = [
         "description": "Multi-model synthesis — diverse perspectives merged into one answer"
       },
       {
-        "label": "ralplan",
-        "description": "Consensus planning gate — validate plan is concrete enough to execute"
-      },
-      {
-        "label": "ddd",
-        "description": "Domain-driven design — model bounded contexts, aggregates, domain events"
-      },
-      {
-        "label": "event-storming",
-        "description": "Collaborative domain exploration via timeline, commands, events, policies"
-      },
-      {
-        "label": "double-diamond",
-        "description": "Design Council framework — discover, define, develop, deliver"
-      },
-      {
-        "label": "jtbd",
-        "description": "Jobs-to-be-done — frame requirements around customer functional jobs"
-      },
-      {
-        "label": "impact-mapping",
-        "description": "Goal mapping — trace deliverables to business impact"
-      },
-      {
-        "label": "spiral",
-        "description": "Risk-driven iterative planning — each cycle targets highest-risk items first"
-      },
-      {
-        "label": "spark",
-        "description": "Project-aware idea spark — improvements & expansions in short, expandable prompts"
-      },
-      {
-        "label": "top-down",
-        "description": "Decompose from high-level vision into components and sub-systems"
-      },
-      {
-        "label": "bottom-up",
-        "description": "Build up from existing primitives and capabilities into composed systems"
-      },
-      {
-        "label": "adversarial-debate",
-        "description": "Spec validation via oppositional debate — proposer vs critics"
-      },
-      {
-        "label": "cleanroom",
-        "description": "Formal correctness — box structure decomposition and statistical testing"
-      },
-      {
-        "label": "pwf",
-        "description": "Filesystem-as-disk planning — quality-gated convergence with recovery"
-      },
-      {
-        "label": "rpikit",
-        "description": "Research-Plan-Implement — stakes-based rigor scaling"
-      },
-      {
-        "label": "hive",
-        "description": "Agent swarm planning — interview, discover, produce plan.md with approval gate"
-      },
-      {
-        "label": "story-mapping",
-        "description": "User story mapping — journey spine with release prioritization"
-      },
-      {
-        "label": "lean-canvas",
-        "description": "Lean business model — problem, solution, metrics, competitive advantage"
-      },
-      {
-        "label": "constitution",
-        "description": "Project governance — code, UX, performance, security principles"
-      },
-      {
-        "label": "quality",
-        "description": "Code quality audit — complexity, duplication, naming, error handling"
-      },
-      {
-        "label": "architecture",
-        "description": "Architectural friction analysis — propose deep-module refactors"
-      },
-      {
-        "label": "redesign",
-        "description": "Audit and upgrade existing UI to premium design standards"
-      },
-      {
-        "label": "grill",
-        "description": "Stress-test a plan with relentless one-at-a-time questioning"
-      },
-      {
-        "label": "modularity",
-        "description": "Module boundary analysis — detect circular dependencies, suggest reorg"
-      },
-      {
-        "label": "arch-prep",
-        "description": "Architecture prep for upcoming features — extension points, refactoring runway"
+        "label": "tech-eval",
+        "description": "Technology evaluation — structured pros/cons comparison against alternatives"
       },
       {
         "label": "web-research",
         "description": "Multi-source web research — parallel searches, synthesize findings"
       },
       {
-        "label": "tech-eval",
-        "description": "Technology evaluation — structured pros/cons comparison against alternatives"
+        "label": "scientist",
+        "description": "Data analysis specialist — pass instructions directly to @scientist"
       },
       {
-        "label": "competitive-analysis",
-        "description": "Competitive landscape — feature comparison matrix"
+        "label": "tracer",
+        "description": "Evidence-driven causal tracing — pass instructions directly to @tracer"
       },
       {
-        "label": "tree-of-thoughts",
-        "description": "⚠️ EXPENSIVE: Explore parallel solution branches for open-ended problems"
+        "label": "docs",
+        "description": "Fetch official library docs via Context7 MCP API — React, Next.js, Tailwind, Prisma, Express, Django, any npm/PyPI package"
+      },
+      {
+        "label": "document-specialist",
+        "description": "External docs/reference specialist — pass instructions directly to @document-specialist"
+      },
+      {
+        "label": "explore",
+        "description": "Codebase search specialist — pass instructions directly to @explore"
+      }
+    ]
+  },
+  {
+    "name": "design-hub",
+    "title": "Design",
+    "description": "Architecture, design, and documentation authoring",
+    "subs": [
+      {
+        "label": "docs",
+        "description": "Generate hierarchical AGENTS.md documentation across the codebase"
+      },
+      {
+        "label": "arch-prep",
+        "description": "Architecture prep for upcoming features — extension points, refactoring runway"
+      },
+      {
+        "label": "architecture",
+        "description": "Architectural friction analysis — propose deep-module refactors"
+      },
+      {
+        "label": "modularity",
+        "description": "Module boundary analysis — detect circular dependencies, suggest reorg"
+      },
+      {
+        "label": "redesign",
+        "description": "Audit and upgrade existing UI to premium design standards"
+      },
+      {
+        "label": "designer",
+        "description": "UI/UX designer-developer — pass instructions directly to @designer"
+      },
+      {
+        "label": "frontend-design",
+        "description": "Production-grade frontend interfaces — pass instructions directly to @frontend-design"
+      },
+      {
+        "label": "readme",
+        "description": "Update README to reflect current codebase state — scans agents, skills, tools, rules, commands; preserves tone, links, and structure; SEO-optimized output via readme-updater skill"
+      },
+      {
+        "label": "writer",
+        "description": "Technical documentation writer — pass instructions directly to @writer"
+      }
+    ]
+  },
+  {
+    "name": "ideate-hub",
+    "title": "Ideate",
+    "description": "Divergent thinking and idea generation",
+    "subs": [
+      {
+        "label": "adversarial-debate",
+        "description": "Spec validation via oppositional debate — proposer vs critics"
+      },
+      {
+        "label": "brainstorm",
+        "description": "Free-form idea generation — diverge then converge"
+      },
+      {
+        "label": "cleanroom",
+        "description": "Formal correctness — box structure decomposition and statistical testing"
+      },
+      {
+        "label": "ddd",
+        "description": "Domain-driven design — model bounded contexts, aggregates, domain events"
+      },
+      {
+        "label": "deep",
+        "description": "Socratic interview with ambiguity gating — crystallize vague requirements"
+      },
+      {
+        "label": "deep-dive",
+        "description": "2-stage pipeline: trace root cause, then crystallize requirements — evidence-first investigation"
       },
       {
         "label": "deep-thinker",
         "description": "Structured thinking partner — pass instructions directly to @deep-thinker"
       },
       {
+        "label": "double-diamond",
+        "description": "Design Council framework — discover, define, develop, deliver"
+      },
+      {
+        "label": "event-storming",
+        "description": "Collaborative domain exploration via timeline, commands, events, policies"
+      },
+      {
+        "label": "grill",
+        "description": "Stress-test a plan with relentless one-at-a-time questioning"
+      },
+      {
         "label": "opro",
         "description": "⚠️ EXPENSIVE: Optimize prompts by testing variations against benchmarks"
       },
       {
-        "label": "analyze-patterns",
-        "description": "Analyze code patterns and anti-patterns — consistencies, convention violations"
+        "label": "pwf",
+        "description": "Filesystem-as-disk planning — quality-gated convergence with recovery"
+      },
+      {
+        "label": "refine",
+        "description": "Diverge/converge iteration — expand ideas, then sharpen them"
+      },
+      {
+        "label": "rpikit",
+        "description": "Research-Plan-Implement — stakes-based rigor scaling"
+      },
+      {
+        "label": "spark",
+        "description": "Project-aware idea spark — improvements & expansions in short, expandable prompts"
+      },
+      {
+        "label": "tree-of-thoughts",
+        "description": "⚠️ EXPENSIVE: Explore parallel solution branches for open-ended problems"
+      }
+    ]
+  },
+  {
+    "name": "plan-hub",
+    "title": "Plan",
+    "description": "Requirements, roadmaps, and work decomposition",
+    "subs": [
+      {
+        "label": "bottom-up",
+        "description": "Build up from existing primitives and capabilities into composed systems"
+      },
+      {
+        "label": "constitution",
+        "description": "Project governance — code, UX, performance, security principles"
+      },
+      {
+        "label": "decomposition",
+        "description": "Break complex work into ordered, verifiable subtasks"
+      },
+      {
+        "label": "impact-mapping",
+        "description": "Goal mapping — trace deliverables to business impact"
       },
       {
         "label": "improvements",
         "description": "Project audit — major & minor improvement items with proposed fixes, ordered for approval"
       },
       {
-        "label": "resume",
-        "description": "Resume last ideation session"
+        "label": "jtbd",
+        "description": "Jobs-to-be-done — frame requirements around customer functional jobs"
+      },
+      {
+        "label": "lean-canvas",
+        "description": "Lean business model — problem, solution, metrics, competitive advantage"
+      },
+      {
+        "label": "plan",
+        "description": "Interview-style strategic planning — clarify goals, break into tasks"
+      },
+      {
+        "label": "quality",
+        "description": "Code quality audit — complexity, duplication, naming, error handling"
+      },
+      {
+        "label": "ralplan",
+        "description": "Consensus planning gate — validate plan is concrete enough to execute"
+      },
+      {
+        "label": "requirements-analyzer",
+        "description": "Analyze feature requirements — pass instructions directly to @requirements-analyzer"
+      },
+      {
+        "label": "spiral",
+        "description": "Risk-driven iterative planning — each cycle targets highest-risk items first"
       },
       {
         "label": "status",
         "description": "Show current ideation state"
-      }
-    ]
-  },
-  {
-    "name": "orchestrate",
-    "title": "Orchestrate",
-    "description": "Execution hub — pick an orchestration pattern, load a plan, and build",
-    "subs": [
-      {
-        "label": "ralph",
-        "description": "Persistent loop — keeps working until task is verified complete"
       },
       {
-        "label": "team",
-        "description": "N coordinated agents with shared task list and real-time messaging"
+        "label": "story-mapping",
+        "description": "User story mapping — journey spine with release prioritization"
       },
       {
-        "label": "deep",
-        "description": "2-stage: causal trace → deep interview to crystallize requirements"
-      },
-      {
-        "label": "ccg",
-        "description": "Multi-model synthesis — query diverse models, merge perspectives"
-      },
-      {
-        "label": "ultrawork",
-        "description": "Maximum parallel execution for high-throughput tasks"
-      },
-      {
-        "label": "autopilot",
-        "description": "Full autonomous execution from idea to working code"
-      },
-      {
-        "label": "sciomc",
-        "description": "Parallel scientist agents for comprehensive analysis"
-      },
-      {
-        "label": "swarm",
-        "description": "Architect-led team of 11 specialized agents with gated QA pipeline"
-      },
-      {
-        "label": "state-machine",
-        "description": "State-machine orchestration — agents as states with explicit transitions and guards"
-      },
-      {
-        "label": "consensus",
-        "description": "Multi-agent consensus/voting — run agents independently, resolve via majority, weighting, or synthesis"
-      },
-      {
-        "label": "evolutionary",
-        "description": "Evolutionary delivery — incremental builds with fitness validation at each generation"
-      },
-      {
-        "label": "spec-driven",
-        "description": "Spec-first development — formalize spec, validate it, then implement against it"
-      },
-      {
-        "label": "react",
-        "description": "ReAct pattern — interleaved Reasoning and Acting: think → act → observe → reason → repeat until goal met"
+        "label": "top-down",
+        "description": "Decompose from high-level vision into components and sub-systems"
       },
       {
         "label": "plan-execute",
         "description": "Classic plan-then-execute — architect builds complete plan, executor implements step by step"
+      }
+    ]
+  },
+  {
+    "name": "verify-hub",
+    "title": "Verify",
+    "description": "Review, test, and debug — proving the work is correct",
+    "subs": [
+      {
+        "label": "critic",
+        "description": "Work plan and code review expert — pass instructions directly to @critic"
       },
       {
-        "label": "hive",
-        "description": "Agent Hive execution — Swarm Bee phase: batched parallelism with worktree isolation, best-effort worker verification, blocked worker protocol, orchestrator batch testing"
+        "label": "security-reviewer",
+        "description": "Security vulnerability detection — pass instructions directly to @security-reviewer"
       },
       {
         "label": "tdd",
         "description": "Test-driven development loop — red-green-refactor: write failing test, make it pass, refactor, repeat until all features covered"
       },
       {
-        "label": "pair",
-        "description": "Pair programming — two agents on one task: Driver writes code, Navigator reviews in real-time, catching mistakes early"
+        "label": "audit",
+        "description": "Comprehensive project health check — dependencies, security, code quality, test coverage, bundle size in one command"
       },
       {
-        "label": "pipeline",
-        "description": "Declarative multi-stage pipeline — Stage 1: lint → Stage 2: test → Stage 3: build → Stage 4: deploy, each stage gates the next"
+        "label": "code-review",
+        "description": "Delegated code review — pass instructions directly to @code-reviewer"
+      },
+      {
+        "label": "create-tests",
+        "description": "Generate comprehensive 8-type test suite"
+      },
+      {
+        "label": "debugger",
+        "description": "Root-cause analysis — pass instructions directly to @debugger"
+      },
+      {
+        "label": "deep-bug-hunt",
+        "description": "Critical bug hunt on recent changes — regressions, data loss, security holes"
+      },
+      {
+        "label": "qa-tester",
+        "description": "Interactive CLI testing specialist — pass instructions directly to @qa-tester"
+      },
+      {
+        "label": "review",
+        "description": "Full code review round — analyze recent changes, run security scan, check complexity, produce a review report"
+      },
+      {
+        "label": "test-engineer",
+        "description": "Test strategy specialist — pass instructions directly to @test-engineer"
+      }
+    ]
+  },
+  {
+    "name": "swarm-hub",
+    "title": "Swarm",
+    "description": "Multi-agent topologies and swarm patterns",
+    "subs": [
+      {
+        "label": "hive",
+        "description": "Agent swarm planning — interview, discover, produce plan.md with approval gate"
+      },
+      {
+        "label": "cc10x",
+        "description": "Intent-detecting router → dispatches to BUILD/DEBUG/REVIEW/PLAN workflows with evidence-first validation and confidence gating"
+      },
+      {
+        "label": "devin",
+        "description": "Autonomous Plan→Code→Debug→Deploy pipeline with iterative debugging cycles and root-cause analysis loops"
+      },
+      {
+        "label": "gastown",
+        "description": "GUPP principle — 'if work on your hook, YOU MUST RUN IT' with git-backed work units and NDI for reliable outcomes from unreliable processes"
       },
       {
         "label": "gsd",
         "description": "Get Shit Done pipeline — discuss → plan → execute → verify → ship with wave-based parallel execution, fresh context per task, and atomic commits"
       },
       {
-        "label": "self-assess",
-        "description": "Iterative self-evaluation — agent executes, critically evaluates against quality thresholds, reflects and refines until targets met"
+        "label": "harden",
+        "description": "Composable robustness — safeTask (error+deviation tracking), circuitBreaker (halt on failure rate), verificationGate (block downstream until verified)"
       },
       {
-        "label": "remediate",
-        "description": "CI/build failure auto-remediation — monitor failures, analyze root causes, auto-apply fixes, re-run until green"
-      },
-      {
-        "label": "devin",
-        "description": "Autonomous Plan→Code→Debug→Deploy pipeline with iterative debugging cycles and root-cause analysis loops"
+        "label": "hive",
+        "description": "Agent Hive execution — Swarm Bee phase: batched parallelism with worktree isolation, best-effort worker verification, blocked worker protocol, orchestrator batch testing"
       },
       {
         "label": "maestro",
@@ -366,178 +532,75 @@ export const HUBS: Hub[] = [
         "description": "Autonomous issue-to-PR with 12 agents, 7 phases, adversarial reviews with fresh reviewers to block anchoring bias"
       },
       {
-        "label": "cc10x",
-        "description": "Intent-detecting router → dispatches to BUILD/DEBUG/REVIEW/PLAN workflows with evidence-first validation and confidence gating"
+        "label": "pair",
+        "description": "Pair programming — two agents on one task: Driver writes code, Navigator reviews in real-time, catching mistakes early"
       },
       {
-        "label": "gastown",
-        "description": "GUPP principle — 'if work on your hook, YOU MUST RUN IT' with git-backed work units and NDI for reliable outcomes from unreliable processes"
+        "label": "react",
+        "description": "ReAct pattern — interleaved Reasoning and Acting: think → act → observe → reason → repeat until goal met"
+      },
+      {
+        "label": "remediate",
+        "description": "CI/build failure auto-remediation — monitor failures, analyze root causes, auto-apply fixes, re-run until green"
       },
       {
         "label": "ruflo",
         "description": "60+ agent swarm with Q-Learning smart routing, 4 consensus protocols, and Queen/Worker hierarchical topologies"
       },
       {
-        "label": "harden",
-        "description": "Composable robustness — safeTask (error+deviation tracking), circuitBreaker (halt on failure rate), verificationGate (block downstream until verified)"
+        "label": "self-assess",
+        "description": "Iterative self-evaluation — agent executes, critically evaluates against quality thresholds, reflects and refines until targets met"
+      },
+      {
+        "label": "spec-driven",
+        "description": "Spec-first development — formalize spec, validate it, then implement against it"
       },
       {
         "label": "subagent-driven",
         "description": "Execute implementation plans via fresh subagent per task with automated review gates — spec compliance + code quality after each task, broad final review. Includes hub-to-hub handoff protocol for bridging ideation→orchestrate→harvest-context"
       },
       {
+        "label": "delegate",
+        "description": "Hand a bounded task to a separate OpenCode CLI session — write brief, dispatch via relay, review diff, land it yourself"
+      }
+    ]
+  },
+  {
+    "name": "build-hub",
+    "title": "Build",
+    "description": "Implementation, refactoring, and code transformation",
+    "subs": [
+      {
+        "label": "overhaul",
+        "description": "8-dimension project audit — produce prioritized improvement plan"
+      },
+      {
         "label": "brownfield",
         "description": "Feature addition to existing codebase — analyze system, identify integration points, validate strategy before implementation"
+      },
+      {
+        "label": "pipeline",
+        "description": "Declarative multi-stage pipeline — Stage 1: lint → Stage 2: test → Stage 3: build → Stage 4: deploy, each stage gates the next"
       },
       {
         "label": "vibe-code",
         "description": "Conversational rapid prototyping — describe app in natural language, generate full-stack, iterate with feedback through conversational rounds"
       },
       {
-        "label": "resume",
-        "description": "Resume last orchestration session"
+        "label": "cleanup",
+        "description": "Regression-safe cleanup of AI-generated slop — dead code, redundant comments, unused exports via ai-slop-cleaner skill"
       },
       {
-        "label": "status",
-        "description": "Show current orchestration state"
-      }
-    ]
-  },
-  {
-    "name": "harvest-context",
-    "title": "Harvest Context",
-    "description": "Context and artifact hub — extract, generate, and manage project context",
-    "subs": [
-      {
-        "label": "session",
-        "description": "Extract decisions, patterns, learnings from current session — promotes to wiki via /harvest-context memory"
+        "label": "executor",
+        "description": "Focused task executor — pass instructions directly to @executor"
       },
       {
-        "label": "codebase",
-        "description": "Generate hierarchical AGENTS.md across the codebase"
+        "label": "extract-standards",
+        "description": "Extract coding standards from existing files — infer style guide from codebase syntax"
       },
       {
-        "label": "skill",
-        "description": "Create a reusable skill from session knowledge"
-      },
-      {
-        "label": "agent",
-        "description": "Create a project-specific agent"
-      },
-      {
-        "label": "rule",
-        "description": "Create a project rule (.opencode/rules/)"
-      },
-      {
-        "label": "command",
-        "description": "Create a project slash command"
-      },
-      {
-        "label": "memory",
-        "description": "Promote durable knowledge to project memory, notepad, or wiki — updates wiki index/log when promoting to .opencode/context/"
-      },
-      {
-        "label": "docs",
-        "description": "Fetch official library docs via Context7 MCP API — React, Next.js, Tailwind, Prisma, Express, Django, any npm/PyPI package"
-      },
-      {
-        "label": "web-research",
-        "description": "Multi-source web research — search multiple queries in parallel via websearch, fetch top results via webfetch, synthesize findings into a structured research report saved directly to .opencode/context/research/"
-      },
-      {
-        "label": "compare",
-        "description": "Compare alternatives via web research — research multiple options (libraries, tools, approaches) via websearch + webfetch, produce structured comparison table with recommendations"
-      },
-      {
-        "label": "decompose",
-        "description": "Break down a concept or goal into smaller actionable units"
-      },
-      {
-        "label": "context",
-        "description": "Manage context files — harvest, extract, organize, compact, map — updates wiki index/log on changes"
-      },
-      {
-        "label": "consume",
-        "description": "Ingest a file, directory, or URL — extract text content, save as durable context, and update wiki index/log"
-      },
-      {
-        "label": "compress",
-        "description": "Token compression strategies — density filtering (~29% savings), command output compression (~47%), library cache compression (~94%)"
-      },
-      {
-        "label": "secondbrain",
-        "description": "Privacy-first local knowledge base — markdown+Git with role packs and self-healing cross-references"
-      },
-      {
-        "label": "journal",
-        "description": "Event-sourced journal for orchestration runs — deterministic replay, time-travel debugging, SHA-256 checksums"
-      },
-      {
-        "label": "search",
-        "description": "Semantic search across all context files — find decisions, patterns, research matching a query across .opencode/context/"
-      },
-      {
-        "label": "prune",
-        "description": "Stale context management — identify old or superseded context files, archive or delete them to keep .opencode/context/ healthy"
-      },
-      {
-        "label": "export",
-        "description": "Export context as a readable summary, markdown bundle, or team report — share what the project knows"
-      },
-      {
-        "label": "diff",
-        "description": "Context diff — compare current context state to a previous checkpoint, showing new decisions, patterns, and changes since last harvest"
-      },
-      {
-        "label": "sweep",
-        "description": "Scan .opencode/ for files that should be gitignored but aren't — prevents bloat that breaks git push"
-      }
-    ]
-  },
-  {
-    "name": "project",
-    "title": "Project Ops",
-    "description": "Project operations hub — tests, git workflows, code refactoring, optimization, icons, changelogs, and file organization",
-    "subs": [
-      {
-        "label": "code-review",
-        "description": "Delegated code review — pass instructions directly to @code-reviewer"
-      },
-      {
-        "label": "pt-review",
-        "description": "Review current diff for over-engineering"
-      },
-      {
-        "label": "pt-audit",
-        "description": "Audit whole repo for over-engineering"
-      },
-      {
-        "label": "pt-debt",
-        "description": "Harvest deferred ponytail shortcuts"
-      },
-      {
-        "label": "pt-gain",
-        "description": "Show measured impact scoreboard"
-      },
-      {
-        "label": "create-tests",
-        "description": "Generate comprehensive 8-type test suite"
-      },
-      {
-        "label": "commit",
-        "description": "Create well-formatted conventional commit"
-      },
-      {
-        "label": "git-stage-thread",
-        "description": "Stage git changes from current conversation thread"
-      },
-      {
-        "label": "pr",
-        "description": "Create, view, merge, or manage pull requests"
-      },
-      {
-        "label": "gh",
-        "description": "Full GitHub CLI operations via gh"
+        "label": "modernize",
+        "description": "Update code patterns to modern language/framework conventions — targeted, behavior-preserving modernization via the code-simplification skill"
       },
       {
         "label": "optimize",
@@ -552,120 +615,173 @@ export const HUBS: Hub[] = [
         "description": "Reduce code complexity — flatten nesting, simplify conditionals, clarify naming via the code-simplification skill"
       },
       {
-        "label": "cleanup",
-        "description": "Regression-safe cleanup of AI-generated slop — dead code, redundant comments, unused exports via ai-slop-cleaner skill"
+        "label": "simplify-code",
+        "description": "Simplify code for clarity — five-principle process: preserve behavior, follow conventions, prefer clarity, balance, scope"
+      }
+    ]
+  },
+  {
+    "name": "orchestrate-hub",
+    "title": "Orchestrate",
+    "description": "Autonomous execution modes and orchestration loops",
+    "subs": [
+      {
+        "label": "autopilot",
+        "description": "Full autonomous execution from idea to working code"
       },
       {
-        "label": "modernize",
-        "description": "Update code patterns to modern language/framework conventions — targeted, behavior-preserving modernization via the code-simplification skill"
+        "label": "ccg",
+        "description": "Multi-model synthesis — query diverse models, merge perspectives"
       },
       {
-        "label": "icon",
-        "description": "Generate web/PWA/UE icon assets from source image"
+        "label": "consensus",
+        "description": "Multi-agent consensus/voting — run agents independently, resolve via majority, weighting, or synthesis"
       },
       {
-        "label": "organize",
-        "description": "Find duplicates, suggest structures, automate cleanup"
+        "label": "evolutionary",
+        "description": "Evolutionary delivery — incremental builds with fitness validation at each generation"
+      },
+      {
+        "label": "ralph",
+        "description": "Persistent loop — keeps working until task is verified complete"
+      },
+      {
+        "label": "resume",
+        "description": "Resume last orchestration session"
+      },
+      {
+        "label": "sciomc",
+        "description": "Parallel scientist agents for comprehensive analysis"
+      },
+      {
+        "label": "state-machine",
+        "description": "State-machine orchestration — agents as states with explicit transitions and guards"
+      },
+      {
+        "label": "status",
+        "description": "Show current orchestration state"
+      },
+      {
+        "label": "swarm",
+        "description": "Architect-led team of 11 specialized agents with gated QA pipeline"
+      },
+      {
+        "label": "team",
+        "description": "N coordinated agents with shared task list and real-time messaging"
+      },
+      {
+        "label": "ultrawork",
+        "description": "Maximum parallel execution for high-throughput tasks"
+      }
+    ]
+  },
+  {
+    "name": "git-hub",
+    "title": "Git",
+    "description": "Version control, pull requests, and releases",
+    "subs": [
+      {
+        "label": "archive",
+        "description": "Move stale branches, old artifacts, unused config to timestamped archive — keep working tree clean"
       },
       {
         "label": "changelog",
         "description": "Generate user-facing changelog from git commits"
       },
       {
-        "label": "converge",
-        "description": "5-gate quality convergence — functional tests, lint/complexity, type safety, security scanning, performance thresholds with progressive target escalation"
+        "label": "commit",
+        "description": "Create well-formatted conventional commit"
       },
       {
-        "label": "scan",
-        "description": "Security vulnerability scan — SAST rules, secrets detection, dependency audit, compliance checks"
+        "label": "commit-drafter",
+        "description": "Structure conventional commit messages — pass instructions directly to @commit-drafter"
       },
       {
-        "label": "vectorize",
-        "description": "Embed codebase + context into local vector DB for semantic retrieval"
-      },
-      {
-        "label": "sandbox",
-        "description": "Sandbox enforcement — policy-based tool control, file protection, network filtering for agent tool calls"
-      },
-      {
-        "label": "retrospect",
-        "description": "Post-run retrospective analysis — extract lessons learned, error taxonomy classification, metrics across all phases"
-      },
-      {
-        "label": "purge",
-        "description": "Clean up stale orchestration state — remove old runs, free disk space, preserve recent history"
-      },
-      {
-        "label": "release",
-        "description": "Tag and release — bump version, generate changelog, create GitHub release in one flow"
-      },
-      {
-        "label": "review",
-        "description": "Full code review round — analyze recent changes, run security scan, check complexity, produce a review report"
-      },
-      {
-        "label": "audit",
-        "description": "Comprehensive project health check — dependencies, security, code quality, test coverage, bundle size in one command"
-      },
-      {
-        "label": "archive",
-        "description": "Move stale branches, old artifacts, unused config to timestamped archive — keep working tree clean"
+        "label": "gh",
+        "description": "Full GitHub CLI operations via gh"
       },
       {
         "label": "git-cleanup",
         "description": "Fix orphaned CHANGELOG entries referencing commits not in git history after .git/ rebuild — preserves entries, removes bad refs"
       },
       {
-        "label": "workspace",
-        "description": "Manage .opencode across projects — list Hubs-enabled projects, sync config, init .opencode in new directories, check health"
+        "label": "git-master",
+        "description": "Git expert for atomic commits — pass instructions directly to @git-master"
       },
       {
-        "label": "readme",
-        "description": "Update README to reflect current codebase state — scans agents, skills, tools, rules, commands; preserves tone, links, and structure; SEO-optimized output via readme-updater skill"
+        "label": "git-stage-thread",
+        "description": "Stage git changes from current conversation thread"
       },
+      {
+        "label": "pr",
+        "description": "Create, view, merge, or manage pull requests"
+      },
+      {
+        "label": "release",
+        "description": "Tag and release — bump version, generate changelog, create GitHub release in one flow"
+      }
+    ]
+  },
+  {
+    "name": "maintain-hub",
+    "title": "Maintain",
+    "description": "Project hygiene, insights, and self-improvement",
+    "subs": [
       {
         "label": "consolidate-telemetry",
         "description": "Consolidate SRCL telemetry log into proposed ADRs in decisions.md"
       },
       {
-        "label": "extract-standards",
-        "description": "Extract coding standards from existing files — infer style guide from codebase syntax"
+        "label": "converge",
+        "description": "5-gate quality convergence — functional tests, lint/complexity, type safety, security scanning, performance thresholds with progressive target escalation"
       },
       {
-        "label": "simplify-code",
-        "description": "Simplify code for clarity — five-principle process: preserve behavior, follow conventions, prefer clarity, balance, scope"
-      },
-      {
-        "label": "deep-bug-hunt",
-        "description": "Critical bug hunt on recent changes — regressions, data loss, security holes"
+        "label": "icon",
+        "description": "Generate web/PWA/UE icon assets from source image"
       },
       {
         "label": "insights",
         "description": "Session-history analysis — work patterns, tool usage, friction points, strategic recommendations from your OpenCode usage"
       },
       {
-        "label": "delegate",
-        "description": "Hand a bounded task to a separate OpenCode CLI session — write brief, dispatch via relay, review diff, land it yourself"
+        "label": "organize",
+        "description": "Find duplicates, suggest structures, automate cleanup"
+      },
+      {
+        "label": "purge",
+        "description": "Clean up stale orchestration state — remove old runs, free disk space, preserve recent history"
+      },
+      {
+        "label": "retrospect",
+        "description": "Post-run retrospective analysis — extract lessons learned, error taxonomy classification, metrics across all phases"
+      },
+      {
+        "label": "sandbox",
+        "description": "Sandbox enforcement — policy-based tool control, file protection, network filtering for agent tool calls"
+      },
+      {
+        "label": "scan",
+        "description": "Security vulnerability scan — SAST rules, secrets detection, dependency audit, compliance checks"
       },
       {
         "label": "self-improve",
         "description": "Per-project self-optimization — capture learnings, triage failures, promote recurring fixes into .opencode/ config"
       },
       {
-        "label": "graph",
-        "description": "Per-project knowledge graph — entity/relationship store + hybrid retrieval (vector → graph refine)"
+        "label": "vectorize",
+        "description": "Embed codebase + context into local vector DB for semantic retrieval"
+      },
+      {
+        "label": "workspace",
+        "description": "Manage .opencode across projects — list Hubs-enabled projects, sync config, init .opencode in new directories, check health"
       }
     ]
   },
   {
-    "name": "skills",
+    "name": "skills-hub",
     "title": "Skills",
-    "description": "Skill manager — CRUD, search, sync, package, and validate OpenCode skills across user, project, and built-in scopes",
+    "description": "Skill authoring and lifecycle management",
     "subs": [
-      {
-        "label": "list",
-        "description": "List all available skills organized by scope — built-in, user (~/.config/opencode/skills/omc-learned/), and project (.opencode/state/skills/) — parse frontmatter, show quality/usage stats"
-      },
       {
         "label": "add",
         "description": "Interactive wizard for quick skill creation — prompts for name, description, triggers, scope (user or project), writes SKILL.md with frontmatter"
@@ -675,44 +791,48 @@ export const HUBS: Hub[] = [
         "description": "Full skill creation workflow with bundled resources — gather requirements, plan scripts/references/assets, run skill-creator workflow, package if ready"
       },
       {
-        "label": "remove",
-        "description": "Remove a skill by name — searches user and project scopes, confirms before deleting, warns if not found"
-      },
-      {
         "label": "edit",
         "description": "Edit an existing skill interactively — find by name, display current values, change description/triggers/content/rename, write back"
-      },
-      {
-        "label": "search",
-        "description": "Search skills by content, triggers, name, or description — case-insensitive matching across all scopes, ranked by relevance"
       },
       {
         "label": "info",
         "description": "Show detailed information about a skill — find by name, parse YAML frontmatter, display complete details and full content"
       },
       {
-        "label": "update",
-        "description": "Update an existing skill using skill-creator iteration workflow — read current skill, identify improvements, apply changes, validate structure"
+        "label": "list",
+        "description": "List all available skills organized by scope — built-in, user (~/.config/opencode/skills/omc-learned/), and project (.opencode/state/skills/) — parse frontmatter, show quality/usage stats"
       },
       {
         "label": "package",
         "description": "Package a skill for distribution — validate structure, create distributable zip if validation passes"
       },
       {
-        "label": "validate",
-        "description": "Validate a skill's structure without packaging — run structure checks, report errors, suggest fixes"
+        "label": "remove",
+        "description": "Remove a skill by name — searches user and project scopes, confirms before deleting, warns if not found"
       },
       {
-        "label": "sync",
-        "description": "Sync skills between user and project scopes — scan both, categorize, display diff opportunities, copy or merge with confirmation"
+        "label": "scan",
+        "description": "Quick scan of skill directories — non-interactive inventory of both user and project scopes, reports counts and paths"
+      },
+      {
+        "label": "search",
+        "description": "Search skills by content, triggers, name, or description — case-insensitive matching across all scopes, ranked by relevance"
       },
       {
         "label": "setup",
         "description": "Interactive setup wizard — create skill directories, scan inventory, offer actions (add, list, scan conversation, import, done)"
       },
       {
-        "label": "scan",
-        "description": "Quick scan of skill directories — non-interactive inventory of both user and project scopes, reports counts and paths"
+        "label": "sync",
+        "description": "Sync skills between user and project scopes — scan both, categorize, display diff opportunities, copy or merge with confirmation"
+      },
+      {
+        "label": "update",
+        "description": "Update an existing skill using skill-creator iteration workflow — read current skill, identify improvements, apply changes, validate structure"
+      },
+      {
+        "label": "validate",
+        "description": "Validate a skill's structure without packaging — run structure checks, report errors, suggest fixes"
       }
     ]
   },

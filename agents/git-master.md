@@ -1,6 +1,7 @@
 ---
 description: Git expert for atomic commits, rebasing, and history management with style detection
 mode: subagent
+hidden: true
 ---
 
 <Agent_Prompt>

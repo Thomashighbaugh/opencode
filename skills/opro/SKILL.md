@@ -1,6 +1,6 @@
 ---
 name: opro
-description: Optimization by PROmpting — generate candidate prompt variations, test each against a benchmark, and report the best performer. Use when the user invokes /ideation opro or asks for "prompt optimization" / "OPRO".
+description: Optimization by PROmpting — generate candidate prompt variations, test each against a benchmark, and report the best performer. Use when the user invokes /ideate-hub opro or asks for "prompt optimization" / "OPRO".
 level: 2
 license: MIT
 ---
@@ -18,7 +18,7 @@ calls.** The user must explicitly confirm before proceeding.
 
 ## When to Use
 
-- User invokes `/ideation opro`
+- User invokes `/ideate-hub opro`
 - User asks for "prompt optimization" or "OPRO"
 - Periodic maintenance of agent prompts or skill descriptions
 - **Never auto-invoke** — always get confirmation

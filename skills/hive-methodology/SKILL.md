@@ -110,16 +110,16 @@ Enforce with tools and instructions, not soft suggestions.
 
 ### Planning with Hive
 ```
-/ideation hive add user authentication
+/swarm-hub hive-plan add user authentication
 → Architect Bee interviews you
 → Gathers context (existing auth code, patterns)
 → Produces plan.md with task breakdown
-→ You approve → ready for /orchestrate hive
+→ You approve → ready for /swarm-hub hive
 ```
 
 ### Execution with Hive
 ```
-/orchestrate hive user authentication
+/swarm-hub hive user authentication
 → Swarm Bee loads approved plan
 → Batch 1: AuthService + Token refresh (parallel)
 → Batch 2: API routes + Tests (after Batch 1)
@@ -131,8 +131,8 @@ Enforce with tools and instructions, not soft suggestions.
 ### Combined Flow
 ```
 /hive add dark mode support
-→ /ideation hive plan (interviews, produces plan.md)
-→ /orchestrate hive execute (batched parallel execution)
+→ /swarm-hub hive-plan plan (interviews, produces plan.md)
+→ /swarm-hub hive execute (batched parallel execution)
 → Context persists for next session
 ```
 
@@ -140,8 +140,8 @@ Enforce with tools and instructions, not soft suggestions.
 
 | Hub | Subcommand | Hive Phase |
 |-----|-----------|------------|
-| `/ideation hive` | Plan | Architect Bee — interview → context → plan.md → approval gate |
-| `/orchestrate hive` | Execute | Swarm Bee — batched parallelism → blocked protocol → batch test → merge |
+| `/swarm-hub hive-plan` | Plan | Architect Bee — interview → context → plan.md → approval gate |
+| `/swarm-hub hive` | Execute | Swarm Bee — batched parallelism → blocked protocol → batch test → merge |
 
 ## When to Use
 

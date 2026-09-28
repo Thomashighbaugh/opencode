@@ -20,7 +20,7 @@ This skill fetches the latest schema from `https://opencode.ai/config.json`, com
 - After OpenCode updates
 - When config load errors occur
 - Before major config changes
-- As part of `/project audit`
+- As part of `/verify-hub audit`
 
 ## Workflow
 

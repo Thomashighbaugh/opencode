@@ -4,7 +4,7 @@
  *
  * Every relevant tool event appends one NDJSON line to
  * `.opencode/state/telemetry.ndjson`. No LLM calls in the hot path.
- * The log is consolidated on demand by `/project consolidate-telemetry`
+ * The log is consolidated on demand by `/maintain-hub consolidate-telemetry`
  * into ADRs in `.opencode/context/decisions.md`.
  *
  * Event kinds (6):

@@ -90,10 +90,10 @@ Every mechanism that already writes durable markdown feeds the graph:
 
 | Mechanism | Contribution |
 |-----------|-------------|
-| `/harvest-context` (session/pattern/decision writes) | nodes + derived_from edges on next `build` |
+| `/memory-hub` (session/pattern/decision writes) | nodes + derived_from edges on next `build` |
 | `self-improvement` skill learnings capture | learning nodes, `touches` edges, weight = Recurrence-Count |
-| `/project consolidate-telemetry` (ADRs) | decision nodes, `supersedes` edges |
-| `/project retrospect` | lesson nodes |
+| `/maintain-hub consolidate-telemetry` (ADRs) | decision nodes, `supersedes` edges |
+| `/maintain-hub retrospect` | lesson nodes |
 | `/ideation` finalize | plan nodes, derived_from → sources |
 
 Run `graph build` after any of these to fold new knowledge into the graph.
@@ -127,5 +127,5 @@ Run `graph build` after any of these to fold new knowledge into the graph.
 - `self-improvement` skill — learnings capture is the primary edge source
 - `wiki` skill — frontmatter schema is the node-extraction contract
 - `graph-thinking` skill — mental model for structuring the graph
-- `/project consolidate-telemetry` — ADR → supersedes edges
-- `/ideation improvements` — cluster-density edges can order audit proposals
+- `/maintain-hub consolidate-telemetry` — ADR → supersedes edges
+- `/plan-hub improvements` — cluster-density edges can order audit proposals

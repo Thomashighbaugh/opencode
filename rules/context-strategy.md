@@ -12,13 +12,16 @@
 
 ## Hub State Paths
 
-| Hub | In-Progress | Final Output | Checkpoints |
-|-----|-------------|-------------|-------------|
-| `/init-project` | — | `.opencode/state/init/` | `.opencode/state/init/init-checkpoint.json` |
-| `/ideation` | `.opencode/state/ideation/work-products/` | `.opencode/state/ideation/` | — |
-| `/orchestrate` | `.opencode/state/orchestration/progress/` | `.opencode/state/orchestration/` | `.opencode/state/orchestration/checkpoints/` |
-| `/harvest-context` | — | `.opencode/context/` (durable) / `.opencode/state/harvest/` (session/PII) | — |
-| `/project` | — (stateless) | — | — |
+State directories are **unchanged by the 2026-09-28 menu split** — menus were renamed, on-disk
+paths were not, so existing checkpoints and resume state keep resolving.
+
+| Menu | In-Progress | Final Output | Checkpoints |
+|------|-------------|-------------|-------------|
+| `/scaffold-hub` | — | `.opencode/state/init/` | `.opencode/state/init/init-checkpoint.json` |
+| `/ideate-hub`, `/plan-hub` | `.opencode/state/ideation/work-products/` | `.opencode/state/ideation/` | — |
+| `/orchestrate-hub`, `/swarm-hub` | `.opencode/state/orchestration/progress/` | `.opencode/state/orchestration/` | `.opencode/state/orchestration/checkpoints/` |
+| `/memory-hub` | — | `.opencode/context/` (durable) / `.opencode/state/harvest/` (session/PII) | — |
+| all other menus | — (stateless) | — | — |
 
 ## Durable Context Paths
 

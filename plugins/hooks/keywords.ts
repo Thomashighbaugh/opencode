@@ -241,11 +241,11 @@ export function detectKeywords(prompt: string): KeywordMatch[] {
   }
 
   if (hasActionableKeyword(cleanPrompt, KEYWORD_PATTERNS.commitProject)) {
-    matches.push({ name: '/project commit', args: '' })
+    matches.push({ name: '/git-hub commit', args: '' })
   }
 
   if (hasActionableKeyword(cleanPrompt, KEYWORD_PATTERNS.harvestSession)) {
-    matches.push({ name: '/harvest-context session', args: '' })
+    matches.push({ name: '/memory-hub session', args: '' })
   }
 
   return matches
@@ -273,7 +273,7 @@ export function resolveConflicts(matches: KeywordMatch[]): KeywordMatch[] {
     'autopilot', 'ultrawork', 'ralplan',
     'deep-interview', 'ai-slop-cleaner', 'tdd', 'code-review',
     'security-review', 'ultrathink', 'deepsearch', 'analyze', 'new-agent',
-    '/project commit', '/harvest-context session'
+    '/git-hub commit', '/memory-hub session'
   ]
 
   const resolved = [...matches]

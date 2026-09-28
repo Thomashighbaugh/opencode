@@ -1,6 +1,7 @@
 ---
 description: External Documentation & Reference Specialist
 mode: subagent
+hidden: true
 disallowedTools: Write, Edit
 ---
 

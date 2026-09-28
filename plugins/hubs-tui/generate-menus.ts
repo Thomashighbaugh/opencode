@@ -6,12 +6,20 @@ import { writeFileSync } from "fs"
 import { join, dirname } from "path"
 import { fileURLToPath } from "url"
 
-import initProjectHub from "../../tools/hub-init-project"
-import ideationHub from "../../tools/hub-ideation"
-import orchestrateHub from "../../tools/hub-orchestrate"
-import harvestContextHub from "../../tools/hub-harvest-context"
-import projectHub from "../../tools/hub-project"
-import skillsHub from "../../tools/hub-skills"
+import scaffoldHub from "../../tools/hub-scaffold-hub"
+import resourceHub from "../../tools/hub-resource-hub"
+import memoryHub from "../../tools/hub-memory-hub"
+import researchHub from "../../tools/hub-research-hub"
+import designHub from "../../tools/hub-design-hub"
+import ideateHub from "../../tools/hub-ideate-hub"
+import planHub from "../../tools/hub-plan-hub"
+import verifyHub from "../../tools/hub-verify-hub"
+import swarmHub from "../../tools/hub-swarm-hub"
+import buildHub from "../../tools/hub-build-hub"
+import orchestrateHub from "../../tools/hub-orchestrate-hub"
+import gitHub from "../../tools/hub-git-hub"
+import maintainHub from "../../tools/hub-maintain-hub"
+import skillsHub from "../../tools/hub-skills-hub"
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -25,17 +33,24 @@ function titleFromName(name: string): string {
     "project": "Project Ops",
   }
   if (custom[name]) return custom[name]
-  return name.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")
+  return name.replace(/-hub$/, "").split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")
 }
 
 const hubs: Hub[] = [
-  initProjectHub,
-  ideationHub,
+  scaffoldHub,
+  resourceHub,
+  memoryHub,
+  researchHub,
+  designHub,
+  ideateHub,
+  planHub,
+  verifyHub,
+  swarmHub,
+  buildHub,
   orchestrateHub,
-  harvestContextHub,
-  projectHub,
-  skillsHub,
-].map((h) => ({
+  gitHub,
+  maintainHub,
+  skillsHub,].map((h) => ({
   name: h.name,
   title: titleFromName(h.name),
   description: h.description,

@@ -61,7 +61,7 @@ End with a **Top Recommendation** section stating which candidate to tackle firs
 
 ### 3. Grilling Loop
 
-Once the user picks a candidate, run the `grilling` skill (/ideation grill) to walk the design tree — constraints, dependencies, the shape of the deepened module, what sits behind the seam, what tests survive.
+Once the user picks a candidate, run the `grilling` skill (/ideate-hub grill) to walk the design tree — constraints, dependencies, the shape of the deepened module, what sits behind the seam, what tests survive.
 
 Side effects as decisions crystallize:
 - **Naming a deepened module after a new concept?** Note it for CONTEXT.md

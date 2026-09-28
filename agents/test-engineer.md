@@ -1,6 +1,7 @@
 ---
 description: Test strategy, integration/e2e coverage, flaky test hardening, TDD workflows
 mode: subagent
+hidden: true
 ---
 
 <Agent_Prompt>

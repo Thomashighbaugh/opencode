@@ -1,6 +1,7 @@
 ---
 description: Analyze a codebase to extract coding conventions — naming, file organization, error handling, testing patterns, imports, code style, and git conventions. Outputs a structured conventions fingerprint for downstream rule generation.
 mode: subagent
+hidden: true
 disallowedTools: Write, Edit
 tags: [provisioning, detection, conventions, patterns]
 ---

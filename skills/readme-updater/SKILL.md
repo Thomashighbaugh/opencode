@@ -1,6 +1,6 @@
 ---
 name: readme-updater
-description: Update README files to reflect current codebase state — scans agents, skills, tools, rules, commands, archetypes, and plugins; preserves existing tone, links, and structure; produces SEO-optimized, technically proficient documentation. Use when the user says "update the readme" or via /project readme.
+description: Update README files to reflect current codebase state — scans agents, skills, tools, rules, commands, archetypes, and plugins; preserves existing tone, links, and structure; produces SEO-optimized, technically proficient documentation. Use when the user says "update the readme" or via /design-hub readme.
 level: 2
 license: MIT
 ---
@@ -22,7 +22,7 @@ This skill updates a project's README to accurately reflect the current codebase
 - The user says "update the readme" or "refresh the readme"
 - The codebase has changed significantly (new agents, skills, tools, commands)
 - The README references outdated counts or missing features
-- A `/project readme` subcommand is invoked
+- A `/design-hub readme` subcommand is invoked
 
 ## Process
 

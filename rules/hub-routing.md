@@ -1,7 +1,8 @@
 # Hub Routing Model
 
-> Auto-generated from `tools/hubMenu.ts` + `tools/hub-data.ts` + `tools/hubs/`.
-> Run `npx tsx tools/gen-routing-docs.ts` to regenerate.
+> Regenerate with `npx tsx tools/gen-routing-docs.ts` (NOTE: that generator is currently broken
+> on this Node/toolchain — `ERR_PACKAGE_PATH_NOT_EXPORTED` for `@opencode-ai/plugin`; this file
+> was updated by hand to match.)
 
 ## How Routing Works
 
@@ -9,7 +10,7 @@ The hub routing system has two modes, chosen based on whether the user has alrea
 
 ### 1. Direct Selection (no routing needed)
 
-When the user invokes a hub WITH a subcommand — e.g. `/orchestrate ralph` or `/project commit` — routing is already done. The `hubMenu` tool's `route` action loads ONLY that one subcommand's full spec from `tools/hubs/<hub>/<subcommand>.ts` and returns it in a single response:
+When the user invokes a hub WITH a subcommand — e.g. `/orchestrate-hub ralph` or `/git-hub commit` — routing is already done. The `hubMenu` tool's `route` action loads ONLY that one subcommand's full spec from `tools/hubs/<hub>/<subcommand>.ts` and returns it in a single response:
 
 - `detailedDescription` — the exhaustive pattern/action explanation (1-3 paragraphs)
 - `tools` — which tools the subcommand uses
@@ -22,7 +23,7 @@ This eliminates the follow-up `loadSkill` and rule-read calls that the old model
 
 ### 2. Routing Required (bare hub or natural language)
 
-When the user invokes a bare hub command (`/orchestrate` with a natural-language task) or uses pure natural language with no command, routing IS needed. In this case, the `menu` action returns the slim subcommand list (label + short description + reminder only — no `detailedDescription`). The model picks the right subcommand from the slim list, then calls `route` to get the full spec.
+When the user invokes a a bare hub command (`/orchestrate-hub` with a natural-language task) or uses pure natural language with no command, routing IS needed. In this case, the `menu` action returns the slim subcommand list (label + short description + reminder only — no `detailedDescription`). The model picks the right subcommand from the slim list, then calls `route` to get the full spec.
 
 ### What the Slim Menu Contains
 
@@ -39,181 +40,216 @@ The full `detailedDescription`, `tools`, `rules`, `relatedSkills`, `examples`, a
 ```
 tools/
 ├── hubMenu.ts              # Hub menu router tool
-├── hub-data.ts             # Types, loaders (loadHub, loadSubcommandSpec, loadSubcommandSpecFull)
-├── hub-<name>.ts           # Thin manifest (10 lines each) — identity slice only
+├── hub-data.ts             # Types, loaders, HUB_FILE_MAP, SUBCOMMAND_DIR_MAP, LEGACY_ROUTE_MAP
+├── hub-<name>-hub.ts       # Thin manifest (14 files) — identity slice only
 └── hubs/
-    ├── orchestrate/
-    │   ├── index.ts         # Re-exports all specs + identity slice
-    │   ├── ralph.ts         # Full HubSubcommandSpec
-    │   ├── team.ts
-    │   └── ... (33 files)
-    ├── ideation/            # 38 files
-    ├── harvest-context/     # 21 files
-    ├── init-project/        # 17 files
-    ├── project/             # 26 files
-    └── skills/              # 13 files
+    ├── scaffold-hub/      # 12 files + index.ts
+    ├── resource-hub/      # 12
+    ├── memory-hub/        # 18
+    ├── research-hub/      # 13
+    ├── design-hub/        #  9
+    ├── ideate-hub/        # 16
+    ├── plan-hub/          # 16
+    ├── verify-hub/        # 11
+    ├── swarm-hub/         # 17
+    ├── build-hub/         # 12
+    ├── orchestrate-hub/   # 12
+    ├── git-hub/           # 10
+    ├── maintain-hub/      # 12
+    └── skills-hub/        # 13
 ```
 
-## Delegation Table (148 subcommands)
+## Legacy Routing
 
-| Hub | Subcommand | Delegation | Target |
-|-----|-----------|------------|--------|
-| init-project | setup | skill | init-project |
-| init-project | detect | agent | stack-detector |
-| init-project | recommend | skill | stack-recommender |
-| init-project | docs | skill | deepinit |
-| init-project | context | skill | remember |
-| init-project | verify | agent | verifier |
-| init-project | refresh | skill | init-project |
-| init-project | status | inline | true |
-| init-project | map-codebase | inline | true |
-| init-project | doctor | inline | true |
-| init-project | reset | inline | true |
-| init-project | provision | skill | project-config-composer |
-| init-project | tag | skill | tag-resources |
-| init-project | find-skills | skill | find-skills |
-| init-project | find-agents | skill | find-agents |
-| init-project | find-tools | skill | find-tools |
-| init-project | find-rules | skill | find-rules |
-| ideation | plan | skill | plan |
-| ideation | brainstorm | inline | true |
-| ideation | decomposition | inline | true |
-| ideation | refine | skill | idea-refine |
-| ideation | overhaul | skill | overhaul |
-| ideation | deep | skill | deep-interview |
-| ideation | graph | skill | graph-thinking |
-| ideation | research | skill | ccg |
-| ideation | ralplan | skill | ralplan |
-| ideation | ddd | inline | true |
-| ideation | event-storming | inline | true |
-| ideation | double-diamond | inline | true |
-| ideation | jtbd | inline | true |
-| ideation | impact-mapping | inline | true |
-| ideation | spiral | inline | true |
-| ideation | top-down | inline | true |
-| ideation | bottom-up | inline | true |
-| ideation | adversarial-debate | inline | true |
-| ideation | cleanroom | inline | true |
-| ideation | pwf | inline | true |
-| ideation | rpikit | inline | true |
-| ideation | hive | inline | true |
-| ideation | story-mapping | inline | true |
-| ideation | lean-canvas | inline | true |
-| ideation | constitution | inline | true |
-| ideation | quality | inline | true |
-| ideation | architecture | skill | improve-codebase-architecture |
-| ideation | redesign | skill | redesign-existing-projects |
-| ideation | grill | skill | grilling |
-| ideation | modularity | agent | architect |
-| ideation | arch-prep | agent | architect |
-| ideation | web-research | inline | true |
-| ideation | tech-eval | inline | true |
-| ideation | competitive-analysis | inline | true |
-| ideation | tree-of-thoughts | skill | tree-of-thoughts |
-| ideation | deep-thinker | agent | deep-thinker |
-| ideation | opro | skill | opro |
-| ideation | analyze-patterns | inline | true |
-| ideation | improvements | inline | true |
-| ideation | resume | inline | true |
-| ideation | status | inline | true |
-| orchestrate | ralph | skill | ralph |
-| orchestrate | team | skill | team |
-| orchestrate | deep | skill | deep-dive |
-| orchestrate | ccg | skill | ccg |
-| orchestrate | ultrawork | skill | ultrawork |
-| orchestrate | autopilot | skill | autopilot |
-| orchestrate | sciomc | skill | sciomc |
-| orchestrate | swarm | skill | swarm |
-| orchestrate | state-machine | inline | true |
-| orchestrate | consensus | inline | true |
-| orchestrate | evolutionary | inline | true |
-| orchestrate | spec-driven | inline | true |
-| orchestrate | react | inline | true |
-| orchestrate | plan-execute | skill | plan-execute |
-| orchestrate | hive | skill | hive-methodology |
-| orchestrate | tdd | inline | true |
-| orchestrate | pair | inline | true |
-| orchestrate | pipeline | inline | true |
-| orchestrate | gsd | inline | true |
-| orchestrate | self-assess | skill | self-improve |
-| orchestrate | remediate | inline | true |
-| orchestrate | devin | inline | true |
-| orchestrate | maestro | inline | true |
-| orchestrate | metaswarm | inline | true |
-| orchestrate | cc10x | inline | true |
-| orchestrate | gastown | inline | true |
-| orchestrate | ruflo | inline | true |
-| orchestrate | harden | skill | harden |
-| orchestrate | subagent-driven | skill | subagent-driven-development |
-| orchestrate | brownfield | skill | brownfield |
-| orchestrate | vibe-code | skill | vibe-code |
-| orchestrate | resume | inline | true |
-| orchestrate | status | inline | true |
-| harvest-context | session | inline | true |
-| harvest-context | codebase | skill | deepinit |
-| harvest-context | skill | skill | skill-creator |
-| harvest-context | agent | skill | opencode-agent-creator |
-| harvest-context | rule | inline | true |
-| harvest-context | command | skill | opencode-command-creator |
-| harvest-context | memory | skill | remember |
-| harvest-context | docs | inline | true |
-| harvest-context | web-research | inline | true |
-| harvest-context | compare | inline | true |
-| harvest-context | decompose | agent | planner |
-| harvest-context | context | inline | true |
-| harvest-context | consume | inline | true |
-| harvest-context | compress | inline | true |
-| harvest-context | secondbrain | inline | true |
-| harvest-context | journal | inline | true |
-| harvest-context | search | inline | true |
-| harvest-context | prune | inline | true |
-| harvest-context | export | inline | true |
-| harvest-context | diff | inline | true |
-| harvest-context | sweep | inline | true |
-| project | create-tests | command | create-tests |
-| project | code-review | agent | code-reviewer |
-| project | commit | skill | conventional-commit |
-| project | git-stage-thread | command | git-stage-thread |
-| project | pr | command | pr |
-| project | gh | skill | github-ops |
-| project | optimize | command | optimize |
-| project | refactor | agent | refactoring |
-| project | simplify | agent | code-simplifier |
-| project | simplify-code | skill | code-simplification |
-| project | cleanup | skill | ai-slop-cleaner |
-| project | modernize | agent | refactoring |
-| project | icon | skill | icon-generator |
-| project | organize | skill | file-organizer |
-| project | changelog | skill | changelog-generator |
-| project | converge | inline | true |
-| project | scan | inline | true |
-| project | vectorize | inline | true |
-| project | sandbox | inline | true |
-| project | retrospect | inline | true |
-| project | purge | inline | true |
-| project | release | inline | true |
-| project | review | inline | true |
-| project | audit | inline | true |
-| project | archive | inline | true |
-| project | git-cleanup | inline | true |
-| project | workspace | inline | true |
-| project | readme | skill | readme-updater |
-| project | extract-standards | skill | code-standards-extractor |
-| project | deep-bug-hunt | inline | true |
-| project | insights | skill | insights |
-| project | delegate | skill | opencode-delegate |
-| project | self-improve | skill | self-improvement |
-| project | graph | skill | graph-context |
-| skills | list | inline | true |
-| skills | add | inline | true |
-| skills | create | skill | skill-creator |
-| skills | remove | inline | true |
-| skills | edit | inline | true |
-| skills | search | inline | true |
-| skills | info | inline | true |
-| skills | update | inline | true |
-| skills | package | inline | true |
-| skills | validate | inline | true |
-| skills | sync | inline | true |
-| skills | setup | inline | true |
-| skills | scan | inline | true |
+`LEGACY_ROUTE_MAP` in `tools/hub-data.ts` maps 183 pre-split `oldHub/oldSub` keys onto their new
+`newHub/newSub` home, so `/project commit` still resolves to `/git-hub commit`. Retired with no
+redirect: `project/pt-review`, `project/pt-audit`, `project/pt-debt`, `project/pt-gain` (ponytail
+pattern) and `orchestrate/deep` (duplicate of `ideation/deep-dive`).
+
+## Delegation Table (183 subcommands)
+
+| Menu | Subcommand | Delegation |
+|------|-----------|------------|
+| `build-hub` | `brownfield` | brownfield |
+| `build-hub` | `cleanup` | ai-slop-cleaner |
+| `build-hub` | `executor` | @executor |
+| `build-hub` | `extract-standards` | code-standards-extractor |
+| `build-hub` | `modernize` | code-simplification |
+| `build-hub` | `optimize` | inline |
+| `build-hub` | `overhaul` | overhaul |
+| `build-hub` | `pipeline` | inline |
+| `build-hub` | `refactor` | code-simplification |
+| `build-hub` | `simplify-code` | code-simplification |
+| `build-hub` | `simplify` | code-simplification |
+| `build-hub` | `vibe-code` | vibe-code |
+| `design-hub` | `arch-prep` | architect |
+| `design-hub` | `architecture` | improve-codebase-architecture |
+| `design-hub` | `designer` | @designer |
+| `design-hub` | `docs` | deepinit |
+| `design-hub` | `frontend-design` | @frontend-design |
+| `design-hub` | `modularity` | architect |
+| `design-hub` | `readme` | readme-updater |
+| `design-hub` | `redesign` | redesign-existing-projects |
+| `design-hub` | `writer` | @writer |
+| `git-hub` | `archive` | inline |
+| `git-hub` | `changelog` | changelog-generator |
+| `git-hub` | `commit-drafter` | @commit-drafter |
+| `git-hub` | `commit` | conventional-commit |
+| `git-hub` | `gh` | github-ops |
+| `git-hub` | `git-cleanup` | inline |
+| `git-hub` | `git-master` | @git-master |
+| `git-hub` | `git-stage-thread` | inline |
+| `git-hub` | `pr` | github-ops |
+| `git-hub` | `release` | inline |
+| `ideate-hub` | `adversarial-debate` | inline |
+| `ideate-hub` | `brainstorm` | inline |
+| `ideate-hub` | `cleanroom` | inline |
+| `ideate-hub` | `ddd` | inline |
+| `ideate-hub` | `deep-dive` | deep-dive |
+| `ideate-hub` | `deep-thinker` | deep-thinker |
+| `ideate-hub` | `double-diamond` | inline |
+| `ideate-hub` | `event-storming` | inline |
+| `ideate-hub` | `grill` | grilling |
+| `ideate-hub` | `interview` | deep-interview |
+| `ideate-hub` | `opro` | opro |
+| `ideate-hub` | `pwf` | inline |
+| `ideate-hub` | `refine` | idea-refine |
+| `ideate-hub` | `rpikit` | inline |
+| `ideate-hub` | `spark` | inline |
+| `ideate-hub` | `tree-of-thoughts` | tree-of-thoughts |
+| `maintain-hub` | `consolidate-telemetry` | inline |
+| `maintain-hub` | `converge` | inline |
+| `maintain-hub` | `icon` | icon-generator |
+| `maintain-hub` | `insights` | insights |
+| `maintain-hub` | `organize` | file-organizer |
+| `maintain-hub` | `purge` | inline |
+| `maintain-hub` | `retrospect` | inline |
+| `maintain-hub` | `sandbox` | inline |
+| `maintain-hub` | `scan` | inline |
+| `maintain-hub` | `self-improve` | self-improvement |
+| `maintain-hub` | `vectorize` | inline |
+| `maintain-hub` | `workspace` | inline |
+| `memory-hub` | `capture` | remember |
+| `memory-hub` | `codebase` | deepinit |
+| `memory-hub` | `compare` | inline |
+| `memory-hub` | `compress` | inline |
+| `memory-hub` | `consume` | inline |
+| `memory-hub` | `context` | inline |
+| `memory-hub` | `decompose` | planning-and-task-breakdown |
+| `memory-hub` | `diff` | inline |
+| `memory-hub` | `export` | inline |
+| `memory-hub` | `journal` | inline |
+| `memory-hub` | `memory` | remember |
+| `memory-hub` | `prune` | inline |
+| `memory-hub` | `resume` | inline |
+| `memory-hub` | `search` | inline |
+| `memory-hub` | `secondbrain` | inline |
+| `memory-hub` | `session` | inline |
+| `memory-hub` | `sweep` | inline |
+| `memory-hub` | `web-research` | inline |
+| `orchestrate-hub` | `autopilot` | autopilot |
+| `orchestrate-hub` | `ccg` | ccg |
+| `orchestrate-hub` | `consensus` | inline |
+| `orchestrate-hub` | `evolutionary` | inline |
+| `orchestrate-hub` | `ralph` | ralph |
+| `orchestrate-hub` | `resume` | inline |
+| `orchestrate-hub` | `sciomc` | sciomc |
+| `orchestrate-hub` | `state-machine` | inline |
+| `orchestrate-hub` | `status` | inline |
+| `orchestrate-hub` | `swarm` | swarm |
+| `orchestrate-hub` | `team` | team |
+| `orchestrate-hub` | `ultrawork` | ultrawork |
+| `plan-hub` | `bottom-up` | inline |
+| `plan-hub` | `constitution` | inline |
+| `plan-hub` | `decomposition` | inline |
+| `plan-hub` | `impact-mapping` | inline |
+| `plan-hub` | `improvements` | inline |
+| `plan-hub` | `jtbd` | inline |
+| `plan-hub` | `lean-canvas` | inline |
+| `plan-hub` | `plan-execute` | plan-execute |
+| `plan-hub` | `plan` | plan |
+| `plan-hub` | `quality` | inline |
+| `plan-hub` | `ralplan` | ralplan |
+| `plan-hub` | `requirements-analyzer` | @requirements-analyzer |
+| `plan-hub` | `spiral` | inline |
+| `plan-hub` | `status` | inline |
+| `plan-hub` | `story-mapping` | inline |
+| `plan-hub` | `top-down` | inline |
+| `research-hub` | `analyst` | @analyst |
+| `research-hub` | `analyze-patterns` | inline |
+| `research-hub` | `competitive-analysis` | inline |
+| `research-hub` | `convention-extractor` | @convention-extractor |
+| `research-hub` | `document-specialist` | @document-specialist |
+| `research-hub` | `explore` | @explore |
+| `research-hub` | `graph` | graph-thinking |
+| `research-hub` | `library-docs` | inline |
+| `research-hub` | `research` | ccg |
+| `research-hub` | `scientist` | @scientist |
+| `research-hub` | `tech-eval` | inline |
+| `research-hub` | `tracer` | @tracer |
+| `research-hub` | `web-research` | inline |
+| `resource-hub` | `agent` | opencode-agent-creator |
+| `resource-hub` | `command` | opencode-command-creator |
+| `resource-hub` | `config-orchestrator` | @config-orchestrator |
+| `resource-hub` | `effort-estimator` | @effort-estimator |
+| `resource-hub` | `find-agents` | find-agents |
+| `resource-hub` | `find-rules` | find-rules |
+| `resource-hub` | `find-skills` | find-skills |
+| `resource-hub` | `find-tools` | find-tools |
+| `resource-hub` | `knowledge-graph` | graph-context |
+| `resource-hub` | `prompt-simplifier` | @prompt-simplifier |
+| `resource-hub` | `rule` | inline |
+| `resource-hub` | `skill` | skill-creator |
+| `scaffold-hub` | `config` | opencode-configure |
+| `scaffold-hub` | `detect` | stack-detector |
+| `scaffold-hub` | `doctor` | inline |
+| `scaffold-hub` | `map-codebase` | inline |
+| `scaffold-hub` | `provision` | project-config-composer |
+| `scaffold-hub` | `recommend` | stack-recommender |
+| `scaffold-hub` | `refresh` | init-project |
+| `scaffold-hub` | `reset` | inline |
+| `scaffold-hub` | `setup` | init-project |
+| `scaffold-hub` | `status` | inline |
+| `scaffold-hub` | `tag` | tag-resources |
+| `scaffold-hub` | `verify` | verify |
+| `skills-hub` | `add` | inline |
+| `skills-hub` | `create` | skill-creator |
+| `skills-hub` | `edit` | inline |
+| `skills-hub` | `info` | inline |
+| `skills-hub` | `list` | inline |
+| `skills-hub` | `package` | inline |
+| `skills-hub` | `remove` | inline |
+| `skills-hub` | `scan` | inline |
+| `skills-hub` | `search` | inline |
+| `skills-hub` | `setup` | inline |
+| `skills-hub` | `sync` | inline |
+| `skills-hub` | `update` | inline |
+| `skills-hub` | `validate` | inline |
+| `swarm-hub` | `cc10x` | inline |
+| `swarm-hub` | `delegate` | opencode-delegate |
+| `swarm-hub` | `devin` | inline |
+| `swarm-hub` | `gastown` | inline |
+| `swarm-hub` | `gsd` | inline |
+| `swarm-hub` | `harden` | harden |
+| `swarm-hub` | `hive-plan` | inline |
+| `swarm-hub` | `hive` | hive-methodology |
+| `swarm-hub` | `maestro` | inline |
+| `swarm-hub` | `metaswarm` | inline |
+| `swarm-hub` | `pair` | inline |
+| `swarm-hub` | `react` | inline |
+| `swarm-hub` | `remediate` | inline |
+| `swarm-hub` | `ruflo` | inline |
+| `swarm-hub` | `self-assess` | self-improve |
+| `swarm-hub` | `spec-driven` | inline |
+| `swarm-hub` | `subagent-driven` | subagent-driven-development |
+| `verify-hub` | `audit` | inline |
+| `verify-hub` | `code-review` | code-reviewer |
+| `verify-hub` | `create-tests` | inline |
+| `verify-hub` | `critic` | @critic |
+| `verify-hub` | `debugger` | @debugger |
+| `verify-hub` | `deep-bug-hunt` | inline |
+| `verify-hub` | `qa-tester` | @qa-tester |
+| `verify-hub` | `review` | inline |
+| `verify-hub` | `security-reviewer` | @security-reviewer |
+| `verify-hub` | `tdd` | inline |
+| `verify-hub` | `test-engineer` | @test-engineer |

@@ -105,8 +105,8 @@ At each stage boundary, write a checkpoint JSON to `.opencode/state/orchestratio
 
 ## Related
 
-- `/orchestrate team` — N coordinated agents on shared task list
-- `/orchestrate hive` — Batched parallelism with worktree isolation
-- `/orchestrate metaswarm` — 12-agent autonomous issue-to-PR pipeline
-- `/orchestrate ralph` — Persistent retry loop
+- `/orchestrate-hub team` — N coordinated agents on shared task list
+- `/swarm-hub hive` — Batched parallelism with worktree isolation
+- `/swarm-hub metaswarm` — 12-agent autonomous issue-to-PR pipeline
+- `/orchestrate-hub ralph` — Persistent retry loop
 - `hive-methodology` skill — 7 principles for structured multi-agent coordination

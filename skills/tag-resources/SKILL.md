@@ -98,7 +98,7 @@ init-project detect → tag-resources (if needed) → stack-recommender → proj
 
 ```bash
 # Run as standalone to audit
-/harvest-context rule  # or direct invocation of tag-resources skill
+/resource-hub rule  # or direct invocation of tag-resources skill
 ```
 
 ### Automated gating

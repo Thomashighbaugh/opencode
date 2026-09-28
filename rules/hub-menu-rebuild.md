@@ -4,7 +4,7 @@
 
 ## The Problem
 
-The TUI hub menus (`/project`, `/orchestrate`, etc.) are rendered from a **generated** bundle in `plugins/hubs-tui/`, NOT from the canonical hub manifests (`tools/hubs/<hub>/index.ts`). When a new subcommand is added (e.g. `/project graph`) and only the manifests + spec-registry are committed, the subcommand is **invisible in the TUI dialog** until the bundle is regenerated.
+The TUI hub menus (`/git-hub`, `/orchestrate-hub`, etc.) are rendered from a **generated** bundle in `plugins/hubs-tui/`, NOT from the canonical hub manifests (`tools/hubs/<hub>/index.ts`). When a new subcommand is added (e.g. `/resource-hub knowledge-graph`) and only the manifests + spec-registry are committed, the subcommand is **invisible in the TUI dialog** until the bundle is regenerated.
 
 ## The Rule
 
@@ -43,7 +43,7 @@ console.log([...m[1].matchAll(/label:\"([^\"]+)\"/g)].map(x=>x[1]).slice(-5));
 
 ## Example
 
-Adding `/project graph` required:
+Adding `/resource-hub knowledge-graph` required:
 1. `tools/hubs/project/graph.ts` + registration in `tools/hubs/project/index.ts`
 2. `npx tsx tools/build-spec-registry.ts` (spec registry)
 3. `rules/hub-routing.md` + `AGENTS.md` routing rows

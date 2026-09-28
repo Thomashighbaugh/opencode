@@ -1,6 +1,6 @@
 ---
 name: vectorize-context
-description: Vector DB for semantic retrieval over context, rules, docs, AGENTS.md AND project source code — Ollama embeddings + ONNX rerank, injected via hooks, maintained by /project vectorize
+description: Vector DB for semantic retrieval over context, rules, docs, AGENTS.md AND project source code — Ollama embeddings + ONNX rerank, injected via hooks, maintained by /maintain-hub vectorize
 relatedSkills: graph-context, self-improvement, wiki, harvest-context
 level: 2
 license: MIT
@@ -165,13 +165,13 @@ The plugin (`plugins/hooks/hooks.ts` + `vectorize-hook.ts`) provides automatic c
    - 5-min session cache per store on prompt hash — repeat queries hit cache, no child spawn
    - Clears the stored prompt after use (no stale injection)
    - Any failure → silent skip (try/catch), zero impact on the turn
-3. `vectorize-hook.ts` keeps stores fresh: every 10s spawns `sync-hook.mjs` (maintenance mode — **skips stores that don't exist yet**; the full build is `/project vectorize`), one child at a time, SIGKILL after 90s. A fresh install can never trigger a first-run index storm.
+3. `vectorize-hook.ts` keeps stores fresh: every 10s spawns `sync-hook.mjs` (maintenance mode — **skips stores that don't exist yet**; the full build is `/maintain-hub vectorize`), one child at a time, SIGKILL after 90s. A fresh install can never trigger a first-run index storm.
 
-### Manual Trigger (`/harvest-context search`)
+### Manual Trigger (`/memory-hub search`)
 
 After any hub subcommand writes to scoped dirs:
 1. Write the file (existing behavior)
-2. Run `/harvest-context search` to index and query — no automatic indexing required (but the hook watcher does it anyway)
+2. Run `/memory-hub search` to index and query — no automatic indexing required (but the hook watcher does it anyway)
 
 ### Agent Integration
 

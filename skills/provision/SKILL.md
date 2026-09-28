@@ -7,11 +7,11 @@ license: MIT
 
 # Provision
 
-The `/init-project provision` subcommand analyzes a codebase (or user intent for empty directories) and auto-generates project-specific agents, skills, tools, and rules under `.opencode/`. These project-level artifacts wrap and extend existing global agents with deep project-specific context, making subagents dramatically more effective.
+The `/scaffold-hub provision` subcommand analyzes a codebase (or user intent for empty directories) and auto-generates project-specific agents, skills, tools, and rules under `.opencode/`. These project-level artifacts wrap and extend existing global agents with deep project-specific context, making subagents dramatically more effective.
 
 ## When to Use
 
-- After `/init-project setup` or `/init-project detect` to get AI agents that understand the project
+- After `/scaffold-hub setup` or `/scaffold-hub detect` to get AI agents that understand the project
 - When adding a new subsystem (e.g., adding backend agents after frontend was already set up)
 - When the project's architecture has significantly changed
 - For brownfield projects being onboarded to OpenCode Hubs
@@ -19,7 +19,7 @@ The `/init-project provision` subcommand analyzes a codebase (or user intent for
 
 ## No-Argument Behavior
 
-When invoked without arguments (`/init-project provision`), list sub-options as plain text:
+When invoked without arguments (`/scaffold-hub provision`), list sub-options as plain text:
 
 ```
 full       - Provision everything (agents + skills + tools + rules)
@@ -36,7 +36,7 @@ Do NOT call `hubMenu` or any other tool — just output the list directly and as
 ## With-Argument Behavior
 
 1. **Print reminder**: "Provisioning project-aware agents, skills, tools, and rules for your codebase. I'll analyze your project and generate tailored artifacts."
-2. **Check for detection data** at `.opencode/state/init/init-detection.json` — if missing, suggest running `/init-project detect` first
+2. **Check for detection data** at `.opencode/state/init/init-detection.json` — if missing, suggest running `/scaffold-hub detect` first
 3. If user provides free-text (not a known sub-option), treat it as a project description and use it to populate detection data for empty directories
 4. **Delegate** to `provision.mjs` for the heavy lifting
 5. **Save checkpoint** after each phase
@@ -924,9 +924,9 @@ fi
 
 ## Cross-Hub Hand-Off
 
-- `/init-project detect` → `/init-project provision` — detection provides the codebase intelligence needed for generation
-- `/init-project provision` → `/harvest-context session` — capture generated artifacts as durable context
-- `/init-project provision` → `/init-project verify` — validate the full setup
+- `/scaffold-hub detect` → `/scaffold-hub provision` — detection provides the codebase intelligence needed for generation
+- `/scaffold-hub provision` → `/memory-hub session` — capture generated artifacts as durable context
+- `/scaffold-hub provision` → `/scaffold-hub verify` — validate the full setup
 - `/ideation` plans reference generated rules for project-specific context
 - `/orchestrate` subagents load project wrappers for deep context injection
 - `/project` commit workflows use generated conventions for consistency
@@ -1030,7 +1030,7 @@ mkdir -p ".opencode/state/init"
 echo '{"lastCompletedPhase":'$COMPLETED_PHASE',"timestamp":"'$(date -Iseconds)'","subcommand":"full"}' > ".opencode/state/init/provision-checkpoint.json"
 ```
 
-Resume with `/init-project provision resume` or re-run with `--force` for a fresh start.
+Resume with `/scaffold-hub provision resume` or re-run with `--force` for a fresh start.
 
 ## Related
 
@@ -1042,5 +1042,5 @@ Resume with `/init-project provision resume` or re-run with `--force` for a fres
 - `opencode-command-creator` skill — Custom command creation
 - `opencode-configure` skill — Config management
 - `/harvest-context` hub — Capture provisioned artifacts as durable context
-- `/init-project detect` — Provides detection input for provisioning
-- `/init-project verify` — Post-provision validation
+- `/scaffold-hub detect` — Provides detection input for provisioning
+- `/scaffold-hub verify` — Post-provision validation

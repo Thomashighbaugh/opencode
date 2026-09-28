@@ -1,6 +1,6 @@
 ---
 name: project-config-composer
-description: Auto-generate a minimal per-project .opencode/ configuration from a stack fingerprint + recommendations. Creates opencode.jsonc, project agents, rules, and instructions that reference global resources. Used by /init-project provision.
+description: Auto-generate a minimal per-project .opencode/ configuration from a stack fingerprint + recommendations. Creates opencode.jsonc, project agents, rules, and instructions that reference global resources. Used by /scaffold-hub provision.
 level: 2
 license: MIT
 tags: [init, config, provisioning, scaffolding, per-project]
@@ -12,7 +12,7 @@ Takes a stack fingerprint and resource recommendations and auto-generates a lean
 
 ## When to Use
 
-- During `/init-project provision` after `@stack-detector` + `stack-recommender` have run
+- During `/scaffold-hub provision` after `@stack-detector` + `stack-recommender` have run
 - When regenerating an existing project's `.opencode/` from an updated fingerprint
 - When setting up a greenfield project from a natural language description
 - As a standalone call when the user already knows what they want
@@ -351,7 +351,7 @@ If the recommendations include `tools[]`:
 3. Write the result to `$PROJECT_DIR/.opencode/tools/{name}.ts`
 4. Add a `tools` entry to `opencode.jsonc` referencing the generated file
 
-If a tool template doesn't exist locally, suggest running `/init-project find-tools` to search registries.
+If a tool template doesn't exist locally, suggest running `/resource-hub find-tools` to search registries.
 
 ### Step 3b: Generate Fine-Grained Rules (from templates/rules)
 
@@ -362,7 +362,7 @@ If the recommendations include `fine_rules[]`:
 3. Write the result to `$PROJECT_DIR/.opencode/rules/{category}-{name}.md`
 4. Add the rule to `opencode.jsonc` under `instructions`
 
-If a rule template doesn't exist locally, suggest running `/init-project find-rules` to search registries.
+If a rule template doesn't exist locally, suggest running `/resource-hub find-rules` to search registries.
 
 ### Step 4: Generate Agent Wrappers (if gaps)
 
@@ -392,12 +392,12 @@ For each identified gap, create a minimal agent that fills the missing capabilit
 ### Gaps Identified
 - ⚠️ No global skill for Next.js App Router → created project agent wrapper
 - ⚠️ No global rule for Prisma conventions → added to project rules
-- ⚠️ No tool template for {missing_tool} → suggest `/init-project find-tools`
-- ⚠️ No rule template for {missing_rule} → suggest `/init-project find-rules`
+- ⚠️ No tool template for {missing_tool} → suggest `/resource-hub find-tools`
+- ⚠️ No rule template for {missing_rule} → suggest `/resource-hub find-rules`
 
 ### Next Steps
 1. Review generated files and customize as needed
-2. Run `/project commit` to commit initial config
+2. Run `/git-hub commit` to commit initial config
 3. Start using OpenCode with stack-aware defaults
 ```
 
@@ -412,7 +412,7 @@ For each identified gap, create a minimal agent that fills the missing capabilit
 ### Via direct invocation
 
 ```bash
-/init-project provision
+/scaffold-hub provision
 # Automatically: detect → recommend → compose
 ```
 

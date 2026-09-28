@@ -141,6 +141,6 @@ assume root `text`.
 - `opencode db path` — authoritative DB location (falls back to env/file globs above).
 - `agentContext` tool — project memory/notepad for the *current* project; this skill
   covers *all* historical sessions.
-- `/harvest-context search` — semantic (vector) search over `.opencode/context/`;
+- `/memory-hub search` — semantic (vector) search over `.opencode/context/`;
   this skill is exact-match text search over raw session history. Use the vector
   search for knowledge already harvested, this for what was never harvested.

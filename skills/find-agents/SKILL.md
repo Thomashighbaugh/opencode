@@ -1,6 +1,6 @@
 ---
 name: find-agents
-description: Discover, vet, and install AI agents by searching across agent registries and GitHub. Use when setting up a project (/init-project), when the user asks "find an agent for X", or when you need to extend agent capabilities with specialized subagents. Searches multiple sources simultaneously instead of trusting a single registry.
+description: Discover, vet, and install AI agents by searching across agent registries and GitHub. Use when setting up a project (/scaffold-hub), when the user asks "find an agent for X", or when you need to extend agent capabilities with specialized subagents. Searches multiple sources simultaneously instead of trusting a single registry.
 level: 2
 license: MIT
 ---
@@ -11,7 +11,7 @@ Find the right agent for a task by searching across **agent registries** and **G
 
 ## When to Use
 
-- Setting up a project (`/init-project setup` or `/init-project refresh`)
+- Setting up a project (`/scaffold-hub setup` or `/scaffold-hub refresh`)
 - The user asks "find an agent for X" or "is there an agent that does X"
 - You need to extend agent capabilities with specialized subagents
 - You're about to build a new agent from scratch that a published one might already cover
@@ -52,11 +52,11 @@ For GitHub agents, direct the user to the repo for setup instructions.
 
 After installing an agent-related skill package, integrate it into the existing agent ecosystem:
 
-1. **Update /harvest-context agent spec** — If the package provides agent definition patterns (like `opencode-agent-creator` or `custom-agent-definitions`), add it as a relatedSkill to `/harvest-context agent` so the agent-creation workflow loads it automatically.
+1. **Update /resource-hub agent spec** — If the package provides agent definition patterns (like `opencode-agent-creator` or `custom-agent-definitions`), add it as a relatedSkill to `/resource-hub agent` so the agent-creation workflow loads it automatically.
 
 2. **Update agent-creator skill** — If the package enhances agent creation, update the `opencode-agent-creator` skill's "Best Practices" or "References" section to mention the new package.
 
-3. **Update /init-project provision spec** — If the package relates to provisioning (agent wrappers, config generation), add it as a relatedSkill to `/init-project provision`.
+3. **Update /scaffold-hub provision spec** — If the package relates to provisioning (agent wrappers, config generation), add it as a relatedSkill to `/scaffold-hub provision`.
 
 4. **Update stack-recommender** — Add the package to the relevant mapping table (e.g. Agent/Tool Development section).
 
@@ -64,7 +64,7 @@ After installing an agent-related skill package, integrate it into the existing 
 
 ## Integration with /init-project
 
-This skill is used by `/init-project setup` and `/init-project refresh` to:
+This skill is used by `/scaffold-hub setup` and `/scaffold-hub refresh` to:
 1. Search for agents relevant to the detected project stack and needs
 2. Present findings for user selection
 3. Install selected agent packages

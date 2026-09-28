@@ -7,15 +7,15 @@ description: Mandatory stop before transitioning from planning/analysis/research
 
 ## The Problem
 
-When the model completes a planning, analysis, or research task (e.g., `/ideation`, `/harvest-context`), it sometimes continues into implementation without asking the user. This is **never acceptable**. The user must explicitly approve the plan before any code is written.
+When the model completes a planning, analysis, or research task (e.g., `/ideate-hub`, `/memory-hub`), it sometimes continues into implementation without asking the user. This is **never acceptable**. The user must explicitly approve the plan before any code is written.
 
 ## The Rule
 
 **After completing any planning, analysis, research, or context-harvesting task, the model MUST stop and present the result to the user. It MUST NOT proceed to implementation, code changes, or orchestration without explicit user approval.**
 
 This applies to:
-- `/ideation` subcommands (plan, research, web-research, tech-eval, competitive-analysis, etc.)
-- `/harvest-context` subcommands (web-research, compare, docs, consume, etc.)
+- `/ideate-hub` and `/plan-hub` subcommands (plan, research, interview, requirements-analyzer, etc.)
+- `/memory-hub` subcommands (web-research, compare, context, consume, etc.)
 - Any inline analysis that produces a plan, report, or recommendation
 - Any subagent output that contains a plan or design
 
@@ -34,7 +34,7 @@ This applies to:
 - Do NOT say "Shall I implement this now?" — that's still a leading question
 - Do NOT start writing code
 - Do NOT dispatch executor agents
-- Do NOT call `/orchestrate`
+- Do NOT call `/orchestrate-hub`
 - Simply present the result and wait
 
 The user will say "looks good, implement it" or "run with it" or similar. Only then may you proceed to implementation.
@@ -43,7 +43,7 @@ The user will say "looks good, implement it" or "run with it" or similar. Only t
 
 The only exception is when the user explicitly pre-authorizes implementation in the same command:
 - "Plan and implement X" — user explicitly asked for both
-- "/ideation plan X then /orchestrate ralph" — user explicitly chained commands
+- "/ideation plan X then /orchestrate-hub ralph" — user explicitly chained commands
 - User says "go ahead" or "implement it" after reviewing the plan
 
 ## Enforcement

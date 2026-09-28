@@ -1,6 +1,7 @@
 ---
 description: Perform focused code review by detecting smells and deep-diving concerns
 mode: subagent
+hidden: true
 permission:
   edit: deny
   write: deny

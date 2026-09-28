@@ -21,7 +21,7 @@ Use this skill when creating OpenCode TypeScript tools that extend the agent's c
 ## When Not to Use
 
 - The task is better served by an existing tool (check `tools/` first)
-- The user wants a skill, not a tool (use `/skills create`)
+- The user wants a skill, not a tool (use `/skills-hub create`)
 - The user wants a slash command (use `opencode-command-creator`)
 - The user wants an agent (use `opencode-agent-creator`)
 

@@ -2,7 +2,7 @@
 
 ## The Problem
 
-When the TUI dialog lists hub subcommands, the hub name (`/orchestrate`, `/harvest-context`, etc.) is **not visually present** as context. The user sees a flat list of 20-30 subcommand names at once. A name like `docs`, `context`, `scan`, or `purge` might seem obvious within the hub's context, but that context is invisible to the user at the moment of selection.
+When the TUI dialog lists hub subcommands, the hub name (`/orchestrate-hub`, `/memory-hub`, etc.) is **not visually present** as context. The user sees a flat list of 20-30 subcommand names at once. A name like `docs`, `context`, `scan`, or `purge` might seem obvious within the hub's context, but that context is invisible to the user at the moment of selection.
 
 The TUI dialog has limited horizontal space — descriptions beyond ~80 characters get truncated mid-sentence, becoming unintelligible.
 

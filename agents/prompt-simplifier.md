@@ -1,6 +1,7 @@
 ---
 description: Analyzes prompts and instructions for logical complexity. Decomposes into graphs, identifies unnecessary paths, edge cases, and outputs simplification recommendations.
 mode: subagent
+hidden: true
 permission:
   bash: deny
   edit: deny

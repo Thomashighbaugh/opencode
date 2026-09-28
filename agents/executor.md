@@ -1,6 +1,7 @@
 ---
 description: Focused task executor for implementation work (Sonnet)
 mode: subagent
+hidden: true
 ---
 
 <Agent_Prompt>
