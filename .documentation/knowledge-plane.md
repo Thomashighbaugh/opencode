@@ -16,7 +16,7 @@ behind it.
 | ------------- | ----- | ---------------------------------------------------------------------- |
 | `code.db`     | 25 MB | 2,261 chunks · 4,720 symbols · 70,868 identifier postings · 404 files |
 | `context.db`  | 11 MB | Embedded durable-context chunks                                          |
-| `graph.db`    | 6.7 MB | 3,596 nodes · 20,992 edges · structural metadata                       |
+| `graph.db`    | 6.7 MB | 3,671 nodes · 21,837 edges · structural metadata                       |
 
 ```bash
 npx tsx skills/graph-context/scripts/graph.ts build
@@ -117,7 +117,7 @@ pruneDanglingEdges(inputDir)   // runs on every build, reports its count
 ```
 
 It **probes read-only first**. Opening the graph for writing to run a `DELETE` that matches zero
-rows still takes an exclusive lock, and on a 20,992-edge table that was long enough to stall a
+rows still takes an exclusive lock, and on a 21,837-edge table that was long enough to stall a
 concurrent reader — which is how a maintenance function became a source of multi-second hangs for
 queries happening at the same moment.
 

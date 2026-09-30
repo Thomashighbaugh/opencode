@@ -45,6 +45,14 @@ behaviour, with no code. It is deliberately a **separate plugin** so it composes
 plugin rather than replacing it — a second `tool.execute.after` registration replaces the first
 in OpenCode, it does not merge with it.
 
+## Layer 2b — The prompt queue
+
+[`plugins/prompt-queue/`](prompt-queue.md) is the one component that decides what the model is
+asked **next**. It holds queued follow-ups and releases them only when a turn concludes without a
+question, so a queued task can never derail a decision in progress. Its capture surface is a
+ctrl+p palette entry rather than a command, because the premise is capturing a thought at the
+moment it occurs.
+
 ## Layer 3 — Content
 
 [Rules, skills, agents, tools](rules-and-skills.md). Two loading policies, chosen per asset:
@@ -115,6 +123,7 @@ Every arrow is observable and, where it costs something, measured.
 | To add                        | Do this                                                            |
 | ----------------------------- | ------------------------------------------------------------------ |
 | Event behaviour               | A `command-hooks.jsonc` entry — no code                            |
+| Queued follow-up prompts      | The ctrl+p palette entry; the gate is a named constant           |
 | A subagent                    | `agents/<name>.md`; the format is validated by 280 tests           |
 | A skill                       | `skills/<name>/SKILL.md` with valid frontmatter                    |
 | A tool                        | `tools/<name>.ts`; auto-discovered                                 |
@@ -138,6 +147,7 @@ The system is built so these cannot be lost silently:
 5. A settled rebuild is free; a derivation-rule change is not skippable.
 6. A hook never breaks the tool call it decorates.
 7. Injection costs no inference request.
+8. A queued prompt never fires into a turn that is asking the user something.
 8. A broken config source disables only itself.
 
 Each is asserted by a test. See [Testing Strategy](testing-strategy.md).

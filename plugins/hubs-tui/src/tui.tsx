@@ -2,8 +2,20 @@
 import type { TuiPlugin, TuiPluginApi, TuiPluginMeta, TuiDialogSelectOption } from '@opencode-ai/plugin/tui'
 import { HUBS } from './generated-hubs'
 import type { Hub } from './generated-hubs'
+import { registerQueueCommands } from './queue-commands'
 
 const tui: TuiPlugin = async (api: TuiPluginApi, _o: any, _m: TuiPluginMeta) => {
+  // Prompt-queue palette entries (ctrl+p menu, not a slash command). Registered
+  // first so the queue is reachable from anywhere in the UI without a command
+  // name to remember. The queue's gate and drain live in plugins/prompt-queue/;
+  // this half is only the capture surface, and the two share a state file.
+  try {
+    registerQueueCommands(api, (api.state?.path?.directory as string) || process.cwd())
+  } catch (e) {
+    // A palette entry that fails to register must not take the hub menu with it.
+    console.error('[hubs-tui] prompt-queue commands unavailable:', e)
+  }
+
   api.command!.register(() =>
     HUBS.map(h => {
       const opts: TuiDialogSelectOption<string>[] = h.subs.map(s => ({ title: s.label, value: s.label, description: s.description }))

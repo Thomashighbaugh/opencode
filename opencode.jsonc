@@ -58,6 +58,7 @@
     "plugin": [
         "./plugins/hooks/hooks.ts",
         "./plugins/command-hooks/index.ts",
+        "./plugins/prompt-queue/index.ts",
         "@opencode-plugins/env-protection",
         "@franlol/opencode-md-table-formatter@0.0.3"
     ],

@@ -56,8 +56,8 @@ is the standing constraint that shapes the whole design.
 | Graph retrieval      | `skills/graph-context/scripts/graphlib.ts`     | 2,708 LOC                |
 | Vector retrieval     | `skills/vectorize-context/scripts/veclib.ts`   | 1,484 LOC                |
 | Tooling              | `tools/`                                      | 46 tools, 11,785 LOC     |
-| Evals                | `tests/global/`                               | 990 tests, 2,652 LOC     |
-| Knowledge store      | SQLite                                        | 3,596 nodes / 20,992 edges |
+| Evals                | `tests/global/`                               | 1,041 tests, 2,652+ LOC  |
+| Knowledge store      | SQLite                                        | 3,671 nodes / 21,837 edges |
 
 ---
 
@@ -149,7 +149,7 @@ actual runtime:
 
 ```bash
 # Verify the whole system
-bun run test:run                          # 990 tests
+bun run test:run                          # 1041 tests
 npx tsc --noEmit -p tsconfig.json         # config + plugins
 npx tsc --noEmit -p skills/tsconfig.json  # skills
 
@@ -171,6 +171,7 @@ local and offline.
 | [Event Interception](.documentation/plugins-hooks.md) | `plugins/hooks/` — modes, focus, telemetry, caching, vectorize |
 | [Command Hooks](.documentation/plugins-command-hooks.md) | `plugins/command-hooks/` — declarative shell hooks on events |
 | [TUI Plugin](.documentation/plugins-hubs-tui.md) | `plugins/hubs-tui/` — native dialogs, generated menu bundle |
+| [Prompt Queue](.documentation/prompt-queue.md) | `plugins/prompt-queue/` — FIFO follow-ups, released only when a turn ends without a question |
 | [Memory System](.documentation/memory-system.md) | Durable context, state vs context, the wiki layer |
 | [Knowledge Plane](.documentation/knowledge-plane.md) | Graph + vector retrieval, invariants, incremental rebuilds |
 | [Orchestration](.documentation/subagent-orchestration.md) | 31 subagents, delegation, the `task` tool |
@@ -188,9 +189,10 @@ local and offline.
 ├── skills/                 125 skills (+ vectorize-context, graph-context)
 ├── rules/                  20 rules — 11 preloaded, 9 on demand
 ├── tools/                  46 TypeScript tools
-├── plugins/                hooks · command-hooks · hubs-tui
-├── tests/global/           990 tests across 9 suites
+├── plugins/                hooks · command-hooks · prompt-queue · hubs-tui
+├── tests/global/           1,041 tests across 10 suites
 ├── command-hooks.jsonc     global declarative hooks
+├── .documentation/         13 pages — architecture, plugins, memory, evals
 ├── opencode.jsonc          plugin, MCP, instructions, references
 ├── .documentation/         this documentation set
 └── .opencode/              state (ephemeral) + context (durable)

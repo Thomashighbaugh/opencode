@@ -30,7 +30,7 @@
   "overrides": {
     "browserslist": "4.28.7",
     "baseline-browser-mapping": "2.11.0",
-    "brace-expansion": "2.1.4",
+    "brace-expansion": "2.1.7",
     "@babel/core": "7.29.6",
     "seroval": "1.5.6",
     "toml": "4.2.0"
