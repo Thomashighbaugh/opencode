@@ -8,7 +8,7 @@
 - **30 subagents** — all `mode: subagent`, dispatched by `hubs` or by an explicit user request. See `agents/hubs.md`
 - **123 workflow skills** for development tasks
 - **38 TypeScript tools** for session management and file editing
-- **188 hub subcommand specs** across 7 hub directories
+- **183 hub subcommand specs** across 14 hub directories
 - **Hook system plugin** for mode detection, state persistence, and context injection
 - **Multi-tier cache system** — tool, file, session, vector search caching
 - **Durable context storage** — knowledge compounds across sessions
@@ -119,14 +119,20 @@ Retries are per-subagent: one stuck subagent never blocks the others. Subagent t
 
 ## Hub Commands
 
-Menus are **topical** and every name carries a `-hub` suffix so a menu never collides with an
-OpenCode built-in slash command (`/git`, `/plan`, `/build`, ...). The pre-2026-09-28 menus
-(`/init-project`, `/ideation`, `/orchestrate`, `/harvest-context`, `/project`, `/skills`) still
-resolve via `LEGACY_ROUTE_MAP` in `tools/hub-data.ts`, so old invocations keep working.
+Menus are **topical** and carry a `-hub` suffix so a menu never collides with an OpenCode built-in
+slash command (`/git`, `/plan`, `/build`, ...). Two exceptions, both deliberate:
+
+| Menu | Why it breaks the pattern |
+| ---- | ------------------------ |
+| `/hub-setup` | The one command a newcomer types first. `hub-setup` reads as a verb pair; `setup-hub` or `scaffold-hub` (its previous name) named one phase of the job and hid the other eleven. |
+| `/focus` | TUI-only, never exposed as a `tools/` manifest. |
+
+Superseded names still resolve via `LEGACY_ROUTE_MAP` in `tools/hub-data.ts`, so old invocations
+keep working: `/init-project <sub>` and `/scaffold-hub <sub>` both route to `/hub-setup <sub>`.
 
 | Command | # | Subcommands |
 |--------|--:|-------------|
-| `/scaffold-hub` | 12 | config, detect, doctor, map-codebase, provision, recommend, refresh, reset, setup, status, tag, verify |
+| `/hub-setup` | 12 | config, detect, doctor, map-codebase, provision, recommend, refresh, reset, setup, status, tag, verify |
 | `/resource-hub` | 12 | agent, command, config-orchestrator, effort-estimator, find-agents, find-rules, find-skills, find-tools, knowledge-graph, prompt-simplifier, rule, skill |
 | `/memory-hub` | 18 | capture, codebase, compare, compress, consume, context, decompose, diff, export, journal, memory, prune, resume, search, secondbrain, session, sweep, web-research |
 | `/research-hub` | 13 | analyst, analyze-patterns, competitive-analysis, convention-extractor, document-specialist, explore, graph, library-docs, research, scientist, tech-eval, tracer, web-research |
@@ -143,7 +149,7 @@ resolve via `LEGACY_ROUTE_MAP` in `tools/hub-data.ts`, so old invocations keep w
 
 ### Two-Tier Subcommand Routing
 
-Each of the 155 hub subcommands has a dedicated spec file in `tools/hubs/<hub>/<subcommand>.ts` containing the full `HubSubcommandSpec` — `detailedDescription`, `tools`, `rules`, `relatedSkills`, `examples`, `warnings`.
+Each of the 183 hub subcommands has a dedicated spec file in `tools/hubs/<hub>/<subcommand>.ts` containing the full `HubSubcommandSpec` — `detailedDescription`, `tools`, `rules`, `relatedSkills`, `examples`, `warnings`.
 
 **Direct selection** (`/orchestrate-hub ralph`): `hubMenu route` returns the full spec in one response (detailedDescription + inlined rules + related skill pointers + examples). No follow-up `loadSkill` or rule-read calls needed.
 
@@ -184,7 +190,7 @@ See `rules/hub-routing.md` for the complete delegation table and architecture de
 │   ├── hubMenu.ts       # Hub menu router (route returns full spec, menu returns slim slice)
 │   ├── hub-data.ts      # Hub types, subcommand spec loader, state helpers
 │   ├── hub-<name>.ts    # Thin hub manifests (10 lines each, identity slice only)
-│   ├── hubs/            # Per-subcommand spec files (155 files across 6 directories)
+│   ├── hubs/            # Per-subcommand spec files (183 files across 14 directories)
 │   └── ...              # File editing, cache, session, skill tools
 ├── plugins/             # Hook system + TUI plugin
 ├── rules/               # Shared rules (loaded as instructions)

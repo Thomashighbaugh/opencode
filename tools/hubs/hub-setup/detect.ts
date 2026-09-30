@@ -20,7 +20,7 @@ const spec: HubSubcommandSpec = {
 - Package manager
 - Linting/formatting
 
-The fingerprint is saved as JSON to .opencode/state/init/stack-fingerprint.json. It's the input for /scaffold-hub recommend and /scaffold-hub provision.
+The fingerprint is saved as JSON to .opencode/state/init/stack-fingerprint.json. It's the input for /hub-setup recommend and /hub-setup provision.
 
 Use standalone when you want to know what the project uses without running the full setup.`,
 

@@ -1,6 +1,6 @@
 # Hub Command System
 
-14 topical hubs, 183 subcommands, two-tier routing. A command system built to spend **one LLM
+14 topical hubs, 183 subcommands, two-tier routing. `/hub-setup` is the project-config front door; it absorbed `/scaffold-hub`, and `/init-project` before that, without changing a single subcommand. A command system built to spend **one LLM
 round-trip instead of two**, and to stay unambiguous in a flat dialog.
 
 ---

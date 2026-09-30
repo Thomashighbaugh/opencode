@@ -111,14 +111,14 @@ flowchart LR
 
 ### Step-by-step flow
 
-1. **`/scaffold-hub detect`** — runs `@stack-detector` agent, analyzes every tech dimension (language, framework, build, test, ORM, CSS, CI/CD, infra, etc.), outputs a structured JSON fingerprint saved to `.opencode/state/init/stack-fingerprint.json`
-2. **`/scaffold-hub recommend`** — runs `stack-recommender` skill, maps the fingerprint to recommended global resources (skills, agents, rules, archetype), outputs recommendations saved to `.opencode/state/init/stack-recommendations.json`
-3. **`/scaffold-hub provision`** — runs `project-config-composer` skill, takes the fingerprint + recommendations, auto-generates `.opencode/opencode.jsonc`, project-specific rules, and optional agent wrappers. **All four archetype subdirectories (agents/, rules/, skills/, tools/) must be provisioned** — agents/ and rules/ are referenced in opencode.jsonc, while skills/ and tools/ must be copied/linked into the project's .opencode/ directory.
+1. **`/hub-setup detect`** — runs `@stack-detector` agent, analyzes every tech dimension (language, framework, build, test, ORM, CSS, CI/CD, infra, etc.), outputs a structured JSON fingerprint saved to `.opencode/state/init/stack-fingerprint.json`
+2. **`/hub-setup recommend`** — runs `stack-recommender` skill, maps the fingerprint to recommended global resources (skills, agents, rules, archetype), outputs recommendations saved to `.opencode/state/init/stack-recommendations.json`
+3. **`/hub-setup provision`** — runs `project-config-composer` skill, takes the fingerprint + recommendations, auto-generates `.opencode/opencode.jsonc`, project-specific rules, and optional agent wrappers. **All four archetype subdirectories (agents/, rules/, skills/, tools/) must be provisioned** — agents/ and rules/ are referenced in opencode.jsonc, while skills/ and tools/ must be copied/linked into the project's .opencode/ directory.
 
 ### Running the full pipeline
 
 ```bash
-/scaffold-hub detect && /scaffold-hub recommend && /scaffold-hub provision
+/hub-setup detect && /hub-setup recommend && /hub-setup provision
 ```
 
 Or when running `setup` or `refresh`, the pipeline runs automatically:
@@ -127,10 +127,10 @@ Or when running `setup` or `refresh`, the pipeline runs automatically:
 
 ### Tagging support
 
-`/scaffold-hub tag` can run before `recommend` to ensure all global resources have complete tags:
+`/hub-setup tag` can run before `recommend` to ensure all global resources have complete tags:
 
 ```bash
-/scaffold-hub tag && /scaffold-hub recommend && /scaffold-hub provision
+/hub-setup tag && /hub-setup recommend && /hub-setup provision
 ```
 
 This ensures the stack-recommender's mapping tables are complete and no resources are missed due to missing tags.
@@ -185,9 +185,9 @@ Init state lives in `.opencode/state/init/` (gitignored).
 
 ### Cross-Hub Hand-Off
 
-- `/scaffold-hub setup --full` completion can trigger `/harvest-context` offer
+- `/hub-setup setup --full` completion can trigger `/harvest-context` offer
 - `/design-hub docs` output feeds into `/ideation` as project context
-- `/scaffold-hub verify` results can inform `/project` operations
+- `/hub-setup verify` results can inform `/project` operations
 - `/ideation` final plans may reference `/init-project` detection results
 
 ## Architecture
@@ -266,7 +266,7 @@ Save checkpoint after each phase to `.opencode/state/init/init-checkpoint.json`.
 
 On completion, display summary and offer next step:
 - If `--minimal`: Offer `/design-hub docs`
-- If default: Offer `/memory-hub capture` to add deep context, or `/scaffold-hub verify` to validate
+- If default: Offer `/memory-hub capture` to add deep context, or `/hub-setup verify` to validate
 - If `--full`: Offer `/harvest-context` to extract more context, or `/maintain-hub workspace` to manage the new setup
 
 ## Subcommand: detect
@@ -296,7 +296,7 @@ Delegate Phase 1 to `explore` agent. See `phases/01-detection.md` for full detec
 }
 ```
 
-On completion, offer next step: `/scaffold-hub setup` or `/design-hub docs`
+On completion, offer next step: `/hub-setup setup` or `/design-hub docs`
 
 ## Subcommand: docs
 
@@ -319,7 +319,7 @@ When AGENTS.md files already exist:
 5. Preserve all `<!-- MANUAL -->` annotations
 6. Update timestamps
 
-On completion, offer next step: `/memory-hub capture` or `/scaffold-hub verify`
+On completion, offer next step: `/memory-hub capture` or `/hub-setup verify`
 
 ## Subcommand: context
 
@@ -344,7 +344,7 @@ Deep codebase mapping and context capture. Phase 6 only (same as `setup --full` 
 - `.opencode/state/project-memory.json` — durable cross-session facts
 - Upgraded `.opencode/agents/*.md` — agents now contain deep project context
 
-On completion, offer next step: `/scaffold-hub verify` or `/harvest-context`
+On completion, offer next step: `/hub-setup verify` or `/harvest-context`
 
 ## Subcommand: verify
 
@@ -494,7 +494,7 @@ mkdir -p ".opencode/state/init"
 echo "{\"lastCompletedPhase\":$COMPLETED_PHASE,\"timestamp\":\"$(date -Iseconds)\"}" > ".opencode/state/init/init-checkpoint.json"
 ```
 
-Resume with `/scaffold-hub setup --force` or `/scaffold-hub refresh`.
+Resume with `/hub-setup setup --force` or `/hub-setup refresh`.
 
 ## Related
 

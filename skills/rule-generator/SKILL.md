@@ -13,7 +13,7 @@ Takes a conventions fingerprint (from `@convention-extractor` agent) and generat
 ## When to Use
 
 - After running `@convention-extractor` on a project
-- During `/scaffold-hub provision` to generate project-specific rules
+- During `/hub-setup provision` to generate project-specific rules
 - When onboarding an existing codebase to OpenCode Hubs
 - When the project's conventions have changed and rules need updating
 
@@ -648,11 +648,11 @@ export function Button({ children, onClick, variant = 'primary' }: ButtonProps) 
 
 ## Integration with /init-project
 
-The rule-generator skill is called during `/scaffold-hub provision` (Phase 4: provisioning). The flow is:
+The rule-generator skill is called during `/hub-setup provision` (Phase 4: provisioning). The flow is:
 
 ```
-/scaffold-hub detect → @stack-detector → stack fingerprint
-/scaffold-hub provision → @convention-extractor → conventions fingerprint
+/hub-setup detect → @stack-detector → stack fingerprint
+/hub-setup provision → @convention-extractor → conventions fingerprint
                         → rule-generator skill → .opencode/rules/*.md
 ```
 

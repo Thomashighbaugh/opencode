@@ -21,7 +21,7 @@ The generated config references global resources (skills, agents, rules in ~/.co
 
 **Memory plane (always provisioned).** In addition to the stack-specific resources, provisioning writes the stack-independent memory plane: a thin \`.opencode/rules/graph-context.md\` rule (registered under \`instructions\`), a bootstrapping \`node skills/graph-context/scripts/graph.ts build\` to create \`graph.db\`, and a \`.opencode/state/\` gitignore entry. The global \`vectorize-context\` + \`graph-context\` skills are referenced, never copied — so every project (and every archetype) inherits knowledge-graph retrieval without per-archetype duplication.
 
-Use after /scaffold-hub detect + /scaffold-hub recommend to generate the actual config files. Or as part of /scaffold-hub setup (phase 3).`,
+Use after /hub-setup detect + /hub-setup recommend to generate the actual config files. Or as part of /hub-setup setup (phase 3).`,
 
   tools: TOOLS_LOADSKILL_BASH,
   relatedSkills: ["creating-opencode-agents", "custom-agent-definitions", "stack-recommender", "tag-resources"],

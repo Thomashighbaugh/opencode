@@ -43,7 +43,7 @@ tools/
 ├── hub-data.ts             # Types, loaders, HUB_FILE_MAP, SUBCOMMAND_DIR_MAP, LEGACY_ROUTE_MAP
 ├── hub-<name>-hub.ts       # Thin manifest (14 files) — identity slice only
 └── hubs/
-    ├── scaffold-hub/      # 12 files + index.ts
+    ├── hub-setup/      # 12 files + index.ts
     ├── resource-hub/      # 12
     ├── memory-hub/        # 18
     ├── research-hub/      # 13
@@ -200,18 +200,18 @@ pattern) and `orchestrate/deep` (duplicate of `ideation/deep-dive`).
 | `resource-hub` | `prompt-simplifier` | @prompt-simplifier |
 | `resource-hub` | `rule` | inline |
 | `resource-hub` | `skill` | skill-creator |
-| `scaffold-hub` | `config` | opencode-configure |
-| `scaffold-hub` | `detect` | stack-detector |
-| `scaffold-hub` | `doctor` | inline |
-| `scaffold-hub` | `map-codebase` | inline |
-| `scaffold-hub` | `provision` | project-config-composer |
-| `scaffold-hub` | `recommend` | stack-recommender |
-| `scaffold-hub` | `refresh` | init-project |
-| `scaffold-hub` | `reset` | inline |
-| `scaffold-hub` | `setup` | init-project |
-| `scaffold-hub` | `status` | inline |
-| `scaffold-hub` | `tag` | tag-resources |
-| `scaffold-hub` | `verify` | verify |
+| `hub-setup` | `config` | opencode-configure |
+| `hub-setup` | `detect` | stack-detector |
+| `hub-setup` | `doctor` | inline |
+| `hub-setup` | `map-codebase` | inline |
+| `hub-setup` | `provision` | project-config-composer |
+| `hub-setup` | `recommend` | stack-recommender |
+| `hub-setup` | `refresh` | init-project |
+| `hub-setup` | `reset` | inline |
+| `hub-setup` | `setup` | init-project |
+| `hub-setup` | `status` | inline |
+| `hub-setup` | `tag` | tag-resources |
+| `hub-setup` | `verify` | verify |
 | `skills-hub` | `add` | inline |
 | `skills-hub` | `create` | skill-creator |
 | `skills-hub` | `edit` | inline |

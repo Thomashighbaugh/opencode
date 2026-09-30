@@ -181,7 +181,10 @@ export function updateStateIndex(stateDir: string): void {
 // built-in slash commands (e.g. `/git`, `/plan`, `/build`).
 
 export const HUB_FILE_MAP: Record<string, string> = {
-  "scaffold-hub": "./hub-scaffold-hub",
+  // The project-config front door: set up and refresh a project's .opencode/.
+  // First, because it is where a new project starts. Renamed from `scaffold-hub`
+  // — "scaffold" named one phase of the job and hid the other eleven.
+  "hub-setup": "./hub-hub-setup",
   "resource-hub": "./hub-resource-hub",
   "memory-hub": "./hub-memory-hub",
   "research-hub": "./hub-research-hub",
@@ -225,7 +228,7 @@ export function loadAllHubs(): HubDefinition[] {
 // loadSubcommandSpecFull: also inlines rule file content + skill frontmatter
 
 const SUBCOMMAND_DIR_MAP: Record<string, string> = {
-  "scaffold-hub": "scaffold-hub",
+  "hub-setup": "hub-setup",
   "resource-hub": "resource-hub",
   "memory-hub": "memory-hub",
   "research-hub": "research-hub",
@@ -252,17 +255,28 @@ const SUBCOMMAND_DIR_MAP: Record<string, string> = {
 //     — ponytail pattern, retired.
 //   orchestrate/deep — exact duplicate of ideation/deep-dive.
 
-const LEGACY_ROUTE_MAP: Record<string, string> = {
-  "init-project/config": "scaffold-hub/config",  "init-project/detect": "scaffold-hub/detect",
-  "init-project/doctor": "scaffold-hub/doctor",  "init-project/map-codebase": "scaffold-hub/map-codebase",
-  "init-project/provision": "scaffold-hub/provision",  "init-project/recommend": "scaffold-hub/recommend",
-  "init-project/refresh": "scaffold-hub/refresh",  "init-project/reset": "scaffold-hub/reset",
-  "init-project/setup": "scaffold-hub/setup",  "init-project/tag": "scaffold-hub/tag",
-  "init-project/verify": "scaffold-hub/verify",  "init-project/status": "scaffold-hub/status",
+// Exported so the invariant "every legacy route points at a hub that exists" is
+// testable. A rename that leaves a route aimed at a deleted hub otherwise fails
+// only when a user types the old name.
+export const LEGACY_ROUTE_MAP: Record<string, string> = {
+  "init-project/config": "hub-setup/config",  "init-project/detect": "hub-setup/detect",
+  "init-project/doctor": "hub-setup/doctor",  "init-project/map-codebase": "hub-setup/map-codebase",
+  "init-project/provision": "hub-setup/provision",  "init-project/recommend": "hub-setup/recommend",
+  "init-project/refresh": "hub-setup/refresh",  "init-project/reset": "hub-setup/reset",
+  "init-project/setup": "hub-setup/setup",  "init-project/tag": "hub-setup/tag",
+  "init-project/verify": "hub-setup/verify",  "init-project/status": "hub-setup/status",
   "init-project/config-orchestrator": "resource-hub/config-orchestrator",  "init-project/find-agents": "resource-hub/find-agents",
   "init-project/find-rules": "resource-hub/find-rules",  "init-project/find-skills": "resource-hub/find-skills",
   "init-project/find-tools": "resource-hub/find-tools",  "init-project/context": "memory-hub/capture",
   "init-project/convention-extractor": "research-hub/convention-extractor",  "init-project/docs": "design-hub/docs",
+  // scaffold-hub was erased into hub-setup. Its subcommands were identical, so
+  // every one of them routes straight across — no dropped entries.
+  "scaffold-hub/config": "hub-setup/config",  "scaffold-hub/detect": "hub-setup/detect",
+  "scaffold-hub/doctor": "hub-setup/doctor",  "scaffold-hub/map-codebase": "hub-setup/map-codebase",
+  "scaffold-hub/provision": "hub-setup/provision",  "scaffold-hub/recommend": "hub-setup/recommend",
+  "scaffold-hub/refresh": "hub-setup/refresh",  "scaffold-hub/reset": "hub-setup/reset",
+  "scaffold-hub/setup": "hub-setup/setup",  "scaffold-hub/tag": "hub-setup/tag",
+  "scaffold-hub/verify": "hub-setup/verify",  "scaffold-hub/status": "hub-setup/status",
   "ideation/adversarial-debate": "ideate-hub/adversarial-debate",  "ideation/brainstorm": "ideate-hub/brainstorm",
   "ideation/cleanroom": "ideate-hub/cleanroom",  "ideation/ddd": "ideate-hub/ddd",
   "ideation/deep": "ideate-hub/interview",  "ideation/deep-dive": "ideate-hub/deep-dive",

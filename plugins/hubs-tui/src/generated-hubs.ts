@@ -7,9 +7,9 @@ export interface Hub { name: string; title: string; description: string; subs: S
 
 export const HUBS: Hub[] = [
   {
-    "name": "scaffold-hub",
-    "title": "Scaffold",
-    "description": "Project bootstrap and configuration — detect, provision, verify, repair",
+    "name": "hub-setup",
+    "title": "Hub Setup",
+    "description": "Set up and refresh a project's OpenCode configuration",
     "subs": [
       {
         "label": "config",

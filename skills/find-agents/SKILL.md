@@ -1,6 +1,6 @@
 ---
 name: find-agents
-description: Discover, vet, and install AI agents by searching across agent registries and GitHub. Use when setting up a project (/scaffold-hub), when the user asks "find an agent for X", or when you need to extend agent capabilities with specialized subagents. Searches multiple sources simultaneously instead of trusting a single registry.
+description: Discover, vet, and install AI agents by searching across agent registries and GitHub. Use when setting up a project (/hub-setup), when the user asks "find an agent for X", or when you need to extend agent capabilities with specialized subagents. Searches multiple sources simultaneously instead of trusting a single registry.
 level: 2
 license: MIT
 ---
@@ -11,7 +11,7 @@ Find the right agent for a task by searching across **agent registries** and **G
 
 ## When to Use
 
-- Setting up a project (`/scaffold-hub setup` or `/scaffold-hub refresh`)
+- Setting up a project (`/hub-setup setup` or `/hub-setup refresh`)
 - The user asks "find an agent for X" or "is there an agent that does X"
 - You need to extend agent capabilities with specialized subagents
 - You're about to build a new agent from scratch that a published one might already cover
@@ -56,7 +56,7 @@ After installing an agent-related skill package, integrate it into the existing 
 
 2. **Update agent-creator skill** — If the package enhances agent creation, update the `opencode-agent-creator` skill's "Best Practices" or "References" section to mention the new package.
 
-3. **Update /scaffold-hub provision spec** — If the package relates to provisioning (agent wrappers, config generation), add it as a relatedSkill to `/scaffold-hub provision`.
+3. **Update /hub-setup provision spec** — If the package relates to provisioning (agent wrappers, config generation), add it as a relatedSkill to `/hub-setup provision`.
 
 4. **Update stack-recommender** — Add the package to the relevant mapping table (e.g. Agent/Tool Development section).
 
@@ -64,7 +64,7 @@ After installing an agent-related skill package, integrate it into the existing 
 
 ## Integration with /init-project
 
-This skill is used by `/scaffold-hub setup` and `/scaffold-hub refresh` to:
+This skill is used by `/hub-setup setup` and `/hub-setup refresh` to:
 1. Search for agents relevant to the detected project stack and needs
 2. Present findings for user selection
 3. Install selected agent packages

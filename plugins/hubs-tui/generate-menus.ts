@@ -6,7 +6,7 @@ import { writeFileSync } from "fs"
 import { join, dirname } from "path"
 import { fileURLToPath } from "url"
 
-import scaffoldHub from "../../tools/hub-scaffold-hub"
+import hubSetupHub from "../../tools/hub-hub-setup"
 import resourceHub from "../../tools/hub-resource-hub"
 import memoryHub from "../../tools/hub-memory-hub"
 import researchHub from "../../tools/hub-research-hub"
@@ -31,13 +31,17 @@ function titleFromName(name: string): string {
   // Some have custom titles
   const custom: Record<string, string> = {
     "project": "Project Ops",
+    // No `-hub` suffix to strip — the generic path would also give "Hub Setup",
+    // but pinning it means renaming the menu cannot silently retitle the dialog.
+    "hub-setup": "Hub Setup",
   }
   if (custom[name]) return custom[name]
   return name.replace(/-hub$/, "").split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")
 }
 
 const hubs: Hub[] = [
-  scaffoldHub,
+  // First: where a new project starts.
+  hubSetupHub,
   resourceHub,
   memoryHub,
   researchHub,

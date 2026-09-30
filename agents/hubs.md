@@ -118,7 +118,7 @@ mode: primary
     DO NOT auto-deploy subagents. Propose first, execute only on approval.
     
     **The only auto-execute exceptions (user has already decided):**
-    - User explicitly invokes a hub subcommand (`/orchestrate-hub`, `/ideate-hub`, `/memory-hub`, `/scaffold-hub`)
+    - User explicitly invokes a hub subcommand (`/orchestrate-hub`, `/ideate-hub`, `/memory-hub`, `/hub-setup`)
     - User explicitly names a subagent ("use @executor", "have @planner plan this", etc.)
     - User explicitly says "use multiple agents" or "parallel" — skip the proposal, execute
     - User said "yes" to a prior proposal — execute the agreed pattern

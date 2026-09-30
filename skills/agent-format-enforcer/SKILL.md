@@ -36,7 +36,7 @@ mode: subagent
 
 ```
 # Scan all agents for compliance
-/scaffold-hub doctor  # delegates to this skill for agent check
+/hub-setup doctor  # delegates to this skill for agent check
 
 # Or manually:
 loadSkill agent-format-enforcer

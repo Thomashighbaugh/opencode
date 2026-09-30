@@ -31,7 +31,7 @@ Use \`map-codebase\` when you want analysis without committing to a full setup. 
   examples: [
     {
       input: "/init-project map-codebase",
-      approach: "Spawns 3 parallel agents: @stack-detector for tech stack, @architect for module structure and patterns, @convention-extractor for coding conventions. Saves combined analysis to .opencode/state/init/codebase-map.json. Does NOT synthesize context or upgrade agents — use /scaffold-hub setup --full for that."
+      approach: "Spawns 3 parallel agents: @stack-detector for tech stack, @architect for module structure and patterns, @convention-extractor for coding conventions. Saves combined analysis to .opencode/state/init/codebase-map.json. Does NOT synthesize context or upgrade agents — use /hub-setup setup --full for that."
     }
   ]
 }

@@ -19,7 +19,7 @@ Process:
 3. Present ranked recommendations with descriptions, source reputation, and security scan results.
 4. User selects which to install; the skill installs them to the project's .opencode/ directory (project scope).
 
-Use during /scaffold-hub setup/refresh or standalone when you want to extend the project's skill set with community skills.`,
+Use during /hub-setup setup/refresh or standalone when you want to extend the project's skill set with community skills.`,
 
   tools: TOOLS_LOADSKILL_BASH,
   relatedSkills: ["find-agents", "find-tools"],

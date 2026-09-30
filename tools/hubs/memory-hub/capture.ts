@@ -15,7 +15,7 @@ const spec: HubSubcommandSpec = {
 3. Routes each to the appropriate durable location.
 4. Strips sensitive data before committing.
 
-Use as part of /scaffold-hub setup (phase 5) or standalone when you want to preserve session knowledge before it's lost.`,
+Use as part of /hub-setup setup (phase 5) or standalone when you want to preserve session knowledge before it's lost.`,
 
   tools: TOOLS_LOADSKILL_BASH_AGENTCONTEXT,
   rules: RULES_CONTEXT_STRATEGY_SECURITY,

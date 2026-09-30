@@ -456,6 +456,238 @@
       "conventional-commit"
     ]
   },
+  "hub-setup/config": {
+    "label": "config",
+    "description": "Create or edit opencode.jsonc, validated against the live schema",
+    "reminder": "Create/modify opencode.jsonc with mandatory schema validation.",
+    "skill": "opencode-configure",
+    "detailedDescription": "Creates or modifies opencode.jsonc (or .opencode/opencode.jsonc for project scope) with mandatory schema validation against the canonical OpenCode schema.\n\n## Workflow\n\n1. **Load config skills** — loads `opencode-configure` and `opencode-config-workflow` for comprehensive config surface knowledge.\n\n2. **Elicit intent** — if the user hasn't specified exact changes, interview them to determine: scope (global vs project), what to change (model, provider, MCP, plugins, permissions, instructions, tools, etc.), and target values.\n\n3. **Apply changes** — edit the target config file using the loaded skills' guidance. Allowed keys per the schema: `$schema`, `shell`, `logLevel`, `server`, `command`, `skills`, `references`, `watcher`, `snapshot`, `plugin`, `share`, `autoupdate`, `disabled_providers`, `enabled_providers`, `model`, `small_model`, `default_agent`, `username`, `agent`, `provider`, `mcp`, `formatter`, `lsp`, `instructions`, `permission`, `tools`, `attachment`, `enterprise`, `tool_output`, `compaction`, `experimental`.\n\n4. **Fetch schema** — fetch `https://opencode.ai/config.json` and validate the final config against it.\n\n5. **Validate** — check for:\n   - Invalid keys (anything not in the allowed list above)\n   - Type mismatches (e.g. `model` should be string, not object)\n   - Missing required fields\n   - Broken plugin paths, MCP URL format, provider model references\n\n6. **Fix and re-validate** — if validation fails, fix the issues and re-validate. Loop until clean.\n\n7. **Report** — output a validation report showing which checks passed, what was fixed (if anything), and the final config diff.\n\n## MANDATORY\n\n**This subcommand MUST ALWAYS validate the final output against `https://opencode.ai/config.json` before reporting completion.** Do not skip this step even if the change seems trivial. Schema violations cause runtime errors that are hard to debug.",
+    "tools": [
+      "loadSkill",
+      "bash"
+    ],
+    "relatedSkills": [
+      "opencode-config-workflow"
+    ],
+    "warnings": [
+      "Schema validation requires network access to https://opencode.ai/config.json — if offline, use cached schema from last fetch.",
+      "Fetches the full config.json schema (~50KB) — avoid unnecessary repeated fetches within a session.",
+      "Only modify one scope at a time (global or project). Mixed-scope edits in a single invocation risk cross-contamination."
+    ]
+  },
+  "hub-setup/detect": {
+    "label": "detect",
+    "description": "Deep stack detection — languages, frameworks, tools, testing, CI",
+    "reminder": "Detect full tech stack via @stack-detector agent.",
+    "agent": "stack-detector",
+    "phases": "0-1",
+    "detailedDescription": "Deep stack detection via the @stack-detector agent. Analyzes the codebase to produce a structured stack fingerprint:\n\n- Languages (primary + secondary)\n- Frameworks (web, API, testing)\n- Build tools (bundler, compiler, task runner)\n- Testing framework (unit, integration, e2e)\n- ORM/database layer\n- CSS approach (Tailwind, CSS modules, styled, etc.)\n- CI/CD (GitHub Actions, Jenkins, etc.)\n- Package manager\n- Linting/formatting\n\nThe fingerprint is saved as JSON to .opencode/state/init/stack-fingerprint.json. It's the input for /hub-setup recommend and /hub-setup provision.\n\nUse standalone when you want to know what the project uses without running the full setup.",
+    "tools": [
+      "listAgents",
+      "bash"
+    ],
+    "relatedSkills": []
+  },
+  "hub-setup/doctor": {
+    "label": "doctor",
+    "description": "Diagnose install health — config, state, hook status",
+    "reminder": "Run Hubs health diagnostics.",
+    "inline": true,
+    "detailedDescription": "Runs a comprehensive diagnostic health check on the Hubs installation. Validates:\n\n- Global config directory exists and has expected structure.\n- opencode.jsonc is valid and references resolve.\n- All agent files exist and have valid frontmatter.\n- All skill files exist with valid SKILL.md.\n- All tool files compile/resolve.\n- State directories are consistent.\n- Memory plane: graph-context rule registered, `.opencode/state/` gitignored, and the knowledge graph is consistent with `.opencode/context/` (rebuildable via `graph build`).\n- Hook system is installed and functional.\n- Plugin system is configured.\n\nOutput: a diagnostic report with pass/warn/fail per check and specific remediation instructions for failures. Use when something isn't working or after manual config changes.",
+    "tools": [
+      "bash"
+    ],
+    "relatedSkills": [
+      "hubs-doctor"
+    ]
+  },
+  "hub-setup/map-codebase": {
+    "label": "map-codebase",
+    "description": "Parallel agents map a brownfield codebase before setup",
+    "reminder": "Map codebase via parallel agent analysis.",
+    "inline": true,
+    "detailedDescription": "Maps an existing brownfield codebase before full init. Spawns parallel agents to analyze:\n\n- Stack detection (@stack-detector): languages, frameworks, tools.\n- Architecture (@architect): module structure, patterns, coupling.\n- Conventions (@convention-extractor): naming, file org, error handling, testing patterns.\n- Integration points: external services, APIs, databases.\n\nThe parallel agents produce a comprehensive codebase map that informs the subsequent setup phases. Use when taking over an existing codebase — you need to understand it before you can configure Hubs for it.\n\n## Relationship to setup --full Phase 6\n\nThis subcommand is a standalone subset of Phase 6 (Context Capture) from the `setup --full` pipeline. The difference:\n\n- `map-codebase` (standalone): Runs the parallel agent analysis only, outputs to state. Does NOT synthesize context files or upgrade agents. Use for one-off analysis.\n- `setup --full` Phase 6: Runs the same parallel agents, THEN synthesizes their output into .opencode/context/ files, THEN upgrades Phase 4 agent wrappers with deep project knowledge. Full integration.\n\nUse `map-codebase` when you want analysis without committing to a full setup. Use `setup --full` when you want the complete pipeline including agent upgrade.",
+    "tools": [
+      "listAgents",
+      "bash"
+    ],
+    "relatedSkills": [
+      "stack-recommender",
+      "provision"
+    ],
+    "examples": [
+      {
+        "input": "/init-project map-codebase",
+        "approach": "Spawns 3 parallel agents: @stack-detector for tech stack, @architect for module structure and patterns, @convention-extractor for coding conventions. Saves combined analysis to .opencode/state/init/codebase-map.json. Does NOT synthesize context or upgrade agents — use /hub-setup setup --full for that."
+      }
+    ]
+  },
+  "hub-setup/provision": {
+    "label": "provision",
+    "description": "Generate project config, rules, and agents from the stack",
+    "reminder": "Auto-generate .opencode/ config from stack analysis.",
+    "skill": "project-config-composer",
+    "detailedDescription": "Provisions project-specific configuration from the stack fingerprint and recommendations. The project-config-composer skill generates:\n\n- .opencode/opencode.jsonc: project config referencing global resources + project-specific overrides.\n- Project rules: .opencode/rules/ files derived from detected conventions.\n- Agent wrappers: .opencode/agents/ with project context injected (e.g. \"this project uses Prisma + Express + Vitest\").\n- Project-specific skills if the stack warrants them.\n- When agent wrappers are created, loads supplementary agent-creation skills (creating-opencode-agents, custom-agent-definitions) for advanced agent patterns.\n\n**CRITICAL:** The generated opencode.jsonc MUST be validated against the schema at https://opencode.ai/config.json. Only the following keys are valid: $schema, shell, logLevel, server, command, skills, references, watcher, snapshot, plugin, share, autoupdate, disabled_providers, enabled_providers, model, small_model, default_agent, username, agent, provider, mcp, formatter, lsp, instructions, permission, tools, attachment, enterprise, tool_output, compaction, experimental. Invalid keys (extends, agents, project, rules, state, context, cache) will cause runtime errors and MUST NOT appear in the output.\n\nThe generated config references global resources (skills, agents, rules in ~/.config/opencode/) rather than duplicating them — minimal footprint, maximum context.\n\n**Memory plane (always provisioned).** In addition to the stack-specific resources, provisioning writes the stack-independent memory plane: a thin `.opencode/rules/graph-context.md` rule (registered under `instructions`), a bootstrapping `node skills/graph-context/scripts/graph.ts build` to create `graph.db`, and a `.opencode/state/` gitignore entry. The global `vectorize-context` + `graph-context` skills are referenced, never copied — so every project (and every archetype) inherits knowledge-graph retrieval without per-archetype duplication.\n\nUse after /hub-setup detect + /hub-setup recommend to generate the actual config files. Or as part of /hub-setup setup (phase 3).",
+    "tools": [
+      "loadSkill",
+      "bash"
+    ],
+    "relatedSkills": [
+      "creating-opencode-agents",
+      "custom-agent-definitions",
+      "stack-recommender",
+      "tag-resources"
+    ]
+  },
+  "hub-setup/recommend": {
+    "label": "recommend",
+    "description": "Map the detected stack to recommended global resources",
+    "reminder": "Recommend global resources matching the detected stack.",
+    "skill": "stack-recommender",
+    "detailedDescription": "Maps a detected stack fingerprint to recommended global OpenCode resources. Reads .opencode/state/init/stack-fingerprint.json and matches it against the global resource catalog (skills, agents, rules, archetypes) using resource tags.\n\nEach archetype contains four subdirectories: agents/, rules/, skills/, and tools/. When provisioning a project, all four must be included: agents/ and rules/ are referenced in opencode.jsonc (via the agent and instructions keys), while skills/ and tools/ must be copied or linked into the project's .opencode/ directory so that agents and rules which reference them resolve correctly.\n\nFor each matched resource, the recommender explains why it's relevant to the detected stack. The output is a prioritized recommendation list that feeds into /hub-setup provision.\n\nUse after /hub-setup detect to see what global resources would help this project, or standalone if you already have a stack fingerprint.",
+    "tools": [
+      "loadSkill",
+      "bash"
+    ],
+    "relatedSkills": [
+      "tag-resources"
+    ]
+  },
+  "hub-setup/refresh": {
+    "label": "refresh",
+    "description": "Re-detect the stack and re-provision, preserving manual edits",
+    "reminder": "Update config preserving manual edits. Use --full for deep codebase re-mapping and context refresh.",
+    "skill": "init-project",
+    "phases": "0-8 (merge)",
+    "detailedDescription": "Updates an existing project configuration without losing manual edits. Two modes:\n\n**Default mode** (no flag): Re-runs phases 0-5 + 8 in merge mode. Re-detects the stack, merges new recommendations, re-provisions agents/skills/tools/rules (preserving manual edits), regenerates docs, and verifies.\n\n**Full mode** (`--full`): Re-runs all 9 phases (0-8) in merge mode. In addition to the default behavior, it re-runs Phase 6 (deep codebase mapping via parallel agents, context synthesis, agent upgrade) and Phase 7 (routing integration validation) — preserving existing context and manual edits while refreshing the deep analysis.\n\n## References Sync (always runs)\n\nAfter Phase 3 (Configuration), ensure the project's `.opencode/opencode.jsonc` has a `references` key configured per https://opencode.ai/docs/references/:\n\n1. **Context reference**: Ensure a `references.context` entry exists pointing to `./.opencode/context` (local path reference) so the durable knowledge base is accessible to agents. Example:\n   ```jsonc\n   \"references\": {\n     \"context\": {\n       \"path\": \"./.opencode/context\",\n       \"description\": \"Durable project knowledge base — decisions, patterns, research, frameworks, and theory.\"\n     }\n   }\n   ```\n\n2. **Git repository references**: Scan all files in `.opencode/context/` for GitHub repository URLs matching `github.com/owner/repo`. For each substantive project reference (not gists, not forks, not passing mentions), ensure a `references` entry exists with:\n   - `repository` set to `owner/repo` (GitHub shorthand)\n   - `description` explaining when an agent should use it\n   - Deduplicate variant names to the primary repo\n   - If `references` already exists, merge new entries without removing existing ones\n   - Only add repos that are substantive project references — skip gists, forks, and casual mentions\n\n3. **Validate**: After adding references, verify the `opencode.jsonc` still passes schema validation (the `references` key is a valid top-level key per the OpenCode config schema).\n\n## Phases (all run in merge mode)\n\n| Phase | Name | Default | --full | Merge Behavior |\n|-------|------|---------|--------|----------------|\n| 0 | Verify Hubs | ✓ | ✓ | Check global health |\n| 1 | Detection | ✓ | ✓ | Re-detect stack, diff against last fingerprint, report changes |\n| 2 | Planning | ✓ | ✓ | Merge new recommendations with existing config |\n| 3 | Configuration | ✓ | ✓ | Merge new fields into opencode.jsonc, don't remove user-set values. Validate merged config against schema (fetch https://opencode.ai/config.json, reject invalid keys like extends/agents/project/rules/state/context/cache). **Then run References Sync (see above).** |\n| 4 | Provisioning | ✓ | ✓ | Add new agents/skills/tools/rules, preserve manually edited ones, flag stale resources. Also (re)ensure the **memory plane**: `graph-context.md` rule, `graph.db` bootstrap, `.opencode/state/` gitignore |\n| 5 | Documentation | ✓ | ✓ | Update generated AGENTS.md sections, preserve `<!-- MANUAL -->` blocks |\n| 6 | Context Capture | — | ✓ | Re-spawn parallel agents, diff context against existing, update changed sections only. Then run `graph build` to fold new/changed context into the knowledge graph |\n| 7 | Routing & Integration | — | ✓ | Validate all cross-references, fix broken ones, generate updated integration report. Validate memory-plane health (`graph stats` shows nodes/edges when context is non-empty) |\n| 8 | Verification | ✓ | ✓ | Final health check + diff report showing what changed |\n\n## What --full adds to refresh\n\n- **Deep codebase re-mapping**: Re-spawns @architect, @convention-extractor, @explore to analyze the current codebase state. If the codebase has evolved (new modules, refactored architecture, changed conventions), the context files are updated to reflect the new reality.\n- **Context diff**: Existing context files in .opencode/context/ are diffed against new analysis. Changed sections are updated; unchanged sections are preserved. Manual additions (marked with `<!-- MANUAL -->`) are never overwritten.\n- **Agent re-upgrade**: Phase 4 agent wrappers are re-upgraded with the refreshed deep context. If agents were manually edited since last setup, those edits are preserved in MANUAL blocks and the context sections are updated around them.\n- **Integration re-validation**: Phase 7 validates all cross-references, fixes broken extends paths, registers new skills/rules, and generates an updated integration report.\n\n## When to use refresh --full\n\n- **Codebase has evolved significantly** — new modules, major refactors, architectural changes since last init\n- **New conventions adopted** — team changed naming patterns, error handling style, testing approach\n- **New dependencies added** — want context files to reflect new libraries and their integration patterns\n- **Context feels stale** — agents are giving generic advice that doesn't match the current codebase\n- **After a merger/acquisition** — codebase absorbed another project, need to re-map the combined architecture\n\n## When default refresh is sufficient\n\n- **Minor dependency updates** — a few new packages, no architectural changes\n- **Config drift fix** — opencode.jsonc needs syncing, no codebase changes\n- **Global resource update** — new skills/agents available, want to pull in recommendations\n- **Quick health check** — just verify everything is still valid\n\n## Merge Mode Rules\n\nAll phases run in merge mode:\n1. **Read existing** — parse current config, agents, context, AGENTS.md\n2. **Diff** — compare current state vs new analysis\n3. **Preserve manual edits** — keep `<!-- MANUAL -->` blocks in all files\n4. **Update generated sections** — refresh auto-generated content with new data\n5. **Add new resources** — new agents/skills/tools/rules from new recommendations\n6. **Flag stale resources** — resources that no longer match the detected stack are flagged (not deleted)\n7. **Report changes** — summary of what was added, updated, flagged as stale\n\nSafe to run on existing setups — it won't destroy manual work.",
+    "tools": [
+      "loadSkill",
+      "listAgents",
+      "bash",
+      "modeState"
+    ],
+    "relatedSkills": [
+      "stack-recommender",
+      "provision",
+      "deepinit",
+      "hubs-doctor",
+      "opencode-config"
+    ],
+    "examples": [
+      {
+        "input": "/init-project refresh",
+        "approach": "Merge mode phases 0-5 + 8. Phase 0: doctor passes. Phase 1: re-detect stack, diff against last fingerprint — new dependency 'zod' found. Phase 2: merge new recommendations. Phase 3: add zod-related skills to opencode.jsonc. Phase 4: provision new agent wrapper for validation, preserve existing manually-edited agents. Phase 5: update AGENTS.md file tables. Phase 8: verify + diff report."
+      },
+      {
+        "input": "/init-project refresh --full",
+        "approach": "Merge mode, all 9 phases. Phases 0-5 same as default. Phase 6: re-spawn @architect (detects new module 'payments-service' added since last init), @convention-extractor (detects team switched to functional style), @explore (maps new file tree). Diff existing context files — update architecture.md with payments-service module, update conventions.md with functional style patterns, preserve MANUAL sections. Re-upgrade agent wrappers with refreshed context. Phase 7: validate all extends paths still resolve, register any new skills, fix broken refs. Phase 8: verify + full integration report with change diff."
+      },
+      {
+        "input": "/init-project refresh --full --force",
+        "approach": "Same as refresh --full but skips the merge safety checks. Overwrites generated sections completely (still preserves MANUAL blocks). Use when context is badly stale and you want a clean regeneration of all auto-generated content without losing manual additions."
+      }
+    ],
+    "warnings": [
+      "--full adds significant time (3 parallel agent dispatches + context synthesis + agent re-upgrade). Expect 5-15 minutes depending on codebase size.",
+      "Phase 6 in refresh mode diffs new analysis against existing context. If existing context files have no MANUAL blocks, they are fully overwritten. Add <!-- MANUAL --> tags to preserve custom sections.",
+      "Agent re-upgrade in Phase 6 preserves MANUAL blocks in agent wrappers but overwrites auto-generated context sections. If you manually edited the auto-generated sections of an agent, those edits will be lost — use --force to skip all safety or add MANUAL blocks.",
+      "Stale resources (agents/skills/tools that no longer match the detected stack) are flagged, NOT deleted. Review and remove manually if no longer needed."
+    ]
+  },
+  "hub-setup/reset": {
+    "label": "reset",
+    "description": "Archive state and context, then start from a clean slate",
+    "reminder": "Reset project state with clean slate.",
+    "inline": true,
+    "detailedDescription": "Resets the project's Hubs state. Archives (not deletes) .opencode/state/ and .opencode/context/ to timestamped backup directories, then creates fresh empty ones.\n\nThis gives you a clean slate without losing history — the archived state can be referenced if needed. After reset, you can re-run /hub-setup setup to reconfigure from scratch.\n\nUse when the project state has become corrupted, stale, or you want to start over. The archive preserves everything in case you need to recover.",
+    "tools": [
+      "bash"
+    ],
+    "relatedSkills": [],
+    "warnings": [
+      "Archives .opencode/state and .opencode/context. The archive is timestamped and recoverable, but running setup afterward will re-detect from scratch."
+    ]
+  },
+  "hub-setup/setup": {
+    "label": "setup",
+    "description": "Full 9-phase project setup — detect, provision, document, verify",
+    "reminder": "Default: phases 0-5 + 8. With --full: all 9 phases including deep context capture and routing integration.",
+    "skill": "init-project",
+    "phases": "0-8",
+    "detailedDescription": "Full project initialization pipeline. Two modes:\n\n**Default mode** (no flag): 7 phases run (0-5, 8). Lightweight setup that detects the stack, provisions project-specific resources, generates documentation, and verifies everything works.\n\n**Full mode** (`--full`): All 9 phases run (0-8). Adds deep codebase mapping with parallel agents, context synthesis, agent upgrade with deep project knowledge, and full routing integration validation. Use for existing codebases where you want agents to deeply understand the project.\n\n## Phases\n\n| Phase | Name | Default | --full | Purpose |\n|-------|------|---------|--------|---------|\n| 0 | Verify Hubs | ✓ | ✓ | Run doctor, check global installation health |\n| 1 | Detection | ✓ | ✓ | Deep stack detection via @stack-detector |\n| 2 | Planning | ✓ | ✓ | Recommend global resources matching detected stack |\n| 3 | Configuration | ✓ | ✓ | Create/update .opencode/opencode.jsonc with project config, then validate against schema (fetch https://opencode.ai/config.json, reject invalid keys) |\n| 4 | Provisioning | ✓ | ✓ | Generate project-specific agents, skills, tools, rules into .opencode/. Also provision the stack-independent memory plane (graph-context rule + graph.db bootstrap) |\n| 5 | Documentation | ✓ | ✓ | Generate hierarchical AGENTS.md via deepinit |\n| 6 | Context Capture | — | ✓ | Parallel @architect + @convention-extractor + @explore map codebase, synthesize context, upgrade Phase 4 agents with deep knowledge. Then `graph build` folds the synthesized context into the knowledge graph |\n| 7 | Routing & Integration | — | ✓ | Validate agent inheritance, skill discoverability, tool exports, rule registration, context integrity, config syntax, .gitignore, and memory-plane health (graph nodes/edges) |\n| 8 | Verification | ✓ | ✓ | Final health check and summary report |\n\n## When to use --full\n\n- **Existing codebase** with substantial code (>1000 lines) — agents need deep context to be useful\n- **Taking over a project** — need to understand architecture, conventions, and patterns quickly\n- **Complex architecture** — microservices, monorepos, multi-package repos where surface detection isn't enough\n- **Team onboarding** — want every agent to understand the project's conventions and architecture\n\n## When default is sufficient\n\n- **Greenfield project** — no existing code to map, Phase 6 would have nothing to extract\n- **Small project** — <1000 lines, shallow detection is adequate\n- **Quick setup** — just need the scaffold, will add context manually later\n\nEach phase writes a checkpoint to .opencode/state/init/ so setup can resume from where it left off if interrupted.",
+    "tools": [
+      "loadSkill",
+      "listAgents",
+      "bash",
+      "modeState"
+    ],
+    "relatedSkills": [
+      "stack-recommender",
+      "provision",
+      "deepinit",
+      "hubs-doctor",
+      "opencode-config"
+    ],
+    "examples": [
+      {
+        "input": "/init-project setup",
+        "approach": "Runs phases 0-5 + 8. Phase 0: doctor passes. Phase 1: detect TypeScript + React + Vite + Vitest + Prisma. Phase 2: recommend skills. Phase 3: create opencode.jsonc. Phase 4: provision .opencode/ agents/skills/tools/rules. Phase 5: generate AGENTS.md. Phase 8: verify + report. Skips deep context capture (Phase 6) and routing integration (Phase 7)."
+      },
+      {
+        "input": "/init-project setup --full",
+        "approach": "Runs all 9 phases (0-8). Phases 0-5 same as default. Phase 6: spawn 3 parallel agents (@architect maps architecture, @convention-extractor extracts coding conventions, @explore maps file structure) → synthesize findings into .opencode/context/ → upgrade Phase 4 agent wrappers with deep project knowledge. Phase 7: validate all agent extends paths resolve, skills have valid frontmatter, tools have default exports, rules registered in instructions, .gitignore correct. Phase 8: final verification + integration report."
+      },
+      {
+        "input": "/init-project setup --full",
+        "approach": "On an existing monorepo: Phase 6 @architect identifies service boundaries and shared packages. @convention-extractor detects naming patterns, error handling styles, test conventions. @explore maps the full file tree. All three feed into .opencode/context/frameworks/architecture.md, .opencode/context/patterns/conventions.md, .opencode/context/theory.md. Phase 4 agents get upgraded with this context — e.g., .opencode/agents/executor.md gets a 'Project Context' section with architecture summary and convention rules."
+      }
+    ],
+    "warnings": [
+      "--full adds significant time (3 parallel agent dispatches + context synthesis + agent upgrades). Expect 5-15 minutes depending on codebase size.",
+      "Phase 6 requires a codebase to analyze. Running --full on a greenfield project (no source files) will produce empty context files — use default mode instead.",
+      "Phase 6 overwrites Phase 4 agent wrappers with upgraded versions containing deep context. If you manually edited agents between Phase 4 and Phase 6, those edits will be lost."
+    ]
+  },
+  "hub-setup/status": {
+    "label": "status",
+    "description": "Show current initialization state and checkpoint progress",
+    "reminder": "Show init state and checkpoint progress.",
+    "inline": true,
+    "detailedDescription": "Shows the current init-project state: which phases have completed, the current checkpoint, and any errors from the last run. Read-only.\n\nUse to check progress of a setup run, especially after an interruption.",
+    "tools": [
+      "bash"
+    ],
+    "relatedSkills": []
+  },
+  "hub-setup/tag": {
+    "label": "tag",
+    "description": "Audit and repair resource tags used by stack filtering",
+    "reminder": "Audit and fix resource tags for filtering.",
+    "skill": "tag-resources",
+    "detailedDescription": "Audits and fixes resource tags on global OpenCode resources (skills, agents, rules, archetypes). Tags enable resource_tags filtering — the mechanism that lets stack-recommender match resources to a detected stack.\n\nEach archetype contains four subdirectories: agents/, rules/, skills/, and tools/. When provisioning a project, all four must be included: agents/ and rules/ are referenced in opencode.jsonc (via the agent and instructions keys), while skills/ and tools/ must be copied or linked into the project's .opencode/ directory so that agents and rules which reference them resolve correctly.\n\nProcess:\n1. Scan all resources for existing tags.\n2. Classify: are tags accurate? Missing? Incorrect?\n3. Suggest: propose tags based on resource content and metadata.\n4. Apply: write corrected tags to resource frontmatter.\n\nProperly tagged resources are discoverable by stack-recommender. Untagged or mis-tagged resources are invisible to recommendation. Use when setting up resources or when recommendations seem to miss obvious matches.",
+    "tools": [
+      "loadSkill",
+      "bash"
+    ],
+    "relatedSkills": [
+      "stack-recommender"
+    ]
+  },
+  "hub-setup/verify": {
+    "label": "verify",
+    "description": "Validate configuration completeness, file existence, and reference integrity",
+    "reminder": "Validate configuration completeness and integrity.",
+    "skill": "verify",
+    "phases": "7",
+    "detailedDescription": "Validates that the project configuration is complete and all references resolve. The verify skill checks:\n\n- opencode.jsonc: valid schema keys per https://opencode.ai/config.json (fetch schema, extract valid keys, reject invalid keys like extends/agents/project/rules/state/context/cache), all referenced files exist.\n- Agents: all agent files referenced in config exist and have valid frontmatter.\n- Skills: all skill references resolve to SKILL.md files.\n- Tools: all tool references resolve to .ts files.\n- Commands: all command references resolve to .md files.\n- Rules: all rule references resolve to .md files.\n- Hub delegations: all skill/agent/command references in hub subcommands resolve (runs validate-delegation tool).\n- Memory plane: `.opencode/rules/graph-context.md` exists and is registered in `instructions`; `.opencode/state/` is gitignored; when `.opencode/context/` is non-empty, `node skills/graph-context/scripts/graph.ts stats` reports nodes > 0 and edges > 0.\n\nSchema validation step:\n1. Fetch https://opencode.ai/config.json\n2. Navigate to $defs.Config.properties — extract the set of valid top-level keys\n3. Parse the project's opencode.jsonc (strip JSONC comments first)\n4. Check that all keys in the parsed config appear in the valid set\n5. Fail if any unrecognized keys are found (e.g., extends, agents, project, rules, state, context, cache)\n6. Report specific invalid keys and suggest removal\n\nOutput: a validation report with pass/fail per check and specific error messages for failures. Use after setup or after manual config changes to ensure nothing is broken.",
+    "tools": [
+      "listAgents",
+      "bash"
+    ],
+    "relatedSkills": [
+      "hubs-doctor"
+    ]
+  },
   "ideate-hub/adversarial-debate": {
     "label": "adversarial-debate",
     "description": "Spec validation via oppositional debate — proposer vs critics",
@@ -894,7 +1126,7 @@
     "reminder": "Capture session knowledge for project memory.",
     "skill": "remember",
     "phases": "5",
-    "detailedDescription": "Captures knowledge from the current session and promotes it to durable storage. Delegates to the remember skill which:\n\n1. Reviews the session for decisions, patterns, lessons.\n2. Classifies each item: project memory, notepad, wiki, decisions (ADRs), patterns.\n3. Routes each to the appropriate durable location.\n4. Strips sensitive data before committing.\n\nUse as part of /scaffold-hub setup (phase 5) or standalone when you want to preserve session knowledge before it's lost.",
+    "detailedDescription": "Captures knowledge from the current session and promotes it to durable storage. Delegates to the remember skill which:\n\n1. Reviews the session for decisions, patterns, lessons.\n2. Classifies each item: project memory, notepad, wiki, decisions (ADRs), patterns.\n3. Routes each to the appropriate durable location.\n4. Strips sensitive data before committing.\n\nUse as part of /hub-setup setup (phase 5) or standalone when you want to preserve session knowledge before it's lost.",
     "tools": [
       "loadSkill",
       "bash",
@@ -1897,7 +2129,7 @@
     "description": "Find installable skills for this stack — scans registries, vets, ranks",
     "reminder": "Search registries for relevant project skills.",
     "skill": "find-skills",
-    "detailedDescription": "Discovers skills relevant to the current project by searching across skill registries simultaneously. Sources:\n\n- skills.sh registry\n- clawhub.ai\n- GitHub (repos tagged as opencode-skills)\n\nProcess:\n1. Search all registries in parallel for skills matching the project's stack and needs.\n2. Security-scan top results (check for dangerous patterns, secrets, suspicious code).\n3. Present ranked recommendations with descriptions, source reputation, and security scan results.\n4. User selects which to install; the skill installs them to the project's .opencode/ directory (project scope).\n\nUse during /scaffold-hub setup/refresh or standalone when you want to extend the project's skill set with community skills.",
+    "detailedDescription": "Discovers skills relevant to the current project by searching across skill registries simultaneously. Sources:\n\n- skills.sh registry\n- clawhub.ai\n- GitHub (repos tagged as opencode-skills)\n\nProcess:\n1. Search all registries in parallel for skills matching the project's stack and needs.\n2. Security-scan top results (check for dangerous patterns, secrets, suspicious code).\n3. Present ranked recommendations with descriptions, source reputation, and security scan results.\n4. User selects which to install; the skill installs them to the project's .opencode/ directory (project scope).\n\nUse during /hub-setup setup/refresh or standalone when you want to extend the project's skill set with community skills.",
     "tools": [
       "loadSkill",
       "bash"
@@ -1990,238 +2222,6 @@
       "learner",
       "skillify",
       "create-opencode-plugin"
-    ]
-  },
-  "scaffold-hub/config": {
-    "label": "config",
-    "description": "Create or edit opencode.jsonc, validated against the live schema",
-    "reminder": "Create/modify opencode.jsonc with mandatory schema validation.",
-    "skill": "opencode-configure",
-    "detailedDescription": "Creates or modifies opencode.jsonc (or .opencode/opencode.jsonc for project scope) with mandatory schema validation against the canonical OpenCode schema.\n\n## Workflow\n\n1. **Load config skills** — loads `opencode-configure` and `opencode-config-workflow` for comprehensive config surface knowledge.\n\n2. **Elicit intent** — if the user hasn't specified exact changes, interview them to determine: scope (global vs project), what to change (model, provider, MCP, plugins, permissions, instructions, tools, etc.), and target values.\n\n3. **Apply changes** — edit the target config file using the loaded skills' guidance. Allowed keys per the schema: `$schema`, `shell`, `logLevel`, `server`, `command`, `skills`, `references`, `watcher`, `snapshot`, `plugin`, `share`, `autoupdate`, `disabled_providers`, `enabled_providers`, `model`, `small_model`, `default_agent`, `username`, `agent`, `provider`, `mcp`, `formatter`, `lsp`, `instructions`, `permission`, `tools`, `attachment`, `enterprise`, `tool_output`, `compaction`, `experimental`.\n\n4. **Fetch schema** — fetch `https://opencode.ai/config.json` and validate the final config against it.\n\n5. **Validate** — check for:\n   - Invalid keys (anything not in the allowed list above)\n   - Type mismatches (e.g. `model` should be string, not object)\n   - Missing required fields\n   - Broken plugin paths, MCP URL format, provider model references\n\n6. **Fix and re-validate** — if validation fails, fix the issues and re-validate. Loop until clean.\n\n7. **Report** — output a validation report showing which checks passed, what was fixed (if anything), and the final config diff.\n\n## MANDATORY\n\n**This subcommand MUST ALWAYS validate the final output against `https://opencode.ai/config.json` before reporting completion.** Do not skip this step even if the change seems trivial. Schema violations cause runtime errors that are hard to debug.",
-    "tools": [
-      "loadSkill",
-      "bash"
-    ],
-    "relatedSkills": [
-      "opencode-config-workflow"
-    ],
-    "warnings": [
-      "Schema validation requires network access to https://opencode.ai/config.json — if offline, use cached schema from last fetch.",
-      "Fetches the full config.json schema (~50KB) — avoid unnecessary repeated fetches within a session.",
-      "Only modify one scope at a time (global or project). Mixed-scope edits in a single invocation risk cross-contamination."
-    ]
-  },
-  "scaffold-hub/detect": {
-    "label": "detect",
-    "description": "Deep stack detection — languages, frameworks, tools, testing, CI",
-    "reminder": "Detect full tech stack via @stack-detector agent.",
-    "agent": "stack-detector",
-    "phases": "0-1",
-    "detailedDescription": "Deep stack detection via the @stack-detector agent. Analyzes the codebase to produce a structured stack fingerprint:\n\n- Languages (primary + secondary)\n- Frameworks (web, API, testing)\n- Build tools (bundler, compiler, task runner)\n- Testing framework (unit, integration, e2e)\n- ORM/database layer\n- CSS approach (Tailwind, CSS modules, styled, etc.)\n- CI/CD (GitHub Actions, Jenkins, etc.)\n- Package manager\n- Linting/formatting\n\nThe fingerprint is saved as JSON to .opencode/state/init/stack-fingerprint.json. It's the input for /scaffold-hub recommend and /scaffold-hub provision.\n\nUse standalone when you want to know what the project uses without running the full setup.",
-    "tools": [
-      "listAgents",
-      "bash"
-    ],
-    "relatedSkills": []
-  },
-  "scaffold-hub/doctor": {
-    "label": "doctor",
-    "description": "Diagnose install health — config, state, hook status",
-    "reminder": "Run Hubs health diagnostics.",
-    "inline": true,
-    "detailedDescription": "Runs a comprehensive diagnostic health check on the Hubs installation. Validates:\n\n- Global config directory exists and has expected structure.\n- opencode.jsonc is valid and references resolve.\n- All agent files exist and have valid frontmatter.\n- All skill files exist with valid SKILL.md.\n- All tool files compile/resolve.\n- State directories are consistent.\n- Memory plane: graph-context rule registered, `.opencode/state/` gitignored, and the knowledge graph is consistent with `.opencode/context/` (rebuildable via `graph build`).\n- Hook system is installed and functional.\n- Plugin system is configured.\n\nOutput: a diagnostic report with pass/warn/fail per check and specific remediation instructions for failures. Use when something isn't working or after manual config changes.",
-    "tools": [
-      "bash"
-    ],
-    "relatedSkills": [
-      "hubs-doctor"
-    ]
-  },
-  "scaffold-hub/map-codebase": {
-    "label": "map-codebase",
-    "description": "Parallel agents map a brownfield codebase before setup",
-    "reminder": "Map codebase via parallel agent analysis.",
-    "inline": true,
-    "detailedDescription": "Maps an existing brownfield codebase before full init. Spawns parallel agents to analyze:\n\n- Stack detection (@stack-detector): languages, frameworks, tools.\n- Architecture (@architect): module structure, patterns, coupling.\n- Conventions (@convention-extractor): naming, file org, error handling, testing patterns.\n- Integration points: external services, APIs, databases.\n\nThe parallel agents produce a comprehensive codebase map that informs the subsequent setup phases. Use when taking over an existing codebase — you need to understand it before you can configure Hubs for it.\n\n## Relationship to setup --full Phase 6\n\nThis subcommand is a standalone subset of Phase 6 (Context Capture) from the `setup --full` pipeline. The difference:\n\n- `map-codebase` (standalone): Runs the parallel agent analysis only, outputs to state. Does NOT synthesize context files or upgrade agents. Use for one-off analysis.\n- `setup --full` Phase 6: Runs the same parallel agents, THEN synthesizes their output into .opencode/context/ files, THEN upgrades Phase 4 agent wrappers with deep project knowledge. Full integration.\n\nUse `map-codebase` when you want analysis without committing to a full setup. Use `setup --full` when you want the complete pipeline including agent upgrade.",
-    "tools": [
-      "listAgents",
-      "bash"
-    ],
-    "relatedSkills": [
-      "stack-recommender",
-      "provision"
-    ],
-    "examples": [
-      {
-        "input": "/init-project map-codebase",
-        "approach": "Spawns 3 parallel agents: @stack-detector for tech stack, @architect for module structure and patterns, @convention-extractor for coding conventions. Saves combined analysis to .opencode/state/init/codebase-map.json. Does NOT synthesize context or upgrade agents — use /scaffold-hub setup --full for that."
-      }
-    ]
-  },
-  "scaffold-hub/provision": {
-    "label": "provision",
-    "description": "Generate project config, rules, and agents from the stack",
-    "reminder": "Auto-generate .opencode/ config from stack analysis.",
-    "skill": "project-config-composer",
-    "detailedDescription": "Provisions project-specific configuration from the stack fingerprint and recommendations. The project-config-composer skill generates:\n\n- .opencode/opencode.jsonc: project config referencing global resources + project-specific overrides.\n- Project rules: .opencode/rules/ files derived from detected conventions.\n- Agent wrappers: .opencode/agents/ with project context injected (e.g. \"this project uses Prisma + Express + Vitest\").\n- Project-specific skills if the stack warrants them.\n- When agent wrappers are created, loads supplementary agent-creation skills (creating-opencode-agents, custom-agent-definitions) for advanced agent patterns.\n\n**CRITICAL:** The generated opencode.jsonc MUST be validated against the schema at https://opencode.ai/config.json. Only the following keys are valid: $schema, shell, logLevel, server, command, skills, references, watcher, snapshot, plugin, share, autoupdate, disabled_providers, enabled_providers, model, small_model, default_agent, username, agent, provider, mcp, formatter, lsp, instructions, permission, tools, attachment, enterprise, tool_output, compaction, experimental. Invalid keys (extends, agents, project, rules, state, context, cache) will cause runtime errors and MUST NOT appear in the output.\n\nThe generated config references global resources (skills, agents, rules in ~/.config/opencode/) rather than duplicating them — minimal footprint, maximum context.\n\n**Memory plane (always provisioned).** In addition to the stack-specific resources, provisioning writes the stack-independent memory plane: a thin `.opencode/rules/graph-context.md` rule (registered under `instructions`), a bootstrapping `node skills/graph-context/scripts/graph.ts build` to create `graph.db`, and a `.opencode/state/` gitignore entry. The global `vectorize-context` + `graph-context` skills are referenced, never copied — so every project (and every archetype) inherits knowledge-graph retrieval without per-archetype duplication.\n\nUse after /scaffold-hub detect + /scaffold-hub recommend to generate the actual config files. Or as part of /scaffold-hub setup (phase 3).",
-    "tools": [
-      "loadSkill",
-      "bash"
-    ],
-    "relatedSkills": [
-      "creating-opencode-agents",
-      "custom-agent-definitions",
-      "stack-recommender",
-      "tag-resources"
-    ]
-  },
-  "scaffold-hub/recommend": {
-    "label": "recommend",
-    "description": "Map the detected stack to recommended global resources",
-    "reminder": "Recommend global resources matching the detected stack.",
-    "skill": "stack-recommender",
-    "detailedDescription": "Maps a detected stack fingerprint to recommended global OpenCode resources. Reads .opencode/state/init/stack-fingerprint.json and matches it against the global resource catalog (skills, agents, rules, archetypes) using resource tags.\n\nEach archetype contains four subdirectories: agents/, rules/, skills/, and tools/. When provisioning a project, all four must be included: agents/ and rules/ are referenced in opencode.jsonc (via the agent and instructions keys), while skills/ and tools/ must be copied or linked into the project's .opencode/ directory so that agents and rules which reference them resolve correctly.\n\nFor each matched resource, the recommender explains why it's relevant to the detected stack. The output is a prioritized recommendation list that feeds into /scaffold-hub provision.\n\nUse after /scaffold-hub detect to see what global resources would help this project, or standalone if you already have a stack fingerprint.",
-    "tools": [
-      "loadSkill",
-      "bash"
-    ],
-    "relatedSkills": [
-      "tag-resources"
-    ]
-  },
-  "scaffold-hub/refresh": {
-    "label": "refresh",
-    "description": "Re-detect the stack and re-provision, preserving manual edits",
-    "reminder": "Update config preserving manual edits. Use --full for deep codebase re-mapping and context refresh.",
-    "skill": "init-project",
-    "phases": "0-8 (merge)",
-    "detailedDescription": "Updates an existing project configuration without losing manual edits. Two modes:\n\n**Default mode** (no flag): Re-runs phases 0-5 + 8 in merge mode. Re-detects the stack, merges new recommendations, re-provisions agents/skills/tools/rules (preserving manual edits), regenerates docs, and verifies.\n\n**Full mode** (`--full`): Re-runs all 9 phases (0-8) in merge mode. In addition to the default behavior, it re-runs Phase 6 (deep codebase mapping via parallel agents, context synthesis, agent upgrade) and Phase 7 (routing integration validation) — preserving existing context and manual edits while refreshing the deep analysis.\n\n## References Sync (always runs)\n\nAfter Phase 3 (Configuration), ensure the project's `.opencode/opencode.jsonc` has a `references` key configured per https://opencode.ai/docs/references/:\n\n1. **Context reference**: Ensure a `references.context` entry exists pointing to `./.opencode/context` (local path reference) so the durable knowledge base is accessible to agents. Example:\n   ```jsonc\n   \"references\": {\n     \"context\": {\n       \"path\": \"./.opencode/context\",\n       \"description\": \"Durable project knowledge base — decisions, patterns, research, frameworks, and theory.\"\n     }\n   }\n   ```\n\n2. **Git repository references**: Scan all files in `.opencode/context/` for GitHub repository URLs matching `github.com/owner/repo`. For each substantive project reference (not gists, not forks, not passing mentions), ensure a `references` entry exists with:\n   - `repository` set to `owner/repo` (GitHub shorthand)\n   - `description` explaining when an agent should use it\n   - Deduplicate variant names to the primary repo\n   - If `references` already exists, merge new entries without removing existing ones\n   - Only add repos that are substantive project references — skip gists, forks, and casual mentions\n\n3. **Validate**: After adding references, verify the `opencode.jsonc` still passes schema validation (the `references` key is a valid top-level key per the OpenCode config schema).\n\n## Phases (all run in merge mode)\n\n| Phase | Name | Default | --full | Merge Behavior |\n|-------|------|---------|--------|----------------|\n| 0 | Verify Hubs | ✓ | ✓ | Check global health |\n| 1 | Detection | ✓ | ✓ | Re-detect stack, diff against last fingerprint, report changes |\n| 2 | Planning | ✓ | ✓ | Merge new recommendations with existing config |\n| 3 | Configuration | ✓ | ✓ | Merge new fields into opencode.jsonc, don't remove user-set values. Validate merged config against schema (fetch https://opencode.ai/config.json, reject invalid keys like extends/agents/project/rules/state/context/cache). **Then run References Sync (see above).** |\n| 4 | Provisioning | ✓ | ✓ | Add new agents/skills/tools/rules, preserve manually edited ones, flag stale resources. Also (re)ensure the **memory plane**: `graph-context.md` rule, `graph.db` bootstrap, `.opencode/state/` gitignore |\n| 5 | Documentation | ✓ | ✓ | Update generated AGENTS.md sections, preserve `<!-- MANUAL -->` blocks |\n| 6 | Context Capture | — | ✓ | Re-spawn parallel agents, diff context against existing, update changed sections only. Then run `graph build` to fold new/changed context into the knowledge graph |\n| 7 | Routing & Integration | — | ✓ | Validate all cross-references, fix broken ones, generate updated integration report. Validate memory-plane health (`graph stats` shows nodes/edges when context is non-empty) |\n| 8 | Verification | ✓ | ✓ | Final health check + diff report showing what changed |\n\n## What --full adds to refresh\n\n- **Deep codebase re-mapping**: Re-spawns @architect, @convention-extractor, @explore to analyze the current codebase state. If the codebase has evolved (new modules, refactored architecture, changed conventions), the context files are updated to reflect the new reality.\n- **Context diff**: Existing context files in .opencode/context/ are diffed against new analysis. Changed sections are updated; unchanged sections are preserved. Manual additions (marked with `<!-- MANUAL -->`) are never overwritten.\n- **Agent re-upgrade**: Phase 4 agent wrappers are re-upgraded with the refreshed deep context. If agents were manually edited since last setup, those edits are preserved in MANUAL blocks and the context sections are updated around them.\n- **Integration re-validation**: Phase 7 validates all cross-references, fixes broken extends paths, registers new skills/rules, and generates an updated integration report.\n\n## When to use refresh --full\n\n- **Codebase has evolved significantly** — new modules, major refactors, architectural changes since last init\n- **New conventions adopted** — team changed naming patterns, error handling style, testing approach\n- **New dependencies added** — want context files to reflect new libraries and their integration patterns\n- **Context feels stale** — agents are giving generic advice that doesn't match the current codebase\n- **After a merger/acquisition** — codebase absorbed another project, need to re-map the combined architecture\n\n## When default refresh is sufficient\n\n- **Minor dependency updates** — a few new packages, no architectural changes\n- **Config drift fix** — opencode.jsonc needs syncing, no codebase changes\n- **Global resource update** — new skills/agents available, want to pull in recommendations\n- **Quick health check** — just verify everything is still valid\n\n## Merge Mode Rules\n\nAll phases run in merge mode:\n1. **Read existing** — parse current config, agents, context, AGENTS.md\n2. **Diff** — compare current state vs new analysis\n3. **Preserve manual edits** — keep `<!-- MANUAL -->` blocks in all files\n4. **Update generated sections** — refresh auto-generated content with new data\n5. **Add new resources** — new agents/skills/tools/rules from new recommendations\n6. **Flag stale resources** — resources that no longer match the detected stack are flagged (not deleted)\n7. **Report changes** — summary of what was added, updated, flagged as stale\n\nSafe to run on existing setups — it won't destroy manual work.",
-    "tools": [
-      "loadSkill",
-      "listAgents",
-      "bash",
-      "modeState"
-    ],
-    "relatedSkills": [
-      "stack-recommender",
-      "provision",
-      "deepinit",
-      "hubs-doctor",
-      "opencode-config"
-    ],
-    "examples": [
-      {
-        "input": "/init-project refresh",
-        "approach": "Merge mode phases 0-5 + 8. Phase 0: doctor passes. Phase 1: re-detect stack, diff against last fingerprint — new dependency 'zod' found. Phase 2: merge new recommendations. Phase 3: add zod-related skills to opencode.jsonc. Phase 4: provision new agent wrapper for validation, preserve existing manually-edited agents. Phase 5: update AGENTS.md file tables. Phase 8: verify + diff report."
-      },
-      {
-        "input": "/init-project refresh --full",
-        "approach": "Merge mode, all 9 phases. Phases 0-5 same as default. Phase 6: re-spawn @architect (detects new module 'payments-service' added since last init), @convention-extractor (detects team switched to functional style), @explore (maps new file tree). Diff existing context files — update architecture.md with payments-service module, update conventions.md with functional style patterns, preserve MANUAL sections. Re-upgrade agent wrappers with refreshed context. Phase 7: validate all extends paths still resolve, register any new skills, fix broken refs. Phase 8: verify + full integration report with change diff."
-      },
-      {
-        "input": "/init-project refresh --full --force",
-        "approach": "Same as refresh --full but skips the merge safety checks. Overwrites generated sections completely (still preserves MANUAL blocks). Use when context is badly stale and you want a clean regeneration of all auto-generated content without losing manual additions."
-      }
-    ],
-    "warnings": [
-      "--full adds significant time (3 parallel agent dispatches + context synthesis + agent re-upgrade). Expect 5-15 minutes depending on codebase size.",
-      "Phase 6 in refresh mode diffs new analysis against existing context. If existing context files have no MANUAL blocks, they are fully overwritten. Add <!-- MANUAL --> tags to preserve custom sections.",
-      "Agent re-upgrade in Phase 6 preserves MANUAL blocks in agent wrappers but overwrites auto-generated context sections. If you manually edited the auto-generated sections of an agent, those edits will be lost — use --force to skip all safety or add MANUAL blocks.",
-      "Stale resources (agents/skills/tools that no longer match the detected stack) are flagged, NOT deleted. Review and remove manually if no longer needed."
-    ]
-  },
-  "scaffold-hub/reset": {
-    "label": "reset",
-    "description": "Archive state and context, then start from a clean slate",
-    "reminder": "Reset project state with clean slate.",
-    "inline": true,
-    "detailedDescription": "Resets the project's Hubs state. Archives (not deletes) .opencode/state/ and .opencode/context/ to timestamped backup directories, then creates fresh empty ones.\n\nThis gives you a clean slate without losing history — the archived state can be referenced if needed. After reset, you can re-run /scaffold-hub setup to reconfigure from scratch.\n\nUse when the project state has become corrupted, stale, or you want to start over. The archive preserves everything in case you need to recover.",
-    "tools": [
-      "bash"
-    ],
-    "relatedSkills": [],
-    "warnings": [
-      "Archives .opencode/state and .opencode/context. The archive is timestamped and recoverable, but running setup afterward will re-detect from scratch."
-    ]
-  },
-  "scaffold-hub/setup": {
-    "label": "setup",
-    "description": "Full 9-phase project setup — detect, provision, document, verify",
-    "reminder": "Default: phases 0-5 + 8. With --full: all 9 phases including deep context capture and routing integration.",
-    "skill": "init-project",
-    "phases": "0-8",
-    "detailedDescription": "Full project initialization pipeline. Two modes:\n\n**Default mode** (no flag): 7 phases run (0-5, 8). Lightweight setup that detects the stack, provisions project-specific resources, generates documentation, and verifies everything works.\n\n**Full mode** (`--full`): All 9 phases run (0-8). Adds deep codebase mapping with parallel agents, context synthesis, agent upgrade with deep project knowledge, and full routing integration validation. Use for existing codebases where you want agents to deeply understand the project.\n\n## Phases\n\n| Phase | Name | Default | --full | Purpose |\n|-------|------|---------|--------|---------|\n| 0 | Verify Hubs | ✓ | ✓ | Run doctor, check global installation health |\n| 1 | Detection | ✓ | ✓ | Deep stack detection via @stack-detector |\n| 2 | Planning | ✓ | ✓ | Recommend global resources matching detected stack |\n| 3 | Configuration | ✓ | ✓ | Create/update .opencode/opencode.jsonc with project config, then validate against schema (fetch https://opencode.ai/config.json, reject invalid keys) |\n| 4 | Provisioning | ✓ | ✓ | Generate project-specific agents, skills, tools, rules into .opencode/. Also provision the stack-independent memory plane (graph-context rule + graph.db bootstrap) |\n| 5 | Documentation | ✓ | ✓ | Generate hierarchical AGENTS.md via deepinit |\n| 6 | Context Capture | — | ✓ | Parallel @architect + @convention-extractor + @explore map codebase, synthesize context, upgrade Phase 4 agents with deep knowledge. Then `graph build` folds the synthesized context into the knowledge graph |\n| 7 | Routing & Integration | — | ✓ | Validate agent inheritance, skill discoverability, tool exports, rule registration, context integrity, config syntax, .gitignore, and memory-plane health (graph nodes/edges) |\n| 8 | Verification | ✓ | ✓ | Final health check and summary report |\n\n## When to use --full\n\n- **Existing codebase** with substantial code (>1000 lines) — agents need deep context to be useful\n- **Taking over a project** — need to understand architecture, conventions, and patterns quickly\n- **Complex architecture** — microservices, monorepos, multi-package repos where surface detection isn't enough\n- **Team onboarding** — want every agent to understand the project's conventions and architecture\n\n## When default is sufficient\n\n- **Greenfield project** — no existing code to map, Phase 6 would have nothing to extract\n- **Small project** — <1000 lines, shallow detection is adequate\n- **Quick setup** — just need the scaffold, will add context manually later\n\nEach phase writes a checkpoint to .opencode/state/init/ so setup can resume from where it left off if interrupted.",
-    "tools": [
-      "loadSkill",
-      "listAgents",
-      "bash",
-      "modeState"
-    ],
-    "relatedSkills": [
-      "stack-recommender",
-      "provision",
-      "deepinit",
-      "hubs-doctor",
-      "opencode-config"
-    ],
-    "examples": [
-      {
-        "input": "/init-project setup",
-        "approach": "Runs phases 0-5 + 8. Phase 0: doctor passes. Phase 1: detect TypeScript + React + Vite + Vitest + Prisma. Phase 2: recommend skills. Phase 3: create opencode.jsonc. Phase 4: provision .opencode/ agents/skills/tools/rules. Phase 5: generate AGENTS.md. Phase 8: verify + report. Skips deep context capture (Phase 6) and routing integration (Phase 7)."
-      },
-      {
-        "input": "/init-project setup --full",
-        "approach": "Runs all 9 phases (0-8). Phases 0-5 same as default. Phase 6: spawn 3 parallel agents (@architect maps architecture, @convention-extractor extracts coding conventions, @explore maps file structure) → synthesize findings into .opencode/context/ → upgrade Phase 4 agent wrappers with deep project knowledge. Phase 7: validate all agent extends paths resolve, skills have valid frontmatter, tools have default exports, rules registered in instructions, .gitignore correct. Phase 8: final verification + integration report."
-      },
-      {
-        "input": "/init-project setup --full",
-        "approach": "On an existing monorepo: Phase 6 @architect identifies service boundaries and shared packages. @convention-extractor detects naming patterns, error handling styles, test conventions. @explore maps the full file tree. All three feed into .opencode/context/frameworks/architecture.md, .opencode/context/patterns/conventions.md, .opencode/context/theory.md. Phase 4 agents get upgraded with this context — e.g., .opencode/agents/executor.md gets a 'Project Context' section with architecture summary and convention rules."
-      }
-    ],
-    "warnings": [
-      "--full adds significant time (3 parallel agent dispatches + context synthesis + agent upgrades). Expect 5-15 minutes depending on codebase size.",
-      "Phase 6 requires a codebase to analyze. Running --full on a greenfield project (no source files) will produce empty context files — use default mode instead.",
-      "Phase 6 overwrites Phase 4 agent wrappers with upgraded versions containing deep context. If you manually edited agents between Phase 4 and Phase 6, those edits will be lost."
-    ]
-  },
-  "scaffold-hub/status": {
-    "label": "status",
-    "description": "Show current initialization state and checkpoint progress",
-    "reminder": "Show init state and checkpoint progress.",
-    "inline": true,
-    "detailedDescription": "Shows the current init-project state: which phases have completed, the current checkpoint, and any errors from the last run. Read-only.\n\nUse to check progress of a setup run, especially after an interruption.",
-    "tools": [
-      "bash"
-    ],
-    "relatedSkills": []
-  },
-  "scaffold-hub/tag": {
-    "label": "tag",
-    "description": "Audit and repair resource tags used by stack filtering",
-    "reminder": "Audit and fix resource tags for filtering.",
-    "skill": "tag-resources",
-    "detailedDescription": "Audits and fixes resource tags on global OpenCode resources (skills, agents, rules, archetypes). Tags enable resource_tags filtering — the mechanism that lets stack-recommender match resources to a detected stack.\n\nEach archetype contains four subdirectories: agents/, rules/, skills/, and tools/. When provisioning a project, all four must be included: agents/ and rules/ are referenced in opencode.jsonc (via the agent and instructions keys), while skills/ and tools/ must be copied or linked into the project's .opencode/ directory so that agents and rules which reference them resolve correctly.\n\nProcess:\n1. Scan all resources for existing tags.\n2. Classify: are tags accurate? Missing? Incorrect?\n3. Suggest: propose tags based on resource content and metadata.\n4. Apply: write corrected tags to resource frontmatter.\n\nProperly tagged resources are discoverable by stack-recommender. Untagged or mis-tagged resources are invisible to recommendation. Use when setting up resources or when recommendations seem to miss obvious matches.",
-    "tools": [
-      "loadSkill",
-      "bash"
-    ],
-    "relatedSkills": [
-      "stack-recommender"
-    ]
-  },
-  "scaffold-hub/verify": {
-    "label": "verify",
-    "description": "Validate configuration completeness, file existence, and reference integrity",
-    "reminder": "Validate configuration completeness and integrity.",
-    "skill": "verify",
-    "phases": "7",
-    "detailedDescription": "Validates that the project configuration is complete and all references resolve. The verify skill checks:\n\n- opencode.jsonc: valid schema keys per https://opencode.ai/config.json (fetch schema, extract valid keys, reject invalid keys like extends/agents/project/rules/state/context/cache), all referenced files exist.\n- Agents: all agent files referenced in config exist and have valid frontmatter.\n- Skills: all skill references resolve to SKILL.md files.\n- Tools: all tool references resolve to .ts files.\n- Commands: all command references resolve to .md files.\n- Rules: all rule references resolve to .md files.\n- Hub delegations: all skill/agent/command references in hub subcommands resolve (runs validate-delegation tool).\n- Memory plane: `.opencode/rules/graph-context.md` exists and is registered in `instructions`; `.opencode/state/` is gitignored; when `.opencode/context/` is non-empty, `node skills/graph-context/scripts/graph.ts stats` reports nodes > 0 and edges > 0.\n\nSchema validation step:\n1. Fetch https://opencode.ai/config.json\n2. Navigate to $defs.Config.properties — extract the set of valid top-level keys\n3. Parse the project's opencode.jsonc (strip JSONC comments first)\n4. Check that all keys in the parsed config appear in the valid set\n5. Fail if any unrecognized keys are found (e.g., extends, agents, project, rules, state, context, cache)\n6. Report specific invalid keys and suggest removal\n\nOutput: a validation report with pass/fail per check and specific error messages for failures. Use after setup or after manual config changes to ensure nothing is broken.",
-    "tools": [
-      "listAgents",
-      "bash"
-    ],
-    "relatedSkills": [
-      "hubs-doctor"
     ]
   },
   "skills-hub/add": {

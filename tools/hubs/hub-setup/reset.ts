@@ -9,7 +9,7 @@ const spec: HubSubcommandSpec = {
 
   detailedDescription: `Resets the project's Hubs state. Archives (not deletes) .opencode/state/ and .opencode/context/ to timestamped backup directories, then creates fresh empty ones.
 
-This gives you a clean slate without losing history — the archived state can be referenced if needed. After reset, you can re-run /scaffold-hub setup to reconfigure from scratch.
+This gives you a clean slate without losing history — the archived state can be referenced if needed. After reset, you can re-run /hub-setup setup to reconfigure from scratch.
 
 Use when the project state has become corrupted, stale, or you want to start over. The archive preserves everything in case you need to recover.`,
 

@@ -28,7 +28,7 @@ the event, costs nothing when it passes, and cannot be forgotten.
 | File | Scope |
 |------|-------|
 | `~/.config/opencode/command-hooks.jsonc` | Every project. This config's defaults live here. |
-| `<project>/.opencode/command-hooks.jsonc` | One project. Created by `/scaffold-hub provision`. |
+| `<project>/.opencode/command-hooks.jsonc` | One project. Created by `/hub-setup provision`. |
 
 Both are optional and both are validated on their own — a broken project file
 disables that file, not the global one.

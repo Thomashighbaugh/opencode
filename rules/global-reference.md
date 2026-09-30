@@ -152,7 +152,7 @@ Markdown files with frontmatter defining the trigger and description. Follow the
 | Commands          | Registered in `opencode.jsonc` or auto-discovered      |
 | Plugins           | Registered in `opencode.jsonc` `plugin` array           |
 | MCP Servers       | Registered in `opencode.jsonc` `mcp` object             |
-| Archetypes        | Referenced by `/scaffold-hub` — registered in `opencode.jsonc` if needed |
+| Archetypes        | Referenced by `/hub-setup` — registered in `opencode.jsonc` if needed |
 
 ## Permission Convention
 

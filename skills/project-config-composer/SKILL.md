@@ -1,6 +1,6 @@
 ---
 name: project-config-composer
-description: Auto-generate a minimal per-project .opencode/ configuration from a stack fingerprint + recommendations. Creates opencode.jsonc, project agents, rules, and instructions that reference global resources. Used by /scaffold-hub provision.
+description: Auto-generate a minimal per-project .opencode/ configuration from a stack fingerprint + recommendations. Creates opencode.jsonc, project agents, rules, and instructions that reference global resources. Used by /hub-setup provision.
 level: 2
 license: MIT
 tags: [init, config, provisioning, scaffolding, per-project]
@@ -12,7 +12,7 @@ Takes a stack fingerprint and resource recommendations and auto-generates a lean
 
 ## When to Use
 
-- During `/scaffold-hub provision` after `@stack-detector` + `stack-recommender` have run
+- During `/hub-setup provision` after `@stack-detector` + `stack-recommender` have run
 - When regenerating an existing project's `.opencode/` from an updated fingerprint
 - When setting up a greenfield project from a natural language description
 - As a standalone call when the user already knows what they want
@@ -412,7 +412,7 @@ For each identified gap, create a minimal agent that fills the missing capabilit
 ### Via direct invocation
 
 ```bash
-/scaffold-hub provision
+/hub-setup provision
 # Automatically: detect → recommend → compose
 ```
 
