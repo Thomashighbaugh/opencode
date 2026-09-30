@@ -144,48 +144,48 @@ describe('gate: releases when the turn concluded on its own', () => {
 // ─── the gate: must not deadlock ───────────────────────────────────────────
 
 describe('gate: anti-deadlock guard', () => {
-  it('releases after the configured number of consecutive holds', () => {
+  it('releases after the configured number of consecutive holds', async () => {
     // A gate that only ever holds is a feature that silently does nothing: the
     // queue grows, nothing runs, and it looks broken.
     let held = true
     let holds = 0
     const facts = { tools: ['question'], finalText: 'Which one?' }
     for (let i = 0; i < 3; i++) {
-      const d = gate.decide(facts, holds, 3)
+      const d = await gate.decide(facts, holds, 3)
       if (d.deadlockBreak) { held = false; break }
       if (d.holds) holds++
     }
     expect(held).toBe(false)
   })
 
-  it('reports the break rather than hiding it', () => {
-    const d = gate.decide({ tools: ['question'], finalText: 'Which one?' }, 2, 3)
+  it('reports the break rather than hiding it', async () => {
+    const d = await gate.decide({ tools: ['question'], finalText: 'Which one?' }, 2, 3)
     expect(d.holds).toBe(false)
     expect(d.deadlockBreak).toBe(true)
     expect(d.evidence).toContain('3 consecutive held turns')
   })
 
-  it('does not break before the limit', () => {
-    const d = gate.decide({ tools: ['question'], finalText: 'Which one?' }, 0, 3)
+  it('does not break before the limit', async () => {
+    const d = await gate.decide({ tools: ['question'], finalText: 'Which one?' }, 0, 3)
     expect(d.holds).toBe(true)
     expect(d.deadlockBreak).toBe(false)
   })
 
-  it('resets the hold count on a clean turn', () => {
-    expect(gate.decide({ finalText: 'Done.' }, 2, 3).holds).toBe(false)
+  it('resets the hold count on a clean turn', async () => {
+    expect((await gate.decide({ finalText: 'Done.' }, 2, 3)).holds).toBe(false)
     // ...so the next question starts counting from zero again.
-    expect(gate.decide({ finalText: 'Ready?' }, 0, 3).holds).toBe(true)
+    expect((await gate.decide({ finalText: 'Ready?' }, 0, 3)).holds).toBe(true)
   })
 
-  it('a limit below 1 is clamped to 1, not to zero', () => {
+  it('a limit below 1 is clamped to 1, not to zero', async () => {
     // Clamping to 0 would mean "never hold", which is a footgun: a typo in a
     // config value would silently disable the whole feature. Clamping to 1 means
     // "hold this turn, then release", which is what a value of 0 should mean.
-    const d = gate.decide({ finalText: 'Ready?' }, 0, 0)
+    const d = await gate.decide({ finalText: 'Ready?' }, 0, 0)
     expect(d.holds).toBe(false)
     expect(d.deadlockBreak).toBe(true)
     // With a real limit, the same turn holds.
-    expect(gate.decide({ finalText: 'Ready?' }, 0, 3).holds).toBe(true)
+    expect((await gate.decide({ finalText: 'Ready?' }, 0, 3)).holds).toBe(true)
   })
 })
 
@@ -374,6 +374,10 @@ describe('plugin: end to end', () => {
   async function harness(directory: string, messages: any[] = []) {
     const sent: string[] = []
     let failSend = false
+    // The queue suite tests the QUEUE and the regex gate. The ONNX classifier is
+    // covered by tests/global/onnx.test.ts against the real model; loading it
+    // here would add seconds per test for a path already asserted elsewhere.
+    process.env.PROMPT_QUEUE_DISABLE_MODEL = '1'
     // PromptQueuePlugin is an async Plugin factory: the hook object is a promise.
     const hooks: any = await idx.PromptQueuePlugin({
       client: {
@@ -404,8 +408,7 @@ describe('plugin: end to end', () => {
     const d = tmp()
     q.enqueue(d, 'do the thing')
     const h = await harness(d, turn('Which approach do you prefer?', ['question']))
-    h.hooks.event({ event: { type: 'session.idle', properties: { sessionID: 's1', info: { id: 's1' } } } })
-    await new Promise((r) => setTimeout(r, 20))
+    await h.hooks.event({ event: { type: 'session.idle', properties: { sessionID: 's1', info: { id: 's1' } } } })
     expect(h.sent).toEqual([])
     // Nothing is lost by holding — that is the entire point.
     expect(q.size(q.load(d))).toBe(1)
@@ -419,8 +422,7 @@ describe('plugin: end to end', () => {
     // has not asked anything. Releasing here would fire into a turn that never
     // concluded.
     const h = await harness(d, [{ parts: [{ type: 'tool', tool: { name: 'bash' } }] }])
-    h.hooks.event({ event: { type: 'session.idle', properties: { sessionID: 's1b', info: { id: 's1b' } } } })
-    await new Promise((r) => setTimeout(r, 20))
+    await h.hooks.event({ event: { type: 'session.idle', properties: { sessionID: 's1b', info: { id: 's1b' } } } })
     expect(h.sent).toEqual([])
   })
 
@@ -428,8 +430,7 @@ describe('plugin: end to end', () => {
     const d = tmp()
     q.enqueue(d, 'y')
     const h = await harness(d, turn('Refactored the parser and verified the suite.', ['bash', 'edit']))
-    h.hooks.event({ event: { type: 'session.idle', properties: { sessionID: 's1c', info: { id: 's1c' } } } })
-    await new Promise((r) => setTimeout(r, 20))
+    await h.hooks.event({ event: { type: 'session.idle', properties: { sessionID: 's1c', info: { id: 's1c' } } } })
     expect(h.sent).toHaveLength(1)
   })
 
@@ -437,8 +438,7 @@ describe('plugin: end to end', () => {
     const d = tmp()
     q.enqueue(d, 'do the thing')
     const h = await harness(d, turn('All 990 tests pass and the graph is consistent.', ['bash']))
-    h.hooks.event({ event: { type: 'session.idle', properties: { sessionID: 's2', info: { id: 's2' } } } })
-    await new Promise((r) => setTimeout(r, 20))
+    await h.hooks.event({ event: { type: 'session.idle', properties: { sessionID: 's2', info: { id: 's2' } } } })
     expect(h.sent).toHaveLength(1)
     expect(h.sent[0]).toContain('do the thing')
     expect(q.size(q.load(d))).toBe(0)
@@ -451,8 +451,7 @@ describe('plugin: end to end', () => {
     q.enqueue(d, 'important task')
     const h = await harness(d, turn('Done. Tests pass.'))
     h.fail(true)
-    h.hooks.event({ event: { type: 'session.idle', properties: { sessionID: 's3', info: { id: 's3' } } } })
-    await new Promise((r) => setTimeout(r, 20))
+    await h.hooks.event({ event: { type: 'session.idle', properties: { sessionID: 's3', info: { id: 's3' } } } })
     expect(q.size(q.load(d))).toBe(1)
     expect(q.load(d).items[0].text).toBe('important task')
   })
@@ -460,8 +459,7 @@ describe('plugin: end to end', () => {
   it('ignores an idle event for a session with nothing queued', async () => {
     const d = tmp()
     const h = await harness(d)
-    h.hooks.event({ event: { type: 'session.idle', properties: { sessionID: 's4', info: { id: 's4' } } } })
-    await new Promise((r) => setTimeout(r, 20))
+    await h.hooks.event({ event: { type: 'session.idle', properties: { sessionID: 's4', info: { id: 's4' } } } })
     expect(h.sent).toEqual([])
     expect(idx.__promptQueueStats().completionsSeen).toBe(0)
   })
@@ -470,8 +468,7 @@ describe('plugin: end to end', () => {
     const d = tmp()
     q.enqueue(d, 'x')
     const h = await harness(d)
-    h.hooks.event({ event: { type: 'session.created', properties: { sessionID: 's5', info: { id: 's5' } } } })
-    await new Promise((r) => setTimeout(r, 20))
+    await h.hooks.event({ event: { type: 'session.created', properties: { sessionID: 's5', info: { id: 's5' } } } })
     expect(h.sent).toEqual([])
   })
 })

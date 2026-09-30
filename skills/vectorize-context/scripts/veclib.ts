@@ -29,6 +29,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
+// Local ONNX embedding + the shared model runtime. `.js` specifiers resolve to the
+// sibling `.ts` under both tsx and the Bun host; the import must sit here at the
+// top because EMBEDDING_DIM is read at module scope.
+import * as onnxEmbedder from './embedder.ts';
+import * as onnxRuntime from './onnx-runtime.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const require = createRequire(import.meta.url);
@@ -41,7 +46,7 @@ const OLLAMA_URL = process.env.OLLAMA_URL || 'http://127.0.0.1:11434';
 const EMBED_MODEL = process.env.EMBED_MODEL || 'pedrohml/mxbai-embed-large:latest';
 const RERANK_MODEL = process.env.RERANK_MODEL || 'Xenova/bge-reranker-base';
 const RERANK_DISABLED = process.env.RERANK_DISABLED === '1'; // force distance-only path (CI)
-const EMBEDDING_DIM = 1024;
+const EMBEDDING_DIM = onnxEmbedder.EMBED_DIM; // 384 for bge-small-en-v1.5
 const MODEL_LOAD_TIMEOUT_MS = 30_000;
 const MIN_CHUNK_LENGTH = 50;
 const TOP_K_DEFAULT = 10;
@@ -189,7 +194,7 @@ function ensureSchema(db) {
   // Embedding schema is versioned: if the model/dim changes, rebuild.
   const storedModel = getMeta(db, 'embedding_model');
   const storedDim = getMeta(db, 'embedding_dim');
-  const currentModel = EMBED_MODEL;
+  const currentModel = EMBED_BACKEND === 'ollama' ? EMBED_MODEL : onnxEmbedder.EMBED_MODEL_KEY;
   const currentDim = String(EMBEDDING_DIM);
 
   if (storedModel !== currentModel || storedDim !== currentDim) {
@@ -504,9 +509,23 @@ export function extractSymbols(content, filePath) {
   return out;
 }
 
-// ─── Ollama Embedding (local, no provider API) ─────────────────────────────
+// ─── Embedding: local ONNX (default), Ollama (opt-in escape hatch) ───────────
+//
+// The store's model key is the ONNX identifier, so a database built by the old
+// Ollama embedder is recognised as incompatible and rebuilt rather than being
+// compared against 384-dimension vectors it can never satisfy. That versioned
+// rebuild path already existed and is exercised below.
+//
+// `EMBED_BACKEND=ollama` exists for one reason: comparing the two embedders'
+// recall on the same corpus. It is not a fallback. The previous arrangement had
+// no fallback at all, and its failure mode was the reason this changed — an
+// unreachable Ollama produced zero vectors, which is indistinguishable from
+// "nothing matched", so a dead daemon looked like an empty index.
 
-async function embedTexts(texts) {
+/** `onnx` (default) or `ollama`. */
+const EMBED_BACKEND = (process.env.EMBED_BACKEND || 'onnx').toLowerCase();
+
+async function embedViaOllama(texts) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), MODEL_LOAD_TIMEOUT_MS);
   try {
@@ -522,6 +541,30 @@ async function embedTexts(texts) {
   } finally {
     clearTimeout(timeout);
   }
+}
+
+async function embedTexts(texts) {
+  if (!Array.isArray(texts) || texts.length === 0) return [];
+  if (EMBED_BACKEND === 'ollama') return embedViaOllama(texts);
+  return onnxEmbedder.embed(texts);
+}
+
+/**
+ * Which embedder this process will use, and whether it is ready.
+ *
+ * Surfaces in `__hubsDiagnostics()` so "retrieval returned nothing" can be
+ * distinguished from "the embedder is not loaded" — the confusion that motivated
+ * the switch.
+ */
+function embedderStatus() {
+  return {
+    backend: EMBED_BACKEND,
+    ...(EMBED_BACKEND === 'ollama'
+      ? { model: EMBED_MODEL, dim: 1024 }
+      : onnxEmbedder.embedderInfo()),
+    rerankerCached: onnxRuntime.isCached(onnxRuntime.REQUIRED_MODELS.reranker),
+    classifierCached: onnxRuntime.isCached(onnxRuntime.REQUIRED_MODELS.classifier),
+  };
 }
 
 // ─── Local Cross-Encoder Reranker (in-process, no server dependency) ────────
@@ -1110,4 +1153,24 @@ export async function getIndexStats(inputDir) {
 export async function getCodeIndexStats(inputDir) {
   const paths = resolvePaths(inputDir);
   return getStoreStats(paths.codeDbPath);
+}
+
+/** Exposed for diagnostics and tests: which embedder is active and whether it is ready. */
+export { embedderStatus, EMBED_BACKEND, embedTexts }
+
+/**
+ * Load the cross-encoder without reranking anything.
+ *
+ * The query child calls this at startup so readiness means "models are loaded".
+ * Previously the first query absorbed the load inside the caller's timeout, which
+ * stopped being true the moment a second model joined the path.
+ */
+export async function __warmReranker(): Promise<boolean> {
+  try {
+    await getReranker()
+    return true
+  } catch {
+    // Reranking is optional; distance ordering is the documented fallback.
+    return false
+  }
 }

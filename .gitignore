@@ -11,8 +11,16 @@ opencode-notifier-state.json
 opencode-notifier.json
 
 # Project-level .opencode/ state and cache (gitignored, ephemeral)
+#
+# The **/ prefix is load-bearing. A pattern with an interior slash is anchored to
+# the .gitignore's own directory, so a bare `.opencode/state/` matches the repo
+# root only — and `veclib` resolves its store from process.cwd(), so running the
+# vector tests (or any script) from a subdirectory silently created a 2 MB
+# `.opencode/state/vector/code.db` that then showed up as untracked.
 .opencode/state/
 .opencode/cache/
+**/.opencode/state/
+**/.opencode/cache/
 # Python bytecode
 __pycache__/
 *.pyc

@@ -161,13 +161,15 @@ Each is asserted by a test. See [Testing Strategy](testing-strategy.md).
 | Runtime      | Bun (OpenCode host), Node 20+ for native children                  |
 | Language     | TypeScript, `strict: false` with `noImplicitAny: false` in skills   |
 | Storage      | SQLite via `better-sqlite3` — `code.db`, `context.db`, `graph.db`   |
-| Embeddings   | Ollama, `mxbai-embed-large`                                         |
-| Reranking    | Ollama, BGE cross-encoder                                           |
+| Embeddings   | ONNX Runtime, `Xenova/bge-small-en-v1.5` q8, 384-dim                 |
+| Reranking    | ONNX Runtime, `Xenova/bge-reranker-base` q8                         |
 | Interop      | MCP — context7, grep.app, searxng, filesystem, sequential-thinking  |
-| Testing      | Vitest (990) + `node --test` (64)                                  |
+| Testing      | Vitest (1,086) + `node --test` (64)                                |
 
 Local-first by design: the retrieval hot path touches no network, and the only external
-dependencies are optional and individually degradable.
+dependencies are optional and individually degradable. Model weights are fetched once by
+`prefetch-models.ts` and then run in-process — there is no model daemon to be down.
+→ [ONNX Runtime](onnx-runtime.md)
 
 ---
 

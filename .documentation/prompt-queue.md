@@ -61,17 +61,37 @@ which is the one failure a to-do list must not have.
 
 ## The gate
 
-`plugins/prompt-queue/gate.ts` is pure — no I/O, no clock, no client — so the hardest logic in
-the plugin is testable without a runtime.
+`plugins/prompt-queue/gate.ts` has no I/O of its own and no clock — the model is **injected** as
+an `{ askProbability, reconcile }` pair, so the logic is testable against a stub and against the
+real classifier. It is `async` because the classifier is a real inference call.
 
-Three signals, strongest first:
+Four signals, strongest first:
 
 | Signal          | Holds when |
 | --------------- | ---------- |
 | `popup`          | The turn used `question`, `permission.ask`, or `ask_user` |
 | `interrogative` | The final prose ends with `?` |
 | `ask-phrase`     | The tail contains an explicit request for a decision — "let me know if…", "should I…", "which one…", "confirm" |
+| `classifier`     | A zero-shot NLI model (ONNX, `Xenova/mobilebert-uncased-mnli`) reads the turn as a request for the reader to answer |
 | `manual`         | A human set Hold or Release from the palette |
+
+### The classifier can only tighten
+
+| Regex verdict | Model | Result |
+| ------------- | ----- | ------ |
+| holds | any | **holds** — the model never releases a question |
+| releases | holds | **holds** — this is the part that earns its cost |
+| releases | silent | releases — the regex gate stands alone |
+
+The phrase list is a floor, not a ceiling: it catches `?` and the explicit phrasings, and the model
+catches the rest. It never turns a hold into a release, so a wrong turn costs latency rather than a
+buried question.
+
+Measured threshold `0.817`, from 10 hand-labelled turns — framing and label order both had to be
+fixed first, and two bugs produced confidently wrong scores. The full story, including the
+subtle-ask misses that remain below threshold, is in
+[ONNX Runtime](onnx-runtime.md#the-classifier). `PROMPT_QUEUE_DISABLE_MODEL=1` runs the regex
+gate alone.
 
 An interactive ask is **definitive**: the user has a dialog on screen, and firing underneath it
 hides the question being asked. No text analysis can beat an actual question.
@@ -82,13 +102,15 @@ question mark inside a code span or a URL does not hold the queue.
 ### Wrong in one direction, on purpose
 
 The gate errs toward **holding**. A false hold costs one turn of latency. A false release costs
-the user's attention and the model's focus, and it is not recoverable.
+the user's attention and the model's focus, and it is not recoverable. This is also why the
+classifier threshold stays high: precision is what makes the model safe to let near the gate.
 
 ### The anti-deadlock guard
 
 A gate that only ever holds is a feature that silently does nothing: the queue grows, nothing
 runs, and it looks broken. So holding is permitted for at most **3 consecutive turns**
-(`DEFAULT_MAX_HOLD_TURNS`). After that the verdict flips to release and reports
+(`DEFAULT_MAX_HOLD_TURNS`), and the counter includes holds raised by the **model**, not just by
+the regex signals — otherwise adding a classifier would open a new way to wedge the queue. After that the verdict flips to release and reports
 `deadlockBreak` — surfaced, not hidden, so you can tell the gate gave up rather than the queue
 having been empty.
 

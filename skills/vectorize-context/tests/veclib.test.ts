@@ -13,14 +13,17 @@ import { spawn } from 'node:child_process';
 import {
   startMockEmbedServer, setMockUrl, makeFixture, cleanupFixture,
   touchFile, EXPECTED_CONTEXT_TOTAL, EXPECTED_CODE_TOTAL, SCRIPTS_DIR,
-  EMBED_MODEL,
 } from './helpers.ts';
 
 // ─── Setup: env BEFORE importing veclib (config read at module load) ───────
 const server = await startMockEmbedServer();
 setMockUrl(server.url);
 process.env.OLLAMA_URL = server.url;
-process.env.EMBED_MODEL = EMBED_MODEL;
+// The store's identity is the ONNX model, not the retired Ollama tag, and the
+// dimension is 384 rather than 1024. These assertions exist to catch a store
+// whose vectors and metadata disagree, so they name the LIVE embedder.
+process.env.EMBED_ONNX_MODEL = process.env.EMBED_ONNX_MODEL || 'Xenova/bge-small-en-v1.5';
+const { EMBED_MODEL_KEY: EMBED_MODEL, EMBED_DIM } = await import('../scripts/embedder.ts');
 process.env.RERANK_DISABLED = '1';
 
 const veclib = await import('../scripts/veclib.ts');
@@ -376,7 +379,7 @@ test('queryChunks: rerank failure degrades to distance ordering (child process)'
     const results = await veclib.queryChunks('${fx.root}', 'auth login token refresh', 3, { useReranker: true });
     console.log(JSON.stringify(results));
   `;
-  const env: Record<string, string | undefined> = { ...process.env, OLLAMA_URL: server.url, EMBED_MODEL, RERANK_MODEL: 'Xenova/definitely-not-cached' };
+  const env: Record<string, string | undefined> = { ...process.env, OLLAMA_URL: server.url, RERANK_MODEL: 'Xenova/definitely-not-cached' };
   delete env.RERANK_DISABLED; // rerank must actually attempt to load
   delete env.OPCODE_DIR;      // inputDir passed explicitly in script
   const child = spawn(process.execPath, ['--input-type=module', '-e', script], { env });
@@ -402,7 +405,7 @@ test('getIndexStats: counts + embedding metadata', async () => {
   assert.equal(stats.exists, true);
   assert.equal(stats.totalChunks, EXPECTED_CONTEXT_TOTAL);
   assert.equal(stats.totalFiles, 5);
-  assert.deepEqual(stats.embedding, { model: EMBED_MODEL, dim: '1024' });
+  assert.deepEqual(stats.embedding, { model: EMBED_MODEL, dim: String(EMBED_DIM) });
   const auth = stats.files.find((f) => f.file_path.endsWith('auth.md'));
   assert.equal(auth.chunk_count, 3);
 });

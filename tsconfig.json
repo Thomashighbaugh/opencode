@@ -3,6 +3,12 @@
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "bundler",
+    // The plugins and skills run under node, which resolves sibling `.ts`
+    // specifiers directly. `allowImportingTsExtensions` is what lets typecheck
+    // accept the same specifiers the runtime already uses, instead of the
+    // codebase carrying `.js` imports that node cannot resolve.
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
     "lib": ["ES2022"],
     "types": ["node"],
     "outDir": "./dist",

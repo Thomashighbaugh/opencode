@@ -1,6 +1,6 @@
 # Testing Strategy
 
-**990 tests. Not one of them asserts that source text contains a substring.**
+**1,086 tests. Not one of them asserts that source text contains a substring.**
 
 That is the whole strategy. Most defects in an agent harness are silent no-ops, and a source-text
 assertion passes happily against code that never runs:
@@ -34,7 +34,7 @@ Plus two `node --test` suites against the vector kernel: `veclib.test.ts` (30) a
 (34).
 
 ```bash
-bun run test:run                              # 990
+bun run test:run                              # 1086
 npx tsc --noEmit -p tsconfig.json             # config + plugins
 npx tsc --noEmit -p skills/tsconfig.json      # skills
 ```
@@ -164,6 +164,6 @@ These are not tests that were written once; they are properties the system canno
 
 An agent harness fails quietly. It returns plausible output from a broken cache, a dangling edge,
 and an unreachable skill. The only defence is a suite that observes effects and fails when they
-stop — which is what the 990 tests are for.
+stop — which is what the 1,086 tests are for.
 
 → [Architecture](architecture.md) · [Back to README](../README.md)

@@ -17,10 +17,14 @@
  *                   being put to the user through a UI they must answer.
  *   2. `text`     — the final text reads as an ask: a trailing interrogative, or
  *                   an explicit request for a decision.
- *   3. `manual`   — a human said so, via the UI.
+ *   3. `model`    — an ONNX zero-shot classifier agrees the tail is an ask.
+ *                   Advisory only, and it can only ever ADD a hold — see
+ *                   `plugins/prompt-queue/classifier.ts`. This function stays
+ *                   pure: the model is consulted by `decide`, which is async.
+ *   4. `manual`   — a human said so, via the UI.
  *
- * This module is pure. No I/O, no clock, no client — so the hardest logic in the
- * plugin is testable without a runtime.
+ * `evaluateTurn` is pure — no I/O, no clock, no client — so the hardest logic in
+ * the plugin is testable without a runtime or a model.
  */
 
 /** Tool names that put a question to the user through the UI. */
@@ -55,6 +59,7 @@ export type GateReason =
   | 'popup'
   | 'interrogative'
   | 'ask-phrase'
+  | 'model'
   | 'manual'
   | 'empty-output'
   | 'trailing-incomplete'
@@ -145,12 +150,25 @@ export function evaluateTurn(facts: TurnFacts): GateVerdict {
  * surfaced (`deadlock-break`) rather than hidden, so the user can see that the
  * gate gave up rather than that the queue happened to be empty.
  */
-export function decide(
+export async function decide(
   facts: TurnFacts,
   consecutiveHolds: number,
   maxHoldTurns: number,
-): GateVerdict & { deadlockBreak: boolean } {
-  const verdict = evaluateTurn(facts)
+  classifier?: Classifier,
+): Promise<GateVerdict & { deadlockBreak: boolean }> {
+  let verdict = evaluateTurn(facts)
+
+  // Ask the classifier only when the regex released the turn. Those are the only
+  // decisions worth a model call, and consulting it on an already-held turn could
+  // not change the outcome.
+  if (!verdict.holds && classifier) {
+    const p = await classifier.askProbability(facts.finalText ?? '')
+    const merged = classifier.reconcile(p, verdict.holds)
+    if (merged.holds) {
+      verdict = { holds: true, reason: 'model', evidence: `classifier p=${p?.toFixed(3)}` }
+    }
+  }
+
   if (!verdict.holds) return { ...verdict, deadlockBreak: false }
 
   const limit = Math.max(1, maxHoldTurns)
@@ -163,6 +181,12 @@ export function decide(
     }
   }
   return { ...verdict, deadlockBreak: false }
+}
+
+/** The slice of the classifier module the gate needs; injected so tests stay pure. */
+export interface Classifier {
+  askProbability(text: string): Promise<number | null>
+  reconcile(probability: number | null, regexHolds: boolean): { available: boolean; probability: number | null; holds: boolean }
 }
 
 /**

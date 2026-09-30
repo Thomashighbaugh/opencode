@@ -106,7 +106,7 @@ async function runQuery(query: string) {
   return out;
 }
 
-function runServer() {
+async function runServer() {
   const rl = createInterface({ input: process.stdin, crlfDelay: Infinity });
 
   // Requests are serialized: the reranker is CPU-bound, and concurrent
@@ -142,14 +142,64 @@ function runServer() {
     chain.finally(() => process.exit(0));
   });
 
-  // Signal readiness so the parent doesn't send a query into a void.
+  // Warm both ONNX models BEFORE signalling readiness.
+  //
+  // This child used to signal ready the moment it opened stdin, so the first real
+  // query paid for every model load inside the caller's timeout. Swapping the
+  // embedder from a warm Ollama daemon to an in-process ONNX session doubled that
+  // cold cost — two models at ~4s each against a 12s first-query budget — and the
+  // first query of a session timed out and degraded to no injection at all.
+  //
+  // Readiness now means what it should: the models are loaded and the next request
+  // is inference, not installation. A model that cannot load is reported and the
+  // server still starts, because a degraded query path beats a dead one.
+  await warmModels();
+
   process.stdout.write(JSON.stringify({ ready: true }) + '\n');
   console.error('[query-hook] server ready');
 }
 
+/**
+ * Load the embedder and reranker so the first query does not pay for them.
+ *
+ * Both are best-effort. `queryChunks` still works with a cold embedder (it loads
+ * on demand) and degrades to distance ordering without a reranker, so a failure
+ * here costs latency, not correctness.
+ */
+async function warmModels(): Promise<void> {
+  if (process.env.VECLIB_NO_WARM === '1') return
+  const t0 = Date.now()
+  const warmed: string[] = []
+  const failed: string[] = []
+
+  try {
+    const emb = await import('./embedder.ts')
+    await emb.embed(['warmup'])
+    warmed.push('embedder')
+  } catch (e) {
+    failed.push(`embedder: ${e instanceof Error ? e.message : String(e)}`)
+  }
+
+  try {
+    if (process.env.RERANK_DISABLED !== '1') {
+      const veclib = await import('./veclib.ts')
+      await (veclib as any).__warmReranker()
+      warmed.push('reranker')
+    }
+  } catch (e) {
+    failed.push(`reranker: ${e instanceof Error ? e.message : String(e)}`)
+  }
+
+  const ms = Date.now() - t0
+  console.error(
+    `[query-hook] warm ${warmed.length ? warmed.join(',') : 'none'} in ${ms}ms` +
+      (failed.length ? ` — failed: ${failed.join('; ')}` : ''),
+  )
+}
+
 async function main() {
   if (process.env.VECLIB_SERVER === '1') {
-    runServer();
+    await runServer();
     return;
   }
 

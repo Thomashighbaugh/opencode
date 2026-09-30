@@ -180,7 +180,7 @@ hand. A regression to per-turn retrieval was invisible until someone noticed lat
 | Consumes                                 | From                                        |
 | ---------------------------------------- | ------------------------------------------- |
 | `queueContextMessage`                    | [command-hooks](plugins-command-hooks.md)    |
-| Ollama embeddings, `better-sqlite3`      | [knowledge plane](knowledge-plane.md)        |
+| ONNX embeddings + `better-sqlite3`        | [ONNX Runtime](onnx-runtime.md) · [knowledge plane](knowledge-plane.md) |
 | child-process supervision                | [vectorize supervisor](knowledge-plane.md)   |
 | `rules/efficiency-first.md` budgets      | [efficiency](request-token-efficiency.md)    |
 | persisted mode/focus state               | [memory system](memory-system.md)            |

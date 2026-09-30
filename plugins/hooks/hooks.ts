@@ -207,6 +207,21 @@ export const JocPlugin: Plugin = async ({ project, client, directory, worktree }
       case 'session.created': {
         const sessionId = event.properties.info.id
 
+        // Warm the query child NOW, in the background, not on the first query.
+        //
+        // Readiness means "models are loaded", which is correct — but it means the
+        // first query's timeout now covers two ONNX model loads (~4.5s cold)
+        // instead of one HTTP call to an already-warm Ollama daemon. Measured: the
+        // first query went from ~2s to 11s against a 12s budget — passing alone,
+        // failing under the full suite's parallel load.
+        //
+        // Spawning here moves that cost into the time the user is reading, so a
+        // query arrives at a warm child and the budget covers inference only.
+        // Fire-and-forget: a failure must not delay session start.
+        try {
+          setTimeout(() => { try { ensureVectorChild() } catch { /* retried on demand */ } }, 0)
+        } catch { /* best effort */ }
+
         // Orphaned mode detection — file I/O only, no API calls
         const orphaned = detectOrphanedModes(directory, sessionId)
         if (orphaned.length > 0) {
@@ -904,7 +919,7 @@ Propose the mode to the user and ask before activating.
   // below is the hard guarantee — retrieval never blocks a turn for more than
   // VECTOR_QUERY_TIMEOUT_MS, and a timeout degrades to no injection.
   const VECTOR_QUERY_TIMEOUT_MS = 4_000
-  const VECTOR_FIRST_QUERY_TIMEOUT_MS = 12_000 // first query also loads the model
+  const VECTOR_FIRST_QUERY_TIMEOUT_MS = 12_000 // generous first turn; model load happens before this clock starts
   const VECTOR_RERANK_CANDIDATES = '8'
 
   type VectorResponse = { context: any[]; code: any[]; graph: any[] }
@@ -990,14 +1005,26 @@ Propose the mode to the user and ask before activating.
     const child = vectorProc
     if (!child?.stdin) return empty
 
+    // Two separate budgets, deliberately.
+    //
+    // Readiness and inference used to share one clock, so a cold child spent the
+    // query's whole timeout installing itself. With two ONNX models on the path
+    // the warm-up is ~4.5s, which left ~1s of headroom under a 12s budget: the
+    // first query passed alone (11.0s) and failed under the full suite's
+    // parallel load. Coupling them meant model loading was charged to the user.
+    //
+    // Readiness is now waited for on its own generous clock — it happens in the
+    // background from session start, so the user is not waiting on it — and the
+    // query budget starts only once the child can actually answer, covering
+    // inference alone.
+    const CHILD_READY_TIMEOUT_MS = 30_000
+    if (vectorReady) {
+      await Promise.race([vectorReady, new Promise((r) => setTimeout(r, CHILD_READY_TIMEOUT_MS))])
+    }
+    if (!vectorProc || vectorProc.killed) return empty
+
     const budget = firstQuery ? VECTOR_FIRST_QUERY_TIMEOUT_MS : VECTOR_QUERY_TIMEOUT_MS
     const deadline = Date.now() + budget
-
-    // Wait for the child's ready signal, but never past the budget.
-    if (vectorReady) {
-      await Promise.race([vectorReady, new Promise((r) => setTimeout(r, budget))])
-    }
-    if (Date.now() >= deadline || !vectorProc || vectorProc.killed) return empty
 
     const id = vectorNextId++
     const response = await new Promise<any>((resolve) => {
@@ -1487,6 +1514,29 @@ export function __hubsDiagnostics() {
   return {
     runtime: resolveRuntime(),
     vectorize: activeVectorize ? activeVectorize.stats() : null,
+    // Which embedder is live and whether its weights are on disk. Added because
+    // "retrieval returned nothing" and "the embedder failed to load" were
+    // indistinguishable from the outside.
+    //
+    // Read from the two small model modules rather than from the vector library:
+    // importing that would pull better-sqlite3 into the plugin process, which is
+    // the exact kernel-panic the plugin/child split exists to avoid, and it
+    // would break the `cli.test.ts` guard that enforces it.
+    embedder: (() => {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const emb = require('../../skills/vectorize-context/scripts/embedder.ts')
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const rt = require('../../skills/vectorize-context/scripts/onnx-runtime.ts')
+        return {
+          ...emb.embedderInfo(),
+          rerankerCached: rt.isCached(rt.REQUIRED_MODELS.reranker),
+          classifierCached: rt.isCached(rt.REQUIRED_MODELS.classifier),
+        }
+      } catch (e) {
+        return { error: e instanceof Error ? e.message : String(e) }
+      }
+    })(),
     childCount: activeChildRegistry ? activeChildRegistry.size : 0,
     children: activeChildRegistry ? activeChildRegistry.describe() : [],
     // Cache effectiveness, per namespace. The whole point of the request-budget

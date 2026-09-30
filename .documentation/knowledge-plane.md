@@ -37,15 +37,21 @@ npx tsx skills/graph-context/scripts/graph.ts stats
     ├─▶ graph recall (pure SQL) ──────▶ entity/relation neighbourhood
     │        < 5 ms, no child process, no model load
     │
-    ├─▶ vector recall ────────────────▶ Ollama embeddings + cosine
+    ├─▶ vector recall ────────────────▶ ONNX embeddings (384-dim) + cosine
     │
     └─▶ BGE rerank ───────────────────▶ cross-encoder ordering
              └─ on failure: degrade to distance ordering, never to an error
 ```
 
 Graph-only recall is deliberately a **pure-SQL** path. When the vector stores are cold, or the
-embedding daemon is down, structural recall still answers. A retrieval layer that returns nothing
+embedder is unavailable, structural recall still answers. A retrieval layer that returns nothing
 when a sidecar is unavailable is not a fallback.
+
+That fallback was not theoretical. The embedder used to be an Ollama daemon, and a dead daemon
+produced **zero vectors — indistinguishable from an empty index**. Both models now run in-process
+on ONNX Runtime, and `__hubsDiagnostics().embedder` reports which model is live and whether its
+weights are cached, so "nothing matched" and "the model is not loaded" are different answers.
+See [ONNX Runtime](onnx-runtime.md).
 
 ### Negative caching
 
@@ -200,7 +206,7 @@ timeout.
 
 | This system uses | From |
 | ---------------- | ---- |
-| Ollama (embeddings, rerank) | local daemon |
+| ONNX Runtime (embedder, reranker, classifier) | [ONNX Runtime](onnx-runtime.md) |
 | `better-sqlite3` | run under Node |
 | `child-registry.ts` supervision | [Event Interception](plugins-hooks.md) |
 | Markdown source of truth | [Memory System](memory-system.md) |

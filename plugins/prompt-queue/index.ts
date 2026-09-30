@@ -23,7 +23,8 @@
  */
 
 import type { Plugin } from '@opencode-ai/plugin'
-import { decide, extractDeferred } from './gate.js'
+import { decide, extractDeferred, type Classifier } from './gate.ts'
+import * as onnxClassifier from './classifier.ts'
 import {
   carryDeferred,
   drain,
@@ -32,10 +33,10 @@ import {
   renderPrompt,
   size,
   type QueueState,
-} from './queue.js'
+} from './queue.ts'
 
-export { decide, evaluateTurn, extractDeferred } from './gate.js'
-export * as queue from './queue.js'
+export { decide, evaluateTurn, extractDeferred } from './gate.ts'
+export * as queue from './queue.ts'
 
 /**
  * Consecutive held turns tolerated before the gate releases anyway.
@@ -54,12 +55,19 @@ export interface PromptQueueStats {
   drained: number
   deadlockBreaks: number
   lastReason: string | null
+  /** Turns held by the classifier that the phrase list had released. */
+  modelHolds: number
+  /** Classifier calls that returned no opinion (model absent or failed). */
+  classifierUnavailable: number
 }
 
 /** Test seam, mirroring the pattern used by the other plugins. */
 let stats: PromptQueueStats = blankStats()
 function blankStats(): PromptQueueStats {
-  return { completionsSeen: 0, held: 0, released: 0, drained: 0, deadlockBreaks: 0, lastReason: null }
+  return {
+    completionsSeen: 0, held: 0, released: 0, drained: 0, deadlockBreaks: 0,
+    lastReason: null, modelHolds: 0, classifierUnavailable: 0,
+  }
 }
 export function __promptQueueStats(): PromptQueueStats {
   return stats
@@ -99,6 +107,21 @@ export function completionFromMessages(messages: any[]): { tools: string[]; fina
   return { tools: [...tools], finalText }
 }
 
+/**
+ * The live classifier, or `undefined` when ONNX is not usable.
+ *
+ * `PROMPT_QUEUE_DISABLE_MODEL=1` removes it entirely, which is the switch to
+ * reach for when comparing the gate's behaviour with and without the model.
+ */
+function resolveClassifier(): Classifier | undefined {
+  if (process.env.PROMPT_QUEUE_DISABLE_MODEL === '1') return undefined
+  if (!onnxClassifier.CLASSIFIER_MODEL_ID) return undefined
+  return {
+    askProbability: onnxClassifier.askProbability,
+    reconcile: onnxClassifier.reconcile,
+  }
+}
+
 export const PromptQueuePlugin: Plugin = async ({ client, directory }) => {
   stats = blankStats()
   const dir = directory || process.cwd()
@@ -110,7 +133,10 @@ export const PromptQueuePlugin: Plugin = async ({ client, directory }) => {
    * Returns the outcome rather than firing silently, so a caller (or a test) can
    * see why the queue did or did not run.
    */
-  async function onCompletion(input: { sessionId: string; tools: string[]; finalText: string }) {
+  async function onCompletion(
+    input: { sessionId: string; tools: string[]; finalText: string },
+    classifier?: Classifier,
+  ) {
     const { sessionId, tools, finalText } = input
     const before: QueueState = load(dir)
     if (size(before) === 0 && !before.manual) {
@@ -121,9 +147,18 @@ export const PromptQueuePlugin: Plugin = async ({ client, directory }) => {
     }
 
     stats.completionsSeen++
-    const held = decide({ tools, finalText, manual: before.manual }, before.consecutiveHolds, DEFAULT_MAX_HOLD_TURNS)
+    // The ONNX classifier is passed in rather than imported here so this function
+    // stays drivable with a stub, and so a missing model degrades to the regex
+    // gate instead of failing the turn.
+    const held = await decide(
+      { tools, finalText, manual: before.manual },
+      before.consecutiveHolds,
+      DEFAULT_MAX_HOLD_TURNS,
+      classifier,
+    )
     stats.lastReason = held.evidence ?? held.reason
 
+    if (held.reason === 'model') stats.modelHolds++
     if (held.holds) {
       // Rollover: anything the model explicitly deferred in a held turn rides
       // along with the next drain instead of being forgotten when the user
@@ -197,7 +232,7 @@ export const PromptQueuePlugin: Plugin = async ({ client, directory }) => {
       }
 
       const facts = completionFromMessages(messages)
-      await onCompletion({ sessionId, tools: facts.tools, finalText: facts.finalText })
+      await onCompletion({ sessionId, tools: facts.tools, finalText: facts.finalText }, resolveClassifier())
     },
   } as any
 }

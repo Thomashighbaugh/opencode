@@ -32,7 +32,7 @@ Technical documentation for this OpenCode agent harness. Start at
 | [Hub Command System](hub-command-system.md) | `tools/hub-*.ts`, `tools/hubs/` | 14 hubs, 183 subcommands, two-tier routing |
 | [Rules & Skills](rules-and-skills.md) | `rules/`, `skills/`, `tools/` | 20 rules, 125 skills, 46 tools, MCP servers |
 | [Efficiency](request-token-efficiency.md) | `cache-utils`, `runtime`, `child-registry` | Request and token budgets, and how they are measured |
-| [Testing Strategy](testing-strategy.md) | `tests/global/`, `skills/*/tests/` | 990 behavioural tests, and the defects they caught |
+| [Testing Strategy](testing-strategy.md) | `tests/global/`, `skills/*/tests/` | 1,086 behavioural tests, and the defects they caught |
 
 ---
 
