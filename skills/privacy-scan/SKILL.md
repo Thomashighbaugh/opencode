@@ -70,14 +70,14 @@ Analyze the provided content or file for:
 
 ## Script
 
-A companion script at `scripts/scan-privacy.mjs` can be called programmatically:
+A companion script at `scripts/scan-privacy.ts` can be called programmatically:
 
 ```bash
 # Scan a file
-node scripts/scan-privacy.mjs --file path/to/file.md
+node scripts/scan-privacy.ts --file path/to/file.md
 
 # Scan content from stdin
-echo '{"content": "..."}' | node scripts/scan-privacy.mjs --stdin
+echo '{"content": "..."}' | node scripts/scan-privacy.ts --stdin
 ```
 
 Returns JSON: `{ "risk": "low"|"medium"|"high"|"uncertain", "findings": [...], "recommendation": "commit"|"gitignore"|"sanitize"|"review", "details": "..." }`

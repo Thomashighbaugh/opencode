@@ -663,3 +663,7 @@ The rule-generator skill is called during `/scaffold-hub provision` (Phase 4: pr
 - `provision` skill — orchestrates the full init-project pipeline
 - `resource-tags.md` rule — tagging vocabulary for generated rules
 - `global-reference.md` rule — where generated rules go
+
+## Related rules
+
+- `rules/coding-style.md` — immutability and style constraints a standards doc should encode

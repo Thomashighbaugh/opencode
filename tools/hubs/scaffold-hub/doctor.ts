@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_BASH, SKILLS_HUBS_DOCTOR } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "doctor",
-  description: "Run diagnostic health check — validate Hubs installation, config integrity, state consistency, and hook status",
+  description: "Diagnose install health — config, state, hook status",
   reminder: "Run Hubs health diagnostics.",
   inline: true,
 

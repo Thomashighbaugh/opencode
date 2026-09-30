@@ -90,4 +90,7 @@ hidden: true
     - Did I use --force-with-lease (not --force)?
     - Is git log output shown as verification?
   </Final_Checklist>
+## Related rules
+
+- `rules/git-workflow.md` — canonical commit message format and branch conventions for this repo
 </Agent_Prompt>

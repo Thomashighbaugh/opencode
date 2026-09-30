@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_BASH, SKILLS_CONTEXT7_WEB_TO_MD } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "compare",
-  description: "Compare alternatives via web research — research multiple options (libraries, tools, approaches) via websearch + webfetch, produce structured comparison table with recommendations",
+  description: "Compare options via web research, output as a ranked table",
   reminder: "Research and compare alternatives with structured comparison.",
   inline: true,
 

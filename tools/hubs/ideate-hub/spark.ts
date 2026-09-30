@@ -2,7 +2,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 
 const spec: HubSubcommandSpec = {
   label: "spark",
-  description: "Project-aware idea spark — improvements & expansions in short, expandable prompts",
+  description: "Project-aware idea prompts, short and expandable",
   reminder: "Spark project-aware improvement and expansion ideas.",
   inline: true,
 

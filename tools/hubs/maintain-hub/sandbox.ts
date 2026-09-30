@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_BASH, RULES_SECURITY } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "sandbox",
-  description: "Sandbox enforcement — policy-based tool control, file protection, network filtering for agent tool calls",
+  description: "Policy-based tool control — file, command, and network limits",
   reminder: "Enforce sandbox tool execution policies.",
   inline: true,
 

@@ -2,7 +2,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 
 const spec: HubSubcommandSpec = {
   label: "remediate",
-  description: "CI/build failure auto-remediation — monitor failures, analyze root causes, auto-apply fixes, re-run until green",
+  description: "Watch CI, diagnose the cause, fix, re-run until green",
   reminder: "Auto-remediate build failures until green.",
   inline: true,
 

@@ -57,6 +57,13 @@ When an agent needs context, it queries by scope:
 ```
 Never load everything. Always scope to the relevant subtree.
 
+### Retrieval Is the Efficiency Lever
+
+Frame retrieval and durable context exist to stop re-deriving. Before paying for a hosted lookup,
+check the frame, the caches, and the vector stores — see `efficiency-first.md` → Retrieval Ladder.
+Writes stay manual: this rule tells you to *check* durable memory before re-fetching, never to
+auto-harvest.
+
 ### File Naming Convention
 All state files use ISO date prefixes: `YYYYMMDD_HHMMSS_{method}_{topic-slug}_{stage}.{md|json}`
 

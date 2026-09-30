@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_LOADSKILL_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "find-agents",
-  description: "Discover agents relevant to the current project by searching across agent registries and GitHub — finds specialized subagents for detected tech stack. Used by setup/refresh to find per-repo agents",
+  description: "Find and vet subagents for this stack from registries",
   reminder: "Search registries for relevant project agents.",
   skill: "find-agents",
 

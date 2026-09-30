@@ -395,7 +395,7 @@ Preserve any `<!-- MANUAL -->` sections — only update/append the auto-generate
 Before saving context files, scan them for secrets, API keys, or PII:
 
 ```bash
-PRIVACY_SCAN="$GLOBAL_DIR/skills/privacy-scan/scripts/scan-privacy.mjs"
+PRIVACY_SCAN="$GLOBAL_DIR/skills/privacy-scan/scripts/scan-privacy.ts"
 if [ -f "$PRIVACY_SCAN" ]; then
   for ctx_file in .opencode/context/frameworks/architecture.md \
                   .opencode/context/patterns/conventions.md \

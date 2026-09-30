@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "validate",
-  description: "Validate a skill's structure without packaging — run structure checks, report errors, suggest fixes",
+  description: "Check a skill's structure and report what to fix",
   reminder: "Validate skill structure and metadata.",
   inline: true,
 

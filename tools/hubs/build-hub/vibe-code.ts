@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_LOADSKILL_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "vibe-code",
-  description: "Conversational rapid prototyping — describe app in natural language, generate full-stack, iterate with feedback through conversational rounds",
+  description: "Describe an app in prose, get full-stack code, iterate conversationally",
   reminder: "Conversational rapid prototyping.",
   skill: "vibe-code",
 

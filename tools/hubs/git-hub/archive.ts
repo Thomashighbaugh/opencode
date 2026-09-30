@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "archive",
-  description: "Move stale branches, old artifacts, unused config to timestamped archive — keep working tree clean",
+  description: "Move stale branches and artifacts to a timestamped archive",
   reminder: "Archive stale branches and artifacts.",
   inline: true,
 

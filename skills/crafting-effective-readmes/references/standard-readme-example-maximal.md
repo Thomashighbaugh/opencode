@@ -1,3 +1,7 @@
+---
+resolveLinks: false
+---
+
 # Title
 
 ![banner](assets/text_wordmark_dark.png)

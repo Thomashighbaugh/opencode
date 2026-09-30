@@ -4,7 +4,7 @@ import { TOOLS_LOADSKILL_BASH, RULES_KARPAHTY_GUIDELINES } from "../shared-spec-
 
 const spec: HubSubcommandSpec = {
   label: "self-improve",
-  description: "Per-project self-optimization — capture learnings, triage failures, promote recurring fixes into .opencode/ config",
+  description: "Capture learnings and promote recurring fixes into config",
   reminder: "Run the self-improvement capture/triage/promotion loop for this project.",
   skill: "self-improvement",
 

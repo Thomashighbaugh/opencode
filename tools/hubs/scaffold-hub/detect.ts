@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_LISTAGENTS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "detect",
-  description: "Deep stack detection — analyze codebase for languages, frameworks, build tools, testing, ORM, CSS, CI/CD, etc. via @stack-detector agent",
+  description: "Deep stack detection — languages, frameworks, tools, testing, CI",
   reminder: "Detect full tech stack via @stack-detector agent.",
   agent: "stack-detector",
   phases: "0-1",

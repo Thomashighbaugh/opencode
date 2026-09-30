@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_LOADSKILL_LISTAGENTS_BASH, RULES_KARPAHTY_GUIDELINES } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "brownfield",
-  description: "Feature addition to existing codebase — analyze system, identify integration points, validate strategy before implementation",
+  description: "Add a feature to existing code — find the seams, then implement",
   reminder: "Analyze and integrate into existing codebase.",
   skill: "brownfield",
 

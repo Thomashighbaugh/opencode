@@ -120,4 +120,4 @@ The consensus recommendation from analysis is **`craftsman`** as the name for th
 
 ## References
 
-- [Conscientious Agent Analysis](./.opencode/context/research/craftsman-agent-analysis.md)
+- Conscientious Agent Analysis — the source of the failure catalogue above is not retained in this context tree

@@ -1,0 +1,106 @@
+{
+    // Command hooks — declarative shell commands on tool and session events.
+    //
+    // Global defaults for every project. A project adds or overrides hooks in
+    // <project>/.opencode/command-hooks.jsonc; a hook with the same id replaces
+    // the one here, and `overrideGlobal: true` suppresses every hook below for
+    // the same phase+tool.
+    //
+    // Full reference: skills/command-hooks/SKILL.md
+    // Documentation: .opencode/context/research/opencode-command-hooks/
+    //
+    // ── Why these defaults exist ──────────────────────────────────────────────
+    //
+    // Every rule in this configuration that says "verify your own work" relies on
+    // each agent remembering to do it. That is the same class of problem as
+    // asking an orchestrator to call a validator: non-deterministic, and it costs
+    // tokens in the reminder that asks for it. A hook runs on the event, every
+    // time, without being asked.
+    //
+    // `injectOn: "failure"` is the load-bearing option. A passing typecheck
+    // reports nothing — it costs no tokens — so the hook is silent exactly when
+    // things are fine and speaks only when the agent needs to know.
+
+    // Per-stream capture cap before truncation. Matches OpenCode's bash tool.
+    "truncationLimit": 30000,
+
+    // Cap on the rendered message that actually reaches the model. The character
+    // limit above bounds each stream; this bounds the whole injection, so a
+    // chatty command cannot flood the next turn's context.
+    "injectLimit": 4000,
+
+    "tool": [
+        {
+            // Type errors after any subagent returns. The single highest-value
+            // check: a subagent reports success far more often than it reports a
+            // broken import, and the parent cannot see the difference.
+            //
+            // `npx tsc --noEmit` rather than a package script so this works in a
+            // project that has no `typecheck` script, which is most of them.
+            "id": "typecheck-after-task",
+            "when": { "phase": "after", "tool": "task" },
+            "run": "npx --no-install tsc --noEmit -p tsconfig.json 2>&1 || npx --no-install tsc --noEmit 2>&1",
+            "injectOn": "failure",
+            "inject": "<typecheck tool=\"{tool}\" exit=\"{exitCode}\">\nType errors after the subagent completed. Fix these before reporting success:\n\n```\n{stdout}{stderr}\n```\n</typecheck>",
+            "toast": {
+                "title": "typecheck",
+                "message": "failed (exit {exitCode})",
+                "variant": "error",
+                "duration": 6000
+            }
+        },
+        {
+            // A subagent that wrote a file should have produced a test run. This
+            // injects only on failure, so a green suite stays silent and a red
+            // one is explained before the parent claims the work is done.
+            //
+            // Skipped when the project has no test script at all — `|| true`
+            // would make a missing suite look like a passing one, so the `test -f`
+            // gate keeps "no tests configured" out of the reported results.
+            "id": "tests-after-task",
+            "when": { "phase": "after", "tool": "task" },
+            "run": "if [ -f package.json ] && node -e \"const s=require('./package.json').scripts||{};process.exit(s.test?0:1)\" 2>/dev/null; then npm test --silent 2>&1; else exit 0; fi",
+            "injectOn": "failure",
+            "inject": "<tests tool=\"{tool}\" exit=\"{exitCode}\">\nThe test suite failed after the subagent completed. Do not report success until this passes:\n\n```\n{stdout}{stderr}\n```\n</tests>",
+            "toast": {
+                "title": "tests",
+                "message": "failed (exit {exitCode})",
+                "variant": "error",
+                "duration": 6000
+            }
+        },
+        {
+            // The graph and the vector store are rebuilt by a sync hook, but the
+            // graph invariants themselves are not asserted anywhere at runtime.
+            // After an edit that touches a source file, run the cheap integrity
+            // check so an inconsistent graph is reported where it was created.
+            "id": "graph-integrity-after-write",
+            "when": {
+                "phase": "after",
+                "tool": ["write", "edit", "patch"],
+                "toolArgs": {
+                    "filePath": { "glob": "**/skills/graph-context/scripts/*.ts" }
+                }
+            },
+            "run": "npx --no-install tsc --noEmit -p skills/tsconfig.json 2>&1 | head -40",
+            "injectOn": "failure",
+            "inject": "<graph-integrity exit=\"{exitCode}\">\nA file under skills/graph-context/scripts no longer typechecks. The graph invariants in graph-context/SKILL.md are documented as holding; that is now in doubt:\n\n```\n{stdout}{stderr}\n```\n</graph-integrity>"
+        }
+    ],
+
+    "session": [
+        {
+            // A hook on session start is the cheapest place to surface state that
+            // every turn would otherwise re-derive: whether the previous session
+            // left an active mode, and whether the test suite is currently green.
+            //
+            // This replaces the per-turn efficiency reminder doing the same job by
+            // hand, and does it once instead of on every cycle.
+            "id": "session-start-context",
+            "when": { "event": "session.start" },
+            "run": "printf 'repo: %s\\nbranch: %s\\n' \"$(basename \"$PWD\")\" \"$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo none)\"",
+            "injectOn": "always",
+            "inject": "<session-context>\n{stdout}\n</session-context>"
+        }
+    ]
+}

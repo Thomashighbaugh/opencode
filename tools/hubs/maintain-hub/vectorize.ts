@@ -16,18 +16,18 @@ const spec: HubSubcommandSpec = {
 Both stores use Ollama embeddings (pedrohml/mxbai-embed-large, local-only) plus an in-process cross-encoder reranker (Xenova/bge-reranker-base via @huggingface/transformers, sigmoid scoring). Zero provider API requests — everything runs locally.
 
 Command (run from the project root, or set OPCODE_DIR):
-  node <skill-dir>/scripts/vectorize.mjs --all      # context + code
-  node <skill-dir>/scripts/vectorize.mjs --code     # code store only
+  node <skill-dir>/scripts/vectorize.ts --all      # context + code
+  node <skill-dir>/scripts/vectorize.ts --code     # code store only
 
 where <skill-dir> is skills/vectorize-context (global or project-local .opencode/skills/vectorize-context).
 
 Indexing is incremental (mtime-based): re-runs only embed changed files. Deleted files are cleaned from the store automatically.
 
-The vectorize hook (plugins/hooks/vectorize-hook.ts) keeps both stores fresh as files change — it spawns sync-hook.mjs as a child process (10s poll, maintenance mode; the plugin process never loads native modules). The system.transform hook injects <Relevant_Context> (docs) and <Relevant_Code> (source) blocks into complex prompts via a child-process query. Manual querying:
-  node <skill-dir>/scripts/query.mjs "question"
-  node <skill-dir>/scripts/query.mjs --code "question"
+The vectorize hook (plugins/hooks/vectorize-hook.ts) keeps both stores fresh as files change — it spawns sync-hook.ts as a child process (10s poll, maintenance mode; the plugin process never loads native modules). The system.transform hook injects <Relevant_Context> (docs) and <Relevant_Code> (source) blocks into complex prompts via a child-process query. Manual querying:
+  node <skill-dir>/scripts/query.ts "question"
+  node <skill-dir>/scripts/query.ts --code "question"
 
-Stats: node <skill-dir>/scripts/vectorize.mjs prints scanned/indexed/skipped/chunks/elapsed per store.`,
+Stats: node <skill-dir>/scripts/vectorize.ts prints scanned/indexed/skipped/chunks/elapsed per store.`,
 
   tools: TOOLS_BASH,
   rules: [],

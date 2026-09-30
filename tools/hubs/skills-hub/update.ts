@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_BASH, SKILLS_SKILL_CREATOR } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "update",
-  description: "Update an existing skill using skill-creator iteration workflow — read current skill, identify improvements, apply changes, validate structure",
+  description: "Iterate an existing skill through the skill-creator workflow",
   reminder: "Update skill content and resources.",
   inline: true,
 

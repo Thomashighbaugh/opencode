@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_LOADSKILL_BASH_AGENTCONTEXT, RULES_CONTEXT_STRATEGY_SECURITY, SKILLS_WIKI } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "memory",
-  description: "Promote durable knowledge to project memory, notepad, or wiki — updates wiki index/log when promoting to .opencode/context/",
+  description: "Promote durable knowledge into project memory, notepad, or wiki",
   reminder: "Promote knowledge to memory or wiki.",
   skill: "remember",
 

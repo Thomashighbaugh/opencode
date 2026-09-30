@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_LISTAGENTS_TASKTODOS_MODESTATE_BASH, RULES_COMPLETION_GUARDRAIL } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "evolutionary",
-  description: "Evolutionary delivery — incremental builds with fitness validation at each generation",
+  description: "Ship incrementally, validating fitness each generation",
   reminder: "Incremental builds with fitness validation.",
   inline: true,
 

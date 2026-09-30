@@ -225,3 +225,7 @@ fix: remove blocking overlay on login button
 ---
 
 **Source:** [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
+
+## Related rules
+
+- `rules/git-workflow.md` — commit message format and the branch/commit conventions

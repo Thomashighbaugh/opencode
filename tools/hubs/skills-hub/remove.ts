@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "remove",
-  description: "Remove a skill by name — searches user and project scopes, confirms before deleting, warns if not found",
+  description: "Remove a skill by name after confirming",
   reminder: "Delete a skill after confirmation.",
   inline: true,
 

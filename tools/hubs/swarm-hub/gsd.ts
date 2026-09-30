@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { RULES_COMPLETION_GUARDRAIL } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "gsd",
-  description: "Get Shit Done pipeline — discuss → plan → execute → verify → ship with wave-based parallel execution, fresh context per task, and atomic commits",
+  description: "Discuss → plan → execute → verify → ship, one fresh context per task",
   reminder: "Discuss→plan→execute→verify→ship pipeline.",
   inline: true,
 

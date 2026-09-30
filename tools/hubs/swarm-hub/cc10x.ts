@@ -2,7 +2,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 
 const spec: HubSubcommandSpec = {
   label: "cc10x",
-  description: "Intent-detecting router → dispatches to BUILD/DEBUG/REVIEW/PLAN workflows with evidence-first validation and confidence gating",
+  description: "Route intent to build, debug, review, or plan with confidence gating",
   reminder: "Intent-detecting workflow router.",
   inline: true,
 

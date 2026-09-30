@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_LOADSKILL_BASH, RULES_COMPLETION_GUARDRAIL } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "deep-dive",
-  description: "2-stage pipeline: trace root cause, then crystallize requirements — evidence-first investigation",
+  description: "Trace the root cause, then crystallize the requirements",
   reminder: "Trace root cause then interview to concrete spec.",
   skill: "deep-dive",
 

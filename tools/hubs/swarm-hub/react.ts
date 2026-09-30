@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_LISTAGENTS_MODESTATE_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "react",
-  description: "ReAct pattern — interleaved Reasoning and Acting: think → act → observe → reason → repeat until goal met",
+  description: "ReAct loop — think, act, observe, reason, repeat until done",
   reminder: "ReAct loop: think, act, observe, repeat.",
   inline: true,
 

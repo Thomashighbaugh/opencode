@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "journal",
-  description: "Event-sourced journal for orchestration runs — deterministic replay, time-travel debugging, SHA-256 checksums",
+  description: "Event-sourced orchestration log — replay and time-travel debug",
   reminder: "Set up event-sourced orchestration journal.",
   inline: true,
 

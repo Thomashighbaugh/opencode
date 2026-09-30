@@ -1,0 +1,16 @@
+{
+  // Command hooks — see skills/command-hooks/SKILL.md.
+  // Project hooks merge with ~/.config/opencode/command-hooks.jsonc.
+  // Same id replaces the global one; `overrideGlobal: true` suppresses it.
+
+  "tool": [
+    {
+      "id": "validate-after-task",
+      "when": { "phase": "after", "tool": "task" },
+      "run": ["npx vitest run"],
+      "injectOn": "failure",
+      "inject": "<validation tool=\"{tool}\" exit=\"{exitCode}\">\nThe checks below failed after a subagent completed.\nFix them before reporting success:\n\n{stdout}{stderr}\n</validation>"
+    }
+  ],
+  "session": []
+}

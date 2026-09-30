@@ -2,7 +2,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 
 import { TOOLS_LOADSKILL_BASH_AGENTCONTEXT, RULES_CONTEXT_STRATEGY_SECURITY } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
-  label: "context",
+  label: "capture",
   description: "Capture session knowledge, promote insights to project memory and docs",
   reminder: "Capture session knowledge for project memory.",
   skill: "remember",

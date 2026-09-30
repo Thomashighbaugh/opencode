@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_LISTAGENTS_MODESTATE_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "pair",
-  description: "Pair programming — two agents on one task: Driver writes code, Navigator reviews in real-time, catching mistakes early",
+  description: "Two agents on one task — a driver writes, a navigator reviews live",
   reminder: "Driver/Navigator pair programming.",
   inline: true,
 

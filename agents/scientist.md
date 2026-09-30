@@ -91,4 +91,7 @@ disallowedTools: Write, Edit
     - Are visualizations saved (not shown) with Agg backend?
     - Did I avoid raw data dumps?
   </Final_Checklist>
+## Related rules
+
+- `rules/performance.md` — model-tier selection and the cost/quality tradeoffs
 </Agent_Prompt>

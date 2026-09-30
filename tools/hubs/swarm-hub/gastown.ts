@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_BASH_LISTAGENTS_MODESTATE_TASKTODOS } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "gastown",
-  description: "GUPP principle — 'if work on your hook, YOU MUST RUN IT' with git-backed work units and NDI for reliable outcomes from unreliable processes",
+  description: "If the work is on your hook, you run it — git-backed work units",
   reminder: "Git-backed work units with GUPP principle.",
   inline: true,
 

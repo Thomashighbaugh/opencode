@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "setup",
-  description: "Interactive setup wizard — create skill directories, scan inventory, offer actions (add, list, scan conversation, import, done)",
+  description: "Wizard — create skill dirs, scan inventory, choose actions",
   reminder: "Set up skill directories and inventory.",
   inline: true,
 

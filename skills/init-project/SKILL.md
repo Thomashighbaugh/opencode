@@ -1,3 +1,8 @@
+---
+name: init-project
+description: Project initialization and scaffolding — detect stack, provision per-project agents, skills, tools, and rules. Use when setting up a new project or re-running setup for an existing one.
+---
+
 # Init Project
 
 Unified project initialization hub with subcommand routing. Detects, scaffolds, documents, and refines an OpenCode Hubs project. Works for both first-time setup and iterative re-runs.

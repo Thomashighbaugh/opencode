@@ -2,7 +2,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 
 import { TOOLS_BASH_LISTAGENTS, RULES_COMPLETION_GUARDRAIL } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
-  label: "hive",
+  label: "hive-plan",
   description: "Agent swarm planning — interview, discover, produce plan.md with approval gate",
   reminder: "Architect Bee: plan with approval gate.",
   inline: true,

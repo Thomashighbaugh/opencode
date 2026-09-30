@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_LOADSKILL_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "find-rules",
-  description: "Discover OpenCode rules relevant to the current project by searching registries (GitHub, skills.sh) and local template catalog — finds project-specific conventions and guidelines. Used by setup/refresh to find per-repo rules",
+  description: "Find and vet rules for this stack from registries and templates",
   reminder: "Search registries for relevant project rules.",
   skill: "find-rules",
 

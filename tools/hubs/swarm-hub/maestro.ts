@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_LISTAGENTS_TASKTODOS_MODESTATE_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "maestro",
-  description: "Strict role separation — PMs gather requirements, Architects design/review (never code), Coders implement/test (never self-review)",
+  description: "Strict roles — PMs gather, architects design, coders implement",
   reminder: "Strict role separation factory.",
   inline: true,
 

@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "converge",
-  description: "5-gate quality convergence — functional tests, lint/complexity, type safety, security scanning, performance thresholds with progressive target escalation",
+  description: "Five-gate quality convergence with escalating targets",
   reminder: "Run 5-gate quality convergence.",
   inline: true,
 

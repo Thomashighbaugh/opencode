@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_LISTAGENTS_BASH, RULES_KARPAHTY_GUIDELINES } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "refactor",
-  description: "Restructure code without changing behavior — extract functions, split modules, reduce coupling via the code-simplification skill",
+  description: "Restructure without changing behavior — extract, split, decouple",
   reminder: "Restructure code without changing behavior.",
   skill: "code-simplification",
 

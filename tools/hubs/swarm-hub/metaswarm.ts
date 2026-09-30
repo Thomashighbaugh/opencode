@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_BASH_LISTAGENTS_MODESTATE_TASKTODOS } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "metaswarm",
-  description: "Autonomous issue-to-PR with 12 agents, 7 phases, adversarial reviews with fresh reviewers to block anchoring bias",
+  description: "Autonomous issue-to-PR, 7 phases, adversarial fresh reviews",
   reminder: "12-agent autonomous issue-to-PR pipeline.",
   inline: true,
 

@@ -2,10 +2,10 @@
 
 > Source: [hackergrrl/art-of-readme](https://github.com/hackergrrl/art-of-readme)
 
-*This article can also be read in [Chinese](README-zh.md),
-[Japanese](README-ja-JP.md),
-[Brazilian Portuguese](README-pt-BR.md), [Spanish](README-es-ES.md),
-[German](README-de-DE.md), [French](README-fr.md) and [Traditional Chinese](README-zh-TW.md).*
+*The upstream article also exists in Chinese, Japanese, Brazilian Portuguese,
+Spanish, German, French and Traditional Chinese. Those translations are not
+vendored here — the links were removed rather than left pointing at files that
+are not in this skill.*
 
 ## Etymology
 

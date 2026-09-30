@@ -56,7 +56,7 @@ loadSkill agent-format-enforcer
 
 ## Script
 
-`scripts/check-agent-format.mjs` — Standalone validation script that:
+`scripts/check-agent-format.ts` — Standalone validation script that:
 - Reads all `agents/*.md` files
 - Validates each against the standard format
 - Reports per-agent compliance

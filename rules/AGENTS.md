@@ -23,6 +23,8 @@ Shared rule files loaded as agent instructions. These provide behavioral guidanc
 | `git-workflow.md` | Git workflow rules — commit message format, PR workflow, branch naming, feature implementation |
 | `file-operations.md` | Artifact placement + script elimination — no standalone scripts at project root; use file-editing tools, not inline scripts |
 | `anti-sycophancy.md` | Anti-sycophancy — extract core claim, assess independently, conclusion-first; pushback categorized as new evidence vs repeated opinion |
+| `output-compression.md` | Output shape for TUI prose — format ladder (table > bullets > prose), preservation list of never-dropped details, anti-sycophancy floor |
+| `efficiency-first.md` | Universal standing constraint — minimize requests to inference hosts and prompt tokens; never constrains output code or requested text; yields to explicit user instruction |
 
 ## For AI Agents
 
@@ -31,6 +33,24 @@ Shared rule files loaded as agent instructions. These provide behavioral guidanc
 - Rules follow a strict hierarchy: shell_strategy overrides general behavior, security overrides convenience
 - The `context-strategy.md` defines the foundational state-vs-context separation model
 - Do not create rules that conflict with `shell_strategy.md` — non-interactive mode is mandatory
+
+### On-demand rules
+
+These are **not** in `opencode.jsonc` instructions — loading five more files on
+every turn is a permanent token cost for content that is needed only by specific
+workflows. They are reachable on demand because the skills and agents that need
+them name them explicitly. A rule with no referrer is a dead file, and
+`tests/global/feature-package.test.ts` fails if one appears.
+
+| Rule | Read it when | Referenced by |
+|------|--------------|---------------|
+| `coding-style.md` | Extracting or generating a standards doc | `code-standards-extractor`, `rule-generator` |
+| `git-workflow.md` | Committing, branching, or writing a PR | `conventional-commit`, `github-ops`, `git-master` agent |
+| `performance.md` | Choosing a model tier, weighing cost vs quality | `insights`, `scientist` agent |
+| `testing.md` | Writing tests or deciding coverage is enough | `tdd`, `test-coverage-improver` |
+
+To add one, give it a referrer above. Do not add it to `instructions` unless it
+should apply to every turn in every project.
 
 ### Testing Requirements
 - Rule consistency validated by Hubs doctor

@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { SKILLS_VERIFY } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "tdd",
-  description: "Test-driven development loop — red-green-refactor: write failing test, make it pass, refactor, repeat until all features covered",
+  description: "Red-green-refactor loop until every feature has a test",
   reminder: "Red-green-refactor TDD loop.",
   inline: true,
 

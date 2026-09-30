@@ -17,7 +17,7 @@ landing each (review + gates + commit) before dispatching the next. Three reason
 
 Parallelism is occasionally worth it for genuinely independent tasks on separate files, but it
 sacrifices the clean-tree-per-task property and makes review harder. Default to sequential. (Each fresh
-`relay.mjs` dispatch starts a new OpenCode session, so independent tasks don't share context — fold any
+`relay.ts` dispatch starts a new OpenCode session, so independent tasks don't share context — fold any
 shared constraint into each brief, see below.)
 
 ## Carry decided constraints forward

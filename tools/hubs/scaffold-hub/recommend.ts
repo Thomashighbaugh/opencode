@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_LOADSKILL_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "recommend",
-  description: "Recommend global resources for detected stack — maps stack fingerprint to relevant skills, agents, rules, and archetype via stack-recommender skill",
+  description: "Map the detected stack to recommended global resources",
   reminder: "Recommend global resources matching the detected stack.",
   skill: "stack-recommender",
 

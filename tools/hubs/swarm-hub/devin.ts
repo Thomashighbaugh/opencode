@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_BASH_LISTAGENTS_MODESTATE_TASKTODOS, RULES_COMPLETION_GUARDRAIL } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "devin",
-  description: "Autonomous Plan→Code→Debug→Deploy pipeline with iterative debugging cycles and root-cause analysis loops",
+  description: "Autonomous plan → code → debug → deploy with root-cause loops",
   reminder: "Plan→Code→Debug→Deploy pipeline.",
   inline: true,
 

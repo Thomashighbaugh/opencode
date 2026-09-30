@@ -2,7 +2,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 
 const spec: HubSubcommandSpec = {
   label: "pipeline",
-  description: "Declarative multi-stage pipeline — Stage 1: lint → Stage 2: test → Stage 3: build → Stage 4: deploy, each stage gates the next",
+  description: "Declarative stages: lint → test → build → deploy, each gating the next",
   reminder: "Multi-stage pipeline with hard gates.",
   inline: true,
 

@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_LOADSKILL_LISTAGENTS_TASKTODOS_MODESTATE_BASH, RULES_COMPLETION_GUARDRAIL, SKILLS_VERIFY } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "plan-execute",
-  description: "Classic plan-then-execute — architect builds complete plan, executor implements step by step",
+  description: "Architect plans the whole thing, executor builds it stepwise",
   reminder: "Plan first, then execute step by step.",
   skill: "plan-execute",
 

@@ -211,7 +211,13 @@ export class CacheManager {
     }
   }
 
-  /** Get cache stats */
+  /**
+   * Get cache stats.
+   *
+   * These counters are the measurable form of the request-budget rules. They
+   * were unreachable from outside the plugin, so cache effectiveness could only
+   * be judged by timing a session by hand.
+   */
   getStats(): CacheStats {
     let diskEntries = 0
     if (this.config.persist && fs.existsSync(this.cacheDir)) {
@@ -405,6 +411,15 @@ function getProjectRoot(): string {
 // Lazy singleton instances
 const _instances = new Map<string, CacheManager>()
 
+/** Hit/miss counters for every namespace that has been instantiated. */
+export function cacheStatsByNamespace(): Record<string, ReturnType<CacheManager['getStats']>> {
+  const out: Record<string, ReturnType<CacheManager['getStats']>> = {}
+  for (const [key, instance] of _instances) {
+    out[key.split(':')[0]] = instance.getStats()
+  }
+  return out
+}
+
 export function getCache(namespace: string, projectRoot?: string): CacheManager {
   const config = CACHE_CONFIGS[namespace]
   if (!config) throw new Error(`Unknown cache namespace: ${namespace}. Available: ${Object.keys(CACHE_CONFIGS).join(', ')}`)
@@ -423,6 +438,32 @@ export function getCache(namespace: string, projectRoot?: string): CacheManager 
 // ─── Tool Cache Wrapper ────────────────────────────────────────────────
 
 /**
+ * Separator between the tool name and the argument hash in a tool-cache key.
+ * `=` is legal in filenames on every platform we target, and no OpenCode tool
+ * name contains it, so `${toolName}${TOOL_KEY_SEP}` is an unambiguous prefix.
+ */
+const TOOL_KEY_SEP = '='
+
+/**
+ * Build a tool-scoped cache key.
+ *
+ * The tool name is part of the key (not just the hash input) so that
+ * invalidateToolCache() can address a tool's entries by prefix. Keys used to
+ * be pure sha256 hashes, which made `invalidatePrefix("Glob")` a silent
+ * no-op — it never matched a hex string. That left every write-side
+ * invalidation in the system inert: stale Glob/Grep results after a Write,
+ * and stale modeState/agentContext/artifacts/taskTodos for their full 300s
+ * TTL after a mutation.
+ *
+ * The name must be a prefix rather than a hash input so invalidation still
+ * works across a process restart, when the in-memory index is empty but the
+ * persisted entries on disk are not.
+ */
+export function toolCacheKey(toolName: string, args: unknown): string {
+  return `${toolName}${TOOL_KEY_SEP}${CacheManager.key(toolName, JSON.stringify(args))}`
+}
+
+/**
  * Wraps a tool execution with caching. The tool function is only called
  * on cache miss. Cache key is derived from tool name + serialized args.
  */
@@ -433,16 +474,18 @@ export function withToolCache<T>(
   ttl?: number
 ): T {
   const cache = getCache("tool")
-  const key = CacheManager.key(toolName, JSON.stringify(args))
+  const key = toolCacheKey(toolName, args)
   return cache.getOrCompute(key, fn, ttl)
 }
 
 /**
- * Invalidate tool cache entries for a specific tool (e.g., after a write operation)
+ * Invalidate every cached entry for one tool (e.g. after a write operation).
+ * Addresses entries by the `${toolName}=` key prefix, which survives process
+ * restarts because the tool name is stored in the key itself.
  */
 export function invalidateToolCache(toolName: string): void {
   const cache = getCache("tool")
-  cache.invalidatePrefix(toolName)
+  cache.invalidatePrefix(`${toolName}${TOOL_KEY_SEP}`)
 }
 
 /**

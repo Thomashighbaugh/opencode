@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "session",
-  description: "Extract decisions, patterns, learnings from current session — promotes to wiki via /memory-hub memory",
+  description: "Extract decisions and learnings from the current session",
   reminder: "Extract decisions and patterns from session.",
   inline: true,
 

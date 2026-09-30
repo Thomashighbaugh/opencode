@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_BASH, SKILLS_SKILL_CREATOR } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "add",
-  description: "Interactive wizard for quick skill creation — prompts for name, description, triggers, scope (user or project), writes SKILL.md with frontmatter",
+  description: "Wizard that writes a new SKILL.md from prompted answers",
   reminder: "Quick-add a skill via interactive wizard.",
   inline: true,
 

@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_BASH_SKILLCATEGORIES } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "scan",
-  description: "Quick scan of skill directories — non-interactive inventory of both user and project scopes, reports counts and paths",
+  description: "Fast non-interactive inventory of user and project skill scopes",
   reminder: "Quick inventory scan of all skill directories.",
   inline: true,
 

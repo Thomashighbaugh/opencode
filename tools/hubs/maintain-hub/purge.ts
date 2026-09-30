@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_BASH, RULES_CONTEXT_STRATEGY } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "purge",
-  description: "Clean up stale orchestration state — remove old runs, free disk space, preserve recent history",
+  description: "Remove stale runs to free space, keeping recent history",
   reminder: "Purge stale orchestration state.",
   inline: true,
 

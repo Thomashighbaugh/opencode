@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_LISTAGENTS_MODESTATE_BASH, SKILLS_SELF_CONSISTENCY } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "consensus",
-  description: "Multi-agent consensus/voting — run agents independently, resolve via majority, weighting, or synthesis",
+  description: "Run agents independently, then resolve by vote or synthesis",
   reminder: "Multi-agent consensus and voting.",
   inline: true,
 

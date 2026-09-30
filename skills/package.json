@@ -1,0 +1,14 @@
+{
+  "name": "@hubs/skills",
+  "private": true,
+  "type": "module",
+  "//": [
+    "Declares the skills tree as ESM. These files were .mjs, which the runtime",
+    "resolved unambiguously; after the .ts conversion Node could no longer tell",
+    "that a .ts file is an ES module and emitted MODULE_TYPELESS_PACKAGE_JSON on",
+    "every invocation, re-parsing the file as a module on the way in. Scoping",
+    "\"type\": \"module\" here fixes the warning for all skill scripts without",
+    "touching the root package.json, where tools/ and plugins/ are loaded by the",
+    "OpenCode runtime and are unaffected either way."
+  ]
+}

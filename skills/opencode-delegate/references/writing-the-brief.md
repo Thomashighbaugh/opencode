@@ -138,5 +138,5 @@ Report: (1) the root cause and your fix, (2) files touched, (3) pytest + ruff ou
 </structured_output_contract>
 ```
 
-Send this with `relay.mjs` (see [dispatch-and-poll.md](dispatch-and-poll.md)); review the result and
+Send this with `relay.ts` (see [dispatch-and-poll.md](dispatch-and-poll.md)); review the result and
 commit it yourself (see [review-and-land.md](review-and-land.md)).

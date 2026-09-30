@@ -6,8 +6,8 @@ import { pathToFileURL } from "url"
 
 // Resolve the graph-context library: prefer a project-local copy (provisioned
 // into .opencode/skills/), fall back to the global config install.
-const PROJECT_REL = path.join(".opencode", "skills", "graph-context", "scripts", "graphlib.mjs")
-const GLOBAL_REL = path.join(".config", "opencode", "skills", "graph-context", "scripts", "graphlib.mjs")
+const PROJECT_REL = path.join(".opencode", "skills", "graph-context", "scripts", "graphlib.ts")
+const GLOBAL_REL = path.join(".config", "opencode", "skills", "graph-context", "scripts", "graphlib.ts")
 
 function resolveGraphlib(projectRoot: string): string | null {
   const candidates = [

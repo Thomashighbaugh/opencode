@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "release",
-  description: "Tag and release — bump version, generate changelog, create GitHub release in one flow",
+  description: "Bump the version, changelog, and GitHub release in one flow",
   reminder: "Tag, bump, and create GitHub release.",
   inline: true,
 

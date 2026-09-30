@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_LOADSKILL_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "find-skills",
-  description: "Discover skills relevant to the current project by searching across skill registries (skills.sh, GitHub) — fetches candidates, security-scans top results, presents recommendations for installation. Used by setup/refresh to find per-repo skills",
+  description: "Find installable skills for this stack — scans registries, vets, ranks",
   reminder: "Search registries for relevant project skills.",
   skill: "find-skills",
 

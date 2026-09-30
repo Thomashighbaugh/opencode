@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_LOADSKILL_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "config",
-  description: "Create or modify opencode.jsonc with mandatory schema validation — wraps opencode-configure, opencode-config-workflow; always fetches and validates final output against https://opencode.ai/config.json",
+  description: "Create or edit opencode.jsonc, validated against the live schema",
   reminder: "Create/modify opencode.jsonc with mandatory schema validation.",
   skill: "opencode-configure",
 

@@ -257,3 +257,7 @@ Use either the verbose or minimal template depending on the data extracted from 
 ### `"custom"` or any other name
 
 Use the custom prompt, instructions, template, or other data passed as the guiding template.
+
+## Related rules
+
+- `rules/coding-style.md` — immutability and style constraints a standards doc should encode

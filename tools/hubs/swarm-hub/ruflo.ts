@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_BASH_LISTAGENTS_MODESTATE_TASKTODOS } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "ruflo",
-  description: "60+ agent swarm with Q-Learning smart routing, 4 consensus protocols, and Queen/Worker hierarchical topologies",
+  description: "60+ agent swarm with Q-learning routing and 4 consensus protocols",
   reminder: "60+ agent swarm with Q-Learning.",
   inline: true,
 

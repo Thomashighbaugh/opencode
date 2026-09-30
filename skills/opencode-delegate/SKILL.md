@@ -77,16 +77,16 @@ commit (you will). Keep one task per brief. Full guidance and a template:
 Send the brief to OpenCode with the bundled helper. It wraps `opencode run`, captures the run, and
 writes a structured `result.json` — so your only job is "run a command, read a file." (`<skill-dir>`
 below is this skill's installed directory — the folder containing this `SKILL.md`. If unsure where it
-landed, run `find ~ -name relay.mjs -path '*opencode-delegate*'` and substitute the directory above it.)
+landed, run `find ~ -name relay.ts -path '*opencode-delegate*'` and substitute the directory above it.)
 
 ```bash
-node "<skill-dir>/scripts/relay.mjs" --brief brief.txt --model <provider/model> --cd /path/to/repo
+node "<skill-dir>/scripts/relay.ts" --brief brief.txt --model <provider/model> --cd /path/to/repo
 # --model (or a --lane that sets model) is required on a fresh run
 # fleet lane from delegate-setup:           add --lane <name>  (dials apply; flags still win)
 # read-only (review/diagnosis, no edits):   add --read-only   (uses the plan agent)
 # continue the previous OpenCode session:   add --resume-last  (delta brief only; keeps the model)
 # hard time limit (watchdog):               add --timeout 2h  (default: off; implementation runs routinely need 1-2h)
-# see all options:                          node .../relay.mjs --help
+# see all options:                          node .../relay.ts --help
 ```
 
 The helper defaults to the write-capable `build` agent and writes its artifacts to a temp dir, so the
@@ -163,7 +163,7 @@ is in [references/review-and-land.md](references/review-and-land.md).
 
 - [references/writing-the-brief.md](references/writing-the-brief.md) — how to write a brief OpenCode can
   execute blind: structure, XML blocks, the report contract, embedding the real gate commands.
-- [references/dispatch-and-poll.md](references/dispatch-and-poll.md) — `relay.mjs` flags, the
+- [references/dispatch-and-poll.md](references/dispatch-and-poll.md) — `relay.ts` flags, the
   `result.json` contract, backgrounding per orchestrator, and recovery when a run misbehaves.
 - [references/review-and-land.md](references/review-and-land.md) — the review checklist, the commit
   boundary, and the rework cycle via `--resume-last`.

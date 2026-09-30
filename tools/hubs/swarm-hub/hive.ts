@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_LOADSKILL_LISTAGENTS_MODESTATE_TASKTODOS_BASH, RULES_COMPLETION_GUARDRAIL } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "hive",
-  description: "Agent Hive execution — Swarm Bee phase: batched parallelism with worktree isolation, best-effort worker verification, blocked worker protocol, orchestrator batch testing",
+  description: "Batched parallel workers with worktree isolation and blocked-worker protocol",
   reminder: "Swarm Bee: batched parallel execution.",
   skill: "hive-methodology",
 

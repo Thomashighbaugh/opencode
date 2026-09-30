@@ -327,7 +327,7 @@ update_gitignore() {
     fi
 
     # Run privacy scan to detect any additional patterns that should be gitignored
-    local privacy_scan="$GLOBAL_DIR/skills/privacy-scan/scripts/scan-privacy.mjs"
+    local privacy_scan="$GLOBAL_DIR/skills/privacy-scan/scripts/scan-privacy.ts"
     if [[ -f "$privacy_scan" ]]; then
         echo "  → Running privacy scan for additional gitignore patterns..."
         # Scan the .opencode directory for any files that might contain secrets

@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_BASH, RULES_CONTEXT_STRATEGY, SKILLS_WIKI } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "secondbrain",
-  description: "Privacy-first local knowledge base — markdown+Git with role packs and self-healing cross-references",
+  description: "Local-first knowledge base in markdown, versioned by git",
   reminder: "Set up local-first knowledge management.",
   inline: true,
 

@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_LOADSKILL_LISTAGENTS_BASH_MODESTATE, SKILLS_SETUP_REFRESH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "refresh",
-  description: "Update existing config preserving manual edits — re-detect stack, merge new recommendations, re-provision; --full adds deep codebase mapping, context synthesis, and routing integration validation",
+  description: "Re-detect the stack and re-provision, preserving manual edits",
   reminder: "Update config preserving manual edits. Use --full for deep codebase re-mapping and context refresh.",
   skill: "init-project",
   phases: "0-8 (merge)",

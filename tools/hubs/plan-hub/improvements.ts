@@ -4,7 +4,7 @@ import { TOOLS_BASH, RULES_COMPLETION_GUARDRAIL } from "../shared-spec-fragments
 
 const spec: HubSubcommandSpec = {
   label: "improvements",
-  description: "Project audit — major & minor improvement items with proposed fixes, ordered for approval",
+  description: "Audit the project for major and minor improvements, ranked",
   reminder: "Audit project and present improvement proposals for approve/deny.",
   inline: true,
 

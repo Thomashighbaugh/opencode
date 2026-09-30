@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "retrospect",
-  description: "Post-run retrospective analysis — extract lessons learned, error taxonomy classification, metrics across all phases",
+  description: "Post-run retrospective — lessons, error taxonomy, metrics",
   reminder: "Run post-run retrospective analysis.",
   inline: true,
 

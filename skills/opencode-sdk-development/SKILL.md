@@ -1,5 +1,5 @@
 ---
-name: OpenCode SDK Development
+name: opencode-sdk-development
 description: This skill should be used when the user asks to "create an OpenCode tool", "build an OpenCode plugin", "write a custom tool for OpenCode", "use @opencode-ai/sdk", "use @opencode-ai/plugin", "integrate with OpenCode", "create OpenCode hooks", "define tool schema", "use tool.schema", "work with OpenCode sessions", or needs guidance on OpenCode SDK patterns, plugin development, or custom tool creation.
 level: 2
 license: MIT

@@ -138,3 +138,7 @@ Edit `config/toolsets.json` to enable/disable feature groups:
 ---
 
 **MCP Parity:** This skill provides equivalent functionality to all GitHub MCP Server toolsets.
+
+## Related rules
+
+- `rules/git-workflow.md` — commit message format and the branch/commit conventions

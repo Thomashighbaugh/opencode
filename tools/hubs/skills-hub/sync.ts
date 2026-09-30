@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "sync",
-  description: "Sync skills between user and project scopes — scan both, categorize, display diff opportunities, copy or merge with confirmation",
+  description: "Sync skills between user and project scope, showing the diff",
   reminder: "Sync skills across user and project scopes.",
   inline: true,
 

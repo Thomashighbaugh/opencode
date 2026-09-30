@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_BASH, RULES_SECURITY, SKILLS_PRIVACY_SCAN } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "export",
-  description: "Export context as a readable summary, markdown bundle, or team report — share what the project knows",
+  description: "Export context as a summary, bundle, or team report",
   reminder: "Export context as readable summary.",
   inline: true,
 

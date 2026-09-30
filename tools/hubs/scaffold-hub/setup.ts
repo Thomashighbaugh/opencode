@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_LOADSKILL_LISTAGENTS_BASH_MODESTATE, SKILLS_SETUP_REFRESH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "setup",
-  description: "Full project setup via 9-phase pipeline — detect stack, provision agents/skills/tools/rules, generate docs, optional --full adds deep codebase mapping + context capture + routing integration",
+  description: "Full 9-phase project setup — detect, provision, document, verify",
   reminder: "Default: phases 0-5 + 8. With --full: all 9 phases including deep context capture and routing integration.",
   skill: "init-project",
   phases: "0-8",

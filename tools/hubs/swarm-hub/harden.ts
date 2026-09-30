@@ -2,7 +2,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 
 const spec: HubSubcommandSpec = {
   label: "harden",
-  description: "Composable robustness — safeTask (error+deviation tracking), circuitBreaker (halt on failure rate), verificationGate (block downstream until verified)",
+  description: "Composable robustness — safe task, circuit breaker, verification gate",
   reminder: "Wrap workflow with robustness composables.",
   skill: "harden",
 

@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "search",
-  description: "Semantic search across all context files — find decisions, patterns, research matching a query across .opencode/context/",
+  description: "Semantic search across context — decisions, patterns, research",
   reminder: "Semantic search across context files.",
   inline: true,
 

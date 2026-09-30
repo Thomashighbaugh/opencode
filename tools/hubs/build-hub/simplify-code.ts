@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_LOADSKILL_BASH, RULES_KARPAHTY_GUIDELINES } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "simplify-code",
-  description: "Simplify code for clarity — five-principle process: preserve behavior, follow conventions, prefer clarity, balance, scope",
+  description: "Simplify for clarity — behavior preserved, scope respected",
   reminder: "Simplify code while preserving exact behavior.",
   skill: "code-simplification",
 

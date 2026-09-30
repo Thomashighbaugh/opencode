@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "edit",
-  description: "Edit an existing skill interactively — find by name, display current values, change description/triggers/content/rename, write back",
+  description: "Interactively edit a skill's description, triggers, or content",
   reminder: "Edit skill metadata or content interactively.",
   inline: true,
 

@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_LOADSKILL_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "readme",
-  description: "Update README to reflect current codebase state — scans agents, skills, tools, rules, commands; preserves tone, links, and structure; SEO-optimized output via readme-updater skill",
+  description: "Rewrite README to match the current codebase, keeping its tone",
   reminder: "Update README with current codebase state.",
   skill: "readme-updater",
 

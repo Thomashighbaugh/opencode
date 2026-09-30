@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_BASH, RULES_CONTEXT_STRATEGY } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "prune",
-  description: "Stale context management — identify old or superseded context files, archive or delete them to keep .opencode/context/ healthy",
+  description: "Archive or delete superseded context to keep the store healthy",
   reminder: "Identify and archive stale context files.",
   inline: true,
 

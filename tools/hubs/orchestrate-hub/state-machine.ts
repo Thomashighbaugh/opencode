@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_LISTAGENTS_MODESTATE_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "state-machine",
-  description: "State-machine orchestration — agents as states with explicit transitions and guards",
+  description: "Agents as states, with explicit transitions and guards",
   reminder: "Model workflow as state machine.",
   inline: true,
 

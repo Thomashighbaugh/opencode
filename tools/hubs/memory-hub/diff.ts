@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_BASH, RULES_CONTEXT_STRATEGY } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "diff",
-  description: "Context diff — compare current context state to a previous checkpoint, showing new decisions, patterns, and changes since last harvest",
+  description: "Diff current context against a checkpoint — new decisions, patterns",
   reminder: "Diff context against previous checkpoint.",
   inline: true,
 

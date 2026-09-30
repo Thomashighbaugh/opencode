@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_BASH, SKILLS_CONTEXT7_WEB_TO_MD } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "web-research",
-  description: "Multi-source web research — search multiple queries in parallel via websearch, fetch top results via webfetch, synthesize findings into a structured research report saved directly to .opencode/context/research/",
+  description: "Parallel multi-query web research, synthesized into a saved report",
   reminder: "Search, fetch, and synthesize web research into a report.",
   inline: true,
 

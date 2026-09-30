@@ -1,3 +1,7 @@
+---
+resolveLinks: false
+---
+
 # Open Source Project README Template
 
 Use this template for projects intended for public use and contribution.

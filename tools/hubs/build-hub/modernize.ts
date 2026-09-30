@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_LISTAGENTS_BASH, RULES_KARPAHTY_GUIDELINES } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "modernize",
-  description: "Update code patterns to modern language/framework conventions — targeted, behavior-preserving modernization via the code-simplification skill",
+  description: "Modernize patterns in place, preserving behavior",
   reminder: "Modernize code patterns and conventions.",
   skill: "code-simplification",
 

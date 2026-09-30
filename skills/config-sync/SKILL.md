@@ -40,12 +40,12 @@ Reads `opencode.jsonc`, parses all top-level keys, and checks:
 
 ## Script
 
-`scripts/check-schema-compliance.mjs` — Standalone compliance checker
+`scripts/check-schema-compliance.ts` — Standalone compliance checker
 
 ```
-node scripts/check-schema-compliance.mjs         # Check only
-node scripts/check-schema-compliance.mjs --fix    # Auto-fix issues
-node scripts/check-schema-compliance.mjs --save   # Save schema to context
+node scripts/check-schema-compliance.ts         # Check only
+node scripts/check-schema-compliance.ts --fix    # Auto-fix issues
+node scripts/check-schema-compliance.ts --save   # Save schema to context
 ```
 
 ## Cached Schema

@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "info",
-  description: "Show detailed information about a skill — find by name, parse YAML frontmatter, display complete details and full content",
+  description: "Show a skill's full frontmatter and content",
   reminder: "Show full skill details and content.",
   inline: true,
 

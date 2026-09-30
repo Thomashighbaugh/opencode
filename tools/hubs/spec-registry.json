@@ -1,7 +1,7 @@
 {
   "build-hub/brownfield": {
     "label": "brownfield",
-    "description": "Feature addition to existing codebase — analyze system, identify integration points, validate strategy before implementation",
+    "description": "Add a feature to existing code — find the seams, then implement",
     "reminder": "Analyze and integrate into existing codebase.",
     "skill": "brownfield",
     "detailedDescription": "Feature addition to an EXISTING codebase (greenfield would use a different pattern). Three phases with a mandatory validation gate before implementation:\n\n1. Analyze system: map the existing architecture, conventions, integration points, and constraints. The @explore and @architect agents understand the codebase before touching it.\n2. Identify integration points: where does the new feature connect? What existing modules change? What new modules are needed? What conventions must be followed?\n3. Validate strategy: the integration plan is reviewed before any code is written. This gate prevents the common LLM mistake of implementing a feature that fights the existing architecture. Only after validation passes does implementation begin.\n\nThe emphasis is on respecting the existing system — matching its conventions, minimizing disruption, and integrating cleanly. NOT on rewriting or \"improving\" existing code (surgical changes principle).\n\nUse when adding a feature to a codebase you didn't write (or that has established conventions). The validation gate is the key — it catches \"this doesn't fit the existing architecture\" before you've written 200 lines.",
@@ -23,7 +23,7 @@
   },
   "build-hub/cleanup": {
     "label": "cleanup",
-    "description": "Regression-safe cleanup of AI-generated slop — dead code, redundant comments, unused exports via ai-slop-cleaner skill",
+    "description": "Remove AI slop — dead code, redundant comments, unused exports",
     "reminder": "Clean up AI-generated code slop safely.",
     "skill": "ai-slop-cleaner",
     "detailedDescription": "Regression-safe cleanup of AI-generated code slop. The ai-slop-cleaner skill removes:\n\n- Dead code (unreachable, unused).\n- Redundant comments (comments that restate the code).\n- Unused exports (exported but never imported elsewhere).\n- AI signature patterns: over-defensive error handling for impossible cases, speculative abstractions, unnecessary config flags.\n\nThe \"regression-safe\" part: the skill uses a deletion-first workflow with verification. Each deletion is verified to not break tests before committing. Optional reviewer-only mode flags issues without applying changes.\n\nUse when an AI session has left the codebase messier than it found it. Especially useful after /orchestrate-hub autopilot or /build-hub vibe-code runs.",
@@ -42,7 +42,7 @@
   },
   "build-hub/extract-standards": {
     "label": "extract-standards",
-    "description": "Extract coding standards from existing files — infer style guide from codebase syntax",
+    "description": "Infer a style guide from the code that already exists",
     "reminder": "Extract coding standards from existing file(s).",
     "skill": "code-standards-extractor",
     "detailedDescription": "Extracts coding standards from existing source files via the code-standards-extractor skill. Uses the existing syntax of the given file(s) to establish the project's style guidelines.\n\nParameters:\n- fileName (required): the file to analyze — indentation, variable naming, commenting, conditional/functional procedures, and other syntax-related data for the file's language.\n- folderName (optional): aggregate data from all files in the folder into one dataset, then analyze as a single instance. Loops through each file, appending data to temporary memory, then treats the aggregate as one input.\n- instructions (optional): additional rules/procedures for unique cases.\n- Config flags as parameters (optional): addStandardsTest, addToREADME, addToREADMEInsertions, createNewFile, fetchStyleURL, findInconsistencies, fixInconsistencies, newFileName, outputSpecToPrompt, useTemplate. Passing any of these overrides its default.\n\nOutput modes (default: create a new standards file):\n- New file: picks the first unused name from [CONTRIBUTING.md, STYLE.md, CODE_OF_CONDUCT.md, CODING_STANDARDS.md, DEVELOPING.md, CONTRIBUTION_GUIDE.md, GUIDELINES.md, PROJECT_STANDARDS.md, BEST_PRACTICES.md, HACKING.md].\n- addToREADME=true: inserts standards into README.md (atBegin | middle | beforeEnd | bestFitUsingContext).\n- outputSpecToPrompt=true: prints standards to the prompt instead.\n\nAlso detects syntax inconsistencies (indentation, line-breaks, comments, nesting, quote wrappers): categorizes, counts, flags low-count items; optionally fixes them to match the majority (fixInconsistencies, default true — auto-disabled when analyzing multiple files/folders). Optionally fetches the language's official style guide as extra context (fetchStyleURL, default true). Optionally writes a standards-adherence test (addStandardsTest, default false).\n\nUse when the user wants a style guide derived from an existing codebase, or wants consistency fixes applied per the majority convention.",
@@ -71,7 +71,7 @@
   },
   "build-hub/modernize": {
     "label": "modernize",
-    "description": "Update code patterns to modern language/framework conventions — targeted, behavior-preserving modernization via the code-simplification skill",
+    "description": "Modernize patterns in place, preserving behavior",
     "reminder": "Modernize code patterns and conventions.",
     "skill": "code-simplification",
     "detailedDescription": "Modernizes code patterns to current language/framework conventions via the code-simplification skill. Behavior-preserving — the code does the same thing, just in the modern way.\n\nExamples:\n- var → let/const (JavaScript).\n- callback chains → async/await.\n- class components → function components (React).\n- options API → composition API (Vue).\n- manual memoization → useMemo/useCallback.\n- prop spreading → explicit props.\n- defaultProps → default parameters.\n\nEach modernization is verified (tests pass before and after). Use when the codebase uses outdated patterns that make it harder to read or maintain — NOT just for fashion.",
@@ -140,7 +140,7 @@
   },
   "build-hub/pipeline": {
     "label": "pipeline",
-    "description": "Declarative multi-stage pipeline — Stage 1: lint → Stage 2: test → Stage 3: build → Stage 4: deploy, each stage gates the next",
+    "description": "Declarative stages: lint → test → build → deploy, each gating the next",
     "reminder": "Multi-stage pipeline with hard gates.",
     "inline": true,
     "detailedDescription": "Declarative multi-stage pipeline with hard gates between stages. Each stage runs to completion; if it fails, downstream stages do NOT run. The pipeline halts on first failure.\n\nDefault stages (configurable):\n1. Lint — static analysis, style checks. Gate: zero errors.\n2. Test — unit + integration tests. Gate: all pass.\n3. Build — compile/bundle for production. Gate: succeeds without errors.\n4. Deploy — ship the artifact. Gate: deployment confirms success.\n\nDefine custom stages via a pipeline spec file or flags. Each stage can be an agent invocation, a shell command, or a skill. The orchestrator runs stages sequentially and reports the gate result for each.\n\nUse for CI/CD-like workflows where you want the agent to drive the release process end-to-end with quality gates. NOT for development tasks — this is a delivery pipeline, not a coding pattern.",
@@ -159,7 +159,7 @@
   },
   "build-hub/refactor": {
     "label": "refactor",
-    "description": "Restructure code without changing behavior — extract functions, split modules, reduce coupling via the code-simplification skill",
+    "description": "Restructure without changing behavior — extract, split, decouple",
     "reminder": "Restructure code without changing behavior.",
     "skill": "code-simplification",
     "detailedDescription": "Code refactoring via the code-simplification skill. Restructures code to improve maintainability WITHOUT changing behavior. Techniques:\n\n- Extract function: move a code block into a named function.\n- Extract module: split a large file into cohesive modules.\n- Reduce coupling: introduce interfaces, invert dependencies.\n- Consolidate conditionals: simplify complex if/else chains.\n- Rename for clarity: improve names to reveal intent.\n\nVerify behavior is preserved (tests pass before and after). Changes are surgical — only the refactor, no feature additions or \"improvements\" to adjacent code.\n\nUse when code is hard to maintain but works correctly. For code that's broken, fix first, then refactor.",
@@ -174,7 +174,7 @@
   },
   "build-hub/simplify": {
     "label": "simplify",
-    "description": "Reduce code complexity — flatten nesting, simplify conditionals, clarify naming via the code-simplification skill",
+    "description": "Reduce complexity — flatten nesting, simplify conditionals",
     "reminder": "Reduce code complexity and improve clarity.",
     "skill": "code-simplification",
     "detailedDescription": "Code simplification via the code-simplification skill. Reduces complexity while preserving behavior:\n\n- Flatten deep nesting (early returns, guard clauses).\n- Simplify complex conditionals (extract predicates, use lookup tables).\n- Clarify naming (rename variables/functions to reveal intent).\n- Reduce parameter count (parameter objects, currying).\n- Remove dead branches (unreachable code).\n\nDistinct from /build-hub refactor (which restructures modules). Simplify works within a function/file; refactor works across files. Use when code is correct but hard to read.",
@@ -189,7 +189,7 @@
   },
   "build-hub/simplify-code": {
     "label": "simplify-code",
-    "description": "Simplify code for clarity — five-principle process: preserve behavior, follow conventions, prefer clarity, balance, scope",
+    "description": "Simplify for clarity — behavior preserved, scope respected",
     "reminder": "Simplify code while preserving exact behavior.",
     "skill": "code-simplification",
     "detailedDescription": "Code simplification via the code-simplification skill — a process-driven, model-agnostic workflow that reduces complexity while preserving exact behavior.\n\nThe skill's five principles:\n1. **Preserve behavior exactly** — same outputs, error behavior, side effects, edge cases. No test modifications to make changes pass.\n2. **Follow project conventions** — match the codebase's style, don't impose external preferences.\n3. **Prefer clarity over cleverness** — explicit code beats compact code that needs a mental pause to parse.\n4. **Maintain balance** — avoid over-simplification traps: over-inlining, combining unrelated logic, removing useful abstractions, optimizing for line count.\n5. **Scope to what changed** — default to recently modified code; no drive-by refactors.\n\nProcess: understand before touching (Chesterton's Fence — check git blame for context) → identify opportunities (deep nesting, long functions, nested ternaries, boolean flags, generic names, duplication, dead code, unnecessary abstractions) → apply changes incrementally with tests after each change (Rule of 500: automate beyond 500 lines) → verify the result and revert if not genuinely simpler.\n\nDistinct from /build-hub simplify (which delegates to @code-simplifier agent): this subcommand runs the skill's structured checklist directly. Use either per preference — the skill is ideal when you want the full process-driven pass with explicit verification gates.\n\nIncludes language-specific guidance for TypeScript/JavaScript, Python, and React/JSX, a common-rationalizations table, red flags, and a verification checklist.",
@@ -214,7 +214,7 @@
   },
   "build-hub/vibe-code": {
     "label": "vibe-code",
-    "description": "Conversational rapid prototyping — describe app in natural language, generate full-stack, iterate with feedback through conversational rounds",
+    "description": "Describe an app in prose, get full-stack code, iterate conversationally",
     "reminder": "Conversational rapid prototyping.",
     "skill": "vibe-code",
     "detailedDescription": "Conversational rapid prototyping: the user describes an app in natural language (\"a todo app with categories and due dates\"), the agent generates a full-stack implementation, and then iterates based on conversational feedback (\"add priority levels\", \"make the UI darker\").\n\nEach round:\n1. User describes or refines the app in natural language.\n2. Agent generates or modifies the full-stack code (frontend + backend + schema).\n3. User gives feedback in natural language.\n4. Repeat.\n\nThe emphasis is on speed and iteration over upfront planning. The agent makes reasonable default choices and lets the user redirect via feedback. This is the opposite of spec-driven (which formalizes before implementing) — vibe-code implements first and refines through conversation.\n\nUse for prototypes, demos, hackathons, and exploring an idea before committing to a spec. NOT for production code where requirements are fixed and correctness is critical.",
@@ -281,7 +281,7 @@
   },
   "design-hub/frontend-design": {
     "label": "frontend-design",
-    "description": "Production-grade frontend interfaces — pass instructions directly to @frontend-design",
+    "description": "Hand production frontend work to the frontend designer",
     "reminder": "Delegating to @frontend-design.",
     "agent": "@frontend-design",
     "detailedDescription": "Delegates directly to the @frontend-design agent. The remainder of your prompt will be passed as specific instructions to the agent."
@@ -302,7 +302,7 @@
   },
   "design-hub/readme": {
     "label": "readme",
-    "description": "Update README to reflect current codebase state — scans agents, skills, tools, rules, commands; preserves tone, links, and structure; SEO-optimized output via readme-updater skill",
+    "description": "Rewrite README to match the current codebase, keeping its tone",
     "reminder": "Update README with current codebase state.",
     "skill": "readme-updater",
     "detailedDescription": "Updates the README to reflect the current codebase state via the readme-updater skill. Scans:\n\n- Agents, skills, tools, rules, commands, archetypes (each with agents/, rules/, skills/, tools/ subdirs), plugins.\n- Project structure and configuration.\n- Existing README content.\n\nWhen documenting archetypes, note that each contains four subdirectories (agents/, rules/, skills/, tools/) — all four must be provisioned per-project: agents/ and rules/ go in opencode.jsonc, skills/ and tools/ are copied/linked into .opencode/.\n\nPreserves the existing tone, links, and structure — it updates content, doesn't rewrite from scratch. Output is SEO-optimized and technically proficient.\n\nUse when the codebase has changed significantly and the README is stale. Not for creating a README from scratch (use /resource-hub command or writing skills for that).",
@@ -335,7 +335,7 @@
   },
   "git-hub/archive": {
     "label": "archive",
-    "description": "Move stale branches, old artifacts, unused config to timestamped archive — keep working tree clean",
+    "description": "Move stale branches and artifacts to a timestamped archive",
     "reminder": "Archive stale branches and artifacts.",
     "inline": true,
     "detailedDescription": "Archives stale items to keep the working tree clean. Moves:\n\n- Stale git branches (merged or abandoned) to an archive ref.\n- Old build artifacts to a timestamped archive directory.\n- Unused config files to an archive folder.\n- Superseded documentation.\n\nArchive is non-destructive — items are moved, not deleted, and can be recovered. Use when the repo accumulates cruft that makes navigation harder.",
@@ -380,7 +380,7 @@
   },
   "git-hub/commit-drafter": {
     "label": "commit-drafter",
-    "description": "Structure conventional commit messages — pass instructions directly to @commit-drafter",
+    "description": "Hand commit message drafting to the commit drafter",
     "reminder": "Delegating to @commit-drafter.",
     "agent": "@commit-drafter",
     "detailedDescription": "Delegates directly to the @commit-drafter agent. The remainder of your prompt will be passed as specific instructions to the agent."
@@ -399,7 +399,7 @@
   },
   "git-hub/git-cleanup": {
     "label": "git-cleanup",
-    "description": "Fix orphaned CHANGELOG entries referencing commits not in git history after .git/ rebuild — preserves entries, removes bad refs",
+    "description": "Drop CHANGELOG entries whose commits are no longer in history",
     "reminder": "Clean up orphaned commit references in CHANGELOG.",
     "inline": true,
     "detailedDescription": "Fixes orphaned CHANGELOG entries that reference commits no longer in git history. This happens after .git/ rebuilds, history rewrites, or squash merges that remove commits from the object database.\n\nProcess:\n1. Parse CHANGELOG for commit hash references.\n2. Check each hash against git's object database.\n3. For orphans (hash not found): preserve the changelog entry (it documents what changed) but remove the bad hash reference so the changelog doesn't link to nothing.\n\nThe entries are preserved — only the broken commit references are cleaned. Use after git history operations that might orphan CHANGELOG references.",
@@ -443,7 +443,7 @@
   },
   "git-hub/release": {
     "label": "release",
-    "description": "Tag and release — bump version, generate changelog, create GitHub release in one flow",
+    "description": "Bump the version, changelog, and GitHub release in one flow",
     "reminder": "Tag, bump, and create GitHub release.",
     "inline": true,
     "detailedDescription": "End-to-end release flow in one command:\n\n1. Bump version (patch/minor/major per semver, or custom).\n2. Generate changelog from commits since last release (via /git-hub changelog logic).\n3. Update version files (package.json, Cargo.toml, VERSION, etc.).\n4. Commit the version bump.\n5. Create a git tag.\n6. Create a GitHub release with the changelog as release notes (via gh CLI).\n7. Push tag and release commit.\n\nUse when ready to release. Combines version bump + changelog + tag + GitHub release into a single flow.",
@@ -511,7 +511,7 @@
   },
   "ideate-hub/deep-dive": {
     "label": "deep-dive",
-    "description": "2-stage pipeline: trace root cause, then crystallize requirements — evidence-first investigation",
+    "description": "Trace the root cause, then crystallize the requirements",
     "reminder": "Trace root cause then interview to concrete spec.",
     "skill": "deep-dive",
     "detailedDescription": "2-stage pipeline combining trace (causal investigation) with deep-interview (requirements crystallization) connected by a 3-point injection mechanism.\n\nStage 1 — Trace: Runs 3 parallel causal investigation lanes examining the problem from different angles. Each lane produces evidence, hypotheses, and confidence scores. Code-path, config/environment, and measurement lanes run concurrently.\n\nStage 2 — Deep-Interview: Takes the trace findings and runs a Socratic interview to crystallize concrete, implementable requirements. The interview starts enriched with trace context — no redundant exploration.\n\n3-point injection: (1) enriched starting point, (2) system context from trace, (3) seeded initial questions based on trace uncertainties.\n\nOutput: a spec at .opencode/state/specs/deep-dive-{slug}.md ready for handoff to /orchestrate patterns.\n\nUse when investigating a problem where both root cause AND requirements are unclear. Do NOT use when root cause is already known — use /ideate-hub interview (deep-interview) directly instead.",
@@ -659,7 +659,7 @@
   },
   "ideate-hub/spark": {
     "label": "spark",
-    "description": "Project-aware idea spark — improvements & expansions in short, expandable prompts",
+    "description": "Project-aware idea prompts, short and expandable",
     "reminder": "Spark project-aware improvement and expansion ideas.",
     "inline": true,
     "detailedDescription": "Generates short, high-signal idea sparks anchored in the actual project. Unlike /ideate-hub brainstorm (free-form, no codebase awareness), spark first scans the project for concrete surfaces to improve or expand, then produces a structured output of short prompts — each just enough to ignite further exploration.\n\nProcess:\n1. Optionally accept a user-provided area or theme to focus on (e.g. \"performance\", \"api design\", \"ux\"). If none given, scan broadly.\n2. Scan the project: read top-level structure, package.json/Cargo.toml/etc., key source directories, existing agents/skills/tools/rules. Identify patterns, gaps, rough edges, and growth vectors.\n3. Split output into two sections — IMPROVEMENTS (refine what exists) and EXPANSIONS (add new capability). Each item is a short 1-2 sentence prompt — not a spec, not a plan, just a spark.\n4. Output as a markdown table with columns: Area, Spark, Effort (S/M/L). Optionally also as an unordered list if the user prefers list format.\n5. Save to .opencode/state/ideation/work-products/{timestamp}_spark_{theme}.md\n\nEach spark should be concrete enough to be actionable but open enough to explore: \"Add retry with exponential backoff to the API client's fetch calls\" not just \"improve error handling\". Use when you know the project has potential but don't know where to start iterating — the output feeds directly into /plan-hub plan, /ideation decompose, or /ideate-hub refine.",
@@ -704,7 +704,7 @@
   },
   "maintain-hub/converge": {
     "label": "converge",
-    "description": "5-gate quality convergence — functional tests, lint/complexity, type safety, security scanning, performance thresholds with progressive target escalation",
+    "description": "Five-gate quality convergence with escalating targets",
     "reminder": "Run 5-gate quality convergence.",
     "inline": true,
     "detailedDescription": "Five-gate quality convergence pipeline. Each gate must pass before the next, and targets escalate progressively:\n\nGate 1 — Functional tests: all tests pass. Target: 100% pass rate.\nGate 2 — Lint/complexity: lint clean, complexity under threshold. Target: 0 lint errors, complexity < 10.\nGate 3 — Type safety: type check passes (tsc, mypy, etc.). Target: 0 type errors.\nGate 4 — Security scanning: SAST scan clean, no known vulnerabilities. Target: 0 critical/high findings.\nGate 5 — Performance thresholds: meets perf budget (response time, bundle size, memory). Target: within budget.\n\nProgressive target escalation: if a gate barely passes, the target is tightened on the next run. This drives quality up over time without a single big push.\n\nUse for release readiness — confirms the project meets all quality bars before shipping.",
@@ -733,7 +733,7 @@
   },
   "maintain-hub/insights": {
     "label": "insights",
-    "description": "Session-history analysis — work patterns, tool usage, friction points, strategic recommendations from your OpenCode usage",
+    "description": "Analyze session history — patterns, friction, recommendations",
     "reminder": "Analyze session history and produce an insights report.",
     "skill": "insights",
     "detailedDescription": "Analyzes local OpenCode session history (SQLite DB, read-only) and produces a structured insights report: what was worked on, how tools were used, where friction happened, and what to do next.\n\nThe analysis covers:\n1. **Stats** — messages, files touched, active days, sessions per project.\n2. **Project Areas** — clusters sessions into 3-5 main topics.\n3. **Big Wins** — evidence-backed achievements (multi-file edits, long autonomous runs, completed orchestrations).\n4. **Friction** — categorized failures: tool failures, API/network errors, ambiguous requests, retry loops, user rejections.\n5. **Strategic Horizons** — data-grounded recommendations (skills to create, workflows to automate, rules to update).\n\nData is gathered via the session-memory skill's read-only SQLite queries (last 20 sessions or 2 weeks default; range or session ID override supported). The report is written to .opencode/state/insights/insights-{YYYYMMDD}.md.\n\nDistinct from /maintain-hub retrospect (post-run lessons-learned for a single orchestration): this analyzes cross-session usage history. Use insights when the question is \"what have I been working on / where am I losing time\" — use retrospect when finishing a specific run.\n\nRules: read-only DB access (mode=ro), evidence over vibes (every claim traces to transcript text), synthesize don't dump.",
@@ -774,7 +774,7 @@
   },
   "maintain-hub/purge": {
     "label": "purge",
-    "description": "Clean up stale orchestration state — remove old runs, free disk space, preserve recent history",
+    "description": "Remove stale runs to free space, keeping recent history",
     "reminder": "Purge stale orchestration state.",
     "inline": true,
     "detailedDescription": "Cleans up stale orchestration state to free disk space. Removes:\n\n- Old orchestration runs (keeps N most recent, configurable).\n- Expired checkpoints.\n- Completed session state.\n- Orphaned state files (referencing sessions that no longer exist).\n\nPreserves recent history and the current session. Use periodically when .opencode/state/ has grown large.",
@@ -788,7 +788,7 @@
   },
   "maintain-hub/retrospect": {
     "label": "retrospect",
-    "description": "Post-run retrospective analysis — extract lessons learned, error taxonomy classification, metrics across all phases",
+    "description": "Post-run retrospective — lessons, error taxonomy, metrics",
     "reminder": "Run post-run retrospective analysis.",
     "inline": true,
     "detailedDescription": "Post-run retrospective analysis after an orchestration or work session. Extracts:\n\n- Lessons learned: what worked, what didn't, what to do differently.\n- Error taxonomy: classifies errors by type (logic, integration, config, flaky, environmental) to find patterns.\n- Metrics: phase durations, success rates, API request counts, token usage.\n\nOutput: a retrospective report saved to .opencode/state/. Use after significant work to learn from the session and improve future runs.",
@@ -799,7 +799,7 @@
   },
   "maintain-hub/sandbox": {
     "label": "sandbox",
-    "description": "Sandbox enforcement — policy-based tool control, file protection, network filtering for agent tool calls",
+    "description": "Policy-based tool control — file, command, and network limits",
     "reminder": "Enforce sandbox tool execution policies.",
     "inline": true,
     "detailedDescription": "Sandbox enforcement for agent tool calls. Applies policies:\n\n- Tool control: allow/deny specific tools (e.g. no bash in production).\n- File protection: mark files as read-only or no-touch (e.g. don't modify .env, production config).\n- Network filtering: restrict network access (e.g. no external fetches in CI).\n- Rate limiting: cap tool calls per minute.\n\nThe sandbox is policy-driven — you define what's restricted, the sandbox enforces it. Use in CI, production environments, or when an agent might touch files it shouldn't.",
@@ -813,7 +813,7 @@
   },
   "maintain-hub/scan": {
     "label": "scan",
-    "description": "Security vulnerability scan — SAST rules, secrets detection, dependency audit, compliance checks",
+    "description": "Security scan — SAST, secrets, dependencies, compliance",
     "reminder": "Run security vulnerability scan.",
     "inline": true,
     "detailedDescription": "Security vulnerability scan with four dimensions:\n\n1. SAST (static analysis): scans source code for vulnerability patterns (injection, XSS, CSRF, auth bypass, path traversal, unsafe deserialization).\n2. Secrets detection: scans for hardcoded API keys, tokens, passwords, credentials in the codebase.\n3. Dependency audit: checks dependencies against known vulnerability databases (npm audit, pip audit, etc.).\n4. Compliance checks: verifies security-relevant configurations (HTTPS, CORS, headers, rate limiting).\n\nOutput: a security report with findings classified by severity (critical, high, medium, low) and specific remediation instructions. Follows the security.md rule's response protocol.\n\nUse before commits, releases, or periodically as a security baseline. Also runs as gate 4 of /maintain-hub converge.",
@@ -829,7 +829,7 @@
   },
   "maintain-hub/self-improve": {
     "label": "self-improve",
-    "description": "Per-project self-optimization — capture learnings, triage failures, promote recurring fixes into .opencode/ config",
+    "description": "Capture learnings and promote recurring fixes into config",
     "reminder": "Run the self-improvement capture/triage/promotion loop for this project.",
     "skill": "self-improvement",
     "detailedDescription": "Runs the per-project self-optimization loop: the project's own .opencode/ config (rules, skills, AGENTS.md) adapts as it is used, so that recurring failures and corrections compound into durable, evidence-gated improvements.\n\nLoad the `self-improvement` skill and follow its workflow:\n\n**1. Capture** — append typed entries to .opencode/context/learnings/ (LEARNINGS.md / ERRORS.md / FEATURE_REQUESTS.md) for anything that failed, was corrected, went stale, or lacks a capability. Dedupe by Pattern-Key; increment Recurrence-Count on repeats. Entry ID format: LRN-/ERR-/FEAT-YYYYMMDD-NNNNNN.\n\n**2. Triage** — classify each failure into one of two root buckets BEFORE proposing changes:\n   - **Config problem**: the project .opencode/ asset (skill/rule/command/spec) is wrong, stale, or missing → fix the asset.\n   - **Agent problem**: the asset is fine; the agent misused it → no config change.\n   Pre-triage: verify the asset exists, is registered, and loads before blaming the agent.\n\n**3. Promote (bounded, human-approved)** — only when Recurrence-Count >= 3 across 2+ tasks within 30 days, with verified before/after evidence:\n   - Promotion targets, in order: project AGENTS.md / rules/*.md (prevention rule), project skills/ (reusable workflow), FEATURE_REQUESTS.md → provision.\n   - Guardrail format: BEFORE <op>: <checks> / TRIGGERED BY / ADDED BECAUSE: <entry ID> / EFFECTIVENESS: <tracked>.\n   - Promotions are bounded edits (one surface, minimal delta) and are NEVER auto-applied — present to the user for approval.\n\n**4. Validate** — mark entries promoted, track EFFECTIVENESS. Every 10 sessions run /maintain-hub retrospect + /maintain-hub consolidate-telemetry to fold telemetry into the loop.\n\n**Signals to act on (rolling 10 sessions):** first-attempt success < 80%, avg revisions >= 1.5, error recurrence >= 10%, user corrections >= 5%, time-to-completion accuracy outside 0.8–1.2.\n\n**Anti-patterns:** no measurement without thresholds, no config change on a single error, no >5-item checklists, no promotion without 2+ examples, no monolithic rule rewrites, no same-agent self-evaluation.\n\n**Validation commands:**\n- `ls .opencode/context/learnings/` — capture files exist\n- `grep -c \"Recurrence-Count: 3\" .opencode/context/learnings/LEARNINGS.md` — promotion candidates\n\nSee the `self-improvement` skill for the full capture format, triage table, and promotion rules. Related: `remember` (memory surfaces), `learner` (skill extraction), `self-improve` (evolutionary code engine), /maintain-hub retrospect, /maintain-hub consolidate-telemetry.",
@@ -866,7 +866,7 @@
     "description": "Embed codebase + context into local vector DB for semantic retrieval",
     "reminder": "Run vectorization over project code and context.",
     "inline": true,
-    "detailedDescription": "Vectorize the project for semantic retrieval. Two local vector stores are maintained under .opencode/state/vector/ (gitignored):\n\n1. **context.db** — markdown sources: .opencode/context/**, .opencode/rules/**, .opencode/docs/**, AGENTS.md (heading-based chunking).\n2. **code.db** — the project source tree (declaration-aware chunking; skips node_modules, .git, build/dist/vendor dirs, and .opencode/state + .opencode/cache for privacy).\n\nBoth stores use Ollama embeddings (pedrohml/mxbai-embed-large, local-only) plus an in-process cross-encoder reranker (Xenova/bge-reranker-base via @huggingface/transformers, sigmoid scoring). Zero provider API requests — everything runs locally.\n\nCommand (run from the project root, or set OPCODE_DIR):\n  node <skill-dir>/scripts/vectorize.mjs --all      # context + code\n  node <skill-dir>/scripts/vectorize.mjs --code     # code store only\n\nwhere <skill-dir> is skills/vectorize-context (global or project-local .opencode/skills/vectorize-context).\n\nIndexing is incremental (mtime-based): re-runs only embed changed files. Deleted files are cleaned from the store automatically.\n\nThe vectorize hook (plugins/hooks/vectorize-hook.ts) keeps both stores fresh as files change — it spawns sync-hook.mjs as a child process (10s poll, maintenance mode; the plugin process never loads native modules). The system.transform hook injects <Relevant_Context> (docs) and <Relevant_Code> (source) blocks into complex prompts via a child-process query. Manual querying:\n  node <skill-dir>/scripts/query.mjs \"question\"\n  node <skill-dir>/scripts/query.mjs --code \"question\"\n\nStats: node <skill-dir>/scripts/vectorize.mjs prints scanned/indexed/skipped/chunks/elapsed per store.",
+    "detailedDescription": "Vectorize the project for semantic retrieval. Two local vector stores are maintained under .opencode/state/vector/ (gitignored):\n\n1. **context.db** — markdown sources: .opencode/context/**, .opencode/rules/**, .opencode/docs/**, AGENTS.md (heading-based chunking).\n2. **code.db** — the project source tree (declaration-aware chunking; skips node_modules, .git, build/dist/vendor dirs, and .opencode/state + .opencode/cache for privacy).\n\nBoth stores use Ollama embeddings (pedrohml/mxbai-embed-large, local-only) plus an in-process cross-encoder reranker (Xenova/bge-reranker-base via @huggingface/transformers, sigmoid scoring). Zero provider API requests — everything runs locally.\n\nCommand (run from the project root, or set OPCODE_DIR):\n  node <skill-dir>/scripts/vectorize.ts --all      # context + code\n  node <skill-dir>/scripts/vectorize.ts --code     # code store only\n\nwhere <skill-dir> is skills/vectorize-context (global or project-local .opencode/skills/vectorize-context).\n\nIndexing is incremental (mtime-based): re-runs only embed changed files. Deleted files are cleaned from the store automatically.\n\nThe vectorize hook (plugins/hooks/vectorize-hook.ts) keeps both stores fresh as files change — it spawns sync-hook.ts as a child process (10s poll, maintenance mode; the plugin process never loads native modules). The system.transform hook injects <Relevant_Context> (docs) and <Relevant_Code> (source) blocks into complex prompts via a child-process query. Manual querying:\n  node <skill-dir>/scripts/query.ts \"question\"\n  node <skill-dir>/scripts/query.ts --code \"question\"\n\nStats: node <skill-dir>/scripts/vectorize.ts prints scanned/indexed/skipped/chunks/elapsed per store.",
     "tools": [
       "bash"
     ],
@@ -877,7 +877,7 @@
   },
   "maintain-hub/workspace": {
     "label": "workspace",
-    "description": "Manage .opencode across projects — list Hubs-enabled projects, sync config, init .opencode in new directories, check health",
+    "description": "Manage .opencode across projects — init, sync, health",
     "reminder": "Manage Hubs workspace across projects.",
     "inline": true,
     "detailedDescription": "Manages Hubs across multiple projects. Operations:\n\n- List: find all directories with .opencode/ and show their status.\n- Sync: propagate global config updates to all projects.\n- Init: set up .opencode/ in a new directory.\n- Health: check all projects' config integrity.\n\nUse when you work across multiple Hubs-enabled projects and need to manage them collectively.",
@@ -889,7 +889,7 @@
     ]
   },
   "memory-hub/capture": {
-    "label": "context",
+    "label": "capture",
     "description": "Capture session knowledge, promote insights to project memory and docs",
     "reminder": "Capture session knowledge for project memory.",
     "skill": "remember",
@@ -920,7 +920,7 @@
   },
   "memory-hub/compare": {
     "label": "compare",
-    "description": "Compare alternatives via web research — research multiple options (libraries, tools, approaches) via websearch + webfetch, produce structured comparison table with recommendations",
+    "description": "Compare options via web research, output as a ranked table",
     "reminder": "Research and compare alternatives with structured comparison.",
     "inline": true,
     "detailedDescription": "Compare alternatives via web research. Researches multiple options (libraries, tools, approaches) and produces a structured comparison.\n\nProcess:\n1. Take the alternatives to compare (from user input).\n2. For each: websearch for docs, benchmarks, reviews, known issues; webfetch top results.\n3. Build a comparison table: criteria (rows) × alternatives (columns).\n4. Score each alternative on each criterion.\n5. Produce a recommendation with rationale.\n6. Save to .opencode/context/patterns/ with wiki compliance (update index.md, append to log.md, add YAML frontmatter, scan for cross-references).\n7. Privacy scan runs before save — if risk detected, divert to .opencode/state/harvest/ instead.\n\nUse when choosing between multiple options and the decision benefits from side-by-side comparison.",
@@ -935,7 +935,7 @@
   },
   "memory-hub/compress": {
     "label": "compress",
-    "description": "Token compression strategies — density filtering (~29% savings), command output compression (~47%), library cache compression (~94%)",
+    "description": "Token compression strategies, with measured savings per technique",
     "reminder": "Apply 4-layer token compression.",
     "inline": true,
     "detailedDescription": "Applies token compression strategies to context and output. Four layers:\n\n1. Density filtering (~29% savings): remove low-information-density lines (boilerplate, whitespace-heavy, repetitive) from text while preserving meaning.\n2. Command output compression (~47% savings): compress verbose CLI output (test runners, build logs) by removing timestamps, progress bars, and repetitive lines while preserving pass/fail signals.\n3. Library cache compression (~94% savings): compress cached library documentation by extracting only the relevant API signatures and examples, discarding prose.\n4. Context compaction: when the context window is full, summarize older context into key facts and free the tokens.\n\nUse when token efficiency matters — large context windows, many tool outputs, or approaching context limits.",
@@ -949,7 +949,7 @@
   },
   "memory-hub/consume": {
     "label": "consume",
-    "description": "Ingest a file, directory, or URL — extract text content, save as durable context, and update wiki index/log",
+    "description": "Ingest a file, directory, or URL into durable context",
     "reminder": "Ingest and save content as durable context.",
     "inline": true,
     "detailedDescription": "Ingests external content (files, directories, URLs) and saves it as durable context. Process:\n\n1. Take the input: a file path, directory, or URL.\n2. Extract text content: for files, read directly; for directories, read all text files; for URLs, fetch via webfetch or web-to-markdown skill (handles JS-rendered pages).\n3. Clean and convert to markdown.\n4. Save to .opencode/context/research/{source-slug}/{timestamp}.md.\n5. **Wiki compliance**: update .opencode/context/index.md (catalog), append to .opencode/context/log.md, add YAML frontmatter to the new file, scan for cross-references to existing pages.\n6. **References sync**: ensure the project's opencode.jsonc has a `references` key with:\n   - A `context` entry pointing to `./.opencode/context` (local path reference) so the durable knowledge base is accessible to agents.\n   - For any GitHub repository mentioned in the ingested content (matching `github.com/owner/repo` pattern), add or update a `references` entry with `repository` set to `owner/repo` and a `description` explaining when to use it. See https://opencode.ai/docs/references/ for schema details.\n   - Only add repos that are substantive project references (not gists, not forks, not passing mentions). Deduplicate variant names to the primary repo.\n   - If `references` already exists, merge new entries without removing existing ones.\n\nPrivacy scan runs before saving to prevent committing secrets/PII. Use when you have external documentation, papers, or reference material that should be part of the project's durable knowledge.",
@@ -968,7 +968,7 @@
   },
   "memory-hub/context": {
     "label": "context",
-    "description": "Manage context files — harvest, extract, organize, compact, map — updates wiki index/log on changes",
+    "description": "Harvest, extract, organize, and map context files",
     "reminder": "Harvest, organize, or compact context.",
     "inline": true,
     "detailedDescription": "Manages .opencode/context/ files. Operations:\n\n- harvest: scan context files and identify what's stale, redundant, or missing.\n- extract: pull key information from large context files into smaller, focused ones.\n- organize: restructure context files into the correct subdirectories (frameworks/, patterns/, research/, decisions.md).\n- compact: merge related small context files into consolidated ones to reduce file count.\n- map: produce a map of what context exists and where, for quick reference.\n\n**Wiki compliance**: after any restructuring (organize, compact, extract), update .opencode/context/index.md (catalog), append to .opencode/context/log.md, ensure YAML frontmatter on all files, scan for broken cross-references.\n\nUse for context maintenance — keeping .opencode/context/ healthy and navigable.",
@@ -999,7 +999,7 @@
   },
   "memory-hub/diff": {
     "label": "diff",
-    "description": "Context diff — compare current context state to a previous checkpoint, showing new decisions, patterns, and changes since last harvest",
+    "description": "Diff current context against a checkpoint — new decisions, patterns",
     "reminder": "Diff context against previous checkpoint.",
     "inline": true,
     "detailedDescription": "Compares the current context state to a previous checkpoint to show what's changed since. Reveals:\n\n- New decisions added to decisions.md\n- New patterns discovered\n- New research added\n- Files added, modified, or removed from .opencode/context/\n\nThe diff helps answer \"what did we learn since last time?\" — useful for standups, retrospectives, or just tracking knowledge growth.\n\nUse after a work session to see what durable knowledge was gained, or before a harvest to decide what's worth promoting.",
@@ -1013,7 +1013,7 @@
   },
   "memory-hub/export": {
     "label": "export",
-    "description": "Export context as a readable summary, markdown bundle, or team report — share what the project knows",
+    "description": "Export context as a summary, bundle, or team report",
     "reminder": "Export context as readable summary.",
     "inline": true,
     "detailedDescription": "Exports durable context in a shareable format. Options:\n\n- Summary: a readable markdown summary of key decisions, patterns, and research — good for onboarding.\n- Bundle: a single markdown file containing all context files concatenated — good for sharing with another agent or tool.\n- Team report: a structured report organized by topic (architecture, decisions, patterns, research) — good for stakeholder communication.\n\nThe export is saved to .opencode/state/harvest/ or printed. Sensitive data is stripped before export (privacy scan runs first).\n\nUse when you need to share project knowledge with someone outside the OpenCode workflow — a new team member, a stakeholder, or a different tool.",
@@ -1029,7 +1029,7 @@
   },
   "memory-hub/journal": {
     "label": "journal",
-    "description": "Event-sourced journal for orchestration runs — deterministic replay, time-travel debugging, SHA-256 checksums",
+    "description": "Event-sourced orchestration log — replay and time-travel debug",
     "reminder": "Set up event-sourced orchestration journal.",
     "inline": true,
     "detailedDescription": "Sets up an event-sourced journal for orchestration runs. Every event (task dispatch, completion, failure, checkpoint) is appended as an immutable event with a SHA-256 checksum.\n\nFeatures:\n- Deterministic replay: re-run an orchestration from the journal to see exactly what happened.\n- Time-travel debugging: jump to any point in the execution and inspect state.\n- Integrity: checksums detect tampering or corruption.\n- Audit trail: full history of what the agent did and why.\n\nThe journal lives in .opencode/state/orchestration/journal/. Use when you need observability into orchestration runs — especially for debugging \"why did the agent do X?\" or auditing agent behavior.",
@@ -1040,7 +1040,7 @@
   },
   "memory-hub/memory": {
     "label": "memory",
-    "description": "Promote durable knowledge to project memory, notepad, or wiki — updates wiki index/log when promoting to .opencode/context/",
+    "description": "Promote durable knowledge into project memory, notepad, or wiki",
     "reminder": "Promote knowledge to memory or wiki.",
     "skill": "remember",
     "detailedDescription": "Promotes extracted knowledge to durable storage. Reviews what was harvested (via /memory-hub session or discovered during the session) and decides where it belongs:\n\n- Project memory (.opencode/state/project-memory.json): cross-session durable facts that should persist but are project-specific.\n- Notepad: temporary notes for the current work context.\n- Wiki (.opencode/context/): durable documentation that compounds across sessions.\n- Decisions (.opencode/context/decisions.md): ADRs — architecture decisions with rationale.\n- Patterns (.opencode/context/patterns/): discovered patterns and anti-patterns.\n\n**Wiki compliance**: when promoting to .opencode/context/ (wiki, decisions, patterns), update .opencode/context/index.md, append to .opencode/context/log.md, add YAML frontmatter to new files, scan for cross-references to existing pages.\n\nThe remember skill classifies each knowledge item and routes it to the right store. Sensitive data is stripped before committing. Use after /memory-hub session to promote extracted knowledge to durable locations.",
@@ -1060,7 +1060,7 @@
   },
   "memory-hub/prune": {
     "label": "prune",
-    "description": "Stale context management — identify old or superseded context files, archive or delete them to keep .opencode/context/ healthy",
+    "description": "Archive or delete superseded context to keep the store healthy",
     "reminder": "Identify and archive stale context files.",
     "inline": true,
     "detailedDescription": "Identifies and manages stale context files. Scans .opencode/context/ for:\n\n- Old files (not modified in N days — configurable).\n- Superseded files (a newer file covers the same topic).\n- Orphaned files (reference something that no longer exists).\n- Low-value files (too sparse to be useful).\n\nFor each, the agent recommends: archive (move to .opencode/context/archive/), delete, or keep. The user confirms before any deletion.\n\nUse periodically to keep .opencode/context/ from growing unbounded. Stale context is noise that makes search less effective.",
@@ -1085,7 +1085,7 @@
   },
   "memory-hub/search": {
     "label": "search",
-    "description": "Semantic search across all context files — find decisions, patterns, research matching a query across .opencode/context/",
+    "description": "Semantic search across context — decisions, patterns, research",
     "reminder": "Semantic search across context files.",
     "inline": true,
     "detailedDescription": "Semantic search across all durable context files. Searches .opencode/context/ (decisions, patterns, research, frameworks, theory) for content matching the query semantically — not just keyword matching.\n\nProcess:\n1. Index all context files (or use an existing vector index).\n2. Embed the query.\n3. Find semantically similar context.\n4. Return ranked results with file paths and relevance scores.\n\nUse when you need to find prior decisions, patterns, or research that's relevant to the current task — \"what did we decide about auth last month?\", \"do we have research on caching strategies?\".",
@@ -1098,7 +1098,7 @@
   },
   "memory-hub/secondbrain": {
     "label": "secondbrain",
-    "description": "Privacy-first local knowledge base — markdown+Git with role packs and self-healing cross-references",
+    "description": "Local-first knowledge base in markdown, versioned by git",
     "reminder": "Set up local-first knowledge management.",
     "inline": true,
     "detailedDescription": "Sets up a privacy-first local knowledge base (\"second brain\") using markdown files + Git. Features:\n\n- Markdown-first: all knowledge is in plain markdown files. No database, no cloud service.\n- Git-backed: versioned, diffable, branchable.\n- Role packs: different views/entry points for different use cases (developer, architect, researcher).\n- Self-healing cross-references: broken links are detected and repaired automatically.\n\nThe knowledge base lives in .opencode/context/ and integrates with the existing durable context system. Use when you want a structured, long-lived knowledge base that compounds across sessions and is fully under your control.",
@@ -1114,7 +1114,7 @@
   },
   "memory-hub/session": {
     "label": "session",
-    "description": "Extract decisions, patterns, learnings from current session — promotes to wiki via /memory-hub memory",
+    "description": "Extract decisions and learnings from the current session",
     "reminder": "Extract decisions and patterns from session.",
     "inline": true,
     "detailedDescription": "Extracts durable knowledge from the current conversation session. Scans the session for:\n\n- Decisions made (and their rationale)\n- Patterns discovered (code, architecture, process)\n- Lessons learned (what worked, what didn't)\n- Anti-patterns identified\n- Unresolved questions\n\nEach extracted item is classified and saved to .opencode/state/harvest/ as a structured markdown document. The output can then be promoted to durable context (.opencode/context/) via /memory-hub memory, which runs wiki compliance (updates index.md, log.md, frontmatter, cross-references).\n\nThis is the first step of context harvesting — extract, then promote. Use at the end of a session (or when context is getting large) to preserve knowledge before it's lost to compaction.",
@@ -1134,7 +1134,7 @@
   },
   "memory-hub/sweep": {
     "label": "sweep",
-    "description": "Scan .opencode/ for files that should be gitignored but aren't — prevents bloat that breaks git push",
+    "description": "Find files in .opencode/ that should be gitignored",
     "reminder": "Sweep .opencode/ for gitignore violations.",
     "inline": true,
     "detailedDescription": "Scans .opencode/ for files that should be gitignored but aren't. Checks:\n\n- State files (.opencode/state/) — should be gitignored (ephemeral, may contain secrets).\n- Cache files (.opencode/cache/) — should be gitignored.\n- Session files — should be gitignored (may contain PII).\n- Large files that would bloat the repo.\n- Files matching secret patterns (API keys, tokens).\n\nFor each violation, the agent recommends adding a .gitignore entry. The user confirms before modifying .gitignore.\n\nUse periodically to prevent .opencode/ bloat from breaking git push — a common issue when state files accumulate and exceed GitHub's file size limits.",
@@ -1151,7 +1151,7 @@
   },
   "memory-hub/web-research": {
     "label": "web-research",
-    "description": "Multi-source web research — search multiple queries in parallel via websearch, fetch top results via webfetch, synthesize findings into a structured research report saved directly to .opencode/context/research/",
+    "description": "Parallel multi-query web research, synthesized into a saved report",
     "reminder": "Search, fetch, and synthesize web research into a report.",
     "inline": true,
     "detailedDescription": "Multi-source web research pipeline for the harvest-context hub. Same mechanism as /research-hub web-research but saves directly to .opencode/context/research/ instead of ideation work-products.\n\n1. Generate multiple search queries from the research question.\n2. Run websearch in parallel for all queries.\n3. Fetch top results via webfetch (parallel).\n4. Synthesize into a structured report with key findings, evidence (source URLs), contradictions, conclusion.\n5. Save to .opencode/context/research/ with wiki compliance (update index.md, append to log.md, add YAML frontmatter, scan for cross-references).\n6. Privacy scan runs before save — if risk detected, divert to .opencode/state/harvest/ instead.\n\nUse for research questions that require external knowledge. Prefer /research-hub library-docs (Context7) first for library-specific questions.",
@@ -1211,7 +1211,7 @@
   },
   "orchestrate-hub/consensus": {
     "label": "consensus",
-    "description": "Multi-agent consensus/voting — run agents independently, resolve via majority, weighting, or synthesis",
+    "description": "Run agents independently, then resolve by vote or synthesis",
     "reminder": "Multi-agent consensus and voting.",
     "inline": true,
     "detailedDescription": "Runs N agents independently on the same task, then resolves their outputs into a single answer via one of three protocols:\n\n1. Majority vote — the answer most agents agree on wins. Best for factual/verifiable questions.\n2. Weighted vote — agents are weighted by expertise (e.g. @security-reviewer gets 2× weight on security questions). Best when agents have unequal domain expertise.\n3. Synthesis — a synthesizer agent reads all responses and produces a merged answer that incorporates the best elements. Best for design/creative tasks where there's no single \"correct\" answer.\n\nUse when a single agent's answer is risky (high-stakes decision, security-sensitive code, ambiguous requirements) and multiple perspectives reduce risk. The cost is N× the single-agent cost.\n\nConfigure via flags: --agents=N, --protocol=majority|weighted|synthesis.",
@@ -1235,7 +1235,7 @@
   },
   "orchestrate-hub/evolutionary": {
     "label": "evolutionary",
-    "description": "Evolutionary delivery — incremental builds with fitness validation at each generation",
+    "description": "Ship incrementally, validating fitness each generation",
     "reminder": "Incremental builds with fitness validation.",
     "inline": true,
     "detailedDescription": "Evolutionary delivery: build the system in generations, each generation adding capability and validated against a fitness function before the next generation proceeds.\n\nGeneration 0: minimal viable skeleton (passes build, no features).\nGeneration 1: first feature slice (passes build + that feature's tests).\nGeneration 2: second feature slice (passes build + all accumulated tests).\n...continue until all features delivered.\n\nThe fitness function is configurable: \"all tests pass\", \"lint clean + tests pass\", \"tests pass + security scan clean\", etc. If a generation fails its fitness check, the orchestrator fixes it before advancing — no generation is built on a broken predecessor.\n\nUse when a feature set is large enough that building it all at once risks compounding errors, and each increment is independently valuable. The fitness gate ensures you always have a working system.",
@@ -1316,7 +1316,7 @@
   },
   "orchestrate-hub/state-machine": {
     "label": "state-machine",
-    "description": "State-machine orchestration — agents as states with explicit transitions and guards",
+    "description": "Agents as states, with explicit transitions and guards",
     "reminder": "Model workflow as state machine.",
     "inline": true,
     "detailedDescription": "Models the workflow as an explicit state machine where each state is an agent invocation and transitions are guarded by output conditions. The orchestrator maintains current state, dispatches the state's agent, evaluates the agent's output against transition guards, and moves to the next state.\n\nUnlike ralph's simple loop, this pattern handles workflows with branching logic: different outputs route to different states. Each transition can have a guard (e.g. \"only proceed to 'deploy' if 'tests pass' AND 'review approved'\").\n\nState machine definition format (provided inline in the prompt or via a JSON file):\n{\n  \"initial\": \"analyze\",\n  \"states\": {\n    \"analyze\": { \"agent\": \"@analyst\", \"transitions\": { \"ready\": \"plan\", \"blocked\": \"interview\" } },\n    \"plan\": { \"agent\": \"@planner\", \"transitions\": { \"approved\": \"implement\", \"rejected\": \"analyze\" } },\n    \"implement\": { \"agent\": \"@executor\", \"transitions\": { \"done\": \"verify\" } },\n    \"verify\": { \"agent\": \"@verifier\", \"transitions\": { \"pass\": \"deploy\", \"fail\": \"implement\" } },\n    \"deploy\": { \"agent\": \"@executor\", \"transitions\": { \"done\": \"complete\" } }\n  }\n}\n\nUse when the workflow has clear states with conditional transitions — NOT for linear \"do A then B then C\" flows (use plan-execute for those).",
@@ -1469,7 +1469,7 @@
   },
   "plan-hub/improvements": {
     "label": "improvements",
-    "description": "Project audit — major & minor improvement items with proposed fixes, ordered for approval",
+    "description": "Audit the project for major and minor improvements, ranked",
     "reminder": "Audit project and present improvement proposals for approve/deny.",
     "inline": true,
     "detailedDescription": "Audits the project you are running in and produces a list of improvement items — each with a proposed solution — ending with an ordered proposal list for the user to approve or deny.\n\n**Phase 1 — Initial audit (breadth-first scan):**\n\n1. Map the project: language, framework, entry points, module layout, build/test commands.\n2. Scan each dimension quickly (evidence over vibes — cite files/lines):\n   - Architecture — coupling, layering, circular deps, dead modules\n   - Code quality — complexity hotspots, duplication, naming, error handling gaps\n   - Testing — coverage gaps, brittle tests, missing integration/e2e\n   - Dependencies — outdated, vulnerable, unused\n   - Developer experience — build speed, tooling friction, onboarding docs\n   - Config — project .opencode/ assets (rules, skills, agents) that are stale, missing, or mis-wired\n3. Keep the audit proportionate: 5–15 minutes of scanning, not an exhaustive review.\n\n**Phase 2 — Itemize findings (major vs minor):**\n\n- **Major**: structural impact — security vulnerabilities, architectural problems, systemic test gaps, broken workflows, stale config assets.\n- **Minor**: contained impact — naming, small refactors, doc gaps, single-file issues, one-line config fixes.\n\nEvery item has the shape:\n\n```\n- [MAJOR|MINOR] <short title>\n  - Evidence: <file:line or observed behavior>\n  - Proposed solution: <concrete, file-specific fix — what would be changed>\n  - Impact: <what improves>\n  - Effort: <S / M / L>\n```\n\n**Phase 3 — Ordered proposal list:**\n\nAt the end of the audit, present the **ordered list** — sorted by impact/effort ratio (highest first), majors before minors within the same ratio tier. Number the items 1..N.\n\n**Phase 4 — User approve/deny:**\n\n1. Present the ordered list to the user.\n2. Ask for approval item-by-item (or as a batch) via the `question` tool: Approve / Deny per item.\n3. Record decisions: approved items are the actionable backlog; denied items are dropped or deferred with the reason noted.\n4. **STOP after the approval pass** — do NOT implement anything. Per the completion-guardrail, implementation starts only when the user explicitly says so (e.g., \"/orchestrate\" or \"implement item 1-3\").\n\n**Output & state:**\n\n- Write the audit + proposal list to `.opencode/state/ideation/work-products/YYYYMMDD_HHMMSS_improvements_{topic-slug}_{stage}.md` using the ideation naming convention.\n- Terminal summary table: item # | severity | title | effort | status (approved/denied).\n\n**Pairs with:** /build-hub overhaul (8-dimension phased plan), /plan-hub quality (code quality deep-dive), /build-hub optimize, /build-hub refactor. Use this when the user wants a quick \"what should I improve?\" sweep with a decision gate; use overhaul when they want the full phased plan.",
@@ -1543,7 +1543,7 @@
   },
   "plan-hub/plan-execute": {
     "label": "plan-execute",
-    "description": "Classic plan-then-execute — architect builds complete plan, executor implements step by step",
+    "description": "Architect plans the whole thing, executor builds it stepwise",
     "reminder": "Plan first, then execute step by step.",
     "skill": "plan-execute",
     "detailedDescription": "Two-phase orchestration:\n\nPhase 1 — Plan: an architect agent (or the orchestrator itself for simple tasks) produces a complete, ordered implementation plan. The plan lists every step with its expected outcome and verification method. Saved to .opencode/state/orchestration/plan-{session}/plan.md.\n\nPhase 2 — Execute: an executor agent (or the orchestrator) implements the plan step by step. Each step is verified against its expected outcome before proceeding to the next. If a step fails, the executor either fixes it or escalates.\n\nUnlike autopilot (which runs distinct phases with different roles), plan-execute is simpler: one plan, one executor, sequential steps. Use for tasks where the full plan can be known upfront and execution is mostly linear.\n\nThe plan document is the contract — the executor shouldn't deviate without reason. If reality diverges from the plan, the executor stops and replans.",
@@ -1602,7 +1602,7 @@
   },
   "plan-hub/requirements-analyzer": {
     "label": "requirements-analyzer",
-    "description": "Analyze feature requirements — pass instructions directly to @requirements-analyzer",
+    "description": "Hand feature requirements analysis to the specialist",
     "reminder": "Delegating to @requirements-analyzer.",
     "agent": "@requirements-analyzer",
     "detailedDescription": "Delegates directly to the @requirements-analyzer agent. The remainder of your prompt will be passed as specific instructions to the agent."
@@ -1713,7 +1713,7 @@
   },
   "research-hub/document-specialist": {
     "label": "document-specialist",
-    "description": "External docs/reference specialist — pass instructions directly to @document-specialist",
+    "description": "Hand external docs lookups to the document specialist",
     "reminder": "Delegating to @document-specialist.",
     "agent": "@document-specialist",
     "detailedDescription": "Delegates directly to the @document-specialist agent. The remainder of your prompt will be passed as specific instructions to the agent."
@@ -1739,7 +1739,7 @@
   },
   "research-hub/library-docs": {
     "label": "docs",
-    "description": "Fetch official library docs via Context7 MCP API — React, Next.js, Tailwind, Prisma, Express, Django, any npm/PyPI package",
+    "description": "Official library docs via Context7 — React, Next, Tailwind, any",
     "reminder": "Fetch library docs via Context7 MCP API.",
     "inline": true,
     "detailedDescription": "Fetches official library documentation via the Context7 MCP API. Two-step process:\n\n1. resolve-library-id: takes a library name (e.g. \"Next.js\") and returns the Context7-compatible library ID (e.g. \"/vercel/next.js\").\n2. query-docs: takes the library ID + a specific query and returns relevant documentation excerpts and code examples.\n\nBefore fetching: check .opencode/context/research/{library-slug}/ for cached results (7-day TTL). After fetching: save to .opencode/context/research/{library-slug}/{query-hash}.md for future reuse.\n\n**Wiki compliance**: after saving, update .opencode/context/index.md (catalog), append to .opencode/context/log.md, add YAML frontmatter to the new file, scan for cross-references to existing pages.\n\nUse BEFORE external web search when the question is about a library, framework, SDK, API, or CLI tool. Context7 has authoritative, up-to-date docs. Do NOT use for: refactoring, debugging business logic, code review, or general programming concepts.",
@@ -1847,7 +1847,7 @@
   },
   "resource-hub/config-orchestrator": {
     "label": "config-orchestrator",
-    "description": "OpenCode config orchestrator — pass instructions directly to @config-orchestrator",
+    "description": "Hand config orchestration to the config orchestrator",
     "reminder": "Delegating to @config-orchestrator.",
     "agent": "@config-orchestrator",
     "detailedDescription": "Delegates directly to the @config-orchestrator agent. The remainder of your prompt will be passed as specific instructions to the agent."
@@ -1861,7 +1861,7 @@
   },
   "resource-hub/find-agents": {
     "label": "find-agents",
-    "description": "Discover agents relevant to the current project by searching across agent registries and GitHub — finds specialized subagents for detected tech stack. Used by setup/refresh to find per-repo agents",
+    "description": "Find and vet subagents for this stack from registries",
     "reminder": "Search registries for relevant project agents.",
     "skill": "find-agents",
     "detailedDescription": "Discovers skill packages related to agent creation and configuration. Searches agent registries and GitHub for specialized agent instructions.\n\nNote: The skills.sh ecosystem catalogs SKILL.md knowledge packages, not standalone agent .md definition files. Found packages provide instructions and workflows for:\n- Creating custom agent definitions (agent .md files with frontmatter)\n- Configuring agent tools, permissions, and models\n- Agent lifecycle and best practices\n\nResults are installed as skills, not agent files. To create actual agent .md files, use the `opencode-agent-creator` skill or the `provision` skill for project-scoped agents.\n\nUse during setup/refresh or standalone.",
@@ -1878,7 +1878,7 @@
   },
   "resource-hub/find-rules": {
     "label": "find-rules",
-    "description": "Discover OpenCode rules relevant to the current project by searching registries (GitHub, skills.sh) and local template catalog — finds project-specific conventions and guidelines. Used by setup/refresh to find per-repo rules",
+    "description": "Find and vet rules for this stack from registries and templates",
     "reminder": "Search registries for relevant project rules.",
     "skill": "find-rules",
     "detailedDescription": "Discovers OpenCode rules relevant to the project. Searches registries (GitHub, skills.sh) and the local template catalog for convention and guideline rules matching the project's stack and practices.\n\nInstalled rules go to .opencode/rules/ (project scope) and are loaded as agent instructions.\n\nUse during setup/refresh or standalone when you want project-specific coding conventions enforced as rules.",
@@ -1894,7 +1894,7 @@
   },
   "resource-hub/find-skills": {
     "label": "find-skills",
-    "description": "Discover skills relevant to the current project by searching across skill registries (skills.sh, GitHub) — fetches candidates, security-scans top results, presents recommendations for installation. Used by setup/refresh to find per-repo skills",
+    "description": "Find installable skills for this stack — scans registries, vets, ranks",
     "reminder": "Search registries for relevant project skills.",
     "skill": "find-skills",
     "detailedDescription": "Discovers skills relevant to the current project by searching across skill registries simultaneously. Sources:\n\n- skills.sh registry\n- clawhub.ai\n- GitHub (repos tagged as opencode-skills)\n\nProcess:\n1. Search all registries in parallel for skills matching the project's stack and needs.\n2. Security-scan top results (check for dangerous patterns, secrets, suspicious code).\n3. Present ranked recommendations with descriptions, source reputation, and security scan results.\n4. User selects which to install; the skill installs them to the project's .opencode/ directory (project scope).\n\nUse during /scaffold-hub setup/refresh or standalone when you want to extend the project's skill set with community skills.",
@@ -1909,7 +1909,7 @@
   },
   "resource-hub/find-tools": {
     "label": "find-tools",
-    "description": "Discover TypeScript tools relevant to the current project by searching registries (GitHub, npm) and local template catalog — finds project-specific automation tools. Used by setup/refresh to find per-repo tools",
+    "description": "Find and vet TypeScript tools for this stack from registries",
     "reminder": "Search registries for relevant project tools.",
     "skill": "find-tools",
     "detailedDescription": "Discovers TypeScript tools relevant to the project. Searches registries (GitHub, npm) and the local template catalog for automation tools matching the project's needs.\n\nInstalled tools go to .opencode/tools/ (project scope — never user/global scope) and are auto-discovered by OpenCode.\n\nUse during setup/refresh or standalone when you want project-specific automation tools (e.g. a deploy tool, a migration tool).",
@@ -1924,10 +1924,10 @@
   },
   "resource-hub/knowledge-graph": {
     "label": "graph",
-    "description": "Per-project knowledge graph — entity/relationship store + hybrid retrieval (vector → graph refine)",
+    "description": "Per-project entity graph with vector-then-graph retrieval",
     "reminder": "Build/query the project knowledge graph.",
     "skill": "graph-context",
-    "detailedDescription": "Builds and queries the per-project knowledge graph — a sqlite store (.opencode/state/vector/graph.db) of knowledge entities (patterns, decisions, concepts, learnings, rules, skills, hub-subcommands) connected by typed edges (applies_to, supersedes, touches, related_to, part_of, used_by, derived_from).\n\nLoad the `graph-context` skill and run its CLI:\n\n**Build (backfill):**\n```\nnode skills/graph-context/scripts/graph.mjs build\n```\nIdempotent, mtime-lazy. Sources: wiki pages (.opencode/context/**), learnings (.opencode/context/learnings/**), rules, skill manifests, and spec-registry.json (hub-subcommand nodes + used_by edges). Run after /harvest-context, /maintain-hub consolidate-telemetry, or learnings capture to fold new knowledge in.\n\n**Hybrid query (vector recall → graph refine):**\n```\nnode skills/graph-context/scripts/graph.mjs query \"what is the caching strategy?\"\n```\nTwo-stage: vector top-K candidates → BFS depth-2 graph refinement (decaying score) → merged ranked list tagged kind=vector|graph with the connecting edge type.\n\n**Navigation:**\n```\nnode skills/graph-context/scripts/graph.mjs neighbors <node-id>      # traverse edges\nnode skills/graph-context/scripts/graph.mjs impact <node-id>        # what depends on this (impact analysis before editing config assets)\nnode skills/graph-context/scripts/graph.mjs path <from> <to>        # BFS shortest path\nnode skills/graph-context/scripts/graph.mjs stats                   # counts by type/edge\nnode skills/graph-context/scripts/graph.mjs probe                   # precision probe vs vector-only\n```\n\nNode id convention: {type}:{slug-or-path}, e.g. pattern:context-strategy, hub-subcommand:project/self-improve.\n\n**Validation commands:**\n- `node skills/graph-context/scripts/graph.mjs stats` — graph exists with counts\n- `node skills/graph-context/scripts/graph.mjs query \"<known phrase>\"` — spot-check retrieval\n- `node skills/graph-context/scripts/graph.mjs probe` — precision probe vs baseline\n\nSee the `graph-context` skill for the full schema, workflow, and design constraints. Related: `vectorize-context` (sibling vector store), `self-improvement` (learnings → edges), `graph-thinking` (model).",
+    "detailedDescription": "Builds and queries the per-project knowledge graph — a sqlite store (.opencode/state/vector/graph.db) of knowledge entities (patterns, decisions, concepts, learnings, rules, skills, hub-subcommands) connected by typed edges (applies_to, supersedes, touches, related_to, part_of, used_by, derived_from).\n\nLoad the `graph-context` skill and run its CLI:\n\n**Build (backfill):**\n```\nnode skills/graph-context/scripts/graph.ts build\n```\nIdempotent, mtime-lazy. Sources: wiki pages (.opencode/context/**), learnings (.opencode/context/learnings/**), rules, skill manifests, and spec-registry.json (hub-subcommand nodes + used_by edges). Run after /harvest-context, /maintain-hub consolidate-telemetry, or learnings capture to fold new knowledge in.\n\n**Hybrid query (vector recall → graph refine):**\n```\nnode skills/graph-context/scripts/graph.ts query \"what is the caching strategy?\"\n```\nTwo-stage: vector top-K candidates → BFS depth-2 graph refinement (decaying score) → merged ranked list tagged kind=vector|graph with the connecting edge type.\n\n**Navigation:**\n```\nnode skills/graph-context/scripts/graph.ts neighbors <node-id>      # traverse edges\nnode skills/graph-context/scripts/graph.ts impact <node-id>        # what depends on this (impact analysis before editing config assets)\nnode skills/graph-context/scripts/graph.ts path <from> <to>        # BFS shortest path\nnode skills/graph-context/scripts/graph.ts stats                   # counts by type/edge\nnode skills/graph-context/scripts/graph.ts probe                   # precision probe vs vector-only\n```\n\nNode id convention: {type}:{slug-or-path}, e.g. pattern:context-strategy, hub-subcommand:project/self-improve.\n\n**Validation commands:**\n- `node skills/graph-context/scripts/graph.ts stats` — graph exists with counts\n- `node skills/graph-context/scripts/graph.ts query \"<known phrase>\"` — spot-check retrieval\n- `node skills/graph-context/scripts/graph.ts probe` — precision probe vs baseline\n\nSee the `graph-context` skill for the full schema, workflow, and design constraints. Related: `vectorize-context` (sibling vector store), `self-improvement` (learnings → edges), `graph-thinking` (model).",
     "tools": [
       "loadSkill",
       "bash"
@@ -1994,7 +1994,7 @@
   },
   "scaffold-hub/config": {
     "label": "config",
-    "description": "Create or modify opencode.jsonc with mandatory schema validation — wraps opencode-configure, opencode-config-workflow; always fetches and validates final output against https://opencode.ai/config.json",
+    "description": "Create or edit opencode.jsonc, validated against the live schema",
     "reminder": "Create/modify opencode.jsonc with mandatory schema validation.",
     "skill": "opencode-configure",
     "detailedDescription": "Creates or modifies opencode.jsonc (or .opencode/opencode.jsonc for project scope) with mandatory schema validation against the canonical OpenCode schema.\n\n## Workflow\n\n1. **Load config skills** — loads `opencode-configure` and `opencode-config-workflow` for comprehensive config surface knowledge.\n\n2. **Elicit intent** — if the user hasn't specified exact changes, interview them to determine: scope (global vs project), what to change (model, provider, MCP, plugins, permissions, instructions, tools, etc.), and target values.\n\n3. **Apply changes** — edit the target config file using the loaded skills' guidance. Allowed keys per the schema: `$schema`, `shell`, `logLevel`, `server`, `command`, `skills`, `references`, `watcher`, `snapshot`, `plugin`, `share`, `autoupdate`, `disabled_providers`, `enabled_providers`, `model`, `small_model`, `default_agent`, `username`, `agent`, `provider`, `mcp`, `formatter`, `lsp`, `instructions`, `permission`, `tools`, `attachment`, `enterprise`, `tool_output`, `compaction`, `experimental`.\n\n4. **Fetch schema** — fetch `https://opencode.ai/config.json` and validate the final config against it.\n\n5. **Validate** — check for:\n   - Invalid keys (anything not in the allowed list above)\n   - Type mismatches (e.g. `model` should be string, not object)\n   - Missing required fields\n   - Broken plugin paths, MCP URL format, provider model references\n\n6. **Fix and re-validate** — if validation fails, fix the issues and re-validate. Loop until clean.\n\n7. **Report** — output a validation report showing which checks passed, what was fixed (if anything), and the final config diff.\n\n## MANDATORY\n\n**This subcommand MUST ALWAYS validate the final output against `https://opencode.ai/config.json` before reporting completion.** Do not skip this step even if the change seems trivial. Schema violations cause runtime errors that are hard to debug.",
@@ -2013,7 +2013,7 @@
   },
   "scaffold-hub/detect": {
     "label": "detect",
-    "description": "Deep stack detection — analyze codebase for languages, frameworks, build tools, testing, ORM, CSS, CI/CD, etc. via @stack-detector agent",
+    "description": "Deep stack detection — languages, frameworks, tools, testing, CI",
     "reminder": "Detect full tech stack via @stack-detector agent.",
     "agent": "stack-detector",
     "phases": "0-1",
@@ -2026,7 +2026,7 @@
   },
   "scaffold-hub/doctor": {
     "label": "doctor",
-    "description": "Run diagnostic health check — validate Hubs installation, config integrity, state consistency, and hook status",
+    "description": "Diagnose install health — config, state, hook status",
     "reminder": "Run Hubs health diagnostics.",
     "inline": true,
     "detailedDescription": "Runs a comprehensive diagnostic health check on the Hubs installation. Validates:\n\n- Global config directory exists and has expected structure.\n- opencode.jsonc is valid and references resolve.\n- All agent files exist and have valid frontmatter.\n- All skill files exist with valid SKILL.md.\n- All tool files compile/resolve.\n- State directories are consistent.\n- Memory plane: graph-context rule registered, `.opencode/state/` gitignored, and the knowledge graph is consistent with `.opencode/context/` (rebuildable via `graph build`).\n- Hook system is installed and functional.\n- Plugin system is configured.\n\nOutput: a diagnostic report with pass/warn/fail per check and specific remediation instructions for failures. Use when something isn't working or after manual config changes.",
@@ -2039,7 +2039,7 @@
   },
   "scaffold-hub/map-codebase": {
     "label": "map-codebase",
-    "description": "Analyze existing brownfield codebase — spawn parallel agents to map stack, architecture, conventions, and integration points before init",
+    "description": "Parallel agents map a brownfield codebase before setup",
     "reminder": "Map codebase via parallel agent analysis.",
     "inline": true,
     "detailedDescription": "Maps an existing brownfield codebase before full init. Spawns parallel agents to analyze:\n\n- Stack detection (@stack-detector): languages, frameworks, tools.\n- Architecture (@architect): module structure, patterns, coupling.\n- Conventions (@convention-extractor): naming, file org, error handling, testing patterns.\n- Integration points: external services, APIs, databases.\n\nThe parallel agents produce a comprehensive codebase map that informs the subsequent setup phases. Use when taking over an existing codebase — you need to understand it before you can configure Hubs for it.\n\n## Relationship to setup --full Phase 6\n\nThis subcommand is a standalone subset of Phase 6 (Context Capture) from the `setup --full` pipeline. The difference:\n\n- `map-codebase` (standalone): Runs the parallel agent analysis only, outputs to state. Does NOT synthesize context files or upgrade agents. Use for one-off analysis.\n- `setup --full` Phase 6: Runs the same parallel agents, THEN synthesizes their output into .opencode/context/ files, THEN upgrades Phase 4 agent wrappers with deep project knowledge. Full integration.\n\nUse `map-codebase` when you want analysis without committing to a full setup. Use `setup --full` when you want the complete pipeline including agent upgrade.",
@@ -2060,10 +2060,10 @@
   },
   "scaffold-hub/provision": {
     "label": "provision",
-    "description": "Provision project config via project-config-composer — auto-generate .opencode/opencode.jsonc, project rules, and agent wrappers from stack fingerprint + recommendations",
+    "description": "Generate project config, rules, and agents from the stack",
     "reminder": "Auto-generate .opencode/ config from stack analysis.",
     "skill": "project-config-composer",
-    "detailedDescription": "Provisions project-specific configuration from the stack fingerprint and recommendations. The project-config-composer skill generates:\n\n- .opencode/opencode.jsonc: project config referencing global resources + project-specific overrides.\n- Project rules: .opencode/rules/ files derived from detected conventions.\n- Agent wrappers: .opencode/agents/ with project context injected (e.g. \"this project uses Prisma + Express + Vitest\").\n- Project-specific skills if the stack warrants them.\n- When agent wrappers are created, loads supplementary agent-creation skills (creating-opencode-agents, custom-agent-definitions) for advanced agent patterns.\n\n**CRITICAL:** The generated opencode.jsonc MUST be validated against the schema at https://opencode.ai/config.json. Only the following keys are valid: $schema, shell, logLevel, server, command, skills, references, watcher, snapshot, plugin, share, autoupdate, disabled_providers, enabled_providers, model, small_model, default_agent, username, agent, provider, mcp, formatter, lsp, instructions, permission, tools, attachment, enterprise, tool_output, compaction, experimental. Invalid keys (extends, agents, project, rules, state, context, cache) will cause runtime errors and MUST NOT appear in the output.\n\nThe generated config references global resources (skills, agents, rules in ~/.config/opencode/) rather than duplicating them — minimal footprint, maximum context.\n\n**Memory plane (always provisioned).** In addition to the stack-specific resources, provisioning writes the stack-independent memory plane: a thin `.opencode/rules/graph-context.md` rule (registered under `instructions`), a bootstrapping `node skills/graph-context/scripts/graph.mjs build` to create `graph.db`, and a `.opencode/state/` gitignore entry. The global `vectorize-context` + `graph-context` skills are referenced, never copied — so every project (and every archetype) inherits knowledge-graph retrieval without per-archetype duplication.\n\nUse after /scaffold-hub detect + /scaffold-hub recommend to generate the actual config files. Or as part of /scaffold-hub setup (phase 3).",
+    "detailedDescription": "Provisions project-specific configuration from the stack fingerprint and recommendations. The project-config-composer skill generates:\n\n- .opencode/opencode.jsonc: project config referencing global resources + project-specific overrides.\n- Project rules: .opencode/rules/ files derived from detected conventions.\n- Agent wrappers: .opencode/agents/ with project context injected (e.g. \"this project uses Prisma + Express + Vitest\").\n- Project-specific skills if the stack warrants them.\n- When agent wrappers are created, loads supplementary agent-creation skills (creating-opencode-agents, custom-agent-definitions) for advanced agent patterns.\n\n**CRITICAL:** The generated opencode.jsonc MUST be validated against the schema at https://opencode.ai/config.json. Only the following keys are valid: $schema, shell, logLevel, server, command, skills, references, watcher, snapshot, plugin, share, autoupdate, disabled_providers, enabled_providers, model, small_model, default_agent, username, agent, provider, mcp, formatter, lsp, instructions, permission, tools, attachment, enterprise, tool_output, compaction, experimental. Invalid keys (extends, agents, project, rules, state, context, cache) will cause runtime errors and MUST NOT appear in the output.\n\nThe generated config references global resources (skills, agents, rules in ~/.config/opencode/) rather than duplicating them — minimal footprint, maximum context.\n\n**Memory plane (always provisioned).** In addition to the stack-specific resources, provisioning writes the stack-independent memory plane: a thin `.opencode/rules/graph-context.md` rule (registered under `instructions`), a bootstrapping `node skills/graph-context/scripts/graph.ts build` to create `graph.db`, and a `.opencode/state/` gitignore entry. The global `vectorize-context` + `graph-context` skills are referenced, never copied — so every project (and every archetype) inherits knowledge-graph retrieval without per-archetype duplication.\n\nUse after /scaffold-hub detect + /scaffold-hub recommend to generate the actual config files. Or as part of /scaffold-hub setup (phase 3).",
     "tools": [
       "loadSkill",
       "bash"
@@ -2077,7 +2077,7 @@
   },
   "scaffold-hub/recommend": {
     "label": "recommend",
-    "description": "Recommend global resources for detected stack — maps stack fingerprint to relevant skills, agents, rules, and archetype via stack-recommender skill",
+    "description": "Map the detected stack to recommended global resources",
     "reminder": "Recommend global resources matching the detected stack.",
     "skill": "stack-recommender",
     "detailedDescription": "Maps a detected stack fingerprint to recommended global OpenCode resources. Reads .opencode/state/init/stack-fingerprint.json and matches it against the global resource catalog (skills, agents, rules, archetypes) using resource tags.\n\nEach archetype contains four subdirectories: agents/, rules/, skills/, and tools/. When provisioning a project, all four must be included: agents/ and rules/ are referenced in opencode.jsonc (via the agent and instructions keys), while skills/ and tools/ must be copied or linked into the project's .opencode/ directory so that agents and rules which reference them resolve correctly.\n\nFor each matched resource, the recommender explains why it's relevant to the detected stack. The output is a prioritized recommendation list that feeds into /scaffold-hub provision.\n\nUse after /scaffold-hub detect to see what global resources would help this project, or standalone if you already have a stack fingerprint.",
@@ -2091,7 +2091,7 @@
   },
   "scaffold-hub/refresh": {
     "label": "refresh",
-    "description": "Update existing config preserving manual edits — re-detect stack, merge new recommendations, re-provision; --full adds deep codebase mapping, context synthesis, and routing integration validation",
+    "description": "Re-detect the stack and re-provision, preserving manual edits",
     "reminder": "Update config preserving manual edits. Use --full for deep codebase re-mapping and context refresh.",
     "skill": "init-project",
     "phases": "0-8 (merge)",
@@ -2132,7 +2132,7 @@
   },
   "scaffold-hub/reset": {
     "label": "reset",
-    "description": "Reset project state — archive .opencode/state and .opencode/context, start fresh with clean slate",
+    "description": "Archive state and context, then start from a clean slate",
     "reminder": "Reset project state with clean slate.",
     "inline": true,
     "detailedDescription": "Resets the project's Hubs state. Archives (not deletes) .opencode/state/ and .opencode/context/ to timestamped backup directories, then creates fresh empty ones.\n\nThis gives you a clean slate without losing history — the archived state can be referenced if needed. After reset, you can re-run /scaffold-hub setup to reconfigure from scratch.\n\nUse when the project state has become corrupted, stale, or you want to start over. The archive preserves everything in case you need to recover.",
@@ -2146,7 +2146,7 @@
   },
   "scaffold-hub/setup": {
     "label": "setup",
-    "description": "Full project setup via 9-phase pipeline — detect stack, provision agents/skills/tools/rules, generate docs, optional --full adds deep codebase mapping + context capture + routing integration",
+    "description": "Full 9-phase project setup — detect, provision, document, verify",
     "reminder": "Default: phases 0-5 + 8. With --full: all 9 phases including deep context capture and routing integration.",
     "skill": "init-project",
     "phases": "0-8",
@@ -2197,7 +2197,7 @@
   },
   "scaffold-hub/tag": {
     "label": "tag",
-    "description": "Audit and fix resource tags on global skills, agents, rules, and archetypes for resource_tags filtering — scan, classify, suggest, and apply tags via tag-resources skill",
+    "description": "Audit and repair resource tags used by stack filtering",
     "reminder": "Audit and fix resource tags for filtering.",
     "skill": "tag-resources",
     "detailedDescription": "Audits and fixes resource tags on global OpenCode resources (skills, agents, rules, archetypes). Tags enable resource_tags filtering — the mechanism that lets stack-recommender match resources to a detected stack.\n\nEach archetype contains four subdirectories: agents/, rules/, skills/, and tools/. When provisioning a project, all four must be included: agents/ and rules/ are referenced in opencode.jsonc (via the agent and instructions keys), while skills/ and tools/ must be copied or linked into the project's .opencode/ directory so that agents and rules which reference them resolve correctly.\n\nProcess:\n1. Scan all resources for existing tags.\n2. Classify: are tags accurate? Missing? Incorrect?\n3. Suggest: propose tags based on resource content and metadata.\n4. Apply: write corrected tags to resource frontmatter.\n\nProperly tagged resources are discoverable by stack-recommender. Untagged or mis-tagged resources are invisible to recommendation. Use when setting up resources or when recommendations seem to miss obvious matches.",
@@ -2215,7 +2215,7 @@
     "reminder": "Validate configuration completeness and integrity.",
     "skill": "verify",
     "phases": "7",
-    "detailedDescription": "Validates that the project configuration is complete and all references resolve. The verify skill checks:\n\n- opencode.jsonc: valid schema keys per https://opencode.ai/config.json (fetch schema, extract valid keys, reject invalid keys like extends/agents/project/rules/state/context/cache), all referenced files exist.\n- Agents: all agent files referenced in config exist and have valid frontmatter.\n- Skills: all skill references resolve to SKILL.md files.\n- Tools: all tool references resolve to .ts files.\n- Commands: all command references resolve to .md files.\n- Rules: all rule references resolve to .md files.\n- Hub delegations: all skill/agent/command references in hub subcommands resolve (runs validate-delegation tool).\n- Memory plane: `.opencode/rules/graph-context.md` exists and is registered in `instructions`; `.opencode/state/` is gitignored; when `.opencode/context/` is non-empty, `node skills/graph-context/scripts/graph.mjs stats` reports nodes > 0 and edges > 0.\n\nSchema validation step:\n1. Fetch https://opencode.ai/config.json\n2. Navigate to $defs.Config.properties — extract the set of valid top-level keys\n3. Parse the project's opencode.jsonc (strip JSONC comments first)\n4. Check that all keys in the parsed config appear in the valid set\n5. Fail if any unrecognized keys are found (e.g., extends, agents, project, rules, state, context, cache)\n6. Report specific invalid keys and suggest removal\n\nOutput: a validation report with pass/fail per check and specific error messages for failures. Use after setup or after manual config changes to ensure nothing is broken.",
+    "detailedDescription": "Validates that the project configuration is complete and all references resolve. The verify skill checks:\n\n- opencode.jsonc: valid schema keys per https://opencode.ai/config.json (fetch schema, extract valid keys, reject invalid keys like extends/agents/project/rules/state/context/cache), all referenced files exist.\n- Agents: all agent files referenced in config exist and have valid frontmatter.\n- Skills: all skill references resolve to SKILL.md files.\n- Tools: all tool references resolve to .ts files.\n- Commands: all command references resolve to .md files.\n- Rules: all rule references resolve to .md files.\n- Hub delegations: all skill/agent/command references in hub subcommands resolve (runs validate-delegation tool).\n- Memory plane: `.opencode/rules/graph-context.md` exists and is registered in `instructions`; `.opencode/state/` is gitignored; when `.opencode/context/` is non-empty, `node skills/graph-context/scripts/graph.ts stats` reports nodes > 0 and edges > 0.\n\nSchema validation step:\n1. Fetch https://opencode.ai/config.json\n2. Navigate to $defs.Config.properties — extract the set of valid top-level keys\n3. Parse the project's opencode.jsonc (strip JSONC comments first)\n4. Check that all keys in the parsed config appear in the valid set\n5. Fail if any unrecognized keys are found (e.g., extends, agents, project, rules, state, context, cache)\n6. Report specific invalid keys and suggest removal\n\nOutput: a validation report with pass/fail per check and specific error messages for failures. Use after setup or after manual config changes to ensure nothing is broken.",
     "tools": [
       "listAgents",
       "bash"
@@ -2226,7 +2226,7 @@
   },
   "skills-hub/add": {
     "label": "add",
-    "description": "Interactive wizard for quick skill creation — prompts for name, description, triggers, scope (user or project), writes SKILL.md with frontmatter",
+    "description": "Wizard that writes a new SKILL.md from prompted answers",
     "reminder": "Quick-add a skill via interactive wizard.",
     "inline": true,
     "detailedDescription": "Quick-add wizard for skill creation. Prompts for:\n\n- Skill name (kebab-case).\n- Description (one line — what it does).\n- Triggers (when should it activate?).\n- Scope: user (~/.config/opencode/skills/omc-learned/) or project (.opencode/state/skills/).\n\nWrites a minimal SKILL.md with YAML frontmatter. This is the fast path — for full skill creation with scripts, references, and validation, use /skills-hub create instead.\n\nUse when you have a simple skill to add quickly without the full creation workflow.",
@@ -2239,7 +2239,7 @@
   },
   "skills-hub/create": {
     "label": "create",
-    "description": "Full skill creation workflow with bundled resources — gather requirements, plan scripts/references/assets, run skill-creator workflow, package if ready",
+    "description": "Create a skill end to end, including scripts and references",
     "reminder": "Full skill creation with bundled resources.",
     "skill": "skill-creator",
     "detailedDescription": "Full skill creation workflow via the skill-creator skill. Process:\n\n1. Gather requirements: what should the skill do? When should it trigger? What resources does it need?\n2. Plan: design the skill's structure — workflow steps, heuristics, examples, scripts, references.\n3. Create: write SKILL.md with proper YAML frontmatter, workflow sections, and bundled resources.\n4. Validate: check the skill structure (frontmatter, required sections, script paths).\n5. Package: if validation passes, optionally package for distribution.\n\nThe full workflow handles complex skills with scripts, references, and assets. For simple skills, use /skills-hub add instead.\n\nUse when creating a reusable skill that others (or future-you) will use.",
@@ -2251,7 +2251,7 @@
   },
   "skills-hub/edit": {
     "label": "edit",
-    "description": "Edit an existing skill interactively — find by name, display current values, change description/triggers/content/rename, write back",
+    "description": "Interactively edit a skill's description, triggers, or content",
     "reminder": "Edit skill metadata or content interactively.",
     "inline": true,
     "detailedDescription": "Edits an existing skill interactively. Finds the skill by name (searching user and project scopes), displays current values, and allows changing:\n\n- Description\n- Triggers\n- Content (workflow, steps, heuristics)\n- Name (rename, which also renames the directory)\n\nWrites changes back to the skill file. Use to refine skills after creation or when their purpose evolves.",
@@ -2262,7 +2262,7 @@
   },
   "skills-hub/info": {
     "label": "info",
-    "description": "Show detailed information about a skill — find by name, parse YAML frontmatter, display complete details and full content",
+    "description": "Show a skill's full frontmatter and content",
     "reminder": "Show full skill details and content.",
     "inline": true,
     "detailedDescription": "Shows detailed information about a specific skill. Finds by name, parses the YAML frontmatter, and displays:\n\n- Name, description, triggers, scope\n- Full content (workflow, steps, heuristics, examples)\n- Any bundled resources (scripts, references)\n- Quality/usage stats from frontmatter\n\nUse to inspect a skill before using it or to verify its content after editing.",
@@ -2273,7 +2273,7 @@
   },
   "skills-hub/list": {
     "label": "list",
-    "description": "List all available skills organized by scope — built-in, user (~/.config/opencode/skills/omc-learned/), and project (.opencode/state/skills/) — parse frontmatter, show quality/usage stats",
+    "description": "List every skill by scope with quality and usage stats",
     "reminder": "List all skills by scope with metadata.",
     "inline": true,
     "detailedDescription": "Lists all available skills organized by scope:\n\n1. Built-in skills (~/.config/opencode/skills/): the bundled skill set (read-only).\n2. User skills (~/.config/opencode/skills/omc-learned/): skills you've created or installed at user scope.\n3. Project skills (.opencode/state/skills/): project-specific skills.\n4. Plugin skill categories: if the opencode-skills-collection plugin is installed, show its categories.\n\nEach skill is listed with: name, description, scope, and any quality/usage stats available from the YAML frontmatter. Output is a table for easy scanning.\n\nUse to see what skills are available and in which scope.",
@@ -2285,7 +2285,7 @@
   },
   "skills-hub/package": {
     "label": "package",
-    "description": "Package a skill for distribution — validate structure, create distributable zip if validation passes",
+    "description": "Validate a skill, then build a distributable archive",
     "reminder": "Validate and package skill for distribution.",
     "inline": true,
     "detailedDescription": "Packages a skill for distribution. Process:\n\n1. Validate the skill structure (frontmatter, required sections, script paths resolve).\n2. If validation passes: create a distributable zip containing the skill directory.\n3. If validation fails: report errors and suggest fixes — do not package.\n\nThe resulting zip can be shared and installed by others. Use when you want to distribute a skill to other OpenCode users or publish to a skill registry.",
@@ -2296,7 +2296,7 @@
   },
   "skills-hub/remove": {
     "label": "remove",
-    "description": "Remove a skill by name — searches user and project scopes, confirms before deleting, warns if not found",
+    "description": "Remove a skill by name after confirming",
     "reminder": "Delete a skill after confirmation.",
     "inline": true,
     "detailedDescription": "Removes a skill by name. Searches both user and project scopes, shows what will be deleted, and asks for confirmation before removing. Warns if the skill isn't found in either scope.\n\nNon-destructive by default — requires explicit confirmation. Use to clean up skills that are no longer needed.",
@@ -2307,7 +2307,7 @@
   },
   "skills-hub/scan": {
     "label": "scan",
-    "description": "Quick scan of skill directories — non-interactive inventory of both user and project scopes, reports counts and paths",
+    "description": "Fast non-interactive inventory of user and project skill scopes",
     "reminder": "Quick inventory scan of all skill directories.",
     "inline": true,
     "detailedDescription": "Quick non-interactive inventory scan of skill directories. Reports:\n\n- Built-in skills: count + path.\n- User skills: count + path.\n- Project skills: count + path.\n- Plugin skill categories (if installed): counts per category.\n\nNo interaction — just a summary. Use for a quick overview of what's available without the full /skills-hub list detail.",
@@ -2319,7 +2319,7 @@
   },
   "skills-hub/search": {
     "label": "search",
-    "description": "Search skills by content, triggers, name, or description — case-insensitive matching across all scopes, ranked by relevance",
+    "description": "Search skills by name, description, or content across all scopes",
     "reminder": "Search skills by name, triggers, or content.",
     "inline": true,
     "detailedDescription": "Searches skills by content, triggers, name, or description. Case-insensitive matching across all scopes (built-in, user, project). Results are ranked by relevance.\n\nUse to find a skill when you know roughly what it does but not its exact name.",
@@ -2330,7 +2330,7 @@
   },
   "skills-hub/setup": {
     "label": "setup",
-    "description": "Interactive setup wizard — create skill directories, scan inventory, offer actions (add, list, scan conversation, import, done)",
+    "description": "Wizard — create skill dirs, scan inventory, choose actions",
     "reminder": "Set up skill directories and inventory.",
     "inline": true,
     "detailedDescription": "Interactive setup wizard for skill directories. Steps:\n\n1. Create skill directories if they don't exist (user + project scope).\n2. Scan existing inventory in both scopes.\n3. Offer actions: add a new skill, list existing, scan the current conversation for skill opportunities, import a skill from a file/URL, or done.\n\nUse when first setting up skills for a project or user account.",
@@ -2343,7 +2343,7 @@
   },
   "skills-hub/sync": {
     "label": "sync",
-    "description": "Sync skills between user and project scopes — scan both, categorize, display diff opportunities, copy or merge with confirmation",
+    "description": "Sync skills between user and project scope, showing the diff",
     "reminder": "Sync skills across user and project scopes.",
     "inline": true,
     "detailedDescription": "Syncs skills between user scope (~/.config/opencode/skills/omc-learned/) and project scope (.opencode/state/skills/). Process:\n\n1. Scan both scopes.\n2. Categorize: skills only in user, only in project, in both.\n3. For skills in both: show diff (are they identical or different versions?).\n4. Offer to copy or merge with confirmation.\n\nUse when you want to propagate a skill from user scope to a project (or vice versa), or reconcile differences between scopes.",
@@ -2354,7 +2354,7 @@
   },
   "skills-hub/update": {
     "label": "update",
-    "description": "Update an existing skill using skill-creator iteration workflow — read current skill, identify improvements, apply changes, validate structure",
+    "description": "Iterate an existing skill through the skill-creator workflow",
     "reminder": "Update skill content and resources.",
     "inline": true,
     "detailedDescription": "Updates an existing skill using the skill-creator's iteration workflow:\n\n1. Read the current skill (content, frontmatter, resources).\n2. Identify improvements (with user input or auto-detected).\n3. Apply changes (content updates, new sections, revised triggers).\n4. Validate the structure after changes.\n\nDifferent from /skills-hub edit (which is a simple field-by-field editor) — update uses the skill-creator's structured workflow for more comprehensive changes. Use when a skill needs significant revision rather than a quick field tweak.",
@@ -2367,7 +2367,7 @@
   },
   "skills-hub/validate": {
     "label": "validate",
-    "description": "Validate a skill's structure without packaging — run structure checks, report errors, suggest fixes",
+    "description": "Check a skill's structure and report what to fix",
     "reminder": "Validate skill structure and metadata.",
     "inline": true,
     "detailedDescription": "Validates a skill's structure without packaging it. Checks:\n\n- SKILL.md exists and is readable.\n- YAML frontmatter is valid and has required fields (name, description).\n- Required sections exist (workflow or steps, depending on skill type).\n- Script paths in frontmatter resolve to actual files.\n- Reference paths resolve.\n- No obvious issues (empty sections, broken links).\n\nReports errors with specific locations and suggested fixes. Use after editing a skill or before packaging to ensure it's structurally sound.",
@@ -2378,7 +2378,7 @@
   },
   "swarm-hub/cc10x": {
     "label": "cc10x",
-    "description": "Intent-detecting router → dispatches to BUILD/DEBUG/REVIEW/PLAN workflows with evidence-first validation and confidence gating",
+    "description": "Route intent to build, debug, review, or plan with confidence gating",
     "reminder": "Intent-detecting workflow router.",
     "inline": true,
     "detailedDescription": "Intent-detecting router that classifies the user's request into one of four workflow modes, then dispatches to the appropriate sub-workflow:\n\n- BUILD: implementation tasks → dispatches to a plan-execute style workflow.\n- DEBUG: failure investigation → dispatches to a systematic debugging workflow with root-cause analysis.\n- REVIEW: code quality → dispatches to a review workflow with security/complexity/coverage checks.\n- PLAN: design/architecture → dispatches to a planning workflow producing a design document.\n\nThe router uses evidence-first validation: it doesn't just guess the intent — it gathers evidence (reads the task, scans the codebase if needed) and gates on a confidence threshold. If confidence is low, it asks the user to clarify rather than guessing wrong and running the wrong workflow.\n\nUse when the user's request type is ambiguous and you want automatic routing to the right workflow pattern rather than requiring the user to pick.",
@@ -2397,10 +2397,10 @@
   },
   "swarm-hub/delegate": {
     "label": "delegate",
-    "description": "Hand a bounded task to a separate OpenCode CLI session — write brief, dispatch via relay, review diff, land it yourself",
+    "description": "Hand a bounded task to a separate CLI session, then review its diff",
     "reminder": "Delegate a bounded coding task to the OpenCode CLI and review its output.",
     "skill": "opencode-delegate",
-    "detailedDescription": "Delegates a bounded coding task to the OpenCode CLI as a background implementer, then reviews its diff and lands it.\n\nThe five-step loop (orchestrator owns judgment, OpenCode does the typing):\n1. **Write the brief** — self-contained: goal, current state, what to change/leave, the repo's REAL gate commands, report contract. OpenCode sees only the brief + working tree.\n2. **Dispatch** — node <skill-dir>/scripts/relay.mjs --brief brief.txt --model <provider/model> --cd <repo>. Requires an explicit --model (or --lane) on fresh runs; --read-only for review-only (plan agent); --resume-last for delta briefs; --timeout as watchdog.\n3. **Wait** — blocks until result.json is written and process exits; read the tree, not status lines.\n4. **Review** — re-run gates yourself, read the diff against the brief, watch for scope creep; never trust the self-report.\n5. **Land** — the orchestrator commits (relay never does); delta brief via --resume-last for rework.\n\nKey mechanics: relay defaults to the write-capable build agent with --auto (no permission prompts in headless runs); plan runs never get --auto. Workspace stays clean — artifacts go to a temp dir. Model choice is the human's (flat-rate subscriptions) — if no usable set is stated in AGENTS.md, ask the user rather than guessing from the metered catalog.\n\nUse when the user wants implementation work handed to OpenCode (or a queue of tasks) while they stay the reviewer. NOT for inline-size tasks or when the user wants direct implementation.",
+    "detailedDescription": "Delegates a bounded coding task to the OpenCode CLI as a background implementer, then reviews its diff and lands it.\n\nThe five-step loop (orchestrator owns judgment, OpenCode does the typing):\n1. **Write the brief** — self-contained: goal, current state, what to change/leave, the repo's REAL gate commands, report contract. OpenCode sees only the brief + working tree.\n2. **Dispatch** — node <skill-dir>/scripts/relay.ts --brief brief.txt --model <provider/model> --cd <repo>. Requires an explicit --model (or --lane) on fresh runs; --read-only for review-only (plan agent); --resume-last for delta briefs; --timeout as watchdog.\n3. **Wait** — blocks until result.json is written and process exits; read the tree, not status lines.\n4. **Review** — re-run gates yourself, read the diff against the brief, watch for scope creep; never trust the self-report.\n5. **Land** — the orchestrator commits (relay never does); delta brief via --resume-last for rework.\n\nKey mechanics: relay defaults to the write-capable build agent with --auto (no permission prompts in headless runs); plan runs never get --auto. Workspace stays clean — artifacts go to a temp dir. Model choice is the human's (flat-rate subscriptions) — if no usable set is stated in AGENTS.md, ask the user rather than guessing from the metered catalog.\n\nUse when the user wants implementation work handed to OpenCode (or a queue of tasks) while they stay the reviewer. NOT for inline-size tasks or when the user wants direct implementation.",
     "tools": [
       "loadSkill",
       "bash"
@@ -2411,7 +2411,7 @@
     "examples": [
       {
         "input": "/project delegate \"rename X to Y across src/ and update imports\"",
-        "approach": "Load opencode-delegate skill, check opencode CLI present, write self-contained brief with gate commands, dispatch via relay.mjs with a fast model, wait for result.json, re-run gates + read diff, then commit the verified work."
+        "approach": "Load opencode-delegate skill, check opencode CLI present, write self-contained brief with gate commands, dispatch via relay.ts with a fast model, wait for result.json, re-run gates + read diff, then commit the verified work."
       },
       {
         "input": "/project delegate --read-only \"review the auth refactor for security holes\"",
@@ -2419,14 +2419,14 @@
       }
     ],
     "warnings": [
-      "relay.mjs requires an explicit --model on fresh runs — a bare `opencode run` errors",
+      "relay.ts requires an explicit --model on fresh runs — a bare `opencode run` errors",
       "Never trust the implementer's gate claims — re-run tests/lint/build yourself",
       "The orchestrator commits; the relay never does"
     ]
   },
   "swarm-hub/devin": {
     "label": "devin",
-    "description": "Autonomous Plan→Code→Debug→Deploy pipeline with iterative debugging cycles and root-cause analysis loops",
+    "description": "Autonomous plan → code → debug → deploy with root-cause loops",
     "reminder": "Plan→Code→Debug→Deploy pipeline.",
     "inline": true,
     "detailedDescription": "Four-phase autonomous pipeline inspired by Devin-style agentic coding:\n\n1. Plan: produce a complete implementation plan from the task description. The plan is explicit and saved.\n2. Code: implement the plan step by step. Each step produces concrete code.\n3. Debug: if any step's output fails verification, enter a debugging sub-loop. The debugger investigates root cause (using systematic debugging), fixes it, and re-verifies. The sub-loop is bounded — if root cause can't be found in N attempts, escalate.\n4. Deploy: once all steps pass verification, deploy (if a deploy target is configured).\n\nThe distinguishing feature is the Debug sub-loop: rather than just \"try again\", it does root-cause analysis first. This prevents fix-attempt cycles that treat symptoms rather than causes.\n\nUse for end-to-end feature delivery where you expect bugs during implementation and want autonomous root-cause debugging rather than blind retries.",
@@ -2452,7 +2452,7 @@
   },
   "swarm-hub/gastown": {
     "label": "gastown",
-    "description": "GUPP principle — 'if work on your hook, YOU MUST RUN IT' with git-backed work units and NDI for reliable outcomes from unreliable processes",
+    "description": "If the work is on your hook, you run it — git-backed work units",
     "reminder": "Git-backed work units with GUPP principle.",
     "inline": true,
     "detailedDescription": "Implements the GUPP (Git Unit Pull Principle): \"If work is on your hook, YOU MUST RUN IT.\" Work units are git-backed — each unit is a branch/commit that represents a discrete piece of work. An agent that picks up a unit owns it until it's done.\n\nKey mechanisms:\n- Git-backed work units: each task is a git branch. Picking up a task = checking out the branch. Completing = merging.\n- NDI (Non-Deterministic Invocation): accepts that LLM calls are non-deterministic, so each work unit is designed to be re-runnable safely. If an agent's attempt fails, another can pick up the branch and continue.\n- \"On your hook\" accountability: once an agent claims a unit, it must run it to completion. No dropping work silently.\n\nUse when you want strong accountability for work units and the ability to recover from agent failures by re-assigning the git-backed unit to a new agent.",
@@ -2472,7 +2472,7 @@
   },
   "swarm-hub/gsd": {
     "label": "gsd",
-    "description": "Get Shit Done pipeline — discuss → plan → execute → verify → ship with wave-based parallel execution, fresh context per task, and atomic commits",
+    "description": "Discuss → plan → execute → verify → ship, one fresh context per task",
     "reminder": "Discuss→plan→execute→verify→ship pipeline.",
     "inline": true,
     "detailedDescription": "\"Get Shit Done\" pipeline with five phases and wave-based parallel execution:\n\n1. Discuss: clarify the task with the user (if ambiguous). Produce a shared understanding of the goal.\n2. Plan: decompose the goal into a task tree. Tasks are grouped into waves — tasks in the same wave are independent and can run in parallel.\n3. Execute: dispatch waves sequentially. Within a wave, tasks run in parallel as subagents. Each subagent gets fresh context (no cross-contamination) and makes an atomic git commit when its task completes.\n4. Verify: after all waves complete, run the full verification suite (tests, lint, build). If anything fails, the responsible task's commit is identified and the fix loops.\n5. Ship: tag, changelog, and release if all verification passes.\n\nThe wave-based design means parallelism is maximized (tasks in a wave run concurrently) but dependencies are respected (a wave only starts after its predecessor completes and verifies).\n\nUse for medium-to-large features that benefit from parallel execution with a clear ship-ready end state. Each task's atomic commit makes rollback granular.",
@@ -2494,7 +2494,7 @@
   },
   "swarm-hub/harden": {
     "label": "harden",
-    "description": "Composable robustness — safeTask (error+deviation tracking), circuitBreaker (halt on failure rate), verificationGate (block downstream until verified)",
+    "description": "Composable robustness — safe task, circuit breaker, verification gate",
     "reminder": "Wrap workflow with robustness composables.",
     "skill": "harden",
     "detailedDescription": "Composable robustness wrappers that can be applied to any other orchestration pattern:\n\n- safeTask: wraps a task with error tracking and deviation detection. If the task's output deviates from expectations (e.g. produced no changes, changed unrelated files), it's flagged.\n- circuitBreaker: monitors a workflow's failure rate. If failures exceed a threshold (e.g. 3 failures in 5 attempts), the circuit \"trips\" and halts the workflow to prevent cascading failures.\n- verificationGate: blocks downstream tasks from running until the upstream task is verified. Unlike a simple \"run tests after\", the gate holds the pipeline — nothing proceeds until verification passes.\n\nThese are composable — you can wrap any pattern with any combination. E.g. \"ralph with a circuitBreaker and verificationGate\" gives you a persistent loop that halts if it's failing too often and won't proceed past unverified work.\n\nUse when you need to harden an existing orchestration pattern against failures, flakiness, or runaway loops.",
@@ -2513,7 +2513,7 @@
   },
   "swarm-hub/hive": {
     "label": "hive",
-    "description": "Agent Hive execution — Swarm Bee phase: batched parallelism with worktree isolation, best-effort worker verification, blocked worker protocol, orchestrator batch testing",
+    "description": "Batched parallel workers with worktree isolation and blocked-worker protocol",
     "reminder": "Swarm Bee: batched parallel execution.",
     "skill": "hive-methodology",
     "detailedDescription": "Agent Hive \"Swarm Bee\" execution phase. Features:\n\n- Worktree isolation: each worker gets its own git worktree so parallel work doesn't conflict on the same files. Workers commit to their own branch.\n- Batched parallelism: workers are dispatched in batches; the orchestrator tests the integrated result after each batch (not per-worker).\n- Best-effort worker verification: each worker self-verifies, but the orchestrator runs the authoritative integration test after merging a batch.\n- Blocked worker protocol: if a worker hits a blocker, it marks itself blocked rather than spinning. The orchestrator can unblock or reassign.\n\nThis is the execution half of the Hive methodology (the planning half is /swarm-hub hive-plan, the \"Architect Bee\" phase). After /swarm-hub hive-plan produces plan.md and the user approves, /swarm-hub hive executes it.\n\nUse for large parallelizable features where file conflicts are a real risk. Worktree isolation makes parallel work safe.",
@@ -2539,7 +2539,7 @@
     ]
   },
   "swarm-hub/hive-plan": {
-    "label": "hive",
+    "label": "hive-plan",
     "description": "Agent swarm planning — interview, discover, produce plan.md with approval gate",
     "reminder": "Architect Bee: plan with approval gate.",
     "inline": true,
@@ -2561,7 +2561,7 @@
   },
   "swarm-hub/maestro": {
     "label": "maestro",
-    "description": "Strict role separation — PMs gather requirements, Architects design/review (never code), Coders implement/test (never self-review)",
+    "description": "Strict roles — PMs gather, architects design, coders implement",
     "reminder": "Strict role separation factory.",
     "inline": true,
     "detailedDescription": "Pipeline with strict role separation to prevent self-review bias:\n\n- PM role (@analyst or @requirements-analyzer): gathers and crystallizes requirements. Does NOT design or code.\n- Architect role (@architect): designs the system, reviews implementations. Does NOT write implementation code — reviews only. This prevents the \"I wrote it so I'll approve it\" bias.\n- Coder role (@executor): implements the design and writes tests. Does NOT self-review — the architect reviews.\n\nThe flow: PM → requirements doc → Architect → design doc → Coder → implementation → Architect → review → (fixes if needed) → Coder → tests → Architect → final approval.\n\nThe strict separation means no agent approves its own work. This catches more defects than self-review but costs more API requests due to the review round-trips.\n\nUse for quality-critical features where self-review bias is a real risk. Overkill for routine work.",
@@ -2581,7 +2581,7 @@
   },
   "swarm-hub/metaswarm": {
     "label": "metaswarm",
-    "description": "Autonomous issue-to-PR with 12 agents, 7 phases, adversarial reviews with fresh reviewers to block anchoring bias",
+    "description": "Autonomous issue-to-PR, 7 phases, adversarial fresh reviews",
     "reminder": "12-agent autonomous issue-to-PR pipeline.",
     "inline": true,
     "detailedDescription": "Large-scale autonomous issue-to-PR pipeline with 12 specialized agents across 7 phases:\n\n1. Issue analysis: parse the GitHub issue, extract requirements, constraints, and acceptance criteria.\n2. Architecture: design the solution approach.\n3. Planning: decompose into implementation tasks.\n4. Implementation: parallel agents implement the tasks.\n5. Adversarial review: fresh reviewers (who haven't seen the implementation) review the PR. Using fresh reviewers prevents anchoring bias — they don't know what the implementer intended, only what the code does.\n6. Fix loop: address review findings.\n7. Final: merge-ready PR.\n\nThe adversarial review with fresh reviewers is the key innovation — reviewers who didn't watch the implementation catch issues that implementer-aware reviewers miss (they don't have the context that would let them rationalize the code).\n\nUse for significant features tracked as GitHub issues where you want a production-quality PR as output. Very high API cost — 12 agents × 7 phases. Reserve for high-value work.",
@@ -2598,7 +2598,7 @@
   },
   "swarm-hub/pair": {
     "label": "pair",
-    "description": "Pair programming — two agents on one task: Driver writes code, Navigator reviews in real-time, catching mistakes early",
+    "description": "Two agents on one task — a driver writes, a navigator reviews live",
     "reminder": "Driver/Navigator pair programming.",
     "inline": true,
     "detailedDescription": "Two-agent pair programming on a single task:\n\n- Driver: writes the implementation code. Has edit access. Focused on getting it working.\n- Navigator: reviews the Driver's output in real-time. Does NOT write code. Catches bugs, suggests alternatives, flags edge cases, enforces conventions. Has read-only access + a message channel to the Driver.\n\nThe Navigator reviews after each meaningful chunk (function, file section) — not at the end. This catches mistakes early when they're cheap to fix, rather than at a final review where rework is expensive.\n\nUse for complex or error-prone code where a second perspective during writing (not after) prevents defects: security-sensitive code, algorithm implementation, concurrent code, tricky refactors. NOT for boilerplate or trivial changes — that's a waste of the Navigator.\n\nConfigure roles via flags: --driver=@executor, --navigator=@code-reviewer (defaults).",
@@ -2617,7 +2617,7 @@
   },
   "swarm-hub/react": {
     "label": "react",
-    "description": "ReAct pattern — interleaved Reasoning and Acting: think → act → observe → reason → repeat until goal met",
+    "description": "ReAct loop — think, act, observe, reason, repeat until done",
     "reminder": "ReAct loop: think, act, observe, repeat.",
     "inline": true,
     "detailedDescription": "Implements the ReAct (Reasoning + Acting) pattern. Each cycle:\n\n1. Reason: the agent reasons about the current state and what to do next (produces a thought).\n2. Act: the agent takes an action (runs a tool, edits a file, dispatches a subagent).\n3. Observe: the agent observes the action's output.\n4. Repeat until the goal is met or a stopping condition triggers.\n\nUnlike ralph (which loops a verify-execute cycle), ReAct explicitly separates the reasoning step — the thought is a first-class artifact, not just internal. This makes the agent's decision process visible and debuggable.\n\nUse for exploratory tasks where the next action depends on observing the result of the previous one: debugging, investigation, incremental refactoring where you don't know the full path upfront. The reasoning trace is saved to state for post-hoc analysis.",
@@ -2636,7 +2636,7 @@
   },
   "swarm-hub/remediate": {
     "label": "remediate",
-    "description": "CI/build failure auto-remediation — monitor failures, analyze root causes, auto-apply fixes, re-run until green",
+    "description": "Watch CI, diagnose the cause, fix, re-run until green",
     "reminder": "Auto-remediate build failures until green.",
     "inline": true,
     "detailedDescription": "Automated CI/build failure remediation loop:\n\n1. Monitor: fetch the latest CI/build failure log (via gh CLI, Jenkins API, or a local command output).\n2. Analyze: parse the failure, classify it (compile error, test failure, lint, dependency issue, flaky test), and identify the root cause.\n3. Fix: apply the minimal fix that addresses the root cause. Avoid shotgun fixes — one root cause, one targeted fix.\n4. Re-run: trigger the CI/build again. If green, done. If still failing, loop back to step 1 with the new failure.\n\nBounded by a max-iterations cap to prevent infinite loops on unfixable failures (e.g. infrastructure issues, missing credentials). When the cap is hit, escalate to the user with the failure taxonomy and attempted fixes.\n\nUse when a CI pipeline is failing and you want the agent to grind through fixes autonomously. NOT for failures that require human judgment (product decisions, ambiguous requirements).",
@@ -2657,7 +2657,7 @@
   },
   "swarm-hub/ruflo": {
     "label": "ruflo",
-    "description": "60+ agent swarm with Q-Learning smart routing, 4 consensus protocols, and Queen/Worker hierarchical topologies",
+    "description": "60+ agent swarm with Q-learning routing and 4 consensus protocols",
     "reminder": "60+ agent swarm with Q-Learning.",
     "inline": true,
     "detailedDescription": "Large-scale swarm with 60+ agents, Q-Learning-based smart routing, four consensus protocols, and Queen/Worker hierarchical topologies:\n\n- Q-Learning routing: a reinforcement learning layer routes tasks to the agent that has historically performed best on similar tasks. The Q-table is updated based on outcomes, so routing improves over time.\n- 4 consensus protocols: majority, weighted, Byzantine (tolerates faulty agents), and synthesis. Chosen per task based on task characteristics.\n- Queen/Worker topology: a Queen agent coordinates Worker agents. The Queen assigns tasks, monitors progress, and resolves conflicts. Workers execute. Alternative topologies (flat, hierarchical) are configurable.\n\nThis is the heaviest orchestration pattern. Use ONLY for very large tasks that genuinely need 60+ agents — most tasks don't. The Q-Learning overhead only pays off if the swarm runs enough tasks for learning to improve routing.",
@@ -2674,7 +2674,7 @@
   },
   "swarm-hub/self-assess": {
     "label": "self-assess",
-    "description": "Iterative self-evaluation — agent executes, critically evaluates against quality thresholds, reflects and refines until targets met",
+    "description": "Iterate: execute, critique against thresholds, refine, repeat",
     "reminder": "Self-evaluate and iterate until quality met.",
     "skill": "self-improve",
     "detailedDescription": "Self-referential improvement loop: the agent executes a task, then critically evaluates its own output against explicit quality thresholds, reflects on what fell short, and refines. The loop repeats until all thresholds are met or a max-iterations cap is hit.\n\nQuality thresholds are configurable: test coverage %, lint error count, complexity score, security scan result, etc. The agent scores itself against each, identifies the weakest dimension, and targets it in the next iteration.\n\nUnlike ralph (which loops until a verifier says \"done\"), self-assess makes the agent itself the verifier — it evaluates its own work critically. This builds self-correction into the execution loop rather than relying on an external verifier.\n\nUse for tasks where quality criteria are measurable and the first attempt is unlikely to be optimal: \"write a comprehensive test suite for this module\", \"refactor this function for readability\".",
@@ -2720,7 +2720,7 @@
   },
   "swarm-hub/subagent-driven": {
     "label": "subagent-driven",
-    "description": "Execute implementation plans via fresh subagent per task with automated review gates — spec compliance + code quality after each task, broad final review. Includes hub-to-hub handoff protocol for bridging ideation→orchestrate→harvest-context",
+    "description": "One fresh subagent per task, with review gates after each",
     "reminder": "Dispatch subagents per task with automated review gates.",
     "skill": "subagent-driven-development",
     "detailedDescription": "Subagent-driven development pattern: each task in an implementation plan is executed by a FRESH subagent (no context carry-over between tasks), with automated review gates after each task.\n\nPer-task flow:\n1. Dispatch a fresh @executor subagent with the task spec + relevant context (files, rules).\n2. Subagent implements the task and self-verifies.\n3. Automated review gate: @code-reviewer reviews the subagent's output for spec compliance and code quality.\n4. If review passes, proceed to next task. If review fails, the same task is re-dispatched with the review feedback.\n\nAfter all tasks: a broad final review covers cross-task integration, not just per-task correctness.\n\nHub-to-hub handoff protocol: this pattern includes a bridge protocol for passing plans from /ideation → /orchestrate → /harvest-context. The plan document is the handoff artifact — it survives context switches because it's on disk, not in a context window.\n\nUse for executing plans produced by /ideation (plan, ralplan, decomposition, etc.) where you want per-task isolation + automated review. The fresh-context-per-task design prevents earlier tasks' mistakes from contaminating later tasks' context.",
@@ -2746,7 +2746,7 @@
   },
   "verify-hub/audit": {
     "label": "audit",
-    "description": "Comprehensive project health check — dependencies, security, code quality, test coverage, bundle size in one command",
+    "description": "One-command health check — deps, security, quality, tests, size",
     "reminder": "Run comprehensive project health audit.",
     "inline": true,
     "detailedDescription": "Comprehensive project health audit. Runs all checks in one command:\n\n- Dependencies: outdated, vulnerable, unused, duplicate-purpose.\n- Security: SAST, secrets, compliance.\n- Code quality: complexity, duplication, naming, dead code.\n- Test coverage: coverage %, untested critical paths.\n- Bundle size: production build size, size budget adherence.\n- Performance: basic profiling (build time, test suite duration).\n- Meta-audit flags:\n    - --skills: audit local skill registry for compatibility, drift, and tag coverage.\n    - --rules: audit local rule set for consistency and activation coverage.\n    - --commands: audit project-specific command library for validity.\n\nOutput: a single audit report with scores per dimension and an overall health grade. Use for periodic health checks or before major releases.",
@@ -2846,7 +2846,7 @@
   },
   "verify-hub/review": {
     "label": "review",
-    "description": "Full code review round — analyze recent changes, run security scan, check complexity, produce a review report",
+    "description": "Full review round — changes, security scan, complexity",
     "reminder": "Run full code review round.",
     "inline": true,
     "detailedDescription": "Full code review round. Analyzes recent changes (since last commit/branch) across multiple dimensions:\n\n1. Change analysis: what changed, why, is the change appropriate?\n2. Security scan: are there new vulnerabilities? (runs /maintain-hub scan logic).\n3. Complexity check: did the changes introduce complexity hotspots?\n4. Convention adherence: do the changes follow existing conventions?\n5. Test coverage: are the changes tested?\n6. Edge cases: are edge cases handled?\n\nOutput: a structured review report with pass/warn/fail per dimension and specific recommendations. Use before merging a PR or when you want a thorough review of recent work.",
@@ -2858,14 +2858,14 @@
   },
   "verify-hub/security-reviewer": {
     "label": "security-reviewer",
-    "description": "Security vulnerability detection — pass instructions directly to @security-reviewer",
+    "description": "Hand a security audit to the security reviewer",
     "reminder": "Delegating to @security-reviewer.",
     "agent": "@security-reviewer",
     "detailedDescription": "Delegates directly to the @security-reviewer agent. The remainder of your prompt will be passed as specific instructions to the agent."
   },
   "verify-hub/tdd": {
     "label": "tdd",
-    "description": "Test-driven development loop — red-green-refactor: write failing test, make it pass, refactor, repeat until all features covered",
+    "description": "Red-green-refactor loop until every feature has a test",
     "reminder": "Red-green-refactor TDD loop.",
     "inline": true,
     "detailedDescription": "Strict TDD cycle repeated until the feature is complete:\n\n1. Red: write a test that captures the next requirement. Run it — it MUST fail (the code doesn't exist yet or doesn't handle this case).\n2. Green: write the minimum code to make the test pass. Run it — it MUST pass.\n3. Refactor: clean up the code (extract functions, improve naming, remove duplication) WITHOUT changing behavior. Run tests — they MUST still pass.\n4. Repeat: write the next test for the next requirement.\n\nThe loop continues until all acceptance criteria are covered by passing tests. The orchestrator tracks which requirements are tested and which remain.\n\nUse for features where correctness is critical and the requirements are testable. NOT for exploratory work, UI polish, or tasks where tests can't meaningfully express the requirement.",

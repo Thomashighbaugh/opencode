@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_BASH, RULES_CONTEXT_STRATEGY } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "context",
-  description: "Manage context files — harvest, extract, organize, compact, map — updates wiki index/log on changes",
+  description: "Harvest, extract, organize, and map context files",
   reminder: "Harvest, organize, or compact context.",
   inline: true,
 

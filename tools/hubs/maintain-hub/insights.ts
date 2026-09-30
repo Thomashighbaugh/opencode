@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_LOADSKILL_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "insights",
-  description: "Session-history analysis — work patterns, tool usage, friction points, strategic recommendations from your OpenCode usage",
+  description: "Analyze session history — patterns, friction, recommendations",
   reminder: "Analyze session history and produce an insights report.",
   skill: "insights",
 

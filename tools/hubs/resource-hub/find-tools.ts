@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_LOADSKILL_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "find-tools",
-  description: "Discover TypeScript tools relevant to the current project by searching registries (GitHub, npm) and local template catalog — finds project-specific automation tools. Used by setup/refresh to find per-repo tools",
+  description: "Find and vet TypeScript tools for this stack from registries",
   reminder: "Search registries for relevant project tools.",
   skill: "find-tools",
 

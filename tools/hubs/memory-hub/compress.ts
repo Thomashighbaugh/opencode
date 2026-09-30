@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "compress",
-  description: "Token compression strategies — density filtering (~29% savings), command output compression (~47%), library cache compression (~94%)",
+  description: "Token compression strategies, with measured savings per technique",
   reminder: "Apply 4-layer token compression.",
   inline: true,
 

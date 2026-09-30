@@ -207,3 +207,7 @@ export default {
 3. **Error handlers**: Catch blocks, error boundaries
 4. **Edge cases**: Empty arrays, null values, boundaries
 5. **Integration points**: API calls, database queries
+
+## Related rules
+
+- `rules/testing.md` — coverage floor, test types, and the TDD workflow these checks assume

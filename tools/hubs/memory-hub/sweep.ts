@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_BASH, SKILLS_PRIVACY_SCAN } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "sweep",
-  description: "Scan .opencode/ for files that should be gitignored but aren't — prevents bloat that breaks git push",
+  description: "Find files in .opencode/ that should be gitignored",
   reminder: "Sweep .opencode/ for gitignore violations.",
   inline: true,
 

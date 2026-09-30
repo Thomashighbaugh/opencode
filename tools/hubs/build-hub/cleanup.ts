@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_LOADSKILL_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "cleanup",
-  description: "Regression-safe cleanup of AI-generated slop — dead code, redundant comments, unused exports via ai-slop-cleaner skill",
+  description: "Remove AI slop — dead code, redundant comments, unused exports",
   reminder: "Clean up AI-generated code slop safely.",
   skill: "ai-slop-cleaner",
 

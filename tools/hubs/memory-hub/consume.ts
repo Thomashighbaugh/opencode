@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_BASH, RULES_SECURITY, SKILLS_WIKI } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "consume",
-  description: "Ingest a file, directory, or URL — extract text content, save as durable context, and update wiki index/log",
+  description: "Ingest a file, directory, or URL into durable context",
   reminder: "Ingest and save content as durable context.",
   inline: true,
 

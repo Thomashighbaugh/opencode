@@ -1,11 +1,11 @@
 {
   "scripts": {
-    "check-agents": "node skills/agent-format-enforcer/scripts/check-agent-format.mjs",
-    "check-schema": "node skills/config-sync/scripts/check-schema-compliance.mjs",
+    "check-agents": "node skills/agent-format-enforcer/scripts/check-agent-format.ts",
+    "check-schema": "node skills/config-sync/scripts/check-schema-compliance.ts",
     "check-all": "npm run check-agents && npm run check-schema",
-    "fix-agents": "node skills/agent-format-enforcer/scripts/check-agent-format.mjs --fix",
-    "fix-schema": "node skills/config-sync/scripts/check-schema-compliance.mjs --fix",
-    "save-schema": "node skills/config-sync/scripts/check-schema-compliance.mjs --save",
+    "fix-agents": "node skills/agent-format-enforcer/scripts/check-agent-format.ts --fix",
+    "fix-schema": "node skills/config-sync/scripts/check-schema-compliance.ts --fix",
+    "save-schema": "node skills/config-sync/scripts/check-schema-compliance.ts --save",
     "doctor": "npm run check-all",
     "test": "vitest",
     "test:run": "vitest run",

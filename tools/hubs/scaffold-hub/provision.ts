@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_LOADSKILL_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "provision",
-  description: "Provision project config via project-config-composer — auto-generate .opencode/opencode.jsonc, project rules, and agent wrappers from stack fingerprint + recommendations",
+  description: "Generate project config, rules, and agents from the stack",
   reminder: "Auto-generate .opencode/ config from stack analysis.",
   skill: "project-config-composer",
 
@@ -19,7 +19,7 @@ const spec: HubSubcommandSpec = {
 
 The generated config references global resources (skills, agents, rules in ~/.config/opencode/) rather than duplicating them — minimal footprint, maximum context.
 
-**Memory plane (always provisioned).** In addition to the stack-specific resources, provisioning writes the stack-independent memory plane: a thin \`.opencode/rules/graph-context.md\` rule (registered under \`instructions\`), a bootstrapping \`node skills/graph-context/scripts/graph.mjs build\` to create \`graph.db\`, and a \`.opencode/state/\` gitignore entry. The global \`vectorize-context\` + \`graph-context\` skills are referenced, never copied — so every project (and every archetype) inherits knowledge-graph retrieval without per-archetype duplication.
+**Memory plane (always provisioned).** In addition to the stack-specific resources, provisioning writes the stack-independent memory plane: a thin \`.opencode/rules/graph-context.md\` rule (registered under \`instructions\`), a bootstrapping \`node skills/graph-context/scripts/graph.ts build\` to create \`graph.db\`, and a \`.opencode/state/\` gitignore entry. The global \`vectorize-context\` + \`graph-context\` skills are referenced, never copied — so every project (and every archetype) inherits knowledge-graph retrieval without per-archetype duplication.
 
 Use after /scaffold-hub detect + /scaffold-hub recommend to generate the actual config files. Or as part of /scaffold-hub setup (phase 3).`,
 

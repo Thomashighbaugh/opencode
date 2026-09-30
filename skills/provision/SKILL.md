@@ -38,7 +38,7 @@ Do NOT call `hubMenu` or any other tool — just output the list directly and as
 1. **Print reminder**: "Provisioning project-aware agents, skills, tools, and rules for your codebase. I'll analyze your project and generate tailored artifacts."
 2. **Check for detection data** at `.opencode/state/init/init-detection.json` — if missing, suggest running `/scaffold-hub detect` first
 3. If user provides free-text (not a known sub-option), treat it as a project description and use it to populate detection data for empty directories
-4. **Delegate** to `provision.mjs` for the heavy lifting
+4. **Delegate** to `provision.ts` for the heavy lifting
 5. **Save checkpoint** after each phase
 6. Report results inline — do NOT offer hand-off to other hubs
 
@@ -46,11 +46,11 @@ Do NOT call `hubMenu` or any other tool — just output the list directly and as
 
 | Sub-Option | Delegates To | What It Does |
 |------------|-------------|--------------|
-| `full` | `provision.mjs` | Run all 7 phases — scan, agents, skills, tools, rules, install, verify |
-| `agents` | `provision.mjs` | Phase 2 only — generate project-aware agent wrappers |
-| `skills` | `provision.mjs` | Phase 3 only — generate project-specific skills |
-| `tools` | `provision.mjs` | Phase 4 only — generate project TypeScript tools |
-| `rules` | `provision.mjs` | Phase 5 only — generate project rules and conventions |
+| `full` | `provision.ts` | Run all 7 phases — scan, agents, skills, tools, rules, install, verify |
+| `agents` | `provision.ts` | Phase 2 only — generate project-aware agent wrappers |
+| `skills` | `provision.ts` | Phase 3 only — generate project-specific skills |
+| `tools` | `provision.ts` | Phase 4 only — generate project TypeScript tools |
+| `rules` | `provision.ts` | Phase 5 only — generate project rules and conventions |
 | `resume` | self (inline) | Load latest checkpoint and continue from last incomplete phase |
 | `status` | self (inline) | Show provisioning state and checkpoint info |
 
@@ -181,11 +181,11 @@ When invoked on an empty directory with free-text intent, populate a minimal det
 
 | Phase | What | Delegates To | Output Location |
 |-------|------|--------------|-----------------|
-| 1 - Scan | Analyze codebase or parse user description for empty dirs | `explore` agent + `provision.mjs` | `.opencode/state/init/init-detection.json` |
-| 2 - Agents | Generate project-aware agent wrappers around global agents | `provision.mjs` | `.opencode/agents/` |
-| 3 - Skills | Generate project-specific workflow skills | `provision.mjs` | `.opencode/skills/{name}/` |
-| 4 - Tools | Generate project-specific TypeScript tools | `provision.mjs` | `.opencode/tools/` |
-| 5 - Rules | Generate project rules and conventions | `provision.mjs` | `.opencode/rules/` |
+| 1 - Scan | Analyze codebase or parse user description for empty dirs | `explore` agent + `provision.ts` | `.opencode/state/init/init-detection.json` |
+| 2 - Agents | Generate project-aware agent wrappers around global agents | `provision.ts` | `.opencode/agents/` |
+| 3 - Skills | Generate project-specific workflow skills | `provision.ts` | `.opencode/skills/{name}/` |
+| 4 - Tools | Generate project-specific TypeScript tools | `provision.ts` | `.opencode/tools/` |
+| 5 - Rules | Generate project rules and conventions | `provision.ts` | `.opencode/rules/` |
 | 6 - Install | Register in opencode.jsonc, create AGENTS.md | `config-orchestrator` | `.opencode/opencode.jsonc`, `.opencode/AGENTS.md` |
 | 7 - Verify | Validate everything works end-to-end | `verifier` agent | `.opencode/state/init/provision-report.md` |
 
@@ -205,8 +205,8 @@ if [ -f "$DETECTION_FILE" ] && [ "$FORCE" != "true" ]; then
   cat "$DETECTION_FILE"
 else
   # Delegate to explore agent for deep codebase analysis
-  # Or use provision.mjs --scan-only
-  node skills/provision/scripts/provision.mjs --scan-only
+  # Or use provision.ts --scan-only
+  node skills/provision/scripts/provision.ts --scan-only
 fi
 ```
 
@@ -931,14 +931,14 @@ fi
 - `/orchestrate` subagents load project wrappers for deep context injection
 - `/project` commit workflows use generated conventions for consistency
 
-## provision.mjs Script
+## provision.ts Script
 
-The `scripts/provision.mjs` script is the executable engine behind provisioning. It is called by this skill's phases.
+The `scripts/provision.ts` script is the executable engine behind provisioning. It is called by this skill's phases.
 
 ### Script API
 
 ```bash
-node scripts/provision.mjs [options]
+node scripts/provision.ts [options]
 
 Options:
   --detection <file>     Path to detection JSON (default: .opencode/state/init/init-detection.json)
@@ -977,7 +977,7 @@ The script delegates each phase to the appropriate generation logic, accumulatin
 
 ## Templates
 
-The `templates/` directory contains reusable templates used by `provision.mjs` for generating artifacts:
+The `templates/` directory contains reusable templates used by `provision.ts` for generating artifacts:
 
 ```
 templates/

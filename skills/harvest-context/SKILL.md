@@ -120,7 +120,7 @@ Load and execute the appropriate skill or inline process (see Subcommand Routing
 Before saving any artifact to `.opencode/context/` (durable, committed knowledge), run a privacy scan to detect secrets, PII, or privacy-compromising content:
 
 ```bash
-PRIVACY_SCAN="$HOME/.config/opencode/skills/privacy-scan/scripts/scan-privacy.mjs"
+PRIVACY_SCAN="$HOME/.config/opencode/skills/privacy-scan/scripts/scan-privacy.ts"
 if [[ -f "$PRIVACY_SCAN" ]]; then
     SCAN_RESULT=$(echo "$ARTIFACT_CONTENT" | node "$PRIVACY_SCAN" --stdin 2>/dev/null)
     SCAN_RISK=$(echo "$SCAN_RESULT" | jq -r '.risk' 2>/dev/null)
@@ -174,7 +174,7 @@ Write the output to the appropriate location:
 **If `--compress` flag was set**: after saving, run the compression script to reduce verbose artifacts:
 
 ```bash
-COMPRESS_SCRIPT="$HOME/.config/opencode/skills/harvest-context/scripts/compress-context.mjs"
+COMPRESS_SCRIPT="$HOME/.config/opencode/skills/harvest-context/scripts/compress-context.ts"
 if [[ -f "$COMPRESS_SCRIPT" ]]; then
     THRESHOLD="${COMPRESS_THRESHOLD:-200}"
     node "$COMPRESS_SCRIPT" --file "$SAVE_PATH" --backup --threshold "$THRESHOLD"

@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "package",
-  description: "Package a skill for distribution — validate structure, create distributable zip if validation passes",
+  description: "Validate a skill, then build a distributable archive",
   reminder: "Validate and package skill for distribution.",
   inline: true,
 

@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "reset",
-  description: "Reset project state — archive .opencode/state and .opencode/context, start fresh with clean slate",
+  description: "Archive state and context, then start from a clean slate",
   reminder: "Reset project state with clean slate.",
   inline: true,
 

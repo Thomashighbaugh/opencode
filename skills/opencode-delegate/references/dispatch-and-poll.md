@@ -1,6 +1,6 @@
 # Dispatch and poll
 
-`scripts/relay.mjs` is the dispatch layer. It wraps `opencode run`, runs the brief under the chosen
+`scripts/relay.ts` is the dispatch layer. It wraps `opencode run`, runs the brief under the chosen
 agent, captures everything, and writes a structured `result.json`. Your job collapses to: run one
 command, then read one file. Everything OpenCode-specific lives in the helper, which is what keeps the
 loop portable across orchestrators.
@@ -18,7 +18,7 @@ opencode auth list     # at least one provider credential must be present
 ## Dispatching
 
 ```bash
-node "<skill-dir>/scripts/relay.mjs" --brief brief.txt --model <provider/model> --cd /path/to/repo
+node "<skill-dir>/scripts/relay.ts" --brief brief.txt --model <provider/model> --cd /path/to/repo
 ```
 
 (`<skill-dir>` is wherever this skill is installed — the folder containing its `SKILL.md`. On Claude
@@ -29,7 +29,7 @@ Options:
 
 | Flag | Effect |
 | --- | --- |
-| `--brief <file>` | The brief. Omit it to read the brief from stdin (`node relay.mjs … < brief.txt`). |
+| `--brief <file>` | The brief. Omit it to read the brief from stdin (`node relay.ts … < brief.txt`). |
 | `--cd <dir>` | Working root for OpenCode (default: current directory). |
 | `--lane <name>` | Fleet lane from `delegate-setup` config. Applies that lane's dials; fails if the lane's `implementer` is not this relay. Explicit dial flags win. |
 | `--model <name>` | Model as `provider/model`. **Required on a fresh run** — OpenCode has no safe default (a bare `opencode run` errors); a resumed run inherits its session's model. |
@@ -80,7 +80,7 @@ The helper blocks until OpenCode finishes. Back it with whatever your orchestrat
 
 - **Claude Code:** run the `Bash` call with `run_in_background: true`; you're notified on completion,
   then read `result.json`.
-- **Plain shell / other agents:** foreground for short tasks, or background and poll — `node relay.mjs
+- **Plain shell / other agents:** foreground for short tasks, or background and poll — `node relay.ts
   … &` in bash/zsh (including Git Bash/WSL), or your shell's equivalent (`Start-Job` in PowerShell,
   `start /b` in cmd). A run is done when `result.json` exists with a `status`. **But** a pre-run usage
   error (bad args, empty brief) exits with code 2 *before* writing any file — so check the exit code

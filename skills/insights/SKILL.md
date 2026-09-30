@@ -115,3 +115,7 @@ Coverage: N sessions across M projects, {range}.
 - Evidence over vibes — every claim in Wins/Friction must trace to transcript text.
 - Do not dump raw history into the report; synthesize.
 - Friction categories must map to actionable fixes, not just complaints.
+
+## Related rules
+
+- `rules/performance.md` — model-tier selection and the cost/quality tradeoffs

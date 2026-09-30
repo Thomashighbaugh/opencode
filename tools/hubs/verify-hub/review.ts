@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_BASH_LISTAGENTS } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "review",
-  description: "Full code review round — analyze recent changes, run security scan, check complexity, produce a review report",
+  description: "Full review round — changes, security scan, complexity",
   reminder: "Run full code review round.",
   inline: true,
 

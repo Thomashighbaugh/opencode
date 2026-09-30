@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "search",
-  description: "Search skills by content, triggers, name, or description — case-insensitive matching across all scopes, ranked by relevance",
+  description: "Search skills by name, description, or content across all scopes",
   reminder: "Search skills by name, triggers, or content.",
   inline: true,
 

@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_LOADSKILL_LISTAGENTS_TASKTODOS_MODESTATE_BASH, RULES_COMPLETION_GUARDRAIL, SKILLS_VERIFY } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "subagent-driven",
-  description: "Execute implementation plans via fresh subagent per task with automated review gates — spec compliance + code quality after each task, broad final review. Includes hub-to-hub handoff protocol for bridging ideation→orchestrate→harvest-context",
+  description: "One fresh subagent per task, with review gates after each",
   reminder: "Dispatch subagents per task with automated review gates.",
   skill: "subagent-driven-development",
 

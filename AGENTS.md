@@ -25,6 +25,13 @@ initiative — if a subagent fails, escalate to the user instead of switching pr
 
 Every turn, every subagent invocation, every verification round costs an API request. Minimize them.
 
+> **`rules/efficiency-first.md` is the standing constraint for this section** — re-applied every
+> interaction cycle, not once per session. It defines the two budgets (request efficiency, token
+> efficiency), the decision orders, the retrieval ladder (local vector recall before hosted search),
+> the memory layers, and the per-turn self-check. This section is the long-form version; when they
+> differ, the rule wins. It yields to explicit user instruction, and it never constrains output code
+> or requested text.
+
 ### Batch Tool Calls
 **When making multiple independent tool calls, batch them in a single message.** Reading 3 files? 3 Read calls in one message. Dispatching 2 subagents? 2 Task calls in one message. Never serialize independent operations across multiple turns.
 
@@ -64,6 +71,8 @@ Every turn, every subagent invocation, every verification round costs an API req
 | `security.md` | Security rules — mandatory checks, secret management |
 | `completion-guardrail.md` | **MANDATORY STOP** after planning/analysis — no auto-implementation |
 | `anti-sycophancy.md` | No sycophantic agreement — assess claims independently, conclusion-first |
+| `output-compression.md` | Mandatory TUI output shape — table > bullets > prose, preservation list, anti-sycophancy floor |
+| `efficiency-first.md` | **Standing constraint, every cycle** — fewest requests to inference hosts, smallest sufficient prompts. Never caps output code or requested text. Yields to explicit user instruction |
 | `hub-menu-rebuild.md` | Rebuild TUI menus after hub subcommand changes (`bun run generate-menus`) |
 
 **On-demand rules** (load via tool when needed): `hub-routing.md`, `resource-tags.md`, `global-reference.md`, `hub-state.md`

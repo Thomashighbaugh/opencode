@@ -2,7 +2,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 
 const spec: HubSubcommandSpec = {
   label: "self-assess",
-  description: "Iterative self-evaluation — agent executes, critically evaluates against quality thresholds, reflects and refines until targets met",
+  description: "Iterate: execute, critique against thresholds, refine, repeat",
   reminder: "Self-evaluate and iterate until quality met.",
   skill: "self-improve",
 

@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_LISTAGENTS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "map-codebase",
-  description: "Analyze existing brownfield codebase — spawn parallel agents to map stack, architecture, conventions, and integration points before init",
+  description: "Parallel agents map a brownfield codebase before setup",
   reminder: "Map codebase via parallel agent analysis.",
   inline: true,
 

@@ -17,7 +17,7 @@ const spec: HubSubcommandSpec = {
 - Commands: all command references resolve to .md files.
 - Rules: all rule references resolve to .md files.
 - Hub delegations: all skill/agent/command references in hub subcommands resolve (runs validate-delegation tool).
-- Memory plane: \`.opencode/rules/graph-context.md\` exists and is registered in \`instructions\`; \`.opencode/state/\` is gitignored; when \`.opencode/context/\` is non-empty, \`node skills/graph-context/scripts/graph.mjs stats\` reports nodes > 0 and edges > 0.
+- Memory plane: \`.opencode/rules/graph-context.md\` exists and is registered in \`instructions\`; \`.opencode/state/\` is gitignored; when \`.opencode/context/\` is non-empty, \`node skills/graph-context/scripts/graph.ts stats\` reports nodes > 0 and edges > 0.
 
 Schema validation step:
 1. Fetch https://opencode.ai/config.json

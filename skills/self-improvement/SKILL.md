@@ -145,7 +145,7 @@ Same error > 2 times → guardrail. Same category > 3 times → pre-flight check
 ## Workflow (capture → triage → promote)
 
 1. **Capture**: append the entry to the right `.opencode/context/learnings/` file (create dirs if missing). Dedupe by Pattern-Key; increment Recurrence-Count on repeat.
-2. **Graph it**: run `node skills/graph-context/scripts/graph.mjs build` to fold the new learning into the knowledge graph as a `learning` node with `touches` edges to its Area/Pattern-Key matches (weight = Recurrence-Count). Keeps `/resource-hub knowledge-graph` retrieval current.
+2. **Graph it**: run `node skills/graph-context/scripts/graph.ts build` to fold the new learning into the knowledge graph as a `learning` node with `touches` edges to its Area/Pattern-Key matches (weight = Recurrence-Count). Keeps `/resource-hub knowledge-graph` retrieval current.
 3. **Triage**: classify into Config vs Agent bucket. If config, locate the exact asset.
 4. **Fix (bounded)**: if Recurrence-Count >= 3 → draft the promotion (guardrail format) and present to the user for approval. If < 3 → leave as logged learning; suggest `/maintain-hub retrospect` at session end.
 5. **Validate**: after promotion, note the before/after in the entry (Status: promoted, EFFECTIVENESS tracker).

@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_LOADSKILL_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "extract-standards",
-  description: "Extract coding standards from existing files — infer style guide from codebase syntax",
+  description: "Infer a style guide from the code that already exists",
   reminder: "Extract coding standards from existing file(s).",
   skill: "code-standards-extractor",
 

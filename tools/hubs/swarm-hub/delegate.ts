@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_LOADSKILL_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "delegate",
-  description: "Hand a bounded task to a separate OpenCode CLI session — write brief, dispatch via relay, review diff, land it yourself",
+  description: "Hand a bounded task to a separate CLI session, then review its diff",
   reminder: "Delegate a bounded coding task to the OpenCode CLI and review its output.",
   skill: "opencode-delegate",
 
@@ -11,7 +11,7 @@ const spec: HubSubcommandSpec = {
 
 The five-step loop (orchestrator owns judgment, OpenCode does the typing):
 1. **Write the brief** — self-contained: goal, current state, what to change/leave, the repo's REAL gate commands, report contract. OpenCode sees only the brief + working tree.
-2. **Dispatch** — node <skill-dir>/scripts/relay.mjs --brief brief.txt --model <provider/model> --cd <repo>. Requires an explicit --model (or --lane) on fresh runs; --read-only for review-only (plan agent); --resume-last for delta briefs; --timeout as watchdog.
+2. **Dispatch** — node <skill-dir>/scripts/relay.ts --brief brief.txt --model <provider/model> --cd <repo>. Requires an explicit --model (or --lane) on fresh runs; --read-only for review-only (plan agent); --resume-last for delta briefs; --timeout as watchdog.
 3. **Wait** — blocks until result.json is written and process exits; read the tree, not status lines.
 4. **Review** — re-run gates yourself, read the diff against the brief, watch for scope creep; never trust the self-report.
 5. **Land** — the orchestrator commits (relay never does); delta brief via --resume-last for rework.
@@ -24,7 +24,7 @@ Use when the user wants implementation work handed to OpenCode (or a queue of ta
   examples: [
     {
       input: "/project delegate \"rename X to Y across src/ and update imports\"",
-      approach: "Load opencode-delegate skill, check opencode CLI present, write self-contained brief with gate commands, dispatch via relay.mjs with a fast model, wait for result.json, re-run gates + read diff, then commit the verified work."
+      approach: "Load opencode-delegate skill, check opencode CLI present, write self-contained brief with gate commands, dispatch via relay.ts with a fast model, wait for result.json, re-run gates + read diff, then commit the verified work."
     },
     {
       input: "/project delegate --read-only \"review the auth refactor for security holes\"",
@@ -32,7 +32,7 @@ Use when the user wants implementation work handed to OpenCode (or a queue of ta
     }
   ],
   warnings: [
-    "relay.mjs requires an explicit --model on fresh runs — a bare `opencode run` errors",
+    "relay.ts requires an explicit --model on fresh runs — a bare `opencode run` errors",
     "Never trust the implementer's gate claims — re-run tests/lint/build yourself",
     "The orchestrator commits; the relay never does"
   ],

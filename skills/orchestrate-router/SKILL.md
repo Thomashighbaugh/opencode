@@ -20,9 +20,9 @@ Routes amorphous user requests to the correct hub subcommand. When a user enters
 
 | Script | Hub | Purpose |
 |--------|-----|---------|
-| `scripts/route-orchestrate.mjs` | `/orchestrate` | Routes to 27 execution patterns |
-| `scripts/route-ideation.mjs` | `/ideation` | Routes to 21 planning/research methods |
-| `scripts/route-harvest.mjs` | `/harvest-context` | Routes to 13 extraction/context methods |
+| `scripts/route-orchestrate.ts` | `/orchestrate` | Routes to 27 execution patterns |
+| `scripts/route-ideation.ts` | `/ideation` | Routes to 21 planning/research methods |
+| `scripts/route-harvest.ts` | `/harvest-context` | Routes to 13 extraction/context methods |
 
 ## How Routing Works
 
@@ -86,7 +86,7 @@ The classifier extracts signals from the user's natural language and scores each
 
 ## Auto-Vectorization (Harvest Context Only)
 
-The harvest router integrates with the `vectorize-context` skill. After routing to any subcommand with `writes: true` (session, codebase, memory, consume, secondbrain, journal), the router automatically calls `ensureIndexed()` from `veclib.mjs` to refresh the vector DB.
+The harvest router integrates with the `vectorize-context` skill. After routing to any subcommand with `writes: true` (session, codebase, memory, consume, secondbrain, journal), the router automatically calls `ensureIndexed()` from `veclib.ts` to refresh the vector DB.
 
 This means:
 - A user harvests session knowledge → context files written → vector DB auto-updated → next semantic query sees new content
@@ -98,16 +98,16 @@ This means:
 
 ```bash
 # Route an orchestration request
-node {skill_dir}/scripts/route-orchestrate.mjs "build me a login system"
+node {skill_dir}/scripts/route-orchestrate.ts "build me a login system"
 
 # Route an ideation request
-node {skill_dir}/scripts/route-ideation.mjs "compare database options"
+node {skill_dir}/scripts/route-ideation.ts "compare database options"
 
 # Route a harvest request (auto-vectorizes on write subcommands)
-node {skill_dir}/scripts/route-harvest.mjs "save what we learned"
+node {skill_dir}/scripts/route-harvest.ts "save what we learned"
 
 # Environment variable for all three
-REQUEST="fix the broken CI pipeline" node {skill_dir}/scripts/route-orchestrate.mjs
+REQUEST="fix the broken CI pipeline" node {skill_dir}/scripts/route-orchestrate.ts
 ```
 
 ## Output Format
@@ -137,7 +137,7 @@ The `autoVectorize` field is only present in the harvest router output.
 To wire into a hub subcommand (`/orchestrate`, `/ideation`, `/harvest-context`):
 
 1. When user enters `/orchestrate [text]` without a recognized subcommand name:
-   - Run `route-orchestrate.mjs` with the text
+   - Run `route-orchestrate.ts` with the text
    - Take `recommended` from output
    - Route to that subcommand via `hubMenu(action: "route", hub: "orchestrate", subcommand: recommended)`
 2. Same pattern for `/ideation` and `/harvest-context`

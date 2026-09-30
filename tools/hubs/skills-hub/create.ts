@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_LOADSKILL_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "create",
-  description: "Full skill creation workflow with bundled resources — gather requirements, plan scripts/references/assets, run skill-creator workflow, package if ready",
+  description: "Create a skill end to end, including scripts and references",
   reminder: "Full skill creation with bundled resources.",
   skill: "skill-creator",
 

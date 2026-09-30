@@ -107,3 +107,7 @@ Test-driven development following the red-green-refactor loop. Write a failing t
 ## Reminder
 
 Red-green-refactor TDD loop.
+
+## Related rules
+
+- `rules/testing.md` — coverage floor, test types, and the TDD workflow these checks assume

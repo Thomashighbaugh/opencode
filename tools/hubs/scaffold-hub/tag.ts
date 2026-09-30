@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_LOADSKILL_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "tag",
-  description: "Audit and fix resource tags on global skills, agents, rules, and archetypes for resource_tags filtering — scan, classify, suggest, and apply tags via tag-resources skill",
+  description: "Audit and repair resource tags used by stack filtering",
   reminder: "Audit and fix resource tags for filtering.",
   skill: "tag-resources",
 
