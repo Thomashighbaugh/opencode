@@ -1,0 +1,13 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "default_agent": "hubs",
+  "formatter": true,
+  "lsp": true,
+  "permission": {
+    "edit": { ".opencode/**": "allow" }
+  },
+  "mcp": {},
+  "skills": { "paths": ["./.opencode/skills"] },
+  "plugin": ["./plugins/hubs-plugin.ts"],
+  "instructions": ["AGENTS.md"]
+}
