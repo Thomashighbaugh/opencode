@@ -37,7 +37,7 @@
     "security.md",
     "anti-sycophancy.md"
   ],
-  "default_model": "opencode/deepseek-v4-flash-free",
+  "default_model": null,
   "resource_tags": {
     "include": [
       "python",

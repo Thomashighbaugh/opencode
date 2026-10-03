@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest'
+import * as fs from 'fs'
 import * as path from 'path'
 import { loadConfig, getGlobalConfigDir, parseJsonc } from '../helpers/load-config'
 
@@ -85,6 +86,27 @@ describe('opencode.jsonc schema compliance', () => {
     it('should have a default_agent configured', () => {
       expect(config.default_agent).toBeDefined()
       expect(typeof config.default_agent).toBe('string')
+    })
+  })
+
+  describe('project templates pin no model', () => {
+    // Six of the seven archetypes shipped `"default_model":
+    // "opencode/deepseek-v4-flash-free"` and nothing in the repo ever read the
+    // field — dead metadata that still looked like a pin, and would have been
+    // copied into a provisioned project by whoever added the first consumer. The
+    // policy tests above only covered opencode.jsonc and agents/, which is
+    // exactly how these survived.
+    it('every archetype manifest leaves default_model unset', () => {
+      const dir = path.join(CONFIG_DIR, 'templates', 'projects')
+      const manifests = fs.readdirSync(dir)
+        .map((name) => path.join(dir, name, 'manifest.json'))
+        .filter((f) => fs.existsSync(f))
+
+      expect(manifests.length).toBeGreaterThan(0)
+      const pinned = manifests
+        .filter((f) => parseJsonc(fs.readFileSync(f, 'utf-8'))?.default_model != null)
+        .map((f) => path.relative(CONFIG_DIR, f))
+      expect(pinned, `template(s) pin a model: ${pinned.join(', ')}`).toEqual([])
     })
   })
 
