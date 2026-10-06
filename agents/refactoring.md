@@ -26,7 +26,7 @@ Expert refactoring specialist. Analyze code structure, identify improvement oppo
 | Artifact Type | Location | Example |
 |---------------|----------|---------|
 | TypeScript tools | `.opencode/tools/` | `.opencode/tools/my-tool.ts` |
-| Skill scripts | `.opencode/skills/{name}/scripts/` | `.opencode/skills/my-skill/scripts/helper.py` |
+| Skill scripts | `.opencode/skills/{name}/scripts/` | `.opencode/skills/my-skill/scripts/helper.sh` |
 | Slash commands | `.opencode/commands/` | `.opencode/commands/my-command.md` |
 | Shell scripts (skill-bundled) | `skills/{name}/scripts/` | `skills/my-skill/scripts/helper.sh` |
 | package.json scripts | `package.json` scripts field | `"scripts": { "build": "tsc" }` |

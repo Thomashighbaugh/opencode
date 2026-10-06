@@ -1,71 +1,26 @@
 {
   "name": "python-api",
-  "version": "1.0.0",
-  "description": "Python API service with FastAPI or Django REST, SQLAlchemy, Pytest, type hints, uv package management, Nix flake for reproducible toolchain",
-  "tags": [
-    "python",
-    "api",
-    "fastapi",
-    "django",
-    "pytest",
-    "backend",
-    "uv",
-    "nix"
+  "version": "2.0.0",
+  "description": "Python API preference pack — FastAPI/Django, type hints, pytest, uv, Nix flake. Python is the better tool here.",
+  "tags": ["python", "api", "fastapi", "django", "pytest", "backend", "uv", "nix"],
+  "languages": ["python"],
+  "frameworks": ["fastapi", "django", "flask"],
+  "stacks": ["python-api"],
+  "hints": [
+    "Type hints everywhere; run ruff + mypy as gates.",
+    "Pydantic models at the boundary; validate input once.",
+    "pytest with fixtures; prefer uv for env and dependency management.",
+    "Async endpoints only when the I/O is actually async."
   ],
-  "languages": [
-    "python"
+  "research": [
+    "Context7: FastAPI/Django and SQLAlchemy in use",
+    "SearXNG: \"fastapi project layout pytest ruff mypy 2026\"",
+    "gh_grep: real FastAPI/Django services for layout and settings"
   ],
-  "frameworks": [
-    "fastapi",
-    "django",
-    "flask"
-  ],
-  "stacks": [
-    "python-api"
-  ],
-  "extends": null,
-  "recommended_skills": [
-    "naming-cheatsheet"
-  ],
-  "recommended_agents": [
-    "test-engineer",
-    "code-reviewer"
-  ],
-  "recommended_rules": [
-    "coding-style.md",
-    "testing.md",
-    "security.md",
-    "anti-sycophancy.md"
-  ],
-  "default_model": null,
-  "resource_tags": {
-    "include": [
-      "python",
-      "pytest",
-      "api",
-      "backend",
-      "uv"
-    ],
-    "exclude": [
-      "typescript",
-      "react",
-      "nextjs",
-      "rust",
-      "go"
-    ]
-  },
+  "preferences": ["preferences/python-policy", "preferences/toolchain-fallbacks"],
   "nix": {
     "flake": true,
-    "channels": [
-      "nixpkgs-unstable"
-    ],
-    "packages": [
-      "uv",
-      "python311",
-      "ruff",
-      "mypy",
-      "pytest",
-      "poetry"
-    ]
+    "channels": ["nixpkgs-unstable"],
+    "packages": ["uv", "python311", "ruff", "mypy", "pytest", "poetry"]
   }
 }

@@ -1,72 +1,30 @@
 {
   "name": "nextjs-webapp",
-  "version": "1.0.0",
-  "description": "Full-stack Next.js web application with TypeScript, Tailwind CSS, and modern tooling",
-  "tags": [
-    "typescript",
-    "react",
-    "nextjs",
-    "tailwind",
-    "webapp",
-    "fullstack",
-    "nix"
+  "version": "2.0.0",
+  "description": "Next.js full-stack hint pack — App Router, server components, TypeScript-first.",
+  "tags": ["typescript", "react", "nextjs", "tailwind", "webapp", "fullstack"],
+  "languages": ["typescript", "javascript"],
+  "frameworks": ["nextjs"],
+  "stacks": ["ts-fullstack"],
+  "hints": [
+    "Default to the App Router and React Server Components; add 'use client' only where needed.",
+    "TypeScript strict; no implicit any.",
+    "Keep data fetching on the server; validate at the boundary.",
+    "Prefer the framework's conventions over hand-rolled routing/data layers."
   ],
-  "languages": [
-    "typescript",
-    "javascript"
+  "research": [
+    "Context7: Next.js (App Router, data fetching, caching) and Tailwind",
+    "SearXNG: \"next.js app router best practices 2026\"",
+    "gh_grep: real Next.js apps for route/server-component structure"
   ],
-  "frameworks": [
-    "nextjs"
+  "preferences": [
+    "preferences/language-selection",
+    "preferences/package-managers-runtimes",
+    "preferences/toolchain-fallbacks"
   ],
-  "stacks": [
-    "ts-fullstack"
-  ],
-  "extends": null,
-  "recommended_skills": [
-    "react-key-prop",
-    "typescript-interface-vs-type",
-    "naming-cheatsheet",
-    "context7-docs",
-    "mui"
-  ],
-  "recommended_agents": [
-    "test-engineer",
-    "code-reviewer"
-  ],
-  "recommended_rules": [
-    "coding-style.md",
-    "testing.md",
-    "security.md",
-    "anti-sycophancy.md"
-  ],
-  "default_model": null,
-  "resource_tags": {
-    "include": [
-      "typescript",
-      "react",
-      "nextjs",
-      "tailwind",
-      "vitest",
-      "prisma"
-    ],
-    "exclude": [
-      "python",
-      "rust",
-      "go",
-      "python-api"
-    ]
-  },
   "nix": {
     "flake": true,
-    "channels": [
-      "nixpkgs-unstable"
-    ],
-    "packages": [
-      "nodejs",
-      "pnpm",
-      "typescript",
-      "tailwindcss-language-server",
-      "just"
-    ]
+    "channels": ["nixpkgs-unstable"],
+    "packages": ["nodejs", "pnpm", "typescript", "tailwindcss-language-server", "just"]
   }
 }

@@ -41,9 +41,9 @@ Analyze the project's stack and structure to determine what agents and tools wou
 ```bash
 # Read detection results
 DETECTION_FILE=".opencode/state/init/init-detection.json"
-LANG=$(cat "$DETECTION_FILE" | python3 -c "import sys,json; print(json.load(sys.stdin).get('language','unknown'))")
-FRAMEWORK=$(cat "$DETECTION_FILE" | python3 -c "import sys,json; print(json.load(sys.stdin).get('framework',''))")
-PKG=$(cat "$DETECTION_FILE" | python3 -c "import sys,json; print(json.load(sys.stdin).get('packageManager',''))")
+LANG=$(jq -r '.language // "unknown"' "$DETECTION_FILE")
+FRAMEWORK=$(jq -r '.framework // ""' "$DETECTION_FILE")
+PKG=$(jq -r '.packageManager // ""' "$DETECTION_FILE")
 ```
 
 Based on stack, determine valuable artifacts:

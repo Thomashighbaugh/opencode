@@ -89,7 +89,7 @@ if [ -n "$SESSION_ID" ] && [ -d "$OMC_STATE/sessions/$SESSION_ID" ]; then
   rm -f "$OMC_STATE/sessions/$SESSION_ID/skill-active-state.json"
   # Write cancel signal so stop hook detects cancellation in progress
   NOW_ISO="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
-  EXPIRES_ISO="$(date -u -d "+30 seconds" +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || python3 - <<'PY'\nfrom datetime import datetime, timedelta, timezone\nprint((datetime.now(timezone.utc) + timedelta(seconds=30)).strftime('%Y-%m-%dT%H:%M:%SZ'))\nPY\n)"
+  EXPIRES_ISO="$(date -u -d "+30 seconds" +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || awk -v t="$(date -u +%s)" 'BEGIN{print strftime("%Y-%m-%dT%H:%M:%SZ", t+30)}')"
   printf '{"active":true,"requested_at":"%s","expires_at":"%s","mode":"%s","source":"bash_fallback"}' \
     "$NOW_ISO" "$EXPIRES_ISO" "$MODE" > "$OMC_STATE/sessions/$SESSION_ID/cancel-signal-state.json"
 fi

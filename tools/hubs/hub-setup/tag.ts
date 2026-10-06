@@ -7,9 +7,9 @@ const spec: HubSubcommandSpec = {
   reminder: "Audit and fix resource tags for filtering.",
   skill: "tag-resources",
 
-  detailedDescription: `Audits and fixes resource tags on global OpenCode resources (skills, agents, rules, archetypes). Tags enable resource_tags filtering — the mechanism that lets stack-recommender match resources to a detected stack.
+  detailedDescription: `Audits and fixes resource tags on global OpenCode resources (skills, agents, rules, hint packs). Tags are the metadata stack-recommender matches against a detected stack.
 
-Each archetype contains four subdirectories: agents/, rules/, skills/, and tools/. When provisioning a project, all four must be included: agents/ and rules/ are referenced in opencode.jsonc (via the agent and instructions keys), while skills/ and tools/ must be copied or linked into the project's .opencode/ directory so that agents and rules which reference them resolve correctly.
+Archetypes are hint packs (templates/projects/*/manifest.json) carrying hints, research pointers, and preferences. Their manifest tags must accurately describe the stack so matching works; nothing is copied from a pack — provisioning synthesizes the project config.
 
 Process:
 1. Scan all resources for existing tags.

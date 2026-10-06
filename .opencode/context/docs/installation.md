@@ -393,8 +393,8 @@ pnpm store prune
 Check file paths and syntax.
 
 ```bash
-# Verify JSON syntax
-cat ~/.config/opencode/opencode.jsonc | python3 -m json.tool
+# Verify JSONC syntax (configs allow // and /* */ comments)
+bash ~/.config/opencode/skills/project-config-composer/scripts/validate-config-keys.sh --syntax-only ~/.config/opencode/opencode.jsonc
 
 # Check file permissions
 ls -la ~/.config/opencode/opencode.jsonc

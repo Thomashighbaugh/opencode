@@ -9,7 +9,7 @@ const spec: HubSubcommandSpec = {
 
   detailedDescription: `Maps a detected stack fingerprint to recommended global OpenCode resources. Reads .opencode/state/init/stack-fingerprint.json and matches it against the global resource catalog (skills, agents, rules, archetypes) using resource tags.
 
-Each archetype contains four subdirectories: agents/, rules/, skills/, and tools/. When provisioning a project, all four must be included: agents/ and rules/ are referenced in opencode.jsonc (via the agent and instructions keys), while skills/ and tools/ must be copied or linked into the project's .opencode/ directory so that agents and rules which reference them resolve correctly.
+Each archetype is a hint pack (templates/projects/*/manifest.json): it carries hints, research pointers, and preferences, and is a starting point — never a copy payload. The recommender records local availability ({found, none}) and, where a pack is absent or silent on the specific needed, researches (Context7 / SearXNG / gh_grep) and caches under .opencode/context/research/.
 
 For each matched resource, the recommender explains why it's relevant to the detected stack. The output is a prioritized recommendation list that feeds into /hub-setup provision.
 

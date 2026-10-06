@@ -33,12 +33,12 @@ Ask the user these questions, one at a time:
 
 1. **Name** — What should the tool be called? (kebab-case, e.g. `my-utility`, `project-info`, `db-migrate`)
 2. **Description** — What does this tool do? (1-2 sentences)
-3. **Language** — TypeScript (native OpenCode tools), Python, or Bash?
+3. **Language** — TypeScript (native OpenCode tools) or shell (bash)?
 4. **Scope** — Global (available everywhere) or project (available only in this project)?
 5. **Parameters** — Does the tool need input parameters?
 
 If the user says yes to parameters, collect each parameter:
-- **Name** (camelCase for TS/Python; UPPER_SNAKE for bash convention)
+- **Name** (camelCase for TS; UPPER_SNAKE for bash convention)
 - **Type** (string | number | boolean | array | object)
 - **Required?** (true/false)
 - **Description** (what the parameter does)
@@ -51,7 +51,7 @@ Call `tool-scaffolder` with the collected information:
 ```
 tool-scaffolder {
   action: "generate",
-  language: "typescript" | "python" | "bash",
+  language: "typescript" | "bash",
   name: "<kebab-case-name>",
   description: "<description>",
   params: '[{"name":"...","type":"string","required":true,"description":"..."}]',
@@ -77,7 +77,6 @@ Validation checks vary by language:
 | Language   | Checks                                                                 |
 | ---------- | ---------------------------------------------------------------------- |
 | TypeScript | import, export default tool(), description, args, async execute        |
-| Python     | shebang (`#!/usr/bin/env python3`), argparse, main(), `__name__` guard |
 | Bash       | shebang (`#!/usr/bin/env bash`), `set -euo pipefail`                     |
 
 If validation fails, fix the issues and re-validate.
@@ -119,29 +118,6 @@ export default tool({
 })
 ```
 
-### Python Output Structure
-
-```
-#!/usr/bin/env python3
-"""<description>"""
-import argparse
-import json
-import sys
-
-def main():
-    parser = argparse.ArgumentParser(description="<description>")
-    parser.add_argument("--input", type=str, required=True, help="Input value")
-    parser.add_argument("--verbose", action="store_true", help="Verbose output")
-    args = parser.parse_args()
-
-    # TODO: implement tool logic
-    result = {"ok": True}
-    print(json.dumps(result))
-
-if __name__ == "__main__":
-    main()
-```
-
 ### Bash Output Structure
 
 ```
@@ -165,22 +141,22 @@ printf '{"ok": true}\n'
 
 ## Scope Rules
 
-| Scope   | TypeScript                          | Python / Bash                       | Available         |
-| ------- | ----------------------------------- | ----------------------------------- | ----------------- |
-| global  | `~/.config/opencode/tools/`          | `~/.config/opencode/skills/<name>/scripts/` | All projects      |
-| project | `<project>/.opencode/tools/`         | `<project>/.opencode/skills/<name>/scripts/` | This project only |
+| Scope   | TypeScript                       | Shell (bash)                                 | Available         |
+| ------- | -------------------------------- | -------------------------------------------- | ----------------- |
+| global  | `~/.config/opencode/tools/`       | `~/.config/opencode/skills/<name>/scripts/`  | All projects      |
+| project | `<project>/.opencode/tools/`      | `<project>/.opencode/skills/<name>/scripts/` | This project only |
 
-**Artifact placement rule:** TypeScript tools go into `tools/` (global) or `.opencode/tools/` (project). Python and Bash scripts go into `skills/<name>/scripts/` (global) or `.opencode/skills/<name>/scripts/` (project). Never create standalone scripts at the project root. See `rules/artifact-placement.md`.
+**Artifact placement rule:** TypeScript tools go into `tools/` (global) or `.opencode/tools/` (project). Bash scripts go into `skills/<name>/scripts/` (global) or `.opencode/skills/<name>/scripts/` (project). Never create standalone scripts at the project root. See `rules/file-operations.md`.
 
 ## Parameter Types
 
-| Type      | TypeScript           | Python (argparse)          | Bash                | Use Case          |
-| --------- | -------------------- | -------------------------- | ------------------- | ----------------- |
-| `string`    | `tool.schema.string()`  | `type=str`                   | positional/flag       | Text, paths, IDs    |
-| `number`    | `tool.schema.number()`  | `type=float`                 | positional/flag       | Counts, limits      |
-| `boolean`   | `tool.schema.boolean()` | `action="store_true"`        | flag, no value        | Flags, toggles      |
-| `array`     | `tool.schema.array()`   | `nargs="+"`                   | `IFS`-split string    | Lists (of strings)  |
-| `object`    | `tool.schema.object()`  | `type=json.loads`            | JSON string parse    | Complex nested data |
+| Type      | TypeScript              | Bash                | Use Case          |
+| --------- | ----------------------- | ------------------- | ----------------- |
+| `string`    | `tool.schema.string()`    | positional/flag       | Text, paths, IDs    |
+| `number`    | `tool.schema.number()`    | positional/flag       | Counts, limits      |
+| `boolean`   | `tool.schema.boolean()`   | flag, no value        | Flags, toggles      |
+| `array`     | `tool.schema.array()`     | `IFS`-split string    | Lists (of strings)  |
+| `object`    | `tool.schema.object()`    | JSON string parse    | Complex nested data |
 
 ## Validation Checks
 
@@ -192,12 +168,6 @@ After generation, always validate. The `tool-scaffolder validate` action checks:
 - ✓ `description:` field defined
 - ✓ `args:` schema defined
 - ✓ `async execute` handler present
-
-**Python:**
-- ✓ `#!/usr/bin/env python3` shebang present
-- ✓ `import argparse` present
-- ✓ `def main()` function present
-- ✓ `if __name__ == "__main__"` guard present
 
 **Bash:**
 - ✓ `#!/usr/bin/env bash` shebang present

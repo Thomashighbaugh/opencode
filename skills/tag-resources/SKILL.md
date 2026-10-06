@@ -44,7 +44,7 @@ For each untagged resource, infer appropriate tags from its content:
 - **Skill name/description** — extract language, framework, domain keywords
 - **Agent role/success criteria** — infer function tags
 - **Rule content** — infer conventions or domain tags
-- **Archetype manifest** — ensure tags match the `resource_tags` it would generate
+- **Hint-pack manifest** — ensure manifest `tags` are accurate for stack matching
 
 ### Step 4: Report and Apply
 

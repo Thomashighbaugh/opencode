@@ -15,7 +15,7 @@ You generate icon asset bundles for **web UI/UX first** (favicons + PWA icons), 
 
 2. Pick the source icon: prefer a **1024x1024 PNG** (square) or a clean **SVG**. If it's not square, choose whether to crop or pad (default: pad).
 
-3. Generate the assets using [`scripts/generate_icons.py`](scripts/generate_icons.py).
+3. Generate the assets using [`scripts/generate-icons.sh`](scripts/generate-icons.sh).
 
 Web/PWA sizes and safe-area rules: [`references/web-ui-ux.md`](references/web-ui-ux.md)
 
@@ -35,7 +35,7 @@ Full size tables: [`references/icon-sizes.md`](references/icon-sizes.md)
 
 Run and customize the script:
 
-- Script: [`scripts/generate_icons.py`](scripts/generate_icons.py)
+- Script: [`scripts/generate-icons.sh`](scripts/generate-icons.sh)
 - It supports:
   - Web/PWA set: `favicon.ico`, `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`, `icon-maskable-512.png`
   - UE sets (optional): Windows `.ico`, macOS `.iconset`, Linux `.png`
@@ -46,5 +46,5 @@ If you need HTML `<head>` snippets, `manifest.webmanifest` examples, and maskabl
 
 ## Notes
 
-- If your input is SVG and Python SVG rasterization is unavailable on your machine, export a 1024x1024 PNG first (e.g., Inkscape), then rerun the script using the PNG.
+- SVG input is rasterized with `rsvg-convert` (falls back to `nix-shell -p librsvg`); a pre-rendered 1024x1024 PNG is preferred when available.
 - Keep this SKILL.md lean; detailed size tables live in the reference files.

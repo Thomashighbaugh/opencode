@@ -49,7 +49,7 @@ skill-name/
 
 - `name` **must match the skill directory name exactly** and match `^[a-z0-9]+(-[a-z0-9]+)*$` — lowercase letters, digits, single hyphens between segments; 1-64 chars. No uppercase, underscores, spaces, leading/trailing/consecutive hyphens.
 - `description` **required**, 1-1024 chars. It is what the model sees for routing — write it as when-to-use guidance.
-- Frontmatter is parsed as YAML — if the description contains special characters, quote it (e.g. `description: >-` folded style) and test with `quick_validate.py`.
+- Frontmatter is parsed as YAML — if the description contains special characters, quote it (e.g. `description: >-` folded style) and test with `quick-validate.sh`.
 - Skill discovery walks up from the working directory to the git worktree root: `.opencode/skills/<name>/SKILL.md` (project-scoped, highest priority) then `~/.config/opencode/skills/<name>/SKILL.md` (global). A skill in a non-worktree directory is found only if the working dir is inside it.
 - `permission.skill` in `opencode.jsonc` controls skill *execution*: `allow` / `ask` / `deny` (glob patterns against skill names). `deny` hides the skill from the model entirely.
 
@@ -57,10 +57,10 @@ skill-name/
 
 ##### Scripts (`scripts/`)
 
-Executable code (Python/Bash/etc.) for tasks that require deterministic reliability or are repeatedly rewritten.
+Executable code (shell/TypeScript/etc.) for tasks that require deterministic reliability or are repeatedly rewritten.
 
 - **When to include**: When the same code is being rewritten repeatedly or deterministic reliability is needed
-- **Example**: `scripts/rotate_pdf.py` for PDF rotation tasks
+- **Example**: `scripts/rotate-pdf.sh` for PDF rotation tasks
 - **Benefits**: Token efficient, deterministic, may be executed without loading into context
 - **Note**: Scripts may still need to be read by the AI for patching or environment-specific adjustments
 
@@ -125,7 +125,7 @@ To turn concrete examples into an effective skill, analyze each example by:
 Example: When building a `pdf-editor` skill to handle queries like "Help me rotate this PDF," the analysis shows:
 
 1. Rotating a PDF requires re-writing the same code each time
-2. A `scripts/rotate_pdf.py` script would be helpful to store in the skill
+2. A `scripts/rotate-pdf.sh` script would be helpful to store in the skill
 
 Example: When designing a `frontend-webapp-builder` skill for queries like "Build me a todo app" or "Build me a dashboard to track my steps," the analysis shows:
 
@@ -145,12 +145,12 @@ At this point, it is time to actually create the skill.
 
 Skip this step only if the skill being developed already exists, and iteration or packaging is needed. In this case, continue to the next step.
 
-When creating a new skill from scratch, always run the `init_skill.py` script. The script conveniently generates a new template skill directory that automatically includes everything a skill requires, making the skill creation process much more efficient and reliable.
+When creating a new skill from scratch, always run the `init-skill.ts` script. The script conveniently generates a new template skill directory that automatically includes everything a skill requires, making the skill creation process much more efficient and reliable.
 
 Usage:
 
 ```bash
-scripts/init_skill.py <skill-name> --path <output-directory>
+pnpx tsx scripts/init-skill.ts <skill-name> --path <output-directory>
 ```
 
 The script:
@@ -187,13 +187,13 @@ To complete SKILL.md, answer the following questions:
 Once the skill is ready, it should be packaged into a distributable zip file that gets shared with the user. The packaging process automatically validates the skill first to ensure it meets all requirements:
 
 ```bash
-scripts/package_skill.py <path/to/skill-folder>
+scripts/package-skill.sh <path/to/skill-folder>
 ```
 
 Optional output directory specification:
 
 ```bash
-scripts/package_skill.py <path/to/skill-folder> ./dist
+scripts/package-skill.sh <path/to/skill-folder> ./dist
 ```
 
 The packaging script will:

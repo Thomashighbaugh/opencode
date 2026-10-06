@@ -46,7 +46,7 @@ my-skill/
 ├── SKILL.md
 ├── REFERENCE.md       # Detailed reference docs
 └── scripts/
-    └── helper.py      # Executable code (optional)
+    └── helper.sh      # Executable code (optional)
 ```
 
 ## CRITICAL: Artifact Placement Rule
@@ -56,7 +56,7 @@ my-skill/
 | Artifact Type | Location | Example |
 |---------------|----------|---------|
 | TypeScript tools | `.opencode/tools/` | `.opencode/tools/my-tool.ts` |
-| Skill scripts | `.opencode/skills/{name}/scripts/` | `.opencode/skills/my-skill/scripts/helper.py` |
+| Skill scripts | `.opencode/skills/{name}/scripts/` | `.opencode/skills/my-skill/scripts/helper.sh` |
 | Slash commands | `.opencode/commands/` | `.opencode/commands/my-command.md` |
 | Shell scripts (skill-bundled) | `skills/{name}/scripts/` | `skills/my-skill/scripts/helper.sh` |
 | package.json scripts | `package.json` scripts field | `"scripts": { "build": "tsc" }` |

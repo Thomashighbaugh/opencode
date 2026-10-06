@@ -1,6 +1,6 @@
 ---
 name: stack-recommender
-description: Maps a stack fingerprint (from @stack-detector or direct input) to recommended global OpenCode resources — skills, agents, rules, commands, archetypes. Used by /hub-setup setup and refresh to provision per-project configs.
+description: Maps a stack fingerprint (from @stack-detector or direct input) to recommended global OpenCode resources — skills, agents, rules, commands — and a hint pack. Hint packs are starting points; provisioning researches the codebase. Used by /hub-setup setup and refresh to provision per-project configs.
 level: 2
 license: MIT
 tags: [init, config, detection, stack, provisioning]
@@ -8,7 +8,7 @@ tags: [init, config, detection, stack, provisioning]
 
 # Stack Recommender
 
-Maps a technology stack fingerprint to recommended OpenCode global resources — skills, agents, rules, commands, and archetypes — that should be activated for a project.
+Maps a technology stack fingerprint to recommended OpenCode global resources — skills, agents, rules, commands — and selects a **hint pack**. A hint pack is a starting point, never a copy payload: see "Hint Packs, Research & Local Availability".
 
 ## When to Use
 
@@ -46,7 +46,16 @@ A resource recommendation object:
 ```json
 {
   "recommends": {
-    "archetype": "nextjs-webapp",
+    "hint_pack": "nextjs-webapp",
+    "hints": [
+      "Default to the App Router and React Server Components.",
+      "TypeScript strict; no implicit any."
+    ],
+    "research": [
+      "Context7: Next.js App Router + Tailwind",
+      "SearXNG: \"next.js app router best practices 2026\""
+    ],
+    "preferences": ["preferences/language-selection", "preferences/package-managers-runtimes"],
     "skills": [
       { "name": "mui", "reason": "React component library pattern guide" },
       { "name": "react-key-prop", "reason": "React list rendering best practices" },
@@ -90,7 +99,7 @@ A resource recommendation object:
 
 ### Framework → Resources
 
-| Framework         | Skills                                              | Agents               | Rules          | Archetype       |
+| Framework         | Skills                                              | Agents               | Rules          | Hint pack       |
 |-------------------|-----------------------------------------------------|-----------------------|----------------|-----------------|
 | Next.js           | react-key-prop, context7-docs, mui                   | test-engineer         | testing.md     | nextjs-webapp   |
 | Nuxt              | context7-docs                                       | test-engineer         | testing.md     | —               |
@@ -138,9 +147,9 @@ A resource recommendation object:
 | Cypress           | test-engineer | —                                              |
 | Pytest            | test-engineer | —                                              |
 
-### Monorepo → Archetype
+### Monorepo → Hint pack
 
-| Tool       | Archetype              |
+| Tool       | Hint pack              |
 |------------|------------------------|
 | Turborepo  | nextjs-webapp (adjusted for monorepo) |
 | Nx         | nextjs-webapp (adjusted for monorepo) |
@@ -235,7 +244,7 @@ The recommendation output now includes `tools` and `fine_rules` arrays:
 ```json
 {
   "recommends": {
-    "archetype": "nextjs-webapp",
+    "hint_pack": "nextjs-webapp",
     "skills": [...],
     "agents": [...],
     "rules": ["coding-style.md", "testing.md", "security.md"],
@@ -260,16 +269,34 @@ The recommendation output now includes `tools` and `fine_rules` arrays:
 }
 ```
 
+## Hint Packs, Research & Local Availability
+
+Hint packs live at `templates/projects/*/manifest.json` and carry three things:
+
+| Field         | Meaning                                                                    |
+|---------------|----------------------------------------------------------------------------|
+| `hints`       | Generalized conventions — a starting point, never a terminus                |
+| `research`    | Pointers: docs URLs, query templates, registries (Context7 / SearXNG / gh_grep) |
+| `preferences` | The user's opinionated set for this domain (see `.opencode/context/preferences/`) |
+
+Rules:
+
+1. **A hint pack is non-terminal.** If the specific you need is not in the pack, research it — do not stop, and do not silently fall back to bare defaults.
+2. **Local availability is checked explicitly.** Before researching, enumerate `templates/projects/*` and record `{found: [...], none: bool}` in the recommendations so provisioning knows whether a local starting point existed.
+3. **Nothing is copied.** Provisioning synthesizes project config from the codebase + hints + research; the pack never ships as-is.
+4. **Research lands in `.opencode/context/research/`** — the existing research cache, never a new namespace.
+
 ## Workflow
 
 1. **Receive the fingerprint** — either from `@stack-detector` output or direct user input
-2. **Apply mapping tables** — iterate through each detection dimension and collect matching resources (skills, agents, rules, tools, fine_rules, archetype)
+2. **Apply mapping tables** — iterate through each detection dimension and collect matching resources (skills, agents, rules, tools, fine_rules, hint_pack)
 3. **Detect gaps** — identify stacks with no matching global resources and flag them in `gaps`
-4. **Select archetype** — choose the best-matching project archetype (see archetype matching table above). Each archetype contains four subdirectories: `agents/`, `rules/`, `skills/`, and `tools/`. When provisioning a project, **all four must be included**: `agents/` and `rules/` are referenced in `opencode.jsonc` (via the `agent` and `instructions` keys), while `skills/` and `tools/` must be copied or linked into the project's `.opencode/` directory so that agents and rules which reference them resolve correctly.
-5. **De-duplicate and prioritize** — remove duplicate resource references and order by relevance
-6. **Return recommendations** — structured JSON with skills, agents, rules, tools, fine_rules, commands, archetype, gaps, and notes
-7. If calling from `/init-project`, pass the recommendations to `project-config-composer` for `.opencode/` generation
-8. If `tools` or `fine_rules` are present, `find-tools` and `find-rules` can be called to search registries for additional resources not in the local template catalog
+4. **Select a hint pack** — choose the best-matching pack from `templates/projects/*/manifest.json` (see the matching tables above). A hint pack is a **starting point, not a copy payload**: its `hints`, `research`, and `preferences` inform what to generate, but no `agents/`, `rules/`, `skills/`, or `tools/` directories are copied. If the pack lacks the specific you need, continue to step 5.
+5. **Check local availability, then research** — enumerate local hint packs and record `{found: [...], none: bool}`. Where the pack is absent, silent, or insufficient, research the actual setup: Context7 (framework/convention docs), SearXNG (stack best practices), gh_grep (real-world config precedents). Cache findings under `.opencode/context/research/`.
+6. **De-duplicate and prioritize** — remove duplicate resource references and order by relevance.
+7. **Return recommendations** — structured JSON with `hint_pack`, `hints`, `research`, `preferences`, skills, agents, rules, tools, fine_rules, commands, gaps, and notes. `project-config-composer` **synthesizes** from these; it never copies a pack.
+8. If calling from `/init-project`, pass the recommendations to `project-config-composer` for `.opencode/` generation
+9. If `tools` or `fine_rules` are present, `find-tools` and `find-rules` can be called to search registries for additional resources not in the local template catalog
 
 ## Integration
 

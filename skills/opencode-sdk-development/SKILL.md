@@ -261,7 +261,7 @@ export default tool({
     file: tool.schema.string().describe("File to analyze")
   },
   async execute({ file }) {
-    return await $`python3 analyze.py ${file}`.text()
+    return await $`bun analyze.ts ${file}`.text()
   }
 })
 ```

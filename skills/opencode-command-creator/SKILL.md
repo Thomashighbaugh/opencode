@@ -195,6 +195,27 @@ When creating a command:
 5. **Test the command**: Run in TUI with various inputs
 6. **Document usage**: Add to project docs if project-specific
 
+## Automation
+
+Generate a command file (or a JSON config entry) with the bundled script, run via pnpm's TS runner:
+
+```bash
+# Markdown command file (project scope by default; --global for ~/.config/opencode/commands/)
+pnpx tsx scripts/create-command.ts <command-name> \
+  [--description "Brief description"] \
+  [--agent agent-name] \
+  [--subtask] \
+  [--template "Prompt with $ARGUMENTS"] \
+  [--output <dir>]
+
+# Emit an opencode.jsonc "command" entry instead of writing a file
+pnpx tsx scripts/create-command.ts <command-name> --json
+```
+
+The script writes frontmatter (`description`, `agent`, `subtask`) plus the template body,
+and prints a JSON result (`{status, file, command, message}`). No `--model` flag: this
+configuration pins no models.
+
 ## Notes
 
 - Custom commands can override built-in commands (`/init`, `/undo`, `/redo`, etc.)

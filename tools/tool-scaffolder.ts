@@ -4,7 +4,7 @@ import * as path from "path"
 import { homedir } from "os"
 
 const VALID_ACTIONS = ['generate', 'validate'] as const
-const VALID_LANGUAGES = ['typescript', 'python', 'bash'] as const
+const VALID_LANGUAGES = ['typescript', 'bash'] as const
 type Language = typeof VALID_LANGUAGES[number]
 
 // ─── ParamSpec ─────────────────────────────────────────────────────────
@@ -89,67 +89,6 @@ function validateTS(content: string): string[] {
   if (!content.includes('description:')) issues.push("Missing description field")
   if (!content.includes('args:')) issues.push("Missing args schema")
   if (!content.includes('async execute')) issues.push("Missing async execute handler")
-  return issues
-}
-
-// ─── Python generator ──────────────────────────────────────────────────
-
-function generatePython(params: ParamSpec[], name: string, description: string): string {
-  const lines: string[] = [
-    '#!/usr/bin/env python3',
-    `"""${description}"""`,
-    'import argparse',
-    'import json',
-    'import sys',
-    'import os',
-    '',
-    '',
-    'def main():',
-    `    parser = argparse.ArgumentParser(description="${description.replace(/"/g, '\\"')}")`,
-  ]
-
-  for (const p of params) {
-    const flag = `--${p.name.replace(/_/g, '-')}`
-    let arg = `    parser.add_argument("${flag}"`
-    if (p.type === 'boolean') {
-      arg += `, action="store_true"`
-    } else {
-      arg += `, type=${p.type === 'number' ? 'float' : 'str'}`
-    }
-    if (p.required && p.type !== 'boolean') arg += ', required=True'
-    arg += `, help="${p.description.replace(/"/g, '\\"')}"`
-    if (p.enum?.length) arg += `, choices=[${p.enum.map(v => `"${v}"`).join(', ')}]`
-    arg += ')'
-    lines.push(arg)
-  }
-
-  lines.push('')
-  lines.push('    args = parser.parse_args()')
-  lines.push('')
-  lines.push(`    # TODO: implement ${name} logic`)
-  lines.push('    result = {"ok": True}')
-
-  if (params.length > 0) {
-    for (const p of params) {
-      lines.push(`    result["${p.name}"] = args.${p.name.replace(/-/g, '_')}`)
-    }
-  }
-
-  lines.push('    print(json.dumps(result, indent=2))')
-  lines.push('')
-  lines.push('')
-  lines.push('if __name__ == "__main__":')
-  lines.push('    main()')
-
-  return lines.join('\n') + '\n'
-}
-
-function validatePython(content: string): string[] {
-  const issues: string[] = []
-  if (!content.includes('#!/usr/bin/env python3')) issues.push("Missing Python shebang")
-  if (!content.includes('import argparse')) issues.push("Missing argparse import")
-  if (!content.includes('def main()')) issues.push("Missing main() function")
-  if (!content.includes('if __name__')) issues.push("Missing __name__ guard")
   return issues
 }
 
@@ -267,7 +206,6 @@ function validateBash(content: string): string[] {
 
 function getExt(language: Language): string {
   switch (language) {
-    case 'python': return '.py'
     case 'bash': return '.sh'
     default: return '.ts'
   }
@@ -279,7 +217,7 @@ function getOutputPath(name: string, scope: string, language: Language, projectR
 
   if (scope === 'global') {
     const globalDir = process.env.OPENCODE_CONFIG_DIR || path.join(homedir(), '.config', 'opencode')
-    // TypeScript goes in tools/, Python/Bash go in skills/<name>/scripts/
+    // TypeScript goes in tools/, Bash goes in skills/<name>/scripts/
     if (language === 'typescript') return path.join(globalDir, 'tools', file)
     return path.join(globalDir, 'skills', name, 'scripts', file)
   }
@@ -292,10 +230,10 @@ function getOutputPath(name: string, scope: string, language: Language, projectR
 // ─── Tool definition ───────────────────────────────────────────────────
 
 export default tool({
-  description: "Scaffold valid tool files for OpenCode in TypeScript, Python, or Bash. Generates correct boilerplate, argument parsing, error handling, and handler stubs. TypeScript tools go to tools/ or .opencode/tools/; Python and Bash scripts go to skills/<name>/scripts/.",
+  description: "Scaffold valid tool files for OpenCode in TypeScript or Bash. Generates correct boilerplate, argument parsing, error handling, and handler stubs. TypeScript tools go to tools/ or .opencode/tools/; Bash scripts go to skills/<name>/scripts/.",
   args: {
     action: tool.schema.string().describe(`Action. Valid: generate, validate`),
-    language: tool.schema.string().optional().describe(`Tool language. Valid: typescript, python, bash. Default: typescript`),
+    language: tool.schema.string().optional().describe(`Tool language. Valid: typescript, bash. Default: typescript`),
     name: tool.schema.string().optional().describe("Tool name in kebab-case (e.g. 'my-tool'). Required for generate."),
     description: tool.schema.string().optional().describe("Short description of what the tool does. Required for generate."),
     params: tool.schema.string().optional().describe("JSON array of parameter specs: [{name, type, required, description, enum?}]"),
@@ -336,9 +274,6 @@ export default tool({
 
         let code: string
         switch (language) {
-          case 'python':
-            code = generatePython(params, name, args.description)
-            break
           case 'bash':
             code = generateBash(params, name, args.description)
             break
@@ -377,7 +312,6 @@ export default tool({
         let issues: string[]
 
         switch (ext) {
-          case '.py': issues = validatePython(content); break
           case '.sh': issues = validateBash(content); break
           default: issues = validateTS(content)
         }

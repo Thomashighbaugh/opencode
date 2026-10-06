@@ -284,7 +284,7 @@ SKILL.md does this directly (not delegated):
    - If winner AND improvement below threshold (`abs(new_score - best_score) < plateau_threshold`): update `best_score` if better, increment `plateau_consecutive_count += 1`, reset `circuit_breaker_count = 0`
    - If no winner (all rejected, all failed, or all regressed): increment `circuit_breaker_count += 1` (do NOT increment `plateau_consecutive_count` — plateau tracks stagnating wins, not failures)
 3. Append to `.opencode/state/self-improve/tracking/raw_data.json` (one entry per candidate)
-4. Run `python3 {skill_dir}/scripts/plot_progress.py` for visualization
+4. Run `bash {skill_dir}/scripts/plot-progress.sh --tracking-dir .opencode/state/self-improve/tracking/` for visualization
 5. Archive plans: copy current round plans to `state/plan_archive/round_{n}/`
 
 ### Step 10 — Cleanup
@@ -340,7 +340,7 @@ When the loop exits:
 1. Update agent-settings.json with final status
 2. If `target_reached` AND `auto_pr` is `true` in settings: spawn git-master to create PR from `improve/{goal_slug}` to upstream.
    If `auto_pr` is `false` (default): skip PR creation. Log: `"PR creation skipped (auto_pr: false). Run manually: gh pr create --head improve/{goal_slug} --base {target_branch}"`
-3. Run plot_progress.py one final time
+3. Run plot-progress.sh one final time
 4. Print summary report:
    ```
    === Self-Improvement Loop Complete ===

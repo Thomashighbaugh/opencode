@@ -3,7 +3,7 @@ title: "LLM Wiki Index"
 type: concept
 tags: [wiki, index, catalog]
 created: 2026-07-04
-updated: 2026-09-30
+updated: 2026-10-06
 status: active
 ---
 
@@ -100,6 +100,15 @@ check that stops this file drifting again.
 | [[context/patterns/skill-frontmatter-schema]] | — | frontmatter, schema, skills | — |
 | [[context/patterns/template-literal-bash-generation]] | — | — | — |
 
+## Preferences (Opinionated)
+
+| Page | Type | Tags | Status |
+|------|------|------|--------|
+| [[context/preferences/language-selection]] | concept | preferences, language, tooling, best-tool | active |
+| [[context/preferences/package-managers-runtimes]] | concept | preferences, pnpm, bun, typescript, runtimes | active |
+| [[context/preferences/python-policy]] | concept | preferences, python, data-science, internal-tooling | active |
+| [[context/preferences/toolchain-fallbacks]] | concept | preferences, nix, nixos, shell, tooling | active |
+
 ## Docs
 
 | Page | Type | Tags | Status |
@@ -132,6 +141,9 @@ check that stops this file drifting again.
 |------|------|------|--------|
 | [[context/decisions]] | — | — | — |
 | `index.md` (this file) | concept | wiki, index, catalog | active |
+| [[context/learnings/ERRORS]] | — | — | — |
+| [[context/learnings/FEATURE_REQUESTS]] | — | — | — |
+| [[context/learnings/LEARNINGS]] | — | — | — |
 | [[context/log]] | concept | wiki, log, changelog | active |
 | [[context/theory]] | — | — | — |
 | [[context/wiki-schema]] | concept | wiki, schema, meta | active |

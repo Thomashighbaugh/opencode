@@ -1,24 +1,25 @@
 {
   "name": "bare-bones",
-  "version": "1.0.0",
-  "description": "Minimal per-project config — everything comes from global. Best starting point for unusual or polyglot stacks.",
-  "tags": [
-    "minimal",
-    "generic",
-    "starter"
-  ],
+  "version": "2.0.0",
+  "description": "Generalized fallback hint pack for unusual or polyglot stacks. Hints only — provisioning tailors the actual config to the codebase.",
+  "tags": ["minimal", "generic", "starter", "polyglot"],
   "languages": [],
   "frameworks": [],
   "stacks": [],
-  "extends": null,
-  "recommended_skills": [
-    "naming-cheatsheet"
+  "hints": [
+    "Reference global resources; never copy them into the project.",
+    "Generate only what a genuine gap requires — minimal by default.",
+    "Derive rules from conventions actually observed in the codebase before inventing any.",
+    "Prefer the best tool for the job; do not assume a language."
   ],
-  "recommended_agents": [],
-  "recommended_rules": [
-    "coding-style.md",
-    "anti-sycophancy.md"
+  "research": [
+    "Context7: resolve the primary framework/library and read its conventions",
+    "SearXNG: \"<stack> project conventions lint test CI 2026\"",
+    "gh_grep: find real repositories using the same stack and read their config files"
   ],
-  "default_model": null,
-  "resource_tags": {}
+  "preferences": [
+    "preferences/language-selection",
+    "preferences/package-managers-runtimes",
+    "preferences/toolchain-fallbacks"
+  ]
 }

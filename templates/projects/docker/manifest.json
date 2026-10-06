@@ -1,0 +1,21 @@
+{
+  "name": "docker",
+  "version": "1.0.0",
+  "description": "Containerized-project hint pack — multi-stage builds, non-root, reproducible images.",
+  "tags": ["docker", "container", "deployment", "infra"],
+  "languages": [],
+  "frameworks": [],
+  "stacks": ["containerized"],
+  "hints": [
+    "Multi-stage builds; ship the smallest runtime image.",
+    "Run as a non-root user; pin base image digests.",
+    "Copy lockfiles first, install, then copy source — maximise layer cache.",
+    "One concern per image; no build tooling in the runtime layer."
+  ],
+  "research": [
+    "Context7: the base image / runtime in use",
+    "SearXNG: \"<runtime> docker multi-stage best practices 2026\"",
+    "gh_grep: real Dockerfiles for the same runtime"
+  ],
+  "preferences": ["preferences/toolchain-fallbacks"]
+}

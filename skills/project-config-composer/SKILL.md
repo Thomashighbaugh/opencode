@@ -1,6 +1,6 @@
 ---
 name: project-config-composer
-description: Auto-generate a minimal per-project .opencode/ configuration from a stack fingerprint + recommendations. Creates opencode.jsonc, project agents, rules, and instructions that reference global resources. Used by /hub-setup provision.
+description: Synthesize a minimal, codebase-tailored per-project .opencode/ configuration from a stack fingerprint + recommendations + research. Creates opencode.jsonc, project agents, rules, tools, and instructions that reference global resources; never copies archetypes. Used by /hub-setup provision.
 level: 2
 license: MIT
 tags: [init, config, provisioning, scaffolding, per-project]
@@ -23,6 +23,9 @@ Takes a stack fingerprint and resource recommendations and auto-generates a lean
 2. **Minimal by default** — start with only what's needed. Add more as the project evolves.
 3. **Merge-safe** — every generated file is safe to re-run (writes are idempotent, merges conventions rather than replacing them).
 4. **Human-editable** — output is clean, well-commented, and follows standard opencode conventions.
+5. **Synthesize, never copy** — a hint pack (`templates/projects/*/manifest.json`) is a starting point. Generate config tailored to the actual codebase; do not copy pack directories.
+6. **Hints are non-terminal** — if the pack lacks the specific you need, research it (Context7 / SearXNG / gh_grep) rather than falling back to defaults.
+7. **Write, don't ask** — provisioning owns `.opencode/`; the command that invoked it is the consent. Do not add confirmation prompts.
 
 ## Input
 
@@ -41,7 +44,10 @@ Takes two inputs (either from previous pipeline steps or direct arguments):
 ```json
 {
   "recommends": {
-    "archetype": "nextjs-webapp",
+    "hint_pack": "nextjs-webapp",
+    "hints": [...],
+    "research": [...],
+    "preferences": [...],
     "skills": [...],
     "agents": [...],
     "rules": [...],
@@ -58,28 +64,28 @@ The composer creates the following structure under the project's `.opencode/`:
 
 ```
 .opencode/
-├── opencode.jsonc              # Project-level config (extends global, selects resources)
-├── rules/                      # From archetype rules/ + generated rules
-│   ├── project-conventions.md  # Auto-generated conventions from detected stack
-│   ├── project-testing.md      # Testing guidelines specific to detected frameworks
+├── opencode.jsonc              # Project-level config (valid keys only; references global resources)
+├── rules/                      # Synthesized from observed conventions + research
+│   ├── project-conventions.md  # Conventions actually observed in the codebase
+│   ├── project-testing.md      # Testing approach matching the codebase
 │   ├── {category}-{name}.md    # Fine-grained rules from templates/rules (if recommended)
 │   └── ...                     # One per recommended fine_rule
-├── tools/                      # From archetype tools/ + generated tools
+├── tools/                      # Synthesized tools (only on a genuine gap)
 │   ├── {name}.ts               # TypeScript tools from templates/tools (if recommended)
 │   └── ...                     # One per recommended tool
-├── skills/                     # From archetype skills/ — copied/linked into project
-│   └── ...                     # Skill directories referenced by agents and rules
+├── skills/                     # Only project-specific skills the codebase needs
+│   └── ...                     # Reference global skills; never duplicate them
 ├── agents/                     # Project-specific agent wrappers (if needed)
 │   └── ... (only if gaps identified)
 └── instructions/               # AGENTS.md fragment for project-specific docs
     └── README.md               # Brief note about what was generated
 ```
 
-> **CRITICAL: All four archetype subdirectories must be provisioned.**
-> Archetypes contain four subdirectories: `agents/`, `rules/`, `skills/`, and `tools/`.
-> - `agents/` and `rules/` are referenced in `opencode.jsonc` (via the `agent` and `instructions` keys)
-> - `skills/` and `tools/` must be copied or linked into the project's `.opencode/` directory
-> - Without `skills/` and `tools/` present, agents and rules that reference them will fail to resolve
+> **Local availability gate + synthesis.** Check `templates/projects/*/manifest.json` for a
+> matching **hint pack** and record what was found (`{found: [...], none: bool}`). A hint pack is a
+> starting point, not a payload: its `hints`, `research`, and `preferences` inform synthesis, but no
+> `agents/`, `rules/`, `skills/`, or `tools/` directories are copied. If the pack lacks the specific
+> you need, research it (Context7 / SearXNG / gh_grep) and cache under `.opencode/context/research/`.
 
 ### 1. opencode.jsonc
 
@@ -99,10 +105,6 @@ The main project config file. It:
     "./rules/project-conventions.md",
     "./rules/project-testing.md"
   ],
-  "resource_tags": {
-    "include": ["typescript", "react", "nextjs", "tailwind", "prisma", "vitest"],
-    "exclude": ["python", "rust", "go"]
-  },
   "permission": {
     "edit": "allow",
     "bash": "allow"
@@ -110,20 +112,9 @@ The main project config file. It:
 }
 ```
 
-If an archetype was matched:
-```jsonc
-{
-  "$schema": "https://opencode.ai/config.json",
-  "instructions": [
-    "AGENTS.md",
-    "./rules/project-conventions.md"
-  ],
-  "resource_tags": {
-    "include": ["typescript", "react", "nextjs", "tailwind"],
-    "exclude": ["python"]
-  }
-}
-```
+> **`resource_tags` is NOT a valid top-level config key — never emit it.** Resource selection
+> happens through `instructions`, `agent`, and `skills`; tag filtering belongs in hint-pack
+> metadata, not the generated project config.
 
 ### 2. Project Conventions Rule
 
@@ -266,7 +257,15 @@ mode: subagent
 
 ### Step 0: Parse Flags
 
-Check for `--minimal` flag: when present, generate only `opencode.jsonc` with `resource_tags` and `extends` — skip rules, tools, agents, and instructions. Produces a ~10-line config instead of a full scaffold. Use for quick project setup where per-project rules aren't needed yet.
+Check for `--minimal` flag: when present, generate only `opencode.jsonc` (valid keys only) — skip rules, tools, agents, and instructions. Produces a ~10-line config instead of a full scaffold. Use for quick project setup where per-project rules aren't needed yet.
+
+### Step 0b: Local Availability + Research
+
+1. Enumerate `templates/projects/*/manifest.json` and record `{found: [...], none: bool}`.
+2. If a pack matches, treat it as a starting point. If the specific you need is absent, research:
+   Context7 (framework/convention docs), SearXNG (stack best practices), gh_grep (real configs).
+3. Cache findings under `.opencode/context/research/` (the existing research cache).
+4. Synthesize from the codebase + hints + research. Never copy pack directories.
 
 ### Step 1: Prepare Output Directory
 
@@ -279,56 +278,25 @@ mkdir -p "$PROJECT_DIR/.opencode/agents"
 mkdir -p "$PROJECT_DIR/.opencode/instructions"
 ```
 
-> **Also copy/link archetype skills/ and tools/ into the project's `.opencode/`:**
-> If an archetype was matched, copy its `skills/` and `tools/` directories into `.opencode/skills/` and `.opencode/tools/` respectively. These are needed by agents and rules that reference them — without their presence, per-project invocations will fail.
+> **Do not copy hint-pack directories.** If a hint pack matched, use its `hints`, `research`, and
+> `preferences` to drive synthesis. If it lacks the specific you need, research it (Context7 /
+> SearXNG / gh_grep) and cache under `.opencode/context/research/`. Global skills and tools are
+> referenced, never duplicated into the project.
 
 ### Step 2: Generate opencode.jsonc
 
 - Generate a standalone config with the valid keys listed above
-- Do NOT include `extends` — it is NOT a valid config key (archetype manifests use it internally, project configs do not)
+- Do NOT include `extends` or `resource_tags` — neither is a valid config key
 - Do NOT include `agents` (plural), `project`, `rules`, `state`, `context`, or `cache` — these are NOT valid config keys
-- Do NOT overwrite existing `opencode.jsonc` without confirming with the user first
-- If existing config found, prompt: "Existing .opencode/opencode.jsonc found. Merge recommendations, overwrite, or skip?"
+- Writes are merge-safe and idempotent. Provisioning owns `.opencode/`; the invoking command is the consent — do NOT add confirmation prompts. Merge conventions rather than clobbering.
 
 ### Step 2a: Validate opencode.jsonc against schema
 
 After writing the config file, validate it against the actual OpenCode schema:
 
 ```bash
-# Fetch the schema and validate all top-level keys
-SCHEMA_URL="https://opencode.ai/config.json"
-CONFIG_FILE=".opencode/opencode.jsonc"
-
-# Extract top-level keys from the schema definition
-VALID_KEYS=$(curl -s "$SCHEMA_URL" | python3 -c "
-import json,sys
-schema = json.load(sys.stdin)
-# Navigate to Config definition
-config = schema
-if '\$defs' in schema and 'Config' in schema['\$defs']:
-    config = schema['\$defs']['Config']
-valid = list(config.get('properties', {}).keys())
-print(' '.join(valid))
-")
-
-# Check config for invalid keys
-python3 -c "
-import json, re, sys
-with open('$CONFIG_FILE') as f:
-    raw = f.read()
-# Strip comments
-raw = re.sub(r'//.*', '', raw)
-raw = re.sub(r'/\*[\s\S]*?\*/', '', raw)
-config = json.loads(raw)
-valid_keys = set('''$VALID_KEYS'''.split())
-invalid = [k for k in config if k not in valid_keys]
-if invalid:
-    print(f'ERROR: Invalid config keys: {invalid}')
-    print('Remove these keys. Valid keys: {\$schema, ' + ', '.join(sorted(valid_keys - {'\\\$schema'})) + '}')
-    sys.exit(1)
-else:
-    print('OK: All keys valid')
-"
+# Validate opencode.jsonc (JSONC-aware: comments + trailing commas) against schema keys
+bash ~/.config/opencode/skills/project-config-composer/scripts/validate-config-keys.sh .opencode/opencode.jsonc
 
 # If validation fails, fix the config and re-validate before proceeding
 ```
@@ -374,18 +342,18 @@ For each identified gap, create a minimal agent that fills the missing capabilit
 ## Generated .opencode/ Configuration
 
 ### Files Created
-- `.opencode/opencode.jsonc` — Project config (extends archetype/standalone)
+- `.opencode/opencode.jsonc` — Project config (valid keys only)
 - `.opencode/rules/project-conventions.md` — Stack-specific conventions
 - `.opencode/rules/project-testing.md` — Testing guidelines
 - `.opencode/tools/{n}.ts` — N project-specific TypeScript tools (from templates/tools)
 - `.opencode/rules/{category}-{name}.md` — M fine-grained convention rules (from templates/rules)
-- `.opencode/skills/` — Copied/linked from archetype skills/ directory
-- `.opencode/tools/` — Copied/linked from archetype tools/ directory
+- `.opencode/skills/` — Project-specific skills only (global skills referenced, not copied)
+- `.opencode/tools/` — Synthesized tools (only on a genuine gap)
 
 ### Recommendations Applied
-- ✅ 3 skills activated via resource_tags
+- ✅ Skills/agents/rules referenced (global resources, never duplicated)
 - ✅ 2 agents available for subdelegation
-- ✅ 1 archetype matched (nextjs-webapp)
+- ✅ Hint pack: nextjs-webapp (starting point; config synthesized from the codebase)
 - ✅ N tools generated from templates/tools
 - ✅ M fine-grained rules generated from templates/rules
 
@@ -424,7 +392,7 @@ generates the config — all in one pipeline.
 
 ## Safety
 
-- Never overwrite existing `.opencode/agents/` or `.opencode/rules/` files without user confirmation
-- Before any file write, check if the target exists and offer merge/overwrite/skip
-- Generated rules are *suggestions* — they should guide, not enforce
-- Always output a `.opencode/instructions/README.md` that explains what was generated and how to customize
+- Writes are merge-safe and idempotent — merge conventions, never clobber unrelated content.
+- Provisioning is authorized by the command that invoked it; do not add confirmation prompts.
+- Generated rules are *suggestions* — they should guide, not enforce.
+- Always output a `.opencode/instructions/README.md` that explains what was generated and how to customize.

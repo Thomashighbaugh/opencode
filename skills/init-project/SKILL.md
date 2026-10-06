@@ -29,7 +29,7 @@ Directly invoke the matching subcommand. Print the reminder, then delegate to th
 |------------|--------|----------------|--------------|
 | `setup` | 0-8 | self (all phases) | Full project initialization — default runs 0-5+8, `--full` adds 6-7 |
 | `detect` | 0-1 | `stack-detector` agent | Deep stack detection — languages, frameworks, build tools, testing, ORM, CSS, CI/CD, infra |
-| `recommend` | 2 | `stack-recommender` skill | Map stack fingerprint to recommended global resources (skills, agents, rules, archetype) |
+| `recommend` | 2 | `stack-recommender` skill | Map stack fingerprint to recommended global resources (skills, agents, rules, hint pack) |
 | `docs` | 5 | `deepinit` skill | Regenerate hierarchical AGENTS.md documentation |
 | `context` | 6 | `@architect` + `@convention-extractor` + `@explore` | Deep codebase mapping, context synthesis, agent upgrade (same as `setup --full` Phase 6) |
 | `verify` | 8 | `verifier` agent | Validate configuration completeness and integrity, including .gitignore privacy protections |
@@ -61,7 +61,7 @@ Each subcommand follows the hub pattern:
 |------------|-------------------|
 | `setup` | Full init from scratch. I'll verify global Hubs, detect your stack, scaffold config, provision agents/tools, generate docs, and validate. Use --full for deep codebase mapping and context capture. |
 | `detect` | Deep stack detection via @stack-detector. I'll analyze languages, frameworks, build tools, testing, ORM, CSS, CI/CD, and more. |
-| `recommend` | Recommending global resources via stack-recommender. I'll map your detected stack to relevant skills, agents, rules, and an archetype. |
+| `recommend` | Recommending global resources via stack-recommender. I'll map your detected stack to relevant skills, agents, rules, and a hint pack. |
 | `docs` | Generating codebase documentation via deepinit. I'll create hierarchical AGENTS.md files across your directories. |
 | `context` | Deep codebase mapping via parallel agents (@architect, @convention-extractor, @explore). I'll synthesize architecture and conventions into durable context and upgrade your project agents. |
 | `verify` | Validating configuration via @verifier. I'll check file existence, config syntax, parent refs, and gitignore. |
@@ -112,8 +112,8 @@ flowchart LR
 ### Step-by-step flow
 
 1. **`/hub-setup detect`** — runs `@stack-detector` agent, analyzes every tech dimension (language, framework, build, test, ORM, CSS, CI/CD, infra, etc.), outputs a structured JSON fingerprint saved to `.opencode/state/init/stack-fingerprint.json`
-2. **`/hub-setup recommend`** — runs `stack-recommender` skill, maps the fingerprint to recommended global resources (skills, agents, rules, archetype), outputs recommendations saved to `.opencode/state/init/stack-recommendations.json`
-3. **`/hub-setup provision`** — runs `project-config-composer` skill, takes the fingerprint + recommendations, auto-generates `.opencode/opencode.jsonc`, project-specific rules, and optional agent wrappers. **All four archetype subdirectories (agents/, rules/, skills/, tools/) must be provisioned** — agents/ and rules/ are referenced in opencode.jsonc, while skills/ and tools/ must be copied/linked into the project's .opencode/ directory.
+2. **`/hub-setup recommend`** — runs `stack-recommender` skill, maps the fingerprint to recommended global resources (skills, agents, rules, hint pack), outputs recommendations saved to `.opencode/state/init/stack-recommendations.json`
+3. **`/hub-setup provision`** — runs `project-config-composer` skill, takes the fingerprint + recommendations, and **synthesizes** a codebase-tailored `.opencode/` config (opencode.jsonc, project-specific rules, optional agent wrappers). It checks local hint packs (`templates/projects/*/manifest.json`) as starting points, records local availability, researches gaps (Context7 / SearXNG / gh_grep, cached under `.opencode/context/research/`), and references global resources rather than copying them.
 
 ### Running the full pipeline
 

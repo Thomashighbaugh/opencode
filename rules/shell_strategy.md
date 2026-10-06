@@ -114,13 +114,13 @@ Reference tables for non-interactive shell operations. Load this file when you n
 | **Build** | `docker build .` | `docker build --progress=plain .` |
 | **Compose** | `docker-compose up` | `docker-compose up -d` |
 
-### Python/Node REPLs
+### Node/TypeScript REPLs
 
 | Tool | Interactive (BAD) | Non-Interactive (GOOD) |
 |------|-------------------|------------------------|
-| **Python** | `python` | `python -c "code"` or `python script.py` |
 | **Node** | `node` | `node -e "code"` or `node script.js` |
-| **IPython** | `ipython` | Never use - always `python -c` |
+| **Bun** | `bun` | `bun -e "code"` or `bun script.ts` |
+| **tsx (pnpm)** | `tsx` | `pnpx tsx script.ts` |
 
 ## 4. Banned Commands (Will Always Hang)
 

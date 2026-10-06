@@ -45,6 +45,7 @@ function sectionFor(rel: string): string {
   if (rel.startsWith('context/research/')) return 'Research (External Sources)'
   if (rel.startsWith('context/frameworks/')) return 'Frameworks (Architecture & Design)'
   if (rel.startsWith('context/patterns/')) return 'Patterns & Practices'
+  if (rel.startsWith('context/preferences/')) return 'Preferences (Opinionated)'
   if (rel.includes('/sessions/')) return 'Sessions'
   if (rel.includes('/docs/')) return 'Docs'
   return 'Top Level'
@@ -83,6 +84,7 @@ const ORDER = [
   'Research (External Sources)',
   'Frameworks (Architecture & Design)',
   'Patterns & Practices',
+  'Preferences (Opinionated)',
   'Docs',
   'Sessions',
   'Top Level',

@@ -19,7 +19,7 @@ TypeScript tool implementations (19 tools) that extend the OpenCode runtime. Too
 | `listAgents.ts` | List available agents or get details about a specific agent |
 | `agentContext.ts` | Get or update agent context including project memory, notepad, active modes |
 | `modeState.ts` | Manage execution modes — start, stop, update, check status (ralph, autopilot, ultrawork, etc.) |
-| `runSkillScript.ts` | List or execute shell scripts bundled with skills |
+| `runSkillScript.ts` | List or execute skill scripts (`.sh` via bash, `.ts` via bun) bundled with skills |
 | `taskTodos.ts` | Manage task todos — create list, add items, update status |
 | `artifacts.ts` | Manage skill artifacts — save, load, list, delete |
 | `getSessionID.ts` | Get current session ID |

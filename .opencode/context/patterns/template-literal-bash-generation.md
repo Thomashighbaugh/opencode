@@ -41,4 +41,4 @@ When generating bash from TypeScript template literals:
 
 ## Testing Approach
 
-Strip the `@opencode-ai/plugin` import and `export default tool()` block from a temp copy of the tool file, add function exports, then `require()` and test generators directly. Execute the generated scripts with real arguments and pipe through `python3 -m json.tool` or `JSON.parse()` to validate JSON output.
+Strip the `@opencode-ai/plugin` import and `export default tool()` block from a temp copy of the tool file, add function exports, then `require()` and test generators directly. Execute the generated scripts with real arguments and pipe through `jq .` or `JSON.parse()` to validate JSON output.

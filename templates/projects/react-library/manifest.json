@@ -1,70 +1,30 @@
 {
   "name": "react-library",
-  "version": "1.0.0",
-  "description": "React component library — TypeScript, Storybook, Rollup/Vite for bundling, testing-library",
-  "tags": [
-    "typescript",
-    "react",
-    "library",
-    "storybook",
-    "ui",
-    "frontend",
-    "nix"
+  "version": "2.0.0",
+  "description": "React component library hint pack — public API surface, bundling, docs, tests.",
+  "tags": ["typescript", "react", "library", "storybook", "ui", "frontend"],
+  "languages": ["typescript", "javascript"],
+  "frameworks": ["react"],
+  "stacks": ["react-library", "ui-library"],
+  "hints": [
+    "Export a deliberate public surface; keep internals unexported.",
+    "Ship ESM + types; verify tree-shaking.",
+    "Document components with Storybook or equivalent.",
+    "Test behavior with testing-library, not implementation details."
   ],
-  "languages": [
-    "typescript",
-    "javascript"
+  "research": [
+    "Context7: React, the bundler (Vite/Rollup), testing-library",
+    "SearXNG: \"react component library bundling rollup vite 2026\"",
+    "gh_grep: real component libraries for package.json exports + build setup"
   ],
-  "frameworks": [
-    "react"
+  "preferences": [
+    "preferences/language-selection",
+    "preferences/package-managers-runtimes",
+    "preferences/toolchain-fallbacks"
   ],
-  "stacks": [
-    "react-library",
-    "ui-library"
-  ],
-  "extends": null,
-  "recommended_skills": [
-    "react-key-prop",
-    "typescript-interface-vs-type",
-    "naming-cheatsheet",
-    "context7-docs",
-    "mui"
-  ],
-  "recommended_agents": [
-    "test-engineer",
-    "code-reviewer"
-  ],
-  "recommended_rules": [
-    "coding-style.md",
-    "testing.md",
-    "anti-sycophancy.md"
-  ],
-  "default_model": null,
-  "resource_tags": {
-    "include": [
-      "typescript",
-      "react",
-      "frontend",
-      "storybook"
-    ],
-    "exclude": [
-      "python",
-      "rust",
-      "go",
-      "python-api"
-    ]
-  },
   "nix": {
     "flake": true,
-    "channels": [
-      "nixpkgs-unstable"
-    ],
-    "packages": [
-      "nodejs",
-      "pnpm",
-      "typescript",
-      "vscode-langservers-extracted",
-      "just"
-    ]
+    "channels": ["nixpkgs-unstable"],
+    "packages": ["nodejs", "pnpm", "typescript", "vscode-langservers-extracted", "just"]
   }
 }

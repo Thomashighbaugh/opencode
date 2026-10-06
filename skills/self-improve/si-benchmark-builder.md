@@ -45,7 +45,7 @@ Requirements:
 - **Honest**: Measures actual quality
 
 ### Phase 5 — Implement
-Build the benchmark. Place it in the target repo (scripts/benchmark.py or benchmark.py).
+Build the benchmark in the target repo's native language (e.g. `scripts/benchmark.ts`, `scripts/benchmark.sh`), preferring the repo's existing toolchain.
 Must exit 0 on success, non-zero on error. Print score as last stdout line.
 
 ### Phase 6 — Validate

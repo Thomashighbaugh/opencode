@@ -1,61 +1,30 @@
 {
   "name": "cli-tool",
-  "version": "1.0.0",
-  "description": "Command-line interface tool — Rust, Go, or Node.js CLI with argument parsing, testing, and CI",
-  "tags": [
-    "cli",
-    "rust",
-    "go",
-    "node",
-    "command-line",
-    "nix"
-  ],
-  "languages": [
-    "rust",
-    "go",
-    "typescript"
-  ],
+  "version": "2.0.0",
+  "description": "CLI tool hint pack — argument parsing, exit codes, testing, CI. Language-agnostic; research picks the concrete toolchain.",
+  "tags": ["cli", "command-line", "tooling"],
+  "languages": [],
   "frameworks": [],
-  "stacks": [
-    "cli-binary",
-    "cli-tool"
+  "stacks": ["cli-binary", "cli-tool"],
+  "hints": [
+    "Exit non-zero on failure; results to stdout, diagnostics to stderr.",
+    "Support --help and --version; keep flags documented and predictable.",
+    "Separate argument parsing from logic so the core is unit-testable.",
+    "Ship a Nix flake for a reproducible toolchain (see nix below)."
   ],
-  "extends": null,
-  "recommended_skills": [
-    "naming-cheatsheet"
+  "research": [
+    "Context7: argument-parsing library for the chosen language (clap / cobra / commander)",
+    "SearXNG: \"<language> cli best practices testing 2026\"",
+    "gh_grep: real CLIs in the same language and their packaging/CI"
   ],
-  "recommended_agents": [],
-  "recommended_rules": [
-    "coding-style.md",
-    "testing.md",
-    "security.md",
-    "anti-sycophancy.md"
+  "preferences": [
+    "preferences/language-selection",
+    "preferences/package-managers-runtimes",
+    "preferences/toolchain-fallbacks"
   ],
-  "default_model": null,
-  "resource_tags": {
-    "include": [
-      "cli",
-      "rust",
-      "go"
-    ],
-    "exclude": [
-      "react",
-      "nextjs",
-      "python-api",
-      "frontend"
-    ]
-  },
   "nix": {
     "flake": true,
-    "channels": [
-      "nixpkgs-unstable"
-    ],
-    "packages": [
-      "nodejs",
-      "just",
-      "shellcheck",
-      "typos",
-      "actionlint"
-    ]
+    "channels": ["nixpkgs-unstable"],
+    "packages": ["just", "shellcheck", "typos", "actionlint"]
   }
 }

@@ -1,64 +1,26 @@
 {
   "name": "go",
-  "version": "1.0.0",
-  "description": "Go application or service — HTTP servers, CLI tools, microservices, with Nix flake for reproducible toolchain",
-  "tags": [
-    "go",
-    "golang",
-    "backend",
-    "api",
-    "cli",
-    "nix"
-  ],
-  "languages": [
-    "go"
-  ],
+  "version": "2.0.0",
+  "description": "Go service/CLI hint pack — idiomatic Go, testing, lint, reproducible toolchain.",
+  "tags": ["go", "golang", "backend", "api", "cli"],
+  "languages": ["go"],
   "frameworks": [],
-  "stacks": [
-    "go-api",
-    "go-cli",
-    "go-service"
+  "stacks": ["go-api", "go-cli", "go-service"],
+  "hints": [
+    "gofmt / goimports formatting is non-negotiable.",
+    "Return errors; wrap with context; do not panic in libraries.",
+    "Table-driven tests with t.Run; use httptest for handlers.",
+    "Pass context.Context through request paths."
   ],
-  "extends": null,
-  "recommended_skills": [
-    "naming-cheatsheet"
+  "research": [
+    "Context7: the framework in use (net/http, chi, gin, echo)",
+    "SearXNG: \"idiomatic go project layout golangci-lint 2026\"",
+    "gh_grep: real Go services for layout, error wrapping, test patterns"
   ],
-  "recommended_agents": [
-    "test-engineer",
-    "code-reviewer"
-  ],
-  "recommended_rules": [
-    "coding-style.md",
-    "testing.md",
-    "security.md",
-    "anti-sycophancy.md"
-  ],
-  "default_model": null,
-  "resource_tags": {
-    "include": [
-      "go",
-      "golang",
-      "cli"
-    ],
-    "exclude": [
-      "typescript",
-      "react",
-      "nextjs",
-      "python",
-      "rust"
-    ]
-  },
+  "preferences": ["preferences/language-selection", "preferences/toolchain-fallbacks"],
   "nix": {
     "flake": true,
-    "channels": [
-      "nixpkgs-unstable"
-    ],
-    "packages": [
-      "go",
-      "gopls",
-      "gotools",
-      "golangci-lint",
-      "goreleaser"
-    ]
+    "channels": ["nixpkgs-unstable"],
+    "packages": ["go", "gopls", "gotools", "golangci-lint", "goreleaser"]
   }
 }
