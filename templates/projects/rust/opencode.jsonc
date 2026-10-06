@@ -3,12 +3,9 @@
   "instructions": [
     "AGENTS.md",
     "./rules/rust-conventions.md",
-    "./rules/testing-conventions.md"
+    "./rules/testing-conventions.md",
+    "./rules/session-artifact-promotion.md"
   ],
-  "resource_tags": {
-    "include": ["rust"],
-    "exclude": ["typescript", "react", "nextjs", "python", "go"]
-  },
   "permission": {
     "edit": "allow",
     "bash": { "git *": "allow", "cargo *": "allow", "rustup *": "allow", "nix *": "allow", "*": "ask" }

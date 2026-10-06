@@ -231,6 +231,17 @@ tags: [nextjs, react, conventions, framework]
 - Layouts in `app/layout.tsx`, nested layouts in route groups
 ```
 
+### 4b. Universal Rule: Session Artifact Promotion
+
+Every generated project **must** include the global rule `session-artifact-promotion.md`:
+
+1. Copy `~/.config/opencode/rules/session-artifact-promotion.md` to `.opencode/rules/session-artifact-promotion.md`.
+2. Add `"./rules/session-artifact-promotion.md"` to `instructions` in the project `opencode.jsonc`.
+
+This rule makes session-created tools land in the project's durable `.opencode/` tree instead of
+being reinvented next session. It is universal, not stack-specific — always include it, never gate
+it behind a recommendation.
+
 ### 5. Agent Wrappers (only when gap is flagged)
 
 If a gap in global resources is detected, the composer generates a minimal project-specific wrapper agent. For example, if no global rule exists for Prisma conventions:

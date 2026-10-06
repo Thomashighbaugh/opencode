@@ -3,12 +3,9 @@
   "instructions": [
     "AGENTS.md",
     "./rules/python-conventions.md",
-    "./rules/testing-conventions.md"
+    "./rules/testing-conventions.md",
+    "./rules/session-artifact-promotion.md"
   ],
-  "resource_tags": {
-    "include": ["python", "pytest", "api"],
-    "exclude": ["typescript", "react", "nextjs", "rust"]
-  },
   "permission": {
     "edit": "allow",
     "bash": { "git *": "allow", "uv *": "allow", "pip *": "allow", "poetry *": "allow", "nix *": "allow", "*": "ask" }
