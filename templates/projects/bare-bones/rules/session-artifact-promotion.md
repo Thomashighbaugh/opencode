@@ -1,6 +1,6 @@
 ---
 name: session-artifact-promotion
-description: Tools and scripts created during a session with plausible future utility must be promoted from /tmp into the durable .opencode tree and wired for reuse — never left to be reinvented.
+description: Tools and scripts created during a session with plausible future utility must be promoted from /tmp into the durable .opencode tree and wired for reuse — and non-promoted scratch must be deleted when the task ends. /tmp is tmpfs; leaving scratch there holds RAM.
 ---
 
 # Session Artifact Promotion
@@ -58,3 +58,25 @@ there*. This rule keeps the scratch space and captures the value.
   session's worth of tokens.
 - Promotion writes into the project's own tree and is authorized by the work that produced the
   artifact; it does not need a confirmation prompt.
+
+## Cleanup — the other half of the rule
+
+Promotion decides what *stays*; cleanup decides what goes. On Linux `/tmp` is **tmpfs** — RAM, not
+disk — so an unpromoted scratch file is not a harmless leftover, it is memory held until reboot.
+A few sessions of probes and image dumps add up fast.
+
+**When the task that created a `/tmp` artifact finishes:**
+
+1. **Promoted?** Remove the `/tmp` original — the durable copy is now the source of truth.
+2. **Judged one-shot?** **Delete it.** Do not leave it "just in case" — the judgement above already
+   decided it will not be needed again, and keeping it contradicts that decision while costing RAM.
+3. Delete every other scratch the task produced: temp downloads, probe output, `*.img` / `*.onnx` /
+   `*.log` dumps, one-off fixtures, heredoc payloads.
+
+**Never delete a `/tmp` path you did not create in this session.** Other processes and sessions
+share `/tmp`, and their scratch is not yours to reap — this environment routinely holds tens of MB
+of another task's images and logs. Scope deletion to the exact files you made, or to a
+task-specific subdirectory you created.
+
+Cleanup is not optional. The rule is satisfied only when ephemeral work is either **durable**
+(promoted) or **gone** (deleted) — never parked in RAM.
