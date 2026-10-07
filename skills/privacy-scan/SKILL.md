@@ -80,9 +80,26 @@ node scripts/scan-privacy.ts --file path/to/file.md
 echo '{"content": "..."}' | node scripts/scan-privacy.ts --stdin
 ```
 
-Returns JSON: `{ "risk": "low"|"medium"|"high"|"uncertain", "findings": [...], "recommendation": "commit"|"gitignore"|"sanitize"|"review", "details": "..." }`
+Returns JSON: `{ "risk": "low"|"medium"|"high"|"uncertain", "findings": [...], "recommendation": "commit"|"gitignore"|"sanitize"|"review", "details": "..." }`.
 
 Exit code: 0 for LOW risk, 1 for HIGH/MEDIUM/UNCERTAIN.
+
+### Classifier escalation (escalate-only)
+
+After the pattern scan, a local PII token-classifier (`skills/vectorize-context/scripts/classifiers.ts` → `extractEntities`) is run over the content. It catches a credential described in prose — "the production password was shared in the notes" — which no regex matches. It may only ever **raise** the risk (to `uncertain`/`review`); it never lowers a verdict. This is the right tool for the job: NLI was tried first and scored a natural-language secret *below* an ordinary ADR, because entailment has no mechanism for "contains X".
+
+The model is optional. When it is not prefetched (`prefetch-models.ts`), the scan degrades to the pattern-only result — it does not silently report LOW.
+
+### Prompt-injection scan
+
+Untrusted content that enters context (fetched pages, tool output, MCP responses) is a separate threat from PII. `scripts/scan-injection.ts` runs a sequence classifier trained on prompt injections:
+
+```bash
+node scripts/scan-injection.ts --file path/to/fetched.txt
+echo '{"content": "...", "source": "https://..."}' | node scripts/scan-injection.ts --stdin
+```
+
+Returns `{ "available": bool, "injection": bool, "label", "score", "source" }`. Exit 1 on a detected injection. `available: false` means the model is not cached — a disabled scan, **not** a clean result; callers must branch on it.
 
 ## Integration Points
 

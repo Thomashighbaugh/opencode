@@ -2,10 +2,12 @@
 /**
  * veclib.ts — Shared vector DB library for OpenCode per-project vectorization
  *
- * Ollama-backed embeddings (/api/embed, pedrohml/mxbai-embed-large); reranking
- * via an IN-PROCESS cross-encoder (@huggingface/transformers, Xenova/bge-reranker-base)
- * — no server-side /api/rerank dependency. All retrieval is LOCAL — zero
- * provider API requests.
+ * Embeddings via an IN-PROCESS ONNX model (Xenova/bge-small-en-v1.5, q8, 384-dim
+ * CLS pooling); reranking via an IN-PROCESS cross-encoder (Xenova/bge-reranker-base,
+ * sigmoid on a single logit). Both on @huggingface/transformers — no daemon, no
+ * server-side /api/embed or /api/rerank dependency. EMBED_BACKEND=ollama remains
+ * an explicit escape hatch for recall comparison, not a fallback. All retrieval is
+ * LOCAL — zero provider API requests.
  *
  * Store: .opencode/state/vector/context.db (gitignored — ephemeral, per-project).
  *        .opencode/state/vector/code.db  (same, source-code store)

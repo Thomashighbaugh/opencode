@@ -27,10 +27,15 @@ import { decide, extractDeferred, type Classifier } from './gate.ts'
 import * as onnxClassifier from './classifier.ts'
 import {
   carryDeferred,
+  claimFire,
   drain,
+  drainIds,
+  finishFire,
   load,
+  pendingFireRequests,
   recordDecision,
   renderPrompt,
+  save,
   size,
   type QueueState,
 } from './queue.ts'
@@ -122,10 +127,119 @@ function resolveClassifier(): Classifier | undefined {
   }
 }
 
+/**
+ * Drain and send for every pending fire request, oldest first.
+ *
+ * The explicit path: no gate, no idle event, no waiting. Whatever the user
+ * asked for is what runs, which is the whole point of having a manual override —
+ * if it still had to pass a heuristic, the failures would be indistinguishable
+ * from the gate misbehaving.
+ *
+ * One request that names ids fires only those, so "run this one" cannot consume
+ * the rest. A send failure restores exactly what was drained, through the same
+ * atomic `save` the idle path uses.
+ */
+async function handleFireRequests(dir: string, client: any): Promise<number> {
+  const pending = pendingFireRequests(dir)
+  if (!pending.length) return 0
+
+  // Resolved once, before any send, so a request that arrives before any idle
+  // event still has a destination. An empty id would make `promptAsync` fail
+  // with a path error that looks like a send failure rather than "no session".
+  const sessionId = lastSessionId ?? (await firstSessionId(client))
+  if (!sessionId) {
+    // Claimed then finished rather than left pending: a request that could not be
+    // delivered must not sit and be retried on every subsequent file event.
+    for (const { file } of pending) {
+      const claimed = claimFire(dir, file)
+      if (claimed) finishFire(dir, claimed, { fired: 0, rendered: '', error: 'no session available' })
+    }
+    return 0
+  }
+
+  let sent = 0
+  for (const { file, req } of pending) {
+    const ids = (req.ids ?? []).filter(Boolean)
+    // An empty id list means "everything queued" — but only if there is
+    // something. Draining an empty queue would send a prompt containing zero
+    // tasks, which reads to the model as an instruction with no content.
+    if (!ids.length && size(load(dir)) === 0) {
+      const claimed = claimFire(dir, file)
+      if (claimed) finishFire(dir, claimed, { fired: 0, rendered: '', error: 'queue was empty' })
+      continue
+    }
+
+    // Claim before touching the queue. Draining writes queue.json, which is
+    // itself a file.edited event; without the rename the nested event would see
+    // this same request still pending and fire the batch a second time.
+    const claimed = claimFire(dir, file)
+    if (!claimed) continue
+
+    const items = ids.length ? drainIds(dir, ids) : drain(dir)
+    if (!items.length) {
+      finishFire(dir, claimed, { fired: 0, rendered: '', error: 'no matching items' })
+      continue
+    }
+
+    const text = renderPrompt(items, `manual:${req.reason || 'fire'}`)
+    try {
+      await client.session.promptAsync({
+        path: { id: sessionId },
+        body: { parts: [{ type: 'text', text }] },
+      })
+      sent += items.length
+      stats.released++
+      stats.drained += items.length
+      finishFire(dir, claimed, { fired: items.length, rendered: text })
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e)
+      // Restore before reporting, so the recorded result describes the queue as
+      // it ends up rather than as it was mid-flight.
+      const restored = load(dir)
+      restored.items = [...items.filter((i) => i.source === 'manual'), ...restored.items]
+      restored.deferred = [...items.filter((i) => i.source === 'deferred'), ...restored.deferred]
+      save(dir, restored)
+      stats.lastReason = `send-failed: ${msg}`
+      finishFire(dir, claimed, { fired: 0, rendered: text, error: msg })
+    }
+  }
+  return sent
+}
+
+/** Best-effort session lookup for a fire request that predates any idle event. */
+async function firstSessionId(client: any): Promise<string | null> {
+  try {
+    const res = await client.session.list()
+    const list = (res as any)?.data
+    const first = Array.isArray(list) ? list[0] : null
+    return first?.id ?? null
+  } catch {
+    return null
+  }
+}
+
+let lastSessionId: string | null = null
+
 export const PromptQueuePlugin: Plugin = async ({ client, directory }) => {
   stats = blankStats()
   const dir = directory || process.cwd()
   let lastSeen: Record<string, number> = {}
+
+  /**
+   * Poll for fire requests, as a backstop to the `file.edited` trigger.
+   *
+   * The event path is the fast one, but it cannot be the only one: `file.edited`
+   * is raised for edits the runtime observes, and a request written by a tool, a
+   * shell command, or another process may not produce one reliably. The vectorize
+   * hook keeps its own poll for the same reason. One-and-a-half seconds is fast
+   * enough to feel immediate and slow enough to cost a single `readdir`.
+   *
+   * `unref` so the timer never holds the process open on shutdown.
+   */
+  const poll = setInterval(() => {
+    void handleFireRequests(dir, client).catch(() => {})
+  }, 1_500)
+  poll.unref?.()
 
   /**
    * Evaluate the gate for a completed turn and drain if it releases.
@@ -191,13 +305,16 @@ export const PromptQueuePlugin: Plugin = async ({ client, directory }) => {
     } catch (e) {
       // The drain already emptied the queue. Losing the text on a failed send
       // would be the worst outcome, so it is put back at the front, in order.
+      //
+      // Restored through `save()`, not a hand-rolled write. This file is an ES
+      // module and the previous `require('node:fs')` here was a ReferenceError
+      // waiting to happen — meaning the one path that exists purely to avoid
+      // losing queued work was itself the thing that threw. `save` is also
+      // atomic, which the inline write was not.
       const restored = load(dir)
       restored.items = [...items.filter((i) => i.source === 'manual'), ...restored.items]
       restored.deferred = [...items.filter((i) => i.source === 'deferred'), ...restored.deferred]
-      require('node:fs').writeFileSync(
-        require('node:path').join(dir, '.opencode', 'state', 'prompt-queue', 'queue.json'),
-        JSON.stringify({ ...restored, updatedAt: new Date().toISOString() }, null, 2),
-      )
+      save(dir, restored)
       return { released: true, reason: 'send-failed', error: String(e), drained: 0 }
     }
 
@@ -206,6 +323,16 @@ export const PromptQueuePlugin: Plugin = async ({ client, directory }) => {
 
   return {
     event: async ({ event }: any) => {
+      // ── Immediate, explicit fire ──────────────────────────────────────────
+      // Handled before the idle path and independent of it. `session.idle` only
+      // fires on a *transition* into idle, so a release armed while the session
+      // was already idle waited for the next message — which is why "run the
+      // queue now" looked like it did nothing. A fire request is its own event.
+      if (event.type === 'file.edited' || event.type === 'file.watcher.updated') {
+        await handleFireRequests(dir, client)
+        return
+      }
+
       if (event.type !== 'session.idle') return
       const sessionId: string | undefined = event.properties?.sessionID ?? event.properties?.info?.id
       if (!sessionId) return
@@ -216,9 +343,21 @@ export const PromptQueuePlugin: Plugin = async ({ client, directory }) => {
       const seenAt = lastSeen[sessionId] ?? 0
       if (Date.now() - seenAt < 1_000) return
       lastSeen[sessionId] = Date.now()
+      // Recorded before the queue checks below: a fire request may arrive while
+      // the queue is empty and the session idle, which is precisely when the
+      // manual path needs to know where to send.
+      lastSessionId = sessionId
 
       const state = load(dir)
-      if (size(state) === 0 && !state.manual) return
+      // Reset the hold counter even when there is nothing to fire. Returning
+      // early without recording left `consecutiveHolds` frozen at whatever it
+      // was, so the anti-deadlock budget was already spent by the time the user
+      // queued something — the first decision after a long clear stretch could
+      // deadlock-break and fire immediately, which is the opposite of the intent.
+      if (size(state) === 0 && !state.manual) {
+        if (state.consecutiveHolds !== 0) recordDecision(dir, false)
+        return
+      }
 
       let messages: any[] = []
       try {

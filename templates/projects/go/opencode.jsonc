@@ -4,10 +4,16 @@
     "AGENTS.md",
     "./rules/go-conventions.md",
     "./rules/testing-conventions.md",
-    "./rules/session-artifact-promotion.md"
+    "./rules/session-artifact-promotion.md",
+    "./rules/auto-commit.md"
   ],
   "permission": {
     "edit": "allow",
-    "bash": { "git *": "allow", "go *": "allow", "nix *": "allow", "*": "ask" }
+    "bash": {
+      "git *": "allow",
+      "go *": "allow",
+      "nix *": "allow",
+      "*": "ask"
+    }
   }
 }

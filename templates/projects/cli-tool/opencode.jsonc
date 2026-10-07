@@ -3,10 +3,18 @@
   "instructions": [
     "AGENTS.md",
     "./rules/cli-conventions.md",
-    "./rules/session-artifact-promotion.md"
+    "./rules/session-artifact-promotion.md",
+    "./rules/auto-commit.md"
   ],
   "permission": {
     "edit": "allow",
-    "bash": { "git *": "allow", "cargo *": "allow", "go *": "allow", "npm *": "allow", "nix *": "allow", "*": "ask" }
+    "bash": {
+      "git *": "allow",
+      "cargo *": "allow",
+      "go *": "allow",
+      "npm *": "allow",
+      "nix *": "allow",
+      "*": "ask"
+    }
   }
 }

@@ -15,7 +15,9 @@ const spec: HubSubcommandSpec = {
 
 The router uses evidence-first validation: it doesn't just guess the intent — it gathers evidence (reads the task, scans the codebase if needed) and gates on a confidence threshold. If confidence is low, it asks the user to clarify rather than guessing wrong and running the wrong workflow.
 
-Use when the user's request type is ambiguous and you want automatic routing to the right workflow pattern rather than requiring the user to pick.`,
+Use when the user's request type is ambiguous and you want automatic routing to the right workflow pattern rather than requiring the user to pick.
+
+**Note on local classification.** A zero-shot classifier for the four-way routing was built and measured, and rejected. With the harness's small NLI head the classes do not separate: margins were ≈0.05, "the login page crashes" routed to REVIEW, and "review this PR for security issues" routed to DEBUG. A sharper hypothesis set did not fix it. Keep classifying with evidence — read the request, and scan the code when it is ambiguous — until a stronger NLI head is prefetched and re-calibrated. Do not wire the small model here.`,
 
   tools: ["bash", "listAgents", "modeState"],
   relatedSkills: [],

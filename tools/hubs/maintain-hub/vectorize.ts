@@ -13,7 +13,7 @@ const spec: HubSubcommandSpec = {
 1. **context.db** — markdown sources: .opencode/context/**, .opencode/rules/**, .opencode/docs/**, AGENTS.md (heading-based chunking).
 2. **code.db** — the project source tree (declaration-aware chunking; skips node_modules, .git, build/dist/vendor dirs, and .opencode/state + .opencode/cache for privacy).
 
-Both stores use Ollama embeddings (pedrohml/mxbai-embed-large, local-only) plus an in-process cross-encoder reranker (Xenova/bge-reranker-base via @huggingface/transformers, sigmoid scoring). Zero provider API requests — everything runs locally.
+Both stores embed with a local in-process ONNX model (Xenova/bge-small-en-v1.5, q8, 384-dim CLS pooling) and rerank with an in-process cross-encoder (Xenova/bge-reranker-base, sigmoid scoring). No daemon, no network, zero provider API requests. Fetch the weights once with "npx tsx skills/vectorize-context/scripts/prefetch-models.ts"; Ollama remains available as an explicit EMBED_BACKEND=ollama escape hatch for recall comparisons.
 
 Command (run from the project root, or set OPCODE_DIR):
   node <skill-dir>/scripts/vectorize.ts --all      # context + code

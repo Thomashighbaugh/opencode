@@ -140,9 +140,26 @@ node skills/graph-context/scripts/graph.ts impact rule:context-strategy  # who u
 node skills/graph-context/scripts/graph.ts path skill:vectorize-context hub-subcommand:project/graph
 node skills/graph-context/scripts/graph.ts stats
 node skills/graph-context/scripts/graph.ts probe          # precision probe vs vector-only
+node skills/graph-context/scripts/graph.ts propose        # propose supersedes edges for review (never writes)
+node skills/graph-context/scripts/graph.ts accept-candidates  # promote reviewed proposals to real edges
 ```
 
-Flags: `--dir PATH` (project root or .opencode dir), `--depth N`, `--topK N`, `--queries "a|b|c"` (probe).
+Flags: `--dir PATH` (project root or .opencode dir), `--depth N`, `--topK N`, `--maxPages N` (propose), `--queries "a|b|c"` (probe).
+
+### Knowledge-node type resolution
+
+A page's type is resolved in a fixed order, cheapest and most authoritative first:
+
+1. **structural** — where it lives (`rules/`, `SKILL.md`, `agents/`, `learnings/`, `references/`).
+2. **frontmatter** — an explicit `type:` the wiki schema recognises.
+3. **directory** — the schema's own mapping: `research/` → `source-summary`, `patterns/` → `pattern`, `decisions.md` → `decision`, `theory.md` → `synthesis`.
+4. **model** — only for the genuinely ambiguous `entity | concept` slot (`frameworks/` and root), via the local NLI classifier.
+
+The model is a refinement, never the primary mechanism. It runs only when nothing above pinned the type, scores a short lead of the page, and keeps the safe `concept` default unless it clears a margin. Provenance is recorded in each node's `meta.typeSource` (`structural` | `frontmatter` | `directory` | `inferred` | `default`) so an inferred type is never mistaken for a declared one. `GRAPH_INFER_TYPES=0` disables step 4.
+
+### Proposed edges (review-gated)
+
+`supersedes` is the one relationship the graph cannot derive structurally, so `propose` generates **candidates**, never edges: it asks the classifier whether each page *claims* to replace an earlier document, resolves the target by title mention (deterministically — the model cannot do it, as measured), and writes the result to `.opencode/state/graph/edge-candidates.json`. `accept-candidates` promotes reviewed proposals to real edges; nothing else writes them. This is deliberately not auto-edge creation — a wrong inferred edge is a traversal that answers confidently with the wrong page.
 
 ## Workflow
 

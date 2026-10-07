@@ -75,7 +75,8 @@
         "./rules/anti-sycophancy.md",
         "./rules/efficiency-first.md",
         "./rules/hub-menu-rebuild.md",
-        "./rules/session-artifact-promotion.md"
+        "./rules/session-artifact-promotion.md",
+        "./rules/auto-commit.md"
     ],
     "references": {
         "context": {

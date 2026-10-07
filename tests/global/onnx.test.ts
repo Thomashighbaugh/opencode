@@ -35,6 +35,9 @@ const emb: typeof import('../../skills/vectorize-context/scripts/embedder') = aw
 const cls: typeof import('../../plugins/prompt-queue/classifier') = await import(CLASSIFIER_MOD)
 const gate: typeof import('../../plugins/prompt-queue/gate') = await import(GATE_MOD)
 const veclib: any = await import(path.join(CONFIG_DIR, 'skills', 'vectorize-context', 'scripts', 'veclib.ts'))
+const zs: typeof import('../../skills/vectorize-context/scripts/zero-shot.ts') = await import(
+  path.join(CONFIG_DIR, 'skills', 'vectorize-context', 'scripts', 'zero-shot.ts'),
+)
 
 const hasEmbedder = rt.isCached(rt.REQUIRED_MODELS.embedder)
 const hasClassifier = rt.isCached(rt.REQUIRED_MODELS.classifier)
@@ -354,6 +357,72 @@ describe('gate + classifier integration', () => {
   it.skipIf(!hasClassifier)('the live classifier releases a real completion', async () => {
     const d = await gate.decide({ finalText: 'All 990 tests pass and the graph is consistent.' }, 0, 3, live)
     expect(d.holds).toBe(false)
+  }, 120_000)
+})
+
+// ─── zero-shot primitive ───────────────────────────────────────────────────
+
+describe('zero-shot primitive: contract', () => {
+  it('empty text or no hypotheses is no opinion, not a score', async () => {
+    // Returning 0 would be a claim; absence of evidence is not evidence.
+    expect(await zs.entailmentScores('', ['x'])).toBeNull()
+    expect(await zs.entailmentScores('   ', ['x'])).toBeNull()
+    expect(await zs.entailmentScores('text', [])).toBeNull()
+    expect(await zs.classify('', ['x'])).toBeNull()
+    expect(await zs.bestHypothesis('', ['x'])).toBeNull()
+  })
+
+  it('sigmoid is bounded and monotonic', () => {
+    expect(zs.sigmoid(0)).toBeCloseTo(0.5, 6)
+    expect(zs.sigmoid(100)).toBeGreaterThan(0.99)
+    expect(zs.sigmoid(-100)).toBeLessThan(0.01)
+  })
+})
+
+describe('zero-shot primitive: what it can and cannot do', () => {
+  // The model does *pragmatic* classification well (is this an ask? does this
+  // announce a replacement?) and *factual property* detection badly (does this
+  // text contain a secret?). Both are recorded so a future caller does not
+  // rediscover the second by shipping an inert feature.
+  const CLAIM = [
+    'This document announces a decision that replaces or supersedes an earlier decision.',
+    'This document explains an abstract concept, principle, or design idea.',
+  ]
+
+  it.skipIf(!hasClassifier)('separates a supersede claim from ordinary pages', async () => {
+    const claim = await zs.classify(
+      'ADR-002: We now use Postgres instead of SQLite. This decision supersedes ADR-001 and is the current source of truth.',
+      CLAIM,
+    )
+    const plain = await zs.classify(
+      'Caching stores computed results so they can be reused. It trades memory for latency and must handle invalidation.',
+      CLAIM,
+    )
+    expect(claim, 'no score').not.toBeNull()
+    expect(plain).not.toBeNull()
+    // Measured: claim 0.689 vs plain 0.329 — a 0.36 gap. The shipping threshold
+    // (0.6) sits inside it; this asserts the gap, not the exact values.
+    expect(claim![CLAIM[0]], 'the claim did not separate from an ordinary page').toBeGreaterThan(
+      plain![CLAIM[0]] + 0.15,
+    )
+  }, 120_000)
+
+  it.skipIf(!hasClassifier)('does NOT detect a secret as a factual property', async () => {
+    // A negative result, asserted so nobody wires this in expecting it to work:
+    // the natural-language secret scored BELOW an ordinary ADR.
+    const H = ['This text contains a credential, secret, or personally identifying information.']
+    const secret = await zs.classify(
+      'During the meeting we shared the production database password and the API token for the billing service.',
+      H,
+    )
+    const adr = await zs.classify(
+      'ADR-004: we chose Postgres over SQLite for durability and concurrent writes.',
+      H,
+    )
+    expect(secret, 'no score').not.toBeNull()
+    expect(adr).not.toBeNull()
+    // No usable separation — in fact the secret scores lower. Recorded, not fixed.
+    expect(Math.abs(secret![H[0]] - adr![H[0]])).toBeLessThan(0.3)
   }, 120_000)
 })
 

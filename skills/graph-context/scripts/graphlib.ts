@@ -705,6 +705,102 @@ function readIdentsMatching(inputDir: string | undefined, identifier: string): s
   }
 }
 
+/**
+ * Give every remaining edgeless knowledge node a structural `part_of` edge.
+ *
+ * A knowledge node is edgeless because nothing recorded where it came from, so
+ * derive the edge from exactly that:
+ *   - a wiki node (concept/decision/pattern/learning/entity/…) is part_of the
+ *     directory it was extracted from, e.g. context/patterns → module:patterns
+ *   - a hub-subcommand is part_of its hub, e.g. orchestrate/ralph → module:orchestrate
+ * This is not a placeholder: "what else lives in this directory" and "what else
+ * is in this hub" are both real questions, and the answers are traversable.
+ *
+ * Extracted from `backfillFromCode` because it does not belong there. The nodes
+ * it adopts are created by the wiki and registry backfills, but it ran behind
+ * the code layer's structure-signature gate — so a new rule with no cross-links
+ * and no accompanying code change was never adopted, and the graph grew an
+ * edgeless leaf that `no node is edgeless` correctly failed on. Knowledge
+ * adoption must not be gated on code structure.
+ */
+function adoptKnowledgeOrphansIn(db): number {
+  const adoptable = db
+    .prepare(`
+      SELECT n.id, n.type, n.path FROM nodes n
+      WHERE NOT EXISTS (SELECT 1 FROM edges e WHERE e.src_id = n.id OR e.dst_id = n.id)
+    `)
+    .all() as Array<{ id: string; type: string; path: string | null }>;
+  if (!adoptable.length) return 0;
+
+  let adopted = 0;
+  db.exec('BEGIN');
+  try {
+    const KNOWN = new Set([
+      'concept', 'decision', 'pattern', 'learning', 'entity',
+      'source-summary', 'synthesis', 'hub-subcommand', 'command', 'agent',
+      'skill', 'rule',
+    ]);
+    // Types whose natural parent is their own directory (the directory is
+    // the meaningful grouping: patterns/ vs decisions/ vs learnings/).
+    const BY_DIRECTORY = new Set([
+      'concept', 'decision', 'pattern', 'learning', 'entity',
+      'source-summary', 'synthesis',
+    ]);
+    const ensureModule = (slug: string) => {
+      const id = nodeId('module', slug);
+      db.prepare(`
+        INSERT INTO nodes (id, type, title, path) VALUES (?, 'module', ?, ?)
+        ON CONFLICT(id) DO NOTHING
+      `).run(id, slug, slug);
+      return id;
+    };
+    for (const n of adoptable) {
+      if (!KNOWN.has(n.type)) continue;
+      const raw = String(n.path || '').replace(/\\/g, '/');
+      if (!raw) continue;
+      // Strip the .opencode/ prefix nodeId() also removes, so the module
+      // slug matches the one the code layer already created.
+      const rel = raw.replace(/^\.opencode\//, '').replace(/^(\.\.\/)+/, '');
+      const segments = rel.split('/');
+      let slug: string;
+      if (n.type === 'hub-subcommand') {
+        // Keyed "hub/sub" with no directory — the hub is the parent.
+        slug = segments[0] || '';
+      } else if (BY_DIRECTORY.has(n.type)) {
+        slug = segments.slice(0, -1).join('/') || 'context';
+      } else {
+        // skill / rule / agent / command live in their own directory, so
+        // keying on that would make a 1:1 mirror node and an edge that
+        // carries no information. Their meaningful grouping is the
+        // top-level collection: "all skills", "all rules".
+        slug = segments[0] || 'context';
+      }
+      if (!slug) continue;
+      const modId = ensureModule(slug);
+      const r = db.prepare(`
+        INSERT INTO edges (src_id, dst_id, type) VALUES (?, ?, 'part_of')
+        ON CONFLICT(src_id, dst_id, type) DO NOTHING
+      `).run(n.id, modId);
+      if (r.changes) adopted++;
+    }
+    db.exec('COMMIT');
+  } catch (err) {
+    try { db.exec('ROLLBACK'); } catch { /* ignore */ }
+    throw err;
+  }
+  return adopted;
+}
+
+/** Open a connection and adopt. For callers that do not already hold one. */
+export function adoptOrphanKnowledgeNodes(inputDir: string): number {
+  const db = ensureGraphReady(inputDir);
+  try {
+    return adoptKnowledgeOrphansIn(db);
+  } finally {
+    db.close();
+  }
+}
+
 export function backfillFromCode(inputDir: string | undefined): CodeBackfillResult {
   const paths = resolvePaths(inputDir);
   const result: CodeBackfillResult = {
@@ -1103,81 +1199,10 @@ export function backfillFromCode(inputDir: string | undefined): CodeBackfillResu
       throw err;
     }
 
-    // ── Adopt: give every remaining edgeless node a structural edge ──
-    // Same principle as the code layer, applied to provenance. A knowledge node
-    // is edgeless because nothing recorded where it came from, so derive the
-    // edge from exactly that:
-    //   - a wiki node (concept/decision/pattern/learning/entity/…) is part_of the
-    //     directory it was extracted from, e.g. context/patterns → module:patterns
-    //   - a hub-subcommand is part_of its hub, e.g. orchestrate/ralph →
-    //     module:orchestrate
-    // This is not a placeholder: "what else lives in this directory" and "what
-    // else is in this hub" are both real questions, and the answers are
-    // traversable now.
-    const adoptable = db
-      .prepare(`
-        SELECT n.id, n.type, n.path FROM nodes n
-        WHERE NOT EXISTS (SELECT 1 FROM edges e WHERE e.src_id = n.id OR e.dst_id = n.id)
-      `)
-      .all() as Array<{ id: string; type: string; path: string | null }>;
-
-    if (adoptable.length) {
-      db.exec('BEGIN');
-      try {
-        const KNOWN = new Set([
-          'concept', 'decision', 'pattern', 'learning', 'entity',
-          'source-summary', 'synthesis', 'hub-subcommand', 'command', 'agent',
-          'skill', 'rule',
-        ]);
-        // Types whose natural parent is their own directory (the directory is
-        // the meaningful grouping: patterns/ vs decisions/ vs learnings/).
-        const BY_DIRECTORY = new Set([
-          'concept', 'decision', 'pattern', 'learning', 'entity',
-          'source-summary', 'synthesis',
-        ]);
-        const ensureModule = (slug: string) => {
-          const id = nodeId('module', slug);
-          db.prepare(`
-            INSERT INTO nodes (id, type, title, path) VALUES (?, 'module', ?, ?)
-            ON CONFLICT(id) DO NOTHING
-          `).run(id, slug, slug);
-          return id;
-        };
-        for (const n of adoptable) {
-          if (!KNOWN.has(n.type)) continue;
-          const raw = String(n.path || '').replace(/\\/g, '/');
-          if (!raw) continue;
-          // Strip the .opencode/ prefix nodeId() also removes, so the module
-          // slug matches the one the code layer already created.
-          const rel = raw.replace(/^\.opencode\//, '').replace(/^(\.\.\/)+/, '');
-          const segments = rel.split('/');
-          let slug: string;
-          if (n.type === 'hub-subcommand') {
-            // Keyed "hub/sub" with no directory — the hub is the parent.
-            slug = segments[0] || '';
-          } else if (BY_DIRECTORY.has(n.type)) {
-            slug = segments.slice(0, -1).join('/') || 'context';
-          } else {
-            // skill / rule / agent / command live in their own directory, so
-            // keying on that would make a 1:1 mirror node and an edge that
-            // carries no information. Their meaningful grouping is the
-            // top-level collection: "all skills", "all rules".
-            slug = segments[0] || 'context';
-          }
-          if (!slug) continue;
-          const modId = ensureModule(slug);
-          const r = db.prepare(`
-            INSERT INTO edges (src_id, dst_id, type) VALUES (?, ?, 'part_of')
-            ON CONFLICT(src_id, dst_id, type) DO NOTHING
-          `).run(n.id, modId);
-          if (r.changes) result.adopted++;
-        }
-        db.exec('COMMIT');
-      } catch (err) {
-        try { db.exec('ROLLBACK'); } catch { /* ignore */ }
-        throw err;
-      }
-    }
+    // ── Adopt: give every remaining edgeless knowledge node a structural edge ──
+    // Shared with the wiki backfill (see `adoptKnowledgeOrphansIn`) so knowledge
+    // adoption does not depend on the code layer actually rebuilding.
+    result.adopted = adoptKnowledgeOrphansIn(db);
 
     // ── Prune: whatever is STILL edgeless is genuine waste ──
     // Scoped to the code layer. An earlier version pruned every edgeless node
@@ -1396,6 +1421,96 @@ function hasChanged(filePath) {
   return prev !== mtime;
 }
 
+// ─── Knowledge-type resolution ─────────────────────────────────────────────
+
+/**
+ * Directory → type, straight from `wiki-schema.md`'s own mapping.
+ *
+ * This runs BEFORE any model. A page in `patterns/` is a pattern; asking an NLI
+ * model to rediscover the wiki's directory convention would be slower, less
+ * accurate, and a second source of truth for a rule that already exists.
+ */
+const DIR_TYPE_DEFAULT: Array<[RegExp, string]> = [
+  [/^context\/research\//, 'source-summary'],
+  [/^context\/patterns\//, 'pattern'],
+  [/^context\/sessions\//, 'concept'],
+  [/^context\/decisions\.md$/, 'decision'],
+  [/^context\/theory\.md$/, 'synthesis'],
+]
+
+/**
+ * The one genuinely ambiguous slot: the schema allows `entity | concept` for
+ * `frameworks/` and root pages, and nothing deterministic separates them. That
+ * distinction is the entire reason the classifier is consulted here.
+ */
+const ENTITY_HYPOTHESIS =
+  'This document describes a specific tool, system, project, component, or other named thing.'
+const CONCEPT_HYPOTHESIS =
+  'This document explains an abstract concept, principle, design idea, or convention.'
+
+/**
+ * Minimum entailment-logit margin before the model's preference is trusted.
+ *
+ * Same scale as the gate's threshold (sigmoid(1.5) ≈ 0.82). Below it the model
+ * has no usable preference and the safe default (`concept`, the pre-existing
+ * behaviour) stands. Conservative on purpose: a wrong type is worse than the
+ * generic one, because it makes the node invisible to type-scoped queries.
+ */
+const TYPE_INFERENCE_MIN_MARGIN = 1.0
+
+/** Dynamic, cached, failure-tolerant import so a project without the sibling
+ * vectorize-context skill still builds a graph. */
+let zeroShotMod: Promise<any | null> | null = null
+function loadZeroShot(): Promise<any | null> {
+  if (zeroShotMod === null) {
+    zeroShotMod = import('../../vectorize-context/scripts/zero-shot.ts').catch(() => null)
+  }
+  return zeroShotMod
+}
+
+/** Frontmatter-stripped, code-stripped lead of a page — what an NLI pass can read. */
+function leadingProse(content: string, limit = 600): string {
+  return stripCode(String(content).replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/, ''))
+    .replace(/^\s*#{1,6}\s+.*$/gm, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, limit)
+}
+
+/**
+ * Resolve a knowledge node's type when nothing above has pinned it.
+ *
+ * Order, most authoritative first: structural (rule/skill/agent/learning/
+ * reference) and explicit frontmatter are handled by the caller; here we do
+ * directory, then — only for `entity`/`concept` — the local classifier.
+ *
+ * The model is a refinement, never the primary mechanism: the graph is built
+ * from deterministic extraction, and `GRAPH_INFER_TYPES=0` disables it outright.
+ */
+async function resolveKnowledgeType(
+  rel: string,
+  content: string,
+  title: string,
+): Promise<{ type: string; source: string }> {
+  for (const [re, type] of DIR_TYPE_DEFAULT) {
+    if (re.test(rel)) return { type, source: 'directory' }
+  }
+
+  if (process.env.GRAPH_INFER_TYPES !== '0') {
+    const zs = await loadZeroShot()
+    if (zs?.bestHypothesis) {
+      const best = await zs.bestHypothesis(`${title}\n${leadingProse(content)}`, [
+        ENTITY_HYPOTHESIS,
+        CONCEPT_HYPOTHESIS,
+      ])
+      if (best && best.margin >= TYPE_INFERENCE_MIN_MARGIN) {
+        return { type: best.label === ENTITY_HYPOTHESIS ? 'entity' : 'concept', source: 'inferred' }
+      }
+    }
+  }
+  return { type: 'concept', source: 'default' }
+}
+
 /**
  * Backfill the graph from durable markdown sources. Idempotent — nodes/edges
  * are upserted; mtime-based skip keeps re-runs cheap. Scoped sources:
@@ -1559,18 +1674,26 @@ export async function backfillFromWiki(inputDir) {
         rel.startsWith('rules/') ||
         instructionFileSet.has(path.resolve(filePath));
       let type = isRule ? 'rule' : 'concept';
+      // Provenance of the type, so an inferred one is never mistaken for a
+      // declared one. Auditable via `graph node` / stats.
+      let typeSource = isRule ? 'structural' : 'default';
       let title = path.basename(filePath).replace(/\.md$/, '');
-      if (fm && fm.type && NODE_TYPES.has(String(fm.type))) type = String(fm.type);
+      if (fm && fm.type && NODE_TYPES.has(String(fm.type))) {
+        type = String(fm.type);
+        typeSource = 'frontmatter';
+      }
       if (fm && fm.title) title = String(fm.title);
       if (isSkillManifest) {
         // Skill nodes use the skill directory name as the id — matches the
         // registry's skill:{name} edge targets (used_by edges must resolve).
         type = 'skill';
+        typeSource = 'structural';
         title = path.basename(path.dirname(filePath));
       } else if (referenceSkillByFile.has(path.resolve(filePath))) {
         // Keyed by path relative to `.opencode/`, so a link from the owning
         // SKILL.md (`references/foo.md`) resolves to this node.
         type = 'reference'
+        typeSource = 'structural'
         title = path.basename(filePath).replace(/\.md$/, '')
       } else if (agentSet.has(path.resolve(filePath))) {
         // Agent nodes use the FILE STEM as the id (agents/executor.md →
@@ -1578,12 +1701,23 @@ export async function backfillFromWiki(inputDir) {
         // registry names agents in @mention form, so the `@` is stripped at
         // edge time — see backfillFromRegistry.
         type = 'agent';
+        typeSource = 'structural';
         title = path.basename(filePath).replace(/\.md$/, '');
       }
       if (isLearning) {
         type = 'learning';
+        typeSource = 'structural';
         const m = content.match(/^## (LRN|ERR|FEAT)-\d+[^\n]*/m);
         if (m) title = m[0].replace(/^## /, '');
+      }
+      // Nothing above pinned the type — derive it from where the page lives,
+      // then (for entity/concept only) from the local classifier. This is what
+      // stops an untyped `decisions.md` or `research/` page from silently
+      // becoming a generic `concept` and vanishing from type-scoped queries.
+      if (typeSource === 'default') {
+        const resolved = await resolveKnowledgeType(rel, content, title);
+        type = resolved.type;
+        typeSource = resolved.source;
       }
 
       // Rule, skill and agent nodes are keyed by BARE NAME, not by path — the
@@ -1597,7 +1731,19 @@ export async function backfillFromWiki(inputDir) {
       const id = bareNamed
         ? nodeId(type, title)
         : nodeId(type, rel || slugify(title));
-      const meta = fm ? { tags: Array.isArray(fm.tags) ? fm.tags : (fm.tags ? [fm.tags] : []), status: fm.status, sources: fm.sources, relatedSkills: fm.relatedSkills } : {};
+      // A file maps to exactly one knowledge node, and the id encodes the type.
+      // When the resolved type changes — frontmatter added, a directory default
+      // applied, or the classifier inferring entity over concept — the id changes
+      // with it, and the previous row would survive as an orphan duplicate still
+      // filed under the old type. Delete it; `pruneDanglingEdges` clears its edges
+      // at the end of the build. `file`/`symbol`/`module` nodes are owned by the
+      // code layer and must not be touched from here.
+      db.prepare(
+        "DELETE FROM nodes WHERE path = ? AND id != ? AND type NOT IN ('file', 'symbol', 'module')",
+      ).run(rel, id);
+      const meta = fm
+        ? { tags: Array.isArray(fm.tags) ? fm.tags : (fm.tags ? [fm.tags] : []), status: fm.status, sources: fm.sources, relatedSkills: fm.relatedSkills, typeSource }
+        : { typeSource };
       upsertNodeInner(db, { id, type, title, path: rel, meta, mtime });
       stats.nodes++;
       titleToId.set(slugify(title), id);
@@ -1842,6 +1988,11 @@ export async function backfillFromWiki(inputDir) {
       }
     }
 
+    // Adopt edgeless knowledge nodes here, not only in the code layer: this is
+    // where those nodes are created, and the code layer's structure gate must
+    // not decide whether a new rule or pattern gets connected.
+    adoptKnowledgeOrphansIn(db);
+
     return stats;
   } finally {
     db.close();
@@ -1882,9 +2033,14 @@ export function pruneDanglingEdges(inputDir: string | undefined): number {
   const paths = resolvePaths(inputDir);
   if (!fs.existsSync(paths.graphDbPath)) return 0;
 
-  const DANGLING = `SELECT COUNT(*) AS c FROM edges
-     WHERE NOT EXISTS (SELECT 1 FROM nodes n WHERE n.id = edges.src_id)
+  // The predicate is kept separate from its `SELECT COUNT(*)` wrapper. The DELETE
+  // below used to derive itself by string-replacing the count prefix out of the
+  // full statement, which left a stray `SELECT` in front of the `WHERE` and made
+  // the statement a syntax error — invisible for as long as there was never
+  // anything to prune, which is exactly the state it was first tested in.
+  const DANGLING_WHERE = `NOT EXISTS (SELECT 1 FROM nodes n WHERE n.id = edges.src_id)
         OR NOT EXISTS (SELECT 1 FROM nodes n WHERE n.id = edges.dst_id)`;
+  const DANGLING = `SELECT COUNT(*) AS c FROM edges WHERE ${DANGLING_WHERE}`;
 
   // Count first, on a READONLY handle. Opening the graph for writing to run a
   // DELETE that matches nothing still takes an exclusive lock for the duration
@@ -1904,7 +2060,7 @@ export function pruneDanglingEdges(inputDir: string | undefined): number {
 
   const db = openDatabase(paths.graphDbPath, false);
   try {
-    return db.prepare(`DELETE FROM edges WHERE ${DANGLING.replace('COUNT(*) AS c FROM edges', '')}`).run().changes;
+    return db.prepare(`DELETE FROM edges WHERE ${DANGLING_WHERE}`).run().changes;
   } finally {
     try { db.close(); } catch { /* already closed */ }
   }
@@ -2364,4 +2520,206 @@ export function getGraphStats(inputDir) {
   } finally {
     db.close();
   }
+}
+
+// ─── Advisory semantic-edge candidates ─────────────────────────────────────
+
+/**
+ * `supersedes` is the one relationship the graph cannot derive structurally:
+ * nothing in a page states "this replaces that" in a form a parser can read, so
+ * it has always required a human or an LLM to write it. The graph's own rules
+ * forbid LLM-generated edges and auto-edge creation, and rightly — a wrong
+ * inferred edge is a traversal that confidently answers with the wrong page.
+ *
+ * So this **proposes, never writes**. Candidates go to a review file; a caller
+ * (`graph accept-candidates`, or a person) promotes them. It mirrors the gate's
+ * tighten-only contract: the model can only ADD a candidate, never remove a real
+ * edge or re-type a node.
+ *
+ * (A `contradicts` variant was designed and dropped: the same pairwise probe that
+ * sank pairwise `supersedes` showed the model does not separate contradictory
+ * guidance from unrelated guidance well enough to be worth a candidate.)
+ */
+export interface EdgeCandidate {
+  src: string
+  dst: string
+  type: 'supersedes'
+  confidence: number
+  evidence: string
+}
+
+export interface EdgeProposalResult {
+  candidates: EdgeCandidate[]
+  pagesEvaluated: number
+  modelAvailable: boolean
+}
+
+const CANDIDATE_NODE_TYPES = ['decision', 'pattern', 'concept', 'entity', 'synthesis', 'source-summary']
+
+/**
+ * Does this page *claim* to replace an earlier document?
+ *
+ * The framing is per-document, and that is a measured choice. The obvious
+ * pairwise framing — premise = two pages, hypothesis = "the first supersedes the
+ * second" — was tried and does not work: this model cannot resolve "the first"
+ * and "the second" to the two documents, so an explicit "ADR-002 supersedes
+ * ADR-001" scored 0.43, below any usable threshold. Asked about one document at a
+ * time, the same content scores 0.69 against a ≤0.34 baseline. The model can tell
+ * that a page announces a replacement; it cannot tell you *which* page. So it is
+ * asked only the first question, and the target is resolved by title mention
+ * (`resolveSupersedeTarget`) — a deterministic step, not a model guess.
+ */
+const SUPERSEDE_CLAIM_HYPOTHESIS =
+  'This document announces a decision that replaces or supersedes an earlier decision.'
+const BASELINE_HYPOTHESIS =
+  'This document explains an abstract concept, principle, or design idea.'
+
+/**
+ * Claim threshold and margin, from a four-example separation probe: the claim
+ * scored 0.689 against a 0.373 baseline; an ordinary new decision scored 0.340,
+ * an ordinary concept 0.329. Not a calibrated study — the candidate-only contract
+ * is what makes that acceptable: a false candidate costs a review glance, never a
+ * wrong edge.
+ */
+const SUPERSEDE_CLAIM_THRESHOLD = 0.6
+const SUPERSEDE_CLAIM_MIN_MARGIN = 0.2
+
+/** Hard cap on model calls: one forward-pass pair per page. */
+const MAX_CANDIDATE_PAGES = 60
+
+export interface KnowledgeNode { id: string; type: string; title: string; path: string | null }
+
+/** Read a node's page text, title-prefixed. Tries `.opencode/` then project root. */
+function readNodeText(inputDir: string, node: KnowledgeNode, limit = 2000): string {
+  if (!node.path) return node.title
+  const paths = resolvePaths(inputDir)
+  for (const p of [path.join(paths.opencodeDir, node.path), path.join(paths.projectRoot, node.path)]) {
+    try {
+      if (fs.existsSync(p)) return `${node.title}\n${fs.readFileSync(p, 'utf-8').slice(0, limit)}`
+    } catch { /* fall through to the next candidate */ }
+  }
+  return node.title
+}
+
+/**
+ * Which existing node a superseding page names as its target.
+ *
+ * Deterministic: the longest other-node title that appears in the page. The model
+ * deliberately does not do this — it cannot, as the pairwise probe showed — and a
+ * wrong target is worse than none, so no match means no candidate.
+ */
+export function resolveSupersedeTarget(
+  page: KnowledgeNode,
+  text: string,
+  nodes: KnowledgeNode[],
+): KnowledgeNode | null {
+  const hay = String(text).toLowerCase()
+  let best: KnowledgeNode | null = null
+  let bestLen = 0
+  for (const other of nodes) {
+    if (other.id === page.id) continue
+    const title = String(other.title).toLowerCase().trim()
+    if (title.length < 6) continue
+    if (hay.includes(title) && title.length > bestLen) { best = other; bestLen = title.length }
+  }
+  return best
+}
+
+/**
+ * Propose `supersedes` edges for human/agent review.
+ *
+ * Never writes to `edges`. The caller decides whether to promote the result —
+ * see `graph accept-candidates`.
+ */
+export async function proposeEdgeCandidates(
+  inputDir,
+  opts: { maxPages?: number } = {},
+): Promise<EdgeProposalResult> {
+  const paths = resolvePaths(inputDir)
+  if (!fs.existsSync(paths.graphDbPath)) {
+    return { candidates: [], pagesEvaluated: 0, modelAvailable: false }
+  }
+
+  const db = openDatabase(paths.graphDbPath, true)
+  let nodes: KnowledgeNode[]
+  try {
+    const ph = CANDIDATE_NODE_TYPES.map(() => '?').join(',')
+    nodes = db
+      .prepare(`SELECT id, type, title, path FROM nodes WHERE type IN (${ph})`)
+      .all(...CANDIDATE_NODE_TYPES) as KnowledgeNode[]
+  } finally {
+    try { db.close() } catch { /* already closed */ }
+  }
+
+  const bounded = nodes.slice(0, Math.max(0, opts.maxPages ?? MAX_CANDIDATE_PAGES))
+
+  const zs = await loadZeroShot()
+  if (!zs?.entailmentScores) {
+    return { candidates: [], pagesEvaluated: 0, modelAvailable: false }
+  }
+
+  const candidates: EdgeCandidate[] = []
+  for (const page of bounded) {
+    const text = readNodeText(inputDir, page)
+    const scores = await zs.entailmentScores(
+      text,
+      [SUPERSEDE_CLAIM_HYPOTHESIS, BASELINE_HYPOTHESIS],
+      { maxLength: 256 },
+    )
+    if (!scores) continue
+    const claim = zs.sigmoid(scores[0])
+    const baseline = zs.sigmoid(scores[1])
+    if (claim < SUPERSEDE_CLAIM_THRESHOLD || claim - baseline < SUPERSEDE_CLAIM_MIN_MARGIN) continue
+
+    const target = resolveSupersedeTarget(page, text, nodes)
+    if (!target) continue
+
+    candidates.push({
+      src: page.id,
+      dst: target.id,
+      type: 'supersedes',
+      confidence: claim,
+      evidence: `claim p=${claim.toFixed(3)} (baseline ${baseline.toFixed(3)}) → "${target.title}"`,
+    })
+  }
+
+  return { candidates, pagesEvaluated: bounded.length, modelAvailable: true }
+}
+
+/** Where proposed edges wait for review. State, not context: gitignored, disposable. */
+export function edgeCandidatePath(inputDir: string): string {
+  return path.join(resolvePaths(inputDir).opencodeDir, 'state', 'graph', 'edge-candidates.json')
+}
+
+/** Persist proposals for review. Returns the path written. */
+export function writeEdgeCandidates(inputDir: string, candidates: EdgeCandidate[]): string {
+  const file = edgeCandidatePath(inputDir)
+  fs.mkdirSync(path.dirname(file), { recursive: true })
+  fs.writeFileSync(file, JSON.stringify({ generatedAt: new Date().toISOString(), candidates }, null, 2))
+  return file
+}
+
+/** Read proposals back, tolerating an absent or malformed file. */
+export function readEdgeCandidates(inputDir: string): EdgeCandidate[] {
+  try {
+    const parsed = JSON.parse(fs.readFileSync(edgeCandidatePath(inputDir), 'utf-8'))
+    return Array.isArray(parsed?.candidates) ? parsed.candidates : []
+  } catch {
+    return []
+  }
+}
+
+/**
+ * Promote reviewed candidates to real edges. The explicit, gated half of the
+ * propose/accept pair — the only path by which a proposed edge becomes one the
+ * graph will traverse.
+ */
+export function acceptEdgeCandidates(inputDir: string, candidates: EdgeCandidate[]): number {
+  let added = 0
+  for (const c of candidates) {
+    if (!c?.src || !c?.dst) continue
+    upsertEdge(inputDir, { src: c.src, dst: c.dst, type: c.type })
+    added++
+  }
+  return added
 }

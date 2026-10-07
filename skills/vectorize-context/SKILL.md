@@ -1,6 +1,6 @@
 ---
 name: vectorize-context
-description: Vector DB for semantic retrieval over context, rules, docs, AGENTS.md AND project source code — Ollama embeddings + ONNX rerank, injected via hooks, maintained by /maintain-hub vectorize
+description: Vector DB for semantic retrieval over context, rules, docs, AGENTS.md AND project source code — local ONNX embeddings + ONNX rerank, no daemon, injected via hooks, maintained by /maintain-hub vectorize
 relatedSkills: graph-context, self-improvement, wiki, harvest-context
 level: 2
 license: MIT
@@ -125,9 +125,9 @@ Requires Node.js 18+ and a running Ollama server (`http://127.0.0.1:11434`) for 
 
 | Model | Purpose | Dimension |
 |-------|---------|-----------|
-| `pedrohml/mxbai-embed-large:latest` | Embeddings (via `/api/embed`) | 1024 |
+| `Xenova/bge-small-en-v1.5` | Embeddings (in-process ONNX, q8) | 384 |
 
-**Reranking** uses an in-process ONNX cross-encoder — no server-side rerank API needed (works even on Ollama builds without `/api/rerank`):
+**Both stages run in-process on ONNX Runtime** — no daemon, no `/api/embed`, no `/api/rerank`. Fetch the weights once with `npx tsx skills/vectorize-context/scripts/prefetch-models.ts`.
 
 | Model | Purpose | Notes |
 |-------|---------|-------|
@@ -200,9 +200,25 @@ rm -f .opencode/state/vector/context.db    # Delete the DB
 1. `ensureIndexed()` scans scoped sources (context/rules/docs/AGENTS.md) for `*.md` files; `ensureCodeIndexed()` walks the project tree (skip dirs: node_modules, .git, dist/build/vendor, .opencode/state, .opencode/cache)
 2. Compares current file mtimes against stored mtimes in the DB
 3. If no files changed → returns immediately, no model loaded
-4. If files changed → calls Ollama `/api/embed` (1024-dim `mxbai-embed-large`) in **batches of 32 texts** (one request per batch, not per file), chunks changed files (`##`/`###` headers for markdown; declaration boundaries for code)
+4. If files changed → embeds in **batches of 32 texts** through one in-process session (384-dim `bge-small-en-v1.5`, CLS pooling), chunks changed files (`##`/`###` headers for markdown; declaration boundaries for code)
 5. Deletes old chunks for changed files, inserts new ones
 6. Query: ANN L2-distance search (floor 0.8 context / 0.92 code, ~20 candidates) → in-process cross-encoder rerank (bge-reranker-base, sigmoid on single logit) → top-N
 7. Query always runs against the freshly-updated index
 
 The vec0 virtual table uses L2 distance. Since embeddings are normalized (unit vectors), L2 distance sorts equivalently to cosine similarity — nearest neighbors are the most semantically similar chunks.
+
+## Task Classifiers (ONNX)
+
+`zero-shot.ts` is the NLI primitive — it answers "does this text entail that claim?". `classifiers.ts` adds the *task-specific* heads, for questions entailment cannot answer:
+
+| Function | Task head | Model | Used by |
+|----------|-----------|-------|---------|
+| `entailmentScores` / `classify` / `bestHypothesis` | zero-shot NLI | `Xenova/mobilebert-uncased-mnli` | prompt-queue gate, graph type inference, graph `propose` |
+| `classifySequence` / `isInjection` | text-classification | `protectai/deberta-v3-base-injection-onnx` | `privacy-scan/scripts/scan-injection.ts` |
+| `extractEntities` / `sensitiveSpans` | token-classification | `rtrigoso/bert-small-pii-detection-ONNX` | `privacy-scan` classifier escalation |
+
+Task heads load through `loadPipeline()` (onnx-runtime) with the same contract as `loadModel`: `q8`, bundled cache, **query-time no-download**, and `null` when the model is absent. They are **optional** — declared in `OPTIONAL_MODELS`, fetched by `prefetch-models.ts`, and never required (a missing head disables its feature; it does not fail the install).
+
+**Task fit matters.** Property detection (does this text contain a secret? is this an injection?) is a token/sequence-classification job, not an NLI one — measured: asked via NLI, a natural-language secret scored *below* an ordinary ADR. Speech acts (is this an ask? does this announce a replacement?) are where NLI works, with engineered hypotheses and a measured threshold.
+
+**Switching the NLI head** (`CLASSIFIER_ONNX_MODEL` / `ZERO_SHOT_ONNX_MODEL`, or `OPTIONAL_MODELS.nliLarge`) invalidates the gate's measured threshold (0.817) — re-measure before changing the default.

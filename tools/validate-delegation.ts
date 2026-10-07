@@ -17,7 +17,16 @@ interface ValidationResult {
   error?: string
 }
 
-function validateTarget(
+/**
+ * Resolve one delegation target to a file on disk.
+ *
+ * Exported so tests exercise this function rather than a copy of it. A test that
+ * reimplements the path logic proves only that the reimplementation agrees with
+ * itself: `tests/global/delegation.test.ts` carried its own `@`-strip for years
+ * while this function shipped without one, so the suite stayed green against a
+ * tool that reported 21 of 183 routes as missing.
+ */
+export function validateTarget(
   hubName: string,
   subcommand: string,
   delegationType: 'skill' | 'agent' | 'command' | 'inline',
@@ -49,7 +58,16 @@ function validateTarget(
       relativePath = path.join('skills', target, 'SKILL.md')
       break
     case 'agent':
-      relativePath = path.join('agents', `${target}.md`)
+      // Agent targets may be written bare (`analyst`) or in the dispatch
+      // convention the agent prompt uses (`@analyst`). Both name the same file,
+      // so the `@` is stripped here — otherwise every `@`-prefixed spec probes
+      // for `agents/@analyst.md` and reports missing, a false failure on a
+      // route that dispatches correctly.
+      //
+      // Scoped to `agent` on purpose: `@skill` is not a convention anywhere, so
+      // stripping it there would resolve a typo into a real skill and hide the
+      // mistake. An unresolved target is the honest answer.
+      relativePath = path.join('agents', `${target.replace(/^@/, '')}.md`)
       break
     case 'command':
       relativePath = path.join('commands', `${target}.md`)

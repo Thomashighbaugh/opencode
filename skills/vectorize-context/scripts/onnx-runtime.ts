@@ -96,6 +96,23 @@ export const REQUIRED_MODELS = {
   classifier: 'Xenova/mobilebert-uncased-mnli',
 } as const
 
+/**
+ * Task-head models — fetched by the same prefetch script, but NOT required.
+ *
+ * Every caller of these degrades to a no-op when one is absent, so a missing
+ * task model is a disabled feature, not a broken install. Kept out of
+ * `REQUIRED_MODELS` so the "what must be present" contract — asserted in
+ * `tests/global/onnx.test.ts` — stays exactly three.
+ */
+export const OPTIONAL_MODELS = {
+  /** Prompt-injection sequence classifier. Root `model.onnx`, no quantized file. */
+  injection: { id: 'protectai/deberta-v3-base-injection-onnx', task: 'text-classification', cachedFile: 'model.onnx' },
+  /** PII / secret token classifier (bert-small, Apache-2.0). */
+  pii: { id: 'rtrigoso/bert-small-pii-detection-ONNX', task: 'token-classification', cachedFile: 'onnx/model_quantized.onnx' },
+  /** Stronger NLI head, opt-in — switching invalidates the gate's measured threshold. */
+  nliLarge: { id: 'Xenova/nli-deberta-v3-xsmall', task: 'zero-shot-classification', cachedFile: 'onnx/model_quantized.onnx' },
+} as const
+
 export interface LoadedModel {
   tokenizer: any
   model: any
@@ -142,9 +159,58 @@ export function loadModel(
   return p
 }
 
+/** One in-flight pipeline per (task, model, dtype), shared by every caller. */
+const pipelines = new Map<string, Promise<any>>()
+
+/**
+ * Load a transformers.js `pipeline` for a task head.
+ *
+ * `loadModel` returns the raw AutoModel/tokenizer and is right for the NLI head,
+ * which needs the entailment logits themselves. A pipeline is right for the
+ * other heads: token-classification has to aggregate BIO tags into spans and
+ * text-classification has to softmax and name the label, and both are easy to
+ * get subtly wrong by hand.
+ *
+ * Same contract as `loadModel`: `allowDownload: false` refuses a model that is
+ * not already on disk, so nothing on a query path silently fetches. `cachedFile`
+ * exists because not every ONNX repo follows the `onnx/model_quantized.onnx`
+ * layout — a root `model.onnx` repo would otherwise look permanently uncached.
+ */
+export function loadPipeline(
+  task: string,
+  modelId: string,
+  opts: {
+    allowDownload?: boolean
+    dtype?: 'q8' | 'fp16' | 'fp32' | 'int8' | 'uint8'
+    cachedFile?: string
+  } = {},
+): Promise<any> {
+  applyRuntimeEnv()
+  const dtype = opts.dtype ?? 'q8'
+  const key = `${task}:${modelId}:${dtype}`
+  const existing = pipelines.get(key)
+  if (existing) return existing
+
+  const p = (async () => {
+    if (opts.allowDownload === false && !isCached(modelId, opts.cachedFile ?? 'onnx/model_quantized.onnx')) {
+      throw new Error(
+        `${modelId} is not cached locally (${modelDir(modelId)}). ` +
+          `Run "npx tsx skills/vectorize-context/scripts/prefetch-models.ts" first.`,
+      )
+    }
+    const { pipeline } = req('@huggingface/transformers')
+    return await pipeline(task, modelId, { dtype })
+  })()
+
+  pipelines.set(key, p)
+  p.catch(() => pipelines.delete(key))
+  return p
+}
+
 /** Test seam: drop cached sessions so a fresh load is exercised. */
 export function __resetOnnxRuntime(): void {
   inflight.clear()
+  pipelines.clear()
   envApplied = false
 }
 

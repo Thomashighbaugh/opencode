@@ -3,6 +3,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { getGlobalConfigDir } from '../helpers/load-config'
 import { HUB_FILE_MAP, LEGACY_ROUTE_MAP, loadSubcommandSpec } from '../../tools/hub-data'
+import { validateTarget } from '../../tools/validate-delegation'
 
 // Import each hub manifest directly (vitest resolves .ts imports via vite)
 import hubSetupHub from '../../tools/hub-hub-setup'
@@ -48,32 +49,14 @@ function checkDelegation(
 
   if (inline) return { ok: true }
 
-  const type = types[0]
+  const type = types[0] as 'skill' | 'agent' | 'command' | 'inline'
   const target = skill || agent || command || ''
-
-  if (!target) {
-    return { ok: false, message: `${hubName}/${label}: ${type} target empty` }
+  const result = validateTarget(hubName, label, type, target, GLOBAL_DIR)
+  if (result.status === 'ok') return { ok: true }
+  return {
+    ok: false,
+    message: `${hubName}/${label}: ${type} "${target}" — ${result.status}${result.error ? `: ${result.error}` : ''}`,
   }
-
-  let relativePath: string
-  switch (type) {
-    case 'skill':
-      relativePath = path.join('skills', target, 'SKILL.md')
-      break
-    case 'agent':
-      // Strip @ prefix if present (agent references use @name convention, but filenames don't)
-      relativePath = path.join('agents', `${target.replace(/^@/, '')}.md`)
-      break
-    case 'command':
-      relativePath = path.join('commands', `${target}.md`)
-      break
-    default:
-      return { ok: false, message: `${hubName}/${label}: unknown type ${type}` }
-  }
-
-  const resolved = path.join(GLOBAL_DIR, relativePath)
-  if (fs.existsSync(resolved)) return { ok: true }
-  return { ok: false, message: `${hubName}/${label}: ${type} "${target}" missing at ${resolved}` }
 }
 
 describe('hub subcommand delegation', () => {
@@ -97,6 +80,81 @@ describe('hub subcommand delegation', () => {
       })
     })
   }
+})
+
+// ─── validateTarget: the real function, not a copy ────────────────────────
+//
+// These exist because the suite above used to reimplement the path logic. The
+// copy stripped `@` and the tool did not, so 21 routes read as `missing` in
+// production while every test passed. Each case below runs the shipped function.
+
+describe('validateTarget: @-prefixed agent targets', () => {
+  it('resolves a bare agent name', () => {
+    const r = validateTarget('ideate-hub', 'deep-thinker', 'agent', 'deep-thinker', GLOBAL_DIR)
+    expect(r.status).toBe('ok')
+    expect(r.resolvedPath).toBe(path.join(GLOBAL_DIR, 'agents', 'deep-thinker.md'))
+  })
+
+  it('resolves an @-prefixed agent name to the same file', () => {
+    // The regression. `@analyst` names `agents/analyst.md`; probing for
+    // `agents/@analyst.md` reports a route that dispatches perfectly well as
+    // missing, which is how 11.5% of the manifest became a false failure.
+    const bare = validateTarget('research-hub', 'analyst', 'agent', 'analyst', GLOBAL_DIR)
+    const at = validateTarget('research-hub', 'analyst', 'agent', '@analyst', GLOBAL_DIR)
+    expect(at.status).toBe('ok')
+    expect(at.resolvedPath).toBe(bare.resolvedPath)
+  })
+
+  it('does not probe a literal @ in the filename', () => {
+    const r = validateTarget('verify-hub', 'critic', 'agent', '@critic', GLOBAL_DIR)
+    expect(r.resolvedPath).not.toContain('@')
+  })
+
+  it('every @-prefixed agent spec in the manifest resolves', () => {
+    // The whole class, asserted against the real config rather than a sample.
+    const atSpecs = hubs.flatMap((h) =>
+      h.subcommands.filter((s) => s.agent?.startsWith('@')).map((s) => ({ hub: h.name, label: s.label, agent: s.agent! })),
+    )
+    expect(atSpecs.length).toBeGreaterThan(0)
+    const broken = atSpecs
+      .map((s) => validateTarget(s.hub, s.label, 'agent', s.agent, GLOBAL_DIR))
+      .filter((r) => r.status !== 'ok')
+    expect(broken.map((r) => `${r.hub}/${r.subcommand}`)).toEqual([])
+  })
+})
+
+describe('validateTarget: other delegation types', () => {
+  it('resolves a skill target to its SKILL.md', () => {
+    const r = validateTarget('maintain-hub', 'self-improve', 'skill', 'self-improvement', GLOBAL_DIR)
+    expect(r.status).toBe('ok')
+    expect(r.resolvedPath).toMatch(/skills[\\/]self-improvement[\\/]SKILL\.md$/)
+  })
+
+  it('reports a genuinely missing target as missing', () => {
+    // The other direction: the `@` fix must not turn the tool into a rubber stamp.
+    const r = validateTarget('x', 'y', 'agent', '@definitely-not-a-real-agent-xyz', GLOBAL_DIR)
+    expect(r.status).toBe('missing')
+    expect(r.error).toBeTruthy()
+  })
+
+  it('an inline subcommand needs no target', () => {
+    const r = validateTarget('build-hub', 'optimize', 'inline', '', GLOBAL_DIR)
+    expect(r.status).toBe('ok')
+  })
+
+  it('an empty target on a real delegation is empty, not missing', () => {
+    // Distinct statuses: "you forgot to set it" is a different bug from
+    // "the file is not there", and conflating them hides the first.
+    const r = validateTarget('x', 'y', 'skill', '', GLOBAL_DIR)
+    expect(r.status).toBe('empty')
+  })
+
+  it('a skill target is not @-stripped into a false negative', () => {
+    // The strip is agent-specific. `@skill` is not a convention, so it must
+    // stay unresolved rather than silently resolving to a different skill.
+    const r = validateTarget('x', 'y', 'skill', '@self-improvement', GLOBAL_DIR)
+    expect(r.status).toBe('missing')
+  })
 })
 
 // ─── scaffold-hub was erased into hub-setup ─────────────────────────────

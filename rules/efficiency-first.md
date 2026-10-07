@@ -89,7 +89,7 @@ Embeddings and the vector stores exist so you do not have to re-read the world. 
 | 7 | `Glob` / `Grep` / `Read` | cheap, 1 request | You don't know where the thing lives |
 | 8 | Web search / `gh_grep` / Context7 | hosted + expensive | Nothing local answers it — **and check rank 2 and 7 first** |
 
-Ranks 4–6 run on local Ollama embeddings and a local reranker. They cost no provider tokens. Reaching
+Ranks 4–6 run on local ONNX embeddings and a local cross-encoder reranker — in-process, no daemon, no hosted API. They cost no provider tokens. Reaching
 for a hosted search before a local vector query is the most common avoidable spend in this system.
 
 ## The Memory System

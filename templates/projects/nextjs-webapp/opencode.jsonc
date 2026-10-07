@@ -4,10 +4,18 @@
     "AGENTS.md",
     "./rules/nextjs-conventions.md",
     "./rules/testing-conventions.md",
-    "./rules/session-artifact-promotion.md"
+    "./rules/session-artifact-promotion.md",
+    "./rules/auto-commit.md"
   ],
   "permission": {
     "edit": "allow",
-    "bash": { "git *": "allow", "npm *": "allow", "pnpm *": "allow", "npx *": "allow", "nix *": "allow", "*": "ask" }
+    "bash": {
+      "git *": "allow",
+      "npm *": "allow",
+      "pnpm *": "allow",
+      "npx *": "allow",
+      "nix *": "allow",
+      "*": "ask"
+    }
   }
 }

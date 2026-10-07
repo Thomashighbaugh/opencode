@@ -174,8 +174,46 @@ function escalate(current, candidate) {
   return levels.indexOf(candidate) > levels.indexOf(current) ? candidate : current;
 }
 
+/**
+ * Escalate-only classifier pass.
+ *
+ * The regexes catch structured secrets; they miss a credential described in
+ * prose ("the production password was shared in the notes"). A token classifier
+ * trained for PII catches those. It may only ever RAISE the risk — a false
+ * positive costs a review glance, while a false negative commits a secret, so
+ * the model is never allowed to lower a verdict.
+ *
+ * Degrades to the regex-only result when the model is absent. The import is
+ * dynamic and guarded for the same reason: a project without the sibling
+ * vectorize-context skill still gets a working pattern scan.
+ */
+export async function escalateWithClassifier(result, content) {
+  if (result.risk === 'high') return result;
+  try {
+    const mod = await import('../../vectorize-context/scripts/classifiers.ts');
+    const sensitive = mod.sensitiveSpans(await mod.extractEntities(content));
+    if (!sensitive.length) return result;
+    const sample = sensitive.slice(0, 3).map((s) => s.entity).join(', ');
+    return {
+      ...result,
+      risk: escalate(result.risk, 'uncertain'),
+      recommendation: 'review',
+      findings: [...result.findings, `[pii-classifier] ${sensitive.length} sensitive span(s): ${sample}`],
+      details: `${result.details} A local PII classifier flagged ${sensitive.length} credential/identity span(s) the pattern scan did not.`,
+    };
+  } catch {
+    return result;
+  }
+}
+
+/** Print the verdict and exit with the code the contract promises. */
+function emit(result) {
+  process.stdout.write(JSON.stringify(result, null, 2) + '\n');
+  process.exit(result.risk === 'low' ? 0 : 1);
+}
+
 // CLI entry point
-function main() {
+async function main() {
   const args = process.argv.slice(2);
   let content = '';
   let filePath = '';
@@ -183,12 +221,11 @@ function main() {
   if (args.includes('--file')) {
     const idx = args.indexOf('--file');
     filePath = args[idx + 1];
-    const fs = require('fs');
     content = fs.readFileSync(filePath, 'utf-8');
   } else if (args.includes('--stdin')) {
     let input = '';
     process.stdin.on('data', (chunk) => (input += chunk));
-    process.stdin.on('end', () => {
+    process.stdin.on('end', async () => {
       try {
         const parsed = JSON.parse(input);
         content = parsed.content || '';
@@ -196,9 +233,7 @@ function main() {
       } catch {
         content = input;
       }
-      const result = scanContent(content, filePath);
-      process.stdout.write(JSON.stringify(result, null, 2) + '\n');
-      process.exit(result.risk === 'low' ? 0 : 1);
+      emit(await escalateWithClassifier(scanContent(content, filePath), content));
     });
     return;
   } else if (args.length > 0 && !args[0].startsWith('--')) {
@@ -210,9 +245,7 @@ function main() {
     process.exit(1);
   }
 
-  const result = scanContent(content, filePath);
-  process.stdout.write(JSON.stringify(result, null, 2) + '\n');
-  process.exit(result.risk === 'low' ? 0 : 1);
+  emit(await escalateWithClassifier(scanContent(content, filePath), content));
 }
 
 // Check if this is the main module

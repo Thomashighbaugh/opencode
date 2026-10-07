@@ -3,12 +3,21 @@ import * as fs from "fs"
 import * as path from "path"
 import * as crypto from "crypto"
 import { getCache, CacheManager, getProjectSlug } from "./cache-utils"
+import { embedQuery, EMBED_DIM, EMBED_MODEL_KEY } from "../skills/vectorize-context/scripts/embedder.ts"
 
 const VALID_ACTIONS = ["save", "load", "invalidate", "stats"] as const
-const OLLAMA_URL = "http://127.0.0.1:11434/api/embed"
-const EMBED_MODEL = "pedrohml/mxbai-embed-large:latest"
 const SIMILARITY_THRESHOLD = 0.92
 const CACHE_TTL_MS = 86_400_000 // 24h (matches stable namespace)
+
+/**
+ * Index schema version.
+ *
+ * Bumped from 1 when the embedder moved from a 1024-dim Ollama model to the
+ * shared 384-dim ONNX one. Vectors from the two are not comparable — see
+ * `cosineSimilarity` — so an old index is discarded rather than silently
+ * contributing NaN similarities that would look like "no match" forever.
+ */
+export const INDEX_VERSION = 2
 
 // ─── Types ─────────────────────────────────────────────────────────────
 
@@ -40,10 +49,18 @@ function ensureDir(p: string) {
   fs.mkdirSync(path.dirname(p), { recursive: true })
 }
 
-function loadIndex(projectRoot: string): SemanticIndex {
+export function loadIndex(projectRoot: string): SemanticIndex {
   const indexPath = getIndexPath(projectRoot)
   try {
     const index: SemanticIndex = JSON.parse(fs.readFileSync(indexPath, "utf-8"))
+    // A version-1 index holds 1024-dim vectors from the retired Ollama embedder.
+    // They cannot be compared against the current 384-dim ones, so the whole
+    // index is dropped instead of carried forward as permanently-unmatchable
+    // entries. Cheap: the semantic tier is a cache, and the exact-match tier in
+    // agentCache survives untouched.
+    if (index.version !== INDEX_VERSION) {
+      return { version: INDEX_VERSION, entries: [] }
+    }
     // Backward compatibility: ensure all entries have lastAccess
     for (const entry of index.entries) {
       if (!entry.lastAccess) {
@@ -52,7 +69,7 @@ function loadIndex(projectRoot: string): SemanticIndex {
     }
     return index
   } catch {
-    return { version: 1, entries: [] }
+    return { version: INDEX_VERSION, entries: [] }
   }
 }
 
@@ -74,20 +91,38 @@ function hashFiles(paths: string[]): string {
 }
 
 /** Float32Array → base64 string */
-function vectorToBase64(vec: number[]): string {
+export function vectorToBase64(vec: number[]): string {
   const buf = new Float32Array(vec)
   const bytes = new Uint8Array(buf.buffer)
   return Buffer.from(bytes).toString("base64")
 }
 
-/** base64 string → Float32Array */
-function base64ToVector(b64: string): Float32Array {
+/**
+ * base64 string → Float32Array.
+ *
+ * The `byteOffset`/`length` pair is load-bearing, not defensive. Node allocates
+ * small Buffers as views into a shared 8 KB pool, so `bytes.buffer` is the *pool*,
+ * not this string's bytes — `new Float32Array(bytes.buffer)` yielded a 16384-float
+ * array for a 4-float vector. The extra 16380 values are whatever else landed in
+ * the pool, so every stored vector came back as mostly garbage: the cosine loop
+ * read real data in the first few slots and uninitialized memory after, and the
+ * semantic tier silently never cleared its threshold. Nothing errored.
+ */
+export function base64ToVector(b64: string): Float32Array {
   const bytes = Buffer.from(b64, "base64")
-  return new Float32Array(bytes.buffer)
+  if (bytes.byteLength % 4 !== 0) {
+    throw new Error(`stored vector is ${bytes.byteLength} bytes, not a whole number of float32s`)
+  }
+  return new Float32Array(bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength))
 }
 
 /** Cosine similarity between two vectors */
-function cosineSimilarity(a: Float32Array, b: Float32Array): number {
+export function cosineSimilarity(a: Float32Array, b: Float32Array): number {
+  // Length guard is load-bearing, not defensive padding. Entries written by an
+  // older embedder are a different width; the loop below would read past `a`
+  // into `undefined`, produce NaN, and fail the `>= 0.92` threshold for every
+  // candidate — the cache would report "no match" forever with no error.
+  if (a.length !== b.length || a.length === 0) return 0
   let dot = 0, normA = 0, normB = 0
   for (let i = 0; i < a.length; i++) {
     dot += a[i] * b[i]
@@ -98,16 +133,20 @@ function cosineSimilarity(a: Float32Array, b: Float32Array): number {
   return denom === 0 ? 0 : dot / denom
 }
 
-/** Get embedding via local Ollama */
+/**
+ * Embed a prompt with the shared local ONNX embedder.
+ *
+ * Same model as the vector store and the knowledge graph, so one 33 MB download
+ * covers all three and the cosine here means the same thing it means there.
+ * The exact-match tier is unaffected by failure, so an embed error degrades to
+ * exact-only rather than failing the call.
+ */
 async function getEmbedding(text: string): Promise<number[]> {
-  const res = await fetch(OLLAMA_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ model: EMBED_MODEL, input: text })
-  })
-  if (!res.ok) throw new Error(`Ollama embed error: ${res.status} ${res.statusText}`)
-  const data = await res.json() as { embeddings: number[][] }
-  return data.embeddings[0]
+  const v = await embedQuery(text)
+  if (v.length !== EMBED_DIM) {
+    throw new Error(`embedder returned ${v.length} dims, expected ${EMBED_DIM}`)
+  }
+  return v
 }
 
 function tokenCount(text: string): number {
@@ -124,7 +163,7 @@ function buildExactKey(agentType: string, taskPrompt: string, filePaths: string[
 // ─── Tool Definition ─────────────────────────────────────────────────────
 
 export default tool({
-  description: "Semantic similarity cache for subagent outputs — embedding-based near-match detection via local Ollama (pedrohml/mxbai-embed-large:latest). Two-tier: exact SHA-256 match first, then 0.92 cosine fallback. Saves API calls by returning cached results for semantically similar task prompts on unchanged files.",
+  description: "Semantic similarity cache for subagent outputs — embedding-based near-match detection via the local in-process ONNX embedder (Xenova/bge-small-en-v1.5, 384-dim, no daemon). Two-tier: exact SHA-256 match first, then 0.92 cosine fallback. Saves API calls by returning cached results for semantically similar task prompts on unchanged files.",
   args: {
     action: tool.schema.string().describe(`Action. Valid: ${VALID_ACTIONS.join(", ")}`),
     agentType: tool.schema.string().optional().describe("Agent type (e.g., 'executor', 'code-reviewer')"),
@@ -271,7 +310,7 @@ export default tool({
       case "invalidate": {
         if (!args.agentType && !args.taskPrompt) {
           // Clear everything
-          saveIndex(projectRoot, { version: 1, entries: [] })
+          saveIndex(projectRoot, { version: INDEX_VERSION, entries: [] })
           agentCache.clear()
           return JSON.stringify({ success: true, action: "invalidate", cleared: "all" })
         }
@@ -316,6 +355,10 @@ export default tool({
           success: true,
           action: "stats",
           semanticEntries: index.entries.length,
+          // Naming the model and width in `stats` is what makes a dimension
+          // mismatch diagnosable instead of looking like a cache that never hits.
+          semanticModel: EMBED_MODEL_KEY,
+          semanticDim: EMBED_DIM,
           estimatedTokensCached: totalTokens,
           exactMatchHits: agentStats.hits,
           exactMatchMisses: agentStats.misses,

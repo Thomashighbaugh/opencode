@@ -85,6 +85,73 @@
             "run": "npx --no-install tsc --noEmit -p skills/tsconfig.json 2>&1 | head -40",
             "injectOn": "failure",
             "inject": "<graph-integrity exit=\"{exitCode}\">\nA file under skills/graph-context/scripts no longer typechecks. The graph invariants in graph-context/SKILL.md are documented as holding; that is now in doubt:\n\n```\n{stdout}{stderr}\n```\n</graph-integrity>"
+        },
+        {
+            // Rebuild the TUI hub menu bundle when a hub spec or a hub SKILL.md
+            // changes. This is the mechanical half of rules/hub-menu-rebuild.md.
+            //
+            // The rule existed because the step was manual and got skipped: the
+            // dialog rendered from a generated bundle, so a committed spec with a
+            // stale bundle made a working subcommand invisible with no error
+            // anywhere. It shipped that way twice (79280b0 — graph, self-improve,
+            // delegate and insights all missing; 5ae6d27).
+            //
+            // Silent on success (`injectOn: "failure"`) and debounced by the hook
+            // runner's own dedupe, because regenerating on every keystroke-level
+            // edit would cost more than the staleness it prevents. `dist/tui.js`
+            // is gitignored and rebuilt locally; `src/generated-hubs.ts` is
+            // committed, so the pair is what actually has to stay in step.
+            "id": "hub-menu-rebuild-after-write",
+            "when": {
+                "phase": "after",
+                "tool": ["write", "edit", "patch"],
+                "toolArgs": {
+                    // One glob, not an array: the matcher takes a single pattern
+                    // (`{glob: string}`) and an array here invalidates the whole
+                    // file — every hook below silently stops firing. picomatch
+                    // expands the braces, so all three sources fit in one string.
+                    "filePath": {
+                        "glob": "{tools/hubs/**/*.ts,tools/hub-*.ts,skills/*/SKILL.md}"
+                    }
+                }
+            },
+            "run": "cd plugins/hubs-tui && bun run generate-menus >/dev/null 2>&1 && bun build src/tui.tsx --outdir dist --target bun --minify >/dev/null 2>&1",
+            "injectOn": "failure",
+            "inject": "<hub-menu-rebuild exit=\"{exitCode}\">\nThe hub menu bundle failed to regenerate after a spec change. Until this succeeds, /maintain-hub and its siblings render from a stale bundle and any new or renamed subcommand is INVISIBLE in the dialog. Run: cd plugins/hubs-tui && bun run generate-menus && bun build src/tui.tsx --outdir dist --target bun --minify\n\n```\n{stdout}{stderr}\n```\n</hub-menu-rebuild>",
+            "toast": {
+                "title": "hub menu bundle",
+                "message": "regeneration failed (exit {exitCode})",
+                "variant": "error",
+                "duration": 8000
+            }
+        },
+        {
+            // The mechanical half of rules/auto-commit.md.
+            //
+            // The rule states the policy; this makes it happen without a model
+            // turn. Every write/edit/patch is staged and committed with a UTC
+            // timestamp message — a message that describes the work costs an
+            // inference call, and the diff already is the description.
+            //
+            // It refuses to commit a change that looks like a secret, which is
+            // the one case the rule yields on: a false skip costs a review, a
+            // false commit leaks a credential into history permanently. Silent on
+            // success (`injectOn: "failure"`), so a normal commit spends nothing.
+            //
+            // This is deliberately aggressive — it commits the whole working tree
+            // per change. That is the requested tradeoff: noisy history in
+            // exchange for never losing work and never paying to describe it.
+            "id": "auto-commit-after-write",
+            "when": { "phase": "after", "tool": ["write", "edit", "patch"] },
+            "run": "if git rev-parse --git-dir >/dev/null 2>&1; then git add -A 2>/dev/null; if git diff --cached --quiet; then exit 0; fi; if git diff --cached | grep -qiE 'BEGIN [A-Z ]*PRIVATE KEY|sk-[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16}'; then echo 'secret-like content staged; auto-commit skipped'; exit 1; fi; git commit -q -m \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"; fi",
+            "injectOn": "failure",
+            "inject": "<auto-commit exit=\"{exitCode}\">\nThe mechanical auto-commit (rules/auto-commit.md) did not complete. A staged change looked like it contained a secret, so the commit was skipped rather than committed. Review `git diff --cached`: unstage the secret, or commit deliberately if it is a false positive.\n\n```\n{stdout}{stderr}\n```\n</auto-commit>",
+            "toast": {
+                "title": "auto-commit",
+                "message": "skipped (exit {exitCode})",
+                "variant": "error",
+                "duration": 8000
+            }
         }
     ],
 

@@ -11,11 +11,14 @@
  *   path <from> <to> — BFS shortest path
  *   stats            — node/edge counts by type
  *   probe            — precision probe: N queries, vector-only vs hybrid
+ *   propose          — propose supersedes/contradicts edges for review (never writes)
+ *   accept-candidates — promote reviewed proposals to real edges
  *
  * Options:
  *   --depth N        — traversal depth for neighbors/query (default 2)
  *   --dir PATH       — project root or .opencode dir (default: cwd)
  *   --topK N         — results for query (default 8)
+ *   --maxPages N     — pages to score in `propose` (default 60)
  *   --queries "a|b|c" — probe queries (default: built-in set)
  */
 
@@ -32,6 +35,7 @@ export interface CliArgs {
   depth?: number;
   dir?: string;
   topK?: number;
+  maxPages?: number;
   queries?: string;
   [flag: string]: string[] | string | number | boolean | undefined;
 }
@@ -43,6 +47,7 @@ export function parseArgs(argv: string[]): CliArgs {
     if (a === '--depth') { args.depth = parseInt(argv[++i], 10); }
     else if (a === '--dir') { args.dir = argv[++i]; }
     else if (a === '--topK') { args.topK = parseInt(argv[++i], 10); }
+    else if (a === '--maxPages') { args.maxPages = parseInt(argv[++i], 10); }
     else if (a === '--queries') { args.queries = argv[++i]; }
     else if (a.startsWith('--')) { args[a.slice(2)] = true; }
     else { args._.push(a); }
@@ -178,8 +183,31 @@ async function main() {
       break;
     }
 
+    case 'propose': {
+      const r = await g.proposeEdgeCandidates(dir, { maxPages: typeof args.maxPages === 'number' ? args.maxPages : undefined });
+      if (!r.modelAvailable) {
+        console.log('Classifier model unavailable — run skills/vectorize-context/scripts/prefetch-models.ts first.');
+        break;
+      }
+      const file = g.writeEdgeCandidates(dir, r.candidates);
+      console.log(`Proposed ${r.candidates.length} candidate edge(s) from ${r.pagesEvaluated} page(s) evaluated.`);
+      for (const c of r.candidates.slice(0, 20)) console.log(`  [${c.type}] ${c.src} → ${c.dst}  ${c.evidence}`);
+      if (r.candidates.length > 20) console.log(`  … ${r.candidates.length - 20} more`);
+      console.log(`Written to ${file}. Review, then: graph accept-candidates`);
+      break;
+    }
+
+    case 'accept-candidates': {
+      const pending = g.readEdgeCandidates(dir);
+      if (!pending.length) { console.log('No candidate edges pending review.'); break; }
+      const n = g.acceptEdgeCandidates(dir, pending);
+      g.writeEdgeCandidates(dir, []);
+      console.log(`Accepted ${n} edge(s); candidate file cleared.`);
+      break;
+    }
+
     default:
-      console.log(`Usage: graph <build|query|node|neighbors|impact|path|stats|probe> [args]`);
+      console.log(`Usage: graph <build|query|node|neighbors|impact|path|stats|probe|propose|accept-candidates> [args]`);
       process.exit(1);
   }
 }
