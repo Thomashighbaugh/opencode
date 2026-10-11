@@ -31,7 +31,7 @@ Directly invoke the matching subcommand. Print the reminder, then delegate to th
 | `detect` | 0-1 | `stack-detector` agent | Deep stack detection — languages, frameworks, build tools, testing, ORM, CSS, CI/CD, infra |
 | `recommend` | 2 | `stack-recommender` skill | Map stack fingerprint to recommended global resources (skills, agents, rules, hint pack) |
 | `docs` | 5 | `deepinit` skill | Regenerate hierarchical AGENTS.md documentation |
-| `context` | 6 | `@architect` + `@convention-extractor` + `@explore` | Deep codebase mapping, context synthesis, agent upgrade (same as `setup --full` Phase 6) |
+| `context` | 6 | `@architect` + `@convention-extractor` + `@explore` | Deep codebase mapping, context synthesis, agent upgrade (same as full-mode Phase 6 of `setup`) |
 | `verify` | 8 | `verifier` agent | Validate configuration completeness and integrity, including .gitignore privacy protections |
 | `refresh` | 0-8 (merge) | self (all phases, merge mode) | Update existing config — asks standard or full, then runs 0-5+8 or all 0-8 (merge) |
 | `status` | — | self (inline) | List state files and show checkpoint progress |
@@ -83,7 +83,7 @@ Flags modify subcommand behavior and are passed through:
 
 | Flag | Effect | Applies To |
 |------|--------|------------|
-| `--minimal` | Essential files only, no docs | `setup`, `refresh` |
+| `--minimal` | Select minimal mode; skips the setup/refresh gatekeeping question | `setup`, `refresh` |
 | `--full` | Force full mode; on `refresh`, skips the standard/full gatekeeping question | `setup`, `refresh` |
 | `--force` | Skip "already exists" checks | `setup`, `refresh`, `docs` |
 | `--language <lang>` | Force language, skip detection | `setup`, `detect`, `refresh` |
@@ -92,7 +92,7 @@ Flags modify subcommand behavior and are passed through:
 
 Default (no flags, `setup` subcommand): Phases 0-5 + 8 (full scaffold + provision + docs + verify, no deep context capture or routing integration).
 
-With `--full`: All 9 phases (0-8) including Phase 6 (deep codebase mapping + context capture via parallel agents) and Phase 7 (routing integration validation).
+Full mode (or `--full`): all 9 phases (0-8) including Phase 6 (deep codebase mapping + context capture via parallel agents) and Phase 7 (routing integration validation).
 
 **Gatekeeping questions:** neither `setup` nor `refresh` requires `--full`/`--minimal`. On first run (no mode flag) each asks a single question — `setup`: **standard, full, or minimal?**; `refresh`: **standard or full?** — and runs the matching phase set. Passing the mode flag skips the question.
 
@@ -160,7 +160,7 @@ Init state lives in `.opencode/state/init/` (gitignored).
 | `.opencode/state/init/init-detection.json` | Phase 1 detection results (stack fingerprint) |
 | `.opencode/state/init/init-plan.json` | Phase 2 initialization plan (stack recommendations) |
 | `.opencode/state/init/provision-checkpoint.json` | Phase 4 provisioned artifacts manifest |
-| `.opencode/state/init/integration-report.md` | Phase 7 integration validation report (--full only) |
+| `.opencode/state/init/integration-report.md` | Phase 7 integration validation report (full mode only) |
 | `.opencode/state/init/init-report.md` | Phase 8 final verification report |
 | `.opencode/state/init/` | All init state files |
 
@@ -187,14 +187,14 @@ Init state lives in `.opencode/state/init/` (gitignored).
 
 ### Cross-Hub Hand-Off
 
-- `/hub-setup setup --full` completion can trigger `/harvest-context` offer
+- `/hub-setup setup` (full mode) completion can trigger a `/memory-hub` offer
 - `/design-hub docs` output feeds into `/ideation` as project context
 - `/hub-setup verify` results can inform `/project` operations
-- `/ideation` final plans may reference `/init-project` detection results
+- `/ideate-hub` final plans may reference `/hub-setup` detection results
 
 ## Architecture
 
-| Phase | Agent/Skill | Default | --full | Purpose |
+| Phase | Agent/Skill | Standard | Full | Purpose |
 |-------|-------------|---------|--------|---------|
 | 0 - Verify | self | ✓ | ✓ | Ensure `~/.config/opencode/` is healthy |
 | 1 - Detection | `@stack-detector` | ✓ | ✓ | Scan project files, detect language/framework/build/test/ORM/CSS/CI |
@@ -207,9 +207,9 @@ Init state lives in `.opencode/state/init/` (gitignored).
 | 8 - Verification | `@verifier` | ✓ | ✓ | Validate completeness, references, config — final health check + integration report |
 
 The effort in Phase 4 scales with the init mode:
-- `--minimal`: Create empty directories only
+- Minimal mode (`--minimal`): create empty directories only
 - Default: Stub agents + basic commands
-- `--full`: Thorough agents with full prompts + project-specific TypeScript tools + comprehensive commands + reusable skills, then Phase 6 upgrades those agents with deep project context
+- Full mode (`--full`): thorough agents with full prompts + project-specific TypeScript tools + comprehensive commands + reusable skills, then Phase 6 upgrades those agents with deep project context
 
 ## Subcommand: setup
 
@@ -253,7 +253,7 @@ else
 fi
 ```
 
-If `IS_RERUN=true` and no `--force` or `--refresh` flag was passed, ask:
+If `IS_RERUN=true` and no `--force` flag was passed, ask:
 
 **Question:** "This project already has `.opencode/` configured. What would you like to do?"
 
@@ -272,17 +272,17 @@ Run phases sequentially, saving checkpoints after each phase:
 3. Phase 2: Recommend global resources for detected stack
 4. Phase 3: Create/update `.opencode/opencode.jsonc`, project rules, agent wrappers
 5. Phase 4: Provision project-specific agents, skills, tools, rules (scales with mode)
-6. Phase 5: Generate hierarchical AGENTS.md docs (skip if `--minimal` or `--no-docs`)
-7. Phase 6: Deep codebase mapping + context capture (only if `--full`) — spawn 3 parallel agents, synthesize context, upgrade Phase 4 agents
-8. Phase 7: Routing & integration validation (only if `--full`) — validate agent inheritance, skill discoverability, tool exports, rule registration, .gitignore
+6. Phase 5: Generate hierarchical AGENTS.md docs (skip in minimal mode or with `--no-docs`)
+7. Phase 6: Deep codebase mapping + context capture (only in full mode) — spawn 3 parallel agents, synthesize context, upgrade Phase 4 agents
+8. Phase 7: Routing & integration validation (only in full mode) — validate agent inheritance, skill discoverability, tool exports, rule registration, .gitignore
 9. Phase 8: Final verification + integration report
 
 Save checkpoint after each phase to `.opencode/state/init/init-checkpoint.json`.
 
 On completion, display summary and offer next step:
-- If `--minimal`: Offer `/design-hub docs`
+- If minimal mode: offer `/design-hub docs`
 - If default: Offer `/memory-hub capture` to add deep context, or `/hub-setup verify` to validate
-- If `--full`: Offer `/harvest-context` to extract more context, or `/maintain-hub workspace` to manage the new setup
+- If full mode: offer `/memory-hub` to extract more context, or `/maintain-hub workspace` to manage the new setup
 
 ## Subcommand: detect
 
@@ -338,7 +338,7 @@ On completion, offer next step: `/memory-hub capture` or `/hub-setup verify`
 
 ## Subcommand: context
 
-Deep codebase mapping and context capture. Phase 6 only (same as `setup --full` Phase 6).
+Deep codebase mapping and context capture. Phase 6 only (same as full-mode Phase 6 of `setup`).
 
 ### Behavior
 
@@ -374,7 +374,7 @@ Validate configuration completeness and integrity. Phase 8 only.
 5. Confirm .gitignore configured
 6. Validate state directory structure
 7. Test config loadability
-8. If `--full` was used, check Phase 7 integration report passed
+8. If full mode was used, check the Phase 7 integration report passed
 
 See `phases/08-verification.md` for full verification checklist.
 
@@ -497,8 +497,8 @@ Detailed phase documentation is in `phases/`:
 - `phases/03-configuration.md` — Scaffolding and opencode.jsonc generation
 - `phases/04-provisioning.md` — Project-specific agent/skill/tool/rule generation
 - `phases/05-documentation.md` — Hierarchical AGENTS.md generation via deepinit
-- `phases/06-context-capture.md` — Deep codebase mapping via parallel agents, context synthesis, agent upgrade (--full only)
-- `phases/07-routing.md` — Routing integration validation: agent inheritance, skill discoverability, tool exports, rule registration, .gitignore (--full only)
+- `phases/06-context-capture.md` — Deep codebase mapping via parallel agents, context synthesis, agent upgrade (full mode only)
+- `phases/07-routing.md` — Routing integration validation: agent inheritance, skill discoverability, tool exports, rule registration, .gitignore (full mode only)
 - `phases/08-verification.md` — Final validation, health check, integration report
 
 ## Idempotency
