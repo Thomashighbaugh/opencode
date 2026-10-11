@@ -23,7 +23,7 @@ Use when adding a feature to a codebase you didn't write (or that has establishe
 
   examples: [
     {
-      input: "/orchestrate brownfield 'add audit logging to the existing API'",
+      input: "/build-hub brownfield 'add audit logging to the existing API'",
       approach: "Analyze: existing logger is winston, routes are Express middleware. Integration: add audit middleware after auth. Validate: does it fit the middleware chain? Yes. Implement: add the middleware matching existing patterns."
     }
   ]

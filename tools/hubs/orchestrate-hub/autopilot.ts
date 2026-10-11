@@ -11,7 +11,7 @@ const spec: HubSubcommandSpec = {
 
 Unlike ralph (which loops a single verify-execute cycle), autopilot runs distinct phases with different agent roles per phase. The planner phase produces a structured plan; the executor phase implements it; the verifier phase confirms it works. Each phase's output feeds the next.
 
-Use when you have a well-scoped feature or task and want end-to-end autonomous delivery. The task must be concrete enough that a plan can be derived without follow-up questions. For vague tasks, use /orchestrate deep or /plan-hub plan first to crystallize requirements.
+Use when you have a well-scoped feature or task and want end-to-end autonomous delivery. The task must be concrete enough that a plan can be derived without follow-up questions. For vague tasks, use /ideate-hub interview or /plan-hub plan first to crystallize requirements.
 
 State: .opencode/state/orchestration/autopilot-{session}/ holds the plan, implementation log, and verification report.`,
 
@@ -21,7 +21,7 @@ State: .opencode/state/orchestration/autopilot-{session}/ holds the plan, implem
 
   examples: [
     {
-      input: "/orchestrate autopilot 'add a /health endpoint that returns 200 and DB connection status'",
+      input: "/orchestrate-hub autopilot 'add a /health endpoint that returns 200 and DB connection status'",
       approach: "Plan: locate server entry, add route, add DB check. Execute: write the route. Verify: curl the endpoint, confirm 200 + JSON body."
     }
   ],

@@ -24,7 +24,7 @@ Use for prototypes, demos, hackathons, and exploring an idea before committing t
 
   examples: [
     {
-      input: "/orchestrate vibe-code 'a weather app that shows 7-day forecast by city'",
+      input: "/build-hub vibe-code 'a weather app that shows 7-day forecast by city'",
       approach: "Round 1: generate React frontend + Express backend + weather API integration. User: 'add hourly forecast too'. Round 2: add hourly view. User: 'darker theme'. Round 3: restyle."
     }
   ]

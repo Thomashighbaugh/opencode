@@ -27,7 +27,7 @@ Use for brownfield projects that need systematic improvement. NOT for greenfield
 
   examples: [
     {
-      input: "/ideation overhaul",
+      input: "/build-hub overhaul",
       approach: "Analyze all 8 dimensions. Find: security has 3 critical vulns, testing at 40% coverage, architecture has circular deps. Plan: Phase 1 (security fixes + coverage to 70%), Phase 2 (break circular deps), Phase 3 (performance)."
     }
   ]

@@ -46,8 +46,8 @@ See the \`graph-context\` skill for the full schema, workflow, and design constr
   rules: RULES_KARPAHTY_GUIDELINES,
   relatedSkills: ["vectorize-context", "self-improvement", "graph-thinking"],
   examples: [
-    { input: "what touches the session-memory skill?", approach: "/project graph — build, then query 'session memory' or neighbors skill:session-memory to see used_by/related edges" },
-    { input: "what breaks if I edit rule:context-strategy?", approach: "/project graph — impact rule:context-strategy shows all hub subcommands and skills that reference it" },
+    { input: "what touches the session-memory skill?", approach: "/resource-hub knowledge-graph — build, then query 'session memory' or neighbors skill:session-memory to see used_by/related edges" },
+    { input: "what breaks if I edit rule:context-strategy?", approach: "/resource-hub knowledge-graph — impact rule:context-strategy shows all hub subcommands and skills that reference it" },
   ],
   warnings: [
     "Wiki markdown stays canonical — never hand-edit graph.db",

@@ -23,7 +23,7 @@ Use when the ideation question requires external knowledge (current best practic
 
   examples: [
     {
-      input: "/ideation web-research 'Postgres vs MongoDB for a multi-tenant SaaS with 1000 tenants'",
+      input: "/research-hub web-research 'Postgres vs MongoDB for a multi-tenant SaaS with 1000 tenants'",
       approach: "Queries: 'PostgreSQL multi-tenant SaaS', 'MongoDB multi-tenant', 'Postgres vs MongoDB SaaS comparison'. Fetch top 3 from each. Synthesize: Postgres better for relational + transactions, MongoDB for flexible schemas. Conclusion depends on data shape."
     }
   ]

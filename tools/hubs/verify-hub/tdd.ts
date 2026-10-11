@@ -23,7 +23,7 @@ Use for features where correctness is critical and the requirements are testable
 
   examples: [
     {
-      input: "/orchestrate tdd 'implement a rate limiter: 100 req/min per IP, 429 on exceed, sliding window'",
+      input: "/verify-hub tdd 'implement a rate limiter: 100 req/min per IP, 429 on exceed, sliding window'",
       approach: "Red: test 'allows 100 requests'. Green: trivial limiter. Red: test 'rejects 101st'. Green: add counter. Red: test 'sliding window resets after 60s'. Green: add time logic. Refactor: extract window logic. Repeat until all edge cases covered."
     }
   ]

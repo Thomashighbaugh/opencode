@@ -25,7 +25,7 @@ Unlike /plan-hub decomposition (which just breaks work down), plan includes an i
 
   examples: [
     {
-      input: "/ideation plan 'add user notifications for mentions, replies, and task assignments'",
+      input: "/plan-hub plan 'add user notifications for mentions, replies, and task assignments'",
       approach: "Interview: 'real-time or digest?' → 'both'. 'Which channels?' → 'in-app + email'. 'Opt-out per type?' → 'yes'. Plan: 1) notification model, 2) mention detector, 3) reply watcher, 4) assignment handler, 5) in-app UI, 6) email digester, 7) settings UI."
     }
   ]

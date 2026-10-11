@@ -11,7 +11,7 @@ const spec: HubSubcommandSpec = {
 
 Use for research questions where a single model's perspective is insufficient: "what are the tradeoffs between these 3 state management approaches", "how do these databases compare for our workload". The synthesis step reconciles disagreements.
 
-This is the /ideation equivalent of /orchestrate-hub ccg — same multi-model mechanism, used for research rather than execution decisions.`,
+This is the /ideate-hub equivalent of /orchestrate-hub ccg — same multi-model mechanism, used for research rather than execution decisions.`,
 
   tools: TOOLS_LOADSKILL_BASH,
   relatedSkills: SKILLS_ASK,

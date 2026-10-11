@@ -16,7 +16,7 @@
     "relatedSkills": [],
     "examples": [
       {
-        "input": "/orchestrate brownfield 'add audit logging to the existing API'",
+        "input": "/build-hub brownfield 'add audit logging to the existing API'",
         "approach": "Analyze: existing logger is winston, routes are Express middleware. Integration: add audit middleware after auth. Validate: does it fit the middleware chain? Yes. Implement: add the middleware matching existing patterns."
       }
     ]
@@ -133,7 +133,7 @@
     "relatedSkills": [],
     "examples": [
       {
-        "input": "/ideation overhaul",
+        "input": "/build-hub overhaul",
         "approach": "Analyze all 8 dimensions. Find: security has 3 critical vulns, testing at 40% coverage, architecture has circular deps. Plan: Phase 1 (security fixes + coverage to 70%), Phase 2 (break circular deps), Phase 3 (performance)."
       }
     ]
@@ -225,7 +225,7 @@
     "relatedSkills": [],
     "examples": [
       {
-        "input": "/orchestrate vibe-code 'a weather app that shows 7-day forecast by city'",
+        "input": "/build-hub vibe-code 'a weather app that shows 7-day forecast by city'",
         "approach": "Round 1: generate React frontend + Express backend + weather API integration. User: 'add hourly forecast too'. Round 2: add hourly view. User: 'darker theme'. Round 3: restyle."
       }
     ]
@@ -373,7 +373,7 @@
     "relatedSkills": [],
     "examples": [
       {
-        "input": "/project commit",
+        "input": "/git-hub commit",
         "approach": "git diff --cached shows new file src/auth/jwt.ts + modified src/auth/index.ts. Classify: feat(auth): add JWT token generation. Body: 'adds sign and verify functions for HS256'. Commit."
       }
     ]
@@ -575,19 +575,19 @@
     ],
     "examples": [
       {
-        "input": "/init-project refresh",
+        "input": "/hub-setup refresh",
         "approach": "Gatekeeping question first: 'standard or full refresh?' User picks **Standard** → merge mode phases 0-5 + 8. Phase 0: doctor passes. Phase 1: re-detect stack, diff against last fingerprint — new dependency 'zod' found. Phase 2: merge new recommendations. Phase 3: add zod-related skills to opencode.jsonc. Phase 4: provision new agent wrapper for validation, preserve existing manually-edited agents. Phase 5: update AGENTS.md file tables. Phase 8: verify + diff report."
       },
       {
-        "input": "/init-project refresh",
+        "input": "/hub-setup refresh",
         "approach": "Gatekeeping question first. User picks **Full** → merge mode, all 9 phases. Phases 0-5 same as Standard. Phase 6: re-spawn @architect (detects new module 'payments-service' added since last init), @convention-extractor (detects team switched to functional style), @explore (maps new file tree). Diff existing context files — update architecture.md with payments-service module, update conventions.md with functional style patterns, preserve MANUAL sections. Re-upgrade agent wrappers with refreshed context. Phase 7: validate all extends paths still resolve, register any new skills, fix broken refs. Phase 8: verify + full integration report with change diff."
       },
       {
-        "input": "/init-project refresh --full",
+        "input": "/hub-setup refresh --full",
         "approach": "Skips the gatekeeping question — forces full refresh (all 9 phases, merge mode). Use when the mode is already known or for scripted/repeat invocations."
       },
       {
-        "input": "/init-project refresh --force",
+        "input": "/hub-setup refresh --force",
         "approach": "Merge safety checks skipped. Overwrites generated sections completely (still preserves MANUAL blocks). Use when context is badly stale and you want a clean regeneration of all auto-generated content without losing manual additions."
       }
     ],
@@ -1321,7 +1321,7 @@
     "description": "Resume last ideation session",
     "reminder": "Resume last ideation session.",
     "inline": true,
-    "detailedDescription": "Resumes the most recent ideation session from its work-products. Loads the latest work product from .opencode/state/ideation/work-products/ and continues the ideation from where it left off.\n\nUse when a previous /ideation invocation was interrupted and you want to continue without losing the work product.",
+    "detailedDescription": "Resumes the most recent ideation session from its work-products. Loads the latest work product from .opencode/state/ideation/work-products/ and continues the ideation from where it left off.\n\nUse when a previous /ideate-hub invocation was interrupted and you want to continue without losing the work product.",
     "tools": [
       "bash"
     ],
@@ -1413,7 +1413,7 @@
     "description": "Full autonomous execution from idea to working code",
     "reminder": "From idea to working code autonomously.",
     "skill": "autopilot",
-    "detailedDescription": "Full autonomous execution pipeline: takes a natural-language idea/task description and drives it through ideation → planning → implementation → verification → delivery, all without user intervention between stages.\n\nUnlike ralph (which loops a single verify-execute cycle), autopilot runs distinct phases with different agent roles per phase. The planner phase produces a structured plan; the executor phase implements it; the verifier phase confirms it works. Each phase's output feeds the next.\n\nUse when you have a well-scoped feature or task and want end-to-end autonomous delivery. The task must be concrete enough that a plan can be derived without follow-up questions. For vague tasks, use /orchestrate deep or /plan-hub plan first to crystallize requirements.\n\nState: .opencode/state/orchestration/autopilot-{session}/ holds the plan, implementation log, and verification report.",
+    "detailedDescription": "Full autonomous execution pipeline: takes a natural-language idea/task description and drives it through ideation → planning → implementation → verification → delivery, all without user intervention between stages.\n\nUnlike ralph (which loops a single verify-execute cycle), autopilot runs distinct phases with different agent roles per phase. The planner phase produces a structured plan; the executor phase implements it; the verifier phase confirms it works. Each phase's output feeds the next.\n\nUse when you have a well-scoped feature or task and want end-to-end autonomous delivery. The task must be concrete enough that a plan can be derived without follow-up questions. For vague tasks, use /ideate-hub interview or /plan-hub plan first to crystallize requirements.\n\nState: .opencode/state/orchestration/autopilot-{session}/ holds the plan, implementation log, and verification report.",
     "tools": [
       "loadSkill",
       "modeState",
@@ -1431,7 +1431,7 @@
     ],
     "examples": [
       {
-        "input": "/orchestrate autopilot 'add a /health endpoint that returns 200 and DB connection status'",
+        "input": "/orchestrate-hub autopilot 'add a /health endpoint that returns 200 and DB connection status'",
         "approach": "Plan: locate server entry, add route, add DB check. Execute: write the route. Verify: curl the endpoint, confirm 200 + JSON body."
       }
     ],
@@ -1546,7 +1546,7 @@
     "description": "Resume last orchestration session",
     "reminder": "Resume last orchestration session.",
     "inline": true,
-    "detailedDescription": "Resumes the most recent orchestration session from its checkpoint. Loads the checkpoint from .opencode/state/orchestration/ and continues the workflow from where it left off.\n\nEach orchestration pattern that supports resume writes checkpoints during execution. The checkpoint includes: current phase, completed tasks, remaining tasks, and any intermediate state. On resume, the orchestrator reads the checkpoint and picks up from the last completed step.\n\nUse when a previous /orchestrate invocation was interrupted (session ended, crashed, or you manually stopped it) and you want to continue without losing progress.",
+    "detailedDescription": "Resumes the most recent orchestration session from its checkpoint. Loads the checkpoint from .opencode/state/orchestration/ and continues the workflow from where it left off.\n\nEach orchestration pattern that supports resume writes checkpoints during execution. The checkpoint includes: current phase, completed tasks, remaining tasks, and any intermediate state. On resume, the orchestrator reads the checkpoint and picks up from the last completed step.\n\nUse when a previous /orchestrate-hub invocation was interrupted (session ended, crashed, or you manually stopped it) and you want to continue without losing progress.",
     "tools": [
       "bash",
       "modeState"
@@ -1798,7 +1798,7 @@
     ],
     "examples": [
       {
-        "input": "/ideation plan 'add user notifications for mentions, replies, and task assignments'",
+        "input": "/plan-hub plan 'add user notifications for mentions, replies, and task assignments'",
         "approach": "Interview: 'real-time or digest?' → 'both'. 'Which channels?' → 'in-app + email'. 'Opt-out per type?' → 'yes'. Plan: 1) notification model, 2) mention detector, 3) reply watcher, 4) assignment handler, 5) in-app UI, 6) email digester, 7) settings UI."
       }
     ]
@@ -2010,7 +2010,7 @@
     ],
     "examples": [
       {
-        "input": "/harvest-context docs 'Next.js 14 App Router server components'",
+        "input": "/research-hub library-docs 'Next.js 14 App Router server components'",
         "approach": "resolve-library-id('Next.js') → '/vercel/next.js'. query-docs('/vercel/next.js', 'App Router server components data fetching'). Save to .opencode/context/research/next-js/app-router-server-components.md. Then run wiki compliance: update index.md, append to log.md, add frontmatter, scan cross-refs."
       }
     ]
@@ -2020,7 +2020,7 @@
     "description": "Multi-model synthesis — diverse perspectives merged into one answer",
     "reminder": "Synthesize diverse model perspectives.",
     "skill": "ccg",
-    "detailedDescription": "Research via multi-model synthesis: queries multiple diverse models on the research question, then merges their perspectives into a single converged answer. Different models surface different considerations, catch different errors, and propose different approaches.\n\nUse for research questions where a single model's perspective is insufficient: \"what are the tradeoffs between these 3 state management approaches\", \"how do these databases compare for our workload\". The synthesis step reconciles disagreements.\n\nThis is the /ideation equivalent of /orchestrate-hub ccg — same multi-model mechanism, used for research rather than execution decisions.",
+    "detailedDescription": "Research via multi-model synthesis: queries multiple diverse models on the research question, then merges their perspectives into a single converged answer. Different models surface different considerations, catch different errors, and propose different approaches.\n\nUse for research questions where a single model's perspective is insufficient: \"what are the tradeoffs between these 3 state management approaches\", \"how do these databases compare for our workload\". The synthesis step reconciles disagreements.\n\nThis is the /ideate-hub equivalent of /orchestrate-hub ccg — same multi-model mechanism, used for research rather than execution decisions.",
     "tools": [
       "loadSkill",
       "bash"
@@ -2071,7 +2071,7 @@
     ],
     "examples": [
       {
-        "input": "/ideation web-research 'Postgres vs MongoDB for a multi-tenant SaaS with 1000 tenants'",
+        "input": "/research-hub web-research 'Postgres vs MongoDB for a multi-tenant SaaS with 1000 tenants'",
         "approach": "Queries: 'PostgreSQL multi-tenant SaaS', 'MongoDB multi-tenant', 'Postgres vs MongoDB SaaS comparison'. Fetch top 3 from each. Synthesize: Postgres better for relational + transactions, MongoDB for flexible schemas. Conclusion depends on data shape."
       }
     ]
@@ -2201,11 +2201,11 @@
     "examples": [
       {
         "input": "what touches the session-memory skill?",
-        "approach": "/project graph — build, then query 'session memory' or neighbors skill:session-memory to see used_by/related edges"
+        "approach": "/resource-hub knowledge-graph — build, then query 'session memory' or neighbors skill:session-memory to see used_by/related edges"
       },
       {
         "input": "what breaks if I edit rule:context-strategy?",
-        "approach": "/project graph — impact rule:context-strategy shows all hub subcommands and skills that reference it"
+        "approach": "/resource-hub knowledge-graph — impact rule:context-strategy shows all hub subcommands and skills that reference it"
       }
     ],
     "warnings": [
@@ -2513,7 +2513,7 @@
     ],
     "examples": [
       {
-        "input": "/orchestrate gsd 'add user profile pages: avatar upload, bio editor, settings panel'",
+        "input": "/swarm-hub gsd 'add user profile pages: avatar upload, bio editor, settings panel'",
         "approach": "Plan: Wave 1 [avatar, bio, settings] (parallel). Wave 2 [profile page integrating all three]. Execute Wave 1 (3 parallel subagents, each commits). Execute Wave 2. Verify: full test suite. Ship: tag v1.x."
       }
     ]
@@ -2747,7 +2747,7 @@
     ],
     "examples": [
       {
-        "input": "/orchestrate spec-driven 'add role-based access control with admin, editor, viewer roles'",
+        "input": "/swarm-hub spec-driven 'add role-based access control with admin, editor, viewer roles'",
         "approach": "Formalize: write spec with role definitions, permission matrix, edge cases (role escalation, inheritance). Validate: check for contradictions. Implement: build RBAC middleware, tests per role scenario."
       }
     ]
@@ -2913,7 +2913,7 @@
     ],
     "examples": [
       {
-        "input": "/orchestrate tdd 'implement a rate limiter: 100 req/min per IP, 429 on exceed, sliding window'",
+        "input": "/verify-hub tdd 'implement a rate limiter: 100 req/min per IP, 429 on exceed, sliding window'",
         "approach": "Red: test 'allows 100 requests'. Green: trivial limiter. Red: test 'rejects 101st'. Green: add counter. Red: test 'sliding window resets after 60s'. Green: add time logic. Refactor: extract window logic. Repeat until all edge cases covered."
       }
     ]

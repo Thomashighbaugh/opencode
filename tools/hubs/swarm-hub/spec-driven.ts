@@ -23,7 +23,7 @@ Use when requirements are complex enough that building without a spec risks rewo
 
   examples: [
     {
-      input: "/orchestrate spec-driven 'add role-based access control with admin, editor, viewer roles'",
+      input: "/swarm-hub spec-driven 'add role-based access control with admin, editor, viewer roles'",
       approach: "Formalize: write spec with role definitions, permission matrix, edge cases (role escalation, inheritance). Validate: check for contradictions. Implement: build RBAC middleware, tests per role scenario."
     }
   ]

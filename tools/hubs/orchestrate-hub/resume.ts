@@ -10,7 +10,7 @@ const spec: HubSubcommandSpec = {
 
 Each orchestration pattern that supports resume writes checkpoints during execution. The checkpoint includes: current phase, completed tasks, remaining tasks, and any intermediate state. On resume, the orchestrator reads the checkpoint and picks up from the last completed step.
 
-Use when a previous /orchestrate invocation was interrupted (session ended, crashed, or you manually stopped it) and you want to continue without losing progress.`,
+Use when a previous /orchestrate-hub invocation was interrupted (session ended, crashed, or you manually stopped it) and you want to continue without losing progress.`,
 
   tools: ["bash", "modeState"],
   relatedSkills: [],

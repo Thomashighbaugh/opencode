@@ -23,7 +23,7 @@ Use BEFORE external web search when the question is about a library, framework, 
 
   examples: [
     {
-      input: "/harvest-context docs 'Next.js 14 App Router server components'",
+      input: "/research-hub library-docs 'Next.js 14 App Router server components'",
       approach: "resolve-library-id('Next.js') → '/vercel/next.js'. query-docs('/vercel/next.js', 'App Router server components data fetching'). Save to .opencode/context/research/next-js/app-router-server-components.md. Then run wiki compliance: update index.md, append to log.md, add frontmatter, scan cross-refs."
     }
   ]

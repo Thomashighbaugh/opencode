@@ -102,19 +102,19 @@ Safe to run on existing setups — it won't destroy manual work.`,
 
   examples: [
     {
-      input: "/init-project refresh",
+      input: "/hub-setup refresh",
       approach: "Gatekeeping question first: 'standard or full refresh?' User picks **Standard** → merge mode phases 0-5 + 8. Phase 0: doctor passes. Phase 1: re-detect stack, diff against last fingerprint — new dependency 'zod' found. Phase 2: merge new recommendations. Phase 3: add zod-related skills to opencode.jsonc. Phase 4: provision new agent wrapper for validation, preserve existing manually-edited agents. Phase 5: update AGENTS.md file tables. Phase 8: verify + diff report."
     },
     {
-      input: "/init-project refresh",
+      input: "/hub-setup refresh",
       approach: "Gatekeeping question first. User picks **Full** → merge mode, all 9 phases. Phases 0-5 same as Standard. Phase 6: re-spawn @architect (detects new module 'payments-service' added since last init), @convention-extractor (detects team switched to functional style), @explore (maps new file tree). Diff existing context files — update architecture.md with payments-service module, update conventions.md with functional style patterns, preserve MANUAL sections. Re-upgrade agent wrappers with refreshed context. Phase 7: validate all extends paths still resolve, register any new skills, fix broken refs. Phase 8: verify + full integration report with change diff."
     },
     {
-      input: "/init-project refresh --full",
+      input: "/hub-setup refresh --full",
       approach: "Skips the gatekeeping question — forces full refresh (all 9 phases, merge mode). Use when the mode is already known or for scripted/repeat invocations."
     },
     {
-      input: "/init-project refresh --force",
+      input: "/hub-setup refresh --force",
       approach: "Merge safety checks skipped. Overwrites generated sections completely (still preserves MANUAL blocks). Use when context is badly stale and you want a clean regeneration of all auto-generated content without losing manual additions."
     }
   ],

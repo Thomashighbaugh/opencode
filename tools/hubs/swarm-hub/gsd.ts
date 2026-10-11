@@ -24,7 +24,7 @@ Use for medium-to-large features that benefit from parallel execution with a cle
 
   examples: [
     {
-      input: "/orchestrate gsd 'add user profile pages: avatar upload, bio editor, settings panel'",
+      input: "/swarm-hub gsd 'add user profile pages: avatar upload, bio editor, settings panel'",
       approach: "Plan: Wave 1 [avatar, bio, settings] (parallel). Wave 2 [profile page integrating all three]. Execute Wave 1 (3 parallel subagents, each commits). Execute Wave 2. Verify: full test suite. Ship: tag v1.x."
     }
   ]

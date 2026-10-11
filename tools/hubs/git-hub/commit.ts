@@ -25,7 +25,7 @@ Use whenever you're ready to commit staged changes with a proper message.`,
 
   examples: [
     {
-      input: "/project commit",
+      input: "/git-hub commit",
       approach: "git diff --cached shows new file src/auth/jwt.ts + modified src/auth/index.ts. Classify: feat(auth): add JWT token generation. Body: 'adds sign and verify functions for HS256'. Commit."
     }
   ]
