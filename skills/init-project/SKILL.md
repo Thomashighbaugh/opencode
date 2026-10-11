@@ -17,7 +17,7 @@ Unified project initialization hub with subcommand routing. Detects, scaffolds, 
 
 ## No-Argument Behavior
 
-When invoked without arguments (`/init-project`), list the subcommands as plain text and ask the user to choose. Do NOT call `hubMenu` or any other tool — just output the list directly. Available subcommands: setup, detect, recommend, docs, context, verify, refresh, status, map-codebase, doctor, reset, provision, tag, find-skills, find-agents, find-tools, find-rules.
+When invoked without arguments (`/hub-setup`), list the subcommands as plain text and ask the user to choose. Do NOT call `hubMenu` or any other tool — just output the list directly. Available subcommands: setup, detect, recommend, docs, context, verify, refresh, status, map-codebase, doctor, reset, provision, tag, find-skills, find-agents, find-tools, find-rules.
 
 ## With-Argument Behavior
 
@@ -188,7 +188,7 @@ Init state lives in `.opencode/state/init/` (gitignored).
 ### Cross-Hub Hand-Off
 
 - `/hub-setup setup` (full mode) completion can trigger a `/memory-hub` offer
-- `/design-hub docs` output feeds into `/ideation` as project context
+- `/design-hub docs` output feeds into `/ideate-hub` as project context
 - `/hub-setup verify` results can inform `/project` operations
 - `/ideate-hub` final plans may reference `/hub-setup` detection results
 
@@ -359,7 +359,7 @@ Deep codebase mapping and context capture. Phase 6 only (same as full-mode Phase
 - `.opencode/state/project-memory.json` — durable cross-session facts
 - Upgraded `.opencode/agents/*.md` — agents now contain deep project context
 
-On completion, offer next step: `/hub-setup verify` or `/harvest-context`
+On completion, offer next step: `/hub-setup verify` or `/memory-hub`
 
 ## Subcommand: verify
 
@@ -530,6 +530,6 @@ Resume with `/hub-setup setup --force` or `/hub-setup refresh`.
 - `wiki` skill — Persistent knowledge base (used by `context` subcommand)
 - `mcp-setup` skill — MCP server configuration
 - `hubs-doctor` skill — Diagnose installation issues
-- `/ideation` hub — Planning and research
+- `/plan-hub` hub — Planning and research
 - `/orchestrate` hub — Execution patterns
-- `/harvest-context` hub — Context and artifact extraction
+- `/memory-hub` hub — Context and artifact extraction
