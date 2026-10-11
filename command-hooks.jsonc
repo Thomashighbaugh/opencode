@@ -77,7 +77,7 @@
             "id": "graph-integrity-after-write",
             "when": {
                 "phase": "after",
-                "tool": ["write", "edit", "patch"],
+                "tool": ["write", "edit", "patch", "regex-edit", "json-edit", "yaml-edit", "conf-edit", "multi-edit"],
                 "toolArgs": {
                     "filePath": { "glob": "**/skills/graph-context/scripts/*.ts" }
                 }
@@ -104,7 +104,7 @@
             "id": "hub-menu-rebuild-after-write",
             "when": {
                 "phase": "after",
-                "tool": ["write", "edit", "patch"],
+                "tool": ["write", "edit", "patch", "regex-edit", "json-edit", "yaml-edit", "conf-edit", "multi-edit"],
                 "toolArgs": {
                     // One glob, not an array: the matcher takes a single pattern
                     // (`{glob: string}`) and an array here invalidates the whole
@@ -142,7 +142,7 @@
             // per change. That is the requested tradeoff: noisy history in
             // exchange for never losing work and never paying to describe it.
             "id": "auto-commit-after-write",
-            "when": { "phase": "after", "tool": ["write", "edit", "patch"] },
+            "when": { "phase": "after", "tool": ["write", "edit", "patch", "regex-edit", "json-edit", "yaml-edit", "conf-edit", "multi-edit"] },
             "run": "if git rev-parse --git-dir >/dev/null 2>&1; then git add -A 2>/dev/null; if git diff --cached --quiet; then exit 0; fi; if git diff --cached | grep -qiE 'BEGIN [A-Z ]*PRIVATE KEY|sk-[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16}'; then echo 'secret-like content staged; auto-commit skipped'; exit 1; fi; git commit -q -m \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"; fi",
             "injectOn": "failure",
             "inject": "<auto-commit exit=\"{exitCode}\">\nThe mechanical auto-commit (rules/auto-commit.md) did not complete. A staged change looked like it contained a secret, so the commit was skipped rather than committed. Review `git diff --cached`: unstage the secret, or commit deliberately if it is a false positive.\n\n```\n{stdout}{stderr}\n```\n</auto-commit>",

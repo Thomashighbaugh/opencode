@@ -517,7 +517,7 @@
     ],
     "examples": [
       {
-        "input": "/init-project map-codebase",
+        "input": "/hub-setup map-codebase",
         "approach": "Spawns 3 parallel agents: @stack-detector for tech stack, @architect for module structure and patterns, @convention-extractor for coding conventions. Saves combined analysis to .opencode/state/init/codebase-map.json. Does NOT synthesize context or upgrade agents — use /hub-setup setup --full for that."
       }
     ]
@@ -754,7 +754,7 @@
     "description": "Trace the root cause, then crystallize the requirements",
     "reminder": "Trace root cause then interview to concrete spec.",
     "skill": "deep-dive",
-    "detailedDescription": "2-stage pipeline combining trace (causal investigation) with deep-interview (requirements crystallization) connected by a 3-point injection mechanism.\n\nStage 1 — Trace: Runs 3 parallel causal investigation lanes examining the problem from different angles. Each lane produces evidence, hypotheses, and confidence scores. Code-path, config/environment, and measurement lanes run concurrently.\n\nStage 2 — Deep-Interview: Takes the trace findings and runs a Socratic interview to crystallize concrete, implementable requirements. The interview starts enriched with trace context — no redundant exploration.\n\n3-point injection: (1) enriched starting point, (2) system context from trace, (3) seeded initial questions based on trace uncertainties.\n\nOutput: a spec at .opencode/state/specs/deep-dive-{slug}.md ready for handoff to /orchestrate patterns.\n\nUse when investigating a problem where both root cause AND requirements are unclear. Do NOT use when root cause is already known — use /ideate-hub interview (deep-interview) directly instead.",
+    "detailedDescription": "2-stage pipeline combining trace (causal investigation) with deep-interview (requirements crystallization) connected by a 3-point injection mechanism.\n\nStage 1 — Trace: Runs 3 parallel causal investigation lanes examining the problem from different angles. Each lane produces evidence, hypotheses, and confidence scores. Code-path, config/environment, and measurement lanes run concurrently.\n\nStage 2 — Deep-Interview: Takes the trace findings and runs a Socratic interview to crystallize concrete, implementable requirements. The interview starts enriched with trace context — no redundant exploration.\n\n3-point injection: (1) enriched starting point, (2) system context from trace, (3) seeded initial questions based on trace uncertainties.\n\nOutput: a spec at .opencode/state/specs/deep-dive-{slug}.md ready for handoff to /orchestrate-hub patterns.\n\nUse when investigating a problem where both root cause AND requirements are unclear. Do NOT use when root cause is already known — use /ideate-hub interview (deep-interview) directly instead.",
     "tools": [
       "loadSkill",
       "bash"
@@ -765,7 +765,7 @@
     "relatedSkills": [],
     "examples": [
       {
-        "input": "/ideation deep-dive 'auth tokens expire randomly'",
+        "input": "/ideate-hub deep-dive 'auth tokens expire randomly'",
         "approach": "Phase 1: Initialize 3 trace lanes. Phase 2: Confirm with user. Phase 3: Trace runs autonomously — lane 1 finds JWT expiry not refreshed, lane 2 finds nginx timeout mismatch, lane 3 finds clock skew. Phase 4: Interview uses trace findings to scope fix requirements ('implement refresh token rotation, align nginx timeout to 3600s, add NTP sync check'). Phase 5: spec saved for orchestration handoff."
       }
     ]
@@ -830,7 +830,7 @@
     "description": "Socratic interview with ambiguity gating — crystallize vague requirements",
     "reminder": "Socratic interview to crystallize requirements.",
     "skill": "deep-interview",
-    "detailedDescription": "Socratic interview that interrogates every ambiguity in a vague request until requirements are concrete enough to implement without rework. Mathematical ambiguity gating: the interview won't conclude until an ambiguity score drops below a threshold.\n\nThe interviewer asks one question at a time, walks down each branch of the decision tree, and provides recommended answers to reduce user burden. Questions cover: scope boundaries, edge cases, error handling, integration points, non-functional requirements, and success criteria.\n\nUse when a request is vague (\"make the app better\", \"improve performance\", \"add reporting\") and you need to crystallize it into concrete, implementable requirements before planning. The interview output is a requirements document that feeds into /plan-hub plan or /orchestrate patterns.",
+    "detailedDescription": "Socratic interview that interrogates every ambiguity in a vague request until requirements are concrete enough to implement without rework. Mathematical ambiguity gating: the interview won't conclude until an ambiguity score drops below a threshold.\n\nThe interviewer asks one question at a time, walks down each branch of the decision tree, and provides recommended answers to reduce user burden. Questions cover: scope boundaries, edge cases, error handling, integration points, non-functional requirements, and success criteria.\n\nUse when a request is vague (\"make the app better\", \"improve performance\", \"add reporting\") and you need to crystallize it into concrete, implementable requirements before planning. The interview output is a requirements document that feeds into /plan-hub plan or /orchestrate-hub patterns.",
     "tools": [
       "loadSkill",
       "bash"
@@ -841,7 +841,7 @@
     "relatedSkills": [],
     "examples": [
       {
-        "input": "/ideation deep 'improve the app performance'",
+        "input": "/ideate-hub interview 'improve the app performance'",
         "approach": "Q: 'which operations are slow?' A: 'page loads'. Q: 'which pages?' A: 'dashboard'. Q: 'how slow?' A: '3s'. Q: 'target?' A: '<500ms'. Q: 'what's on the dashboard?' ... continues until requirements are concrete: 'dashboard initial load <500ms, currently 3s, bottleneck is N+1 queries on the tasks widget'."
       }
     ]
@@ -906,7 +906,7 @@
     "description": "Project-aware idea prompts, short and expandable",
     "reminder": "Spark project-aware improvement and expansion ideas.",
     "inline": true,
-    "detailedDescription": "Generates short, high-signal idea sparks anchored in the actual project. Unlike /ideate-hub brainstorm (free-form, no codebase awareness), spark first scans the project for concrete surfaces to improve or expand, then produces a structured output of short prompts — each just enough to ignite further exploration.\n\nProcess:\n1. Optionally accept a user-provided area or theme to focus on (e.g. \"performance\", \"api design\", \"ux\"). If none given, scan broadly.\n2. Scan the project: read top-level structure, package.json/Cargo.toml/etc., key source directories, existing agents/skills/tools/rules. Identify patterns, gaps, rough edges, and growth vectors.\n3. Split output into two sections — IMPROVEMENTS (refine what exists) and EXPANSIONS (add new capability). Each item is a short 1-2 sentence prompt — not a spec, not a plan, just a spark.\n4. Output as a markdown table with columns: Area, Spark, Effort (S/M/L). Optionally also as an unordered list if the user prefers list format.\n5. Save to .opencode/state/ideation/work-products/{timestamp}_spark_{theme}.md\n\nEach spark should be concrete enough to be actionable but open enough to explore: \"Add retry with exponential backoff to the API client's fetch calls\" not just \"improve error handling\". Use when you know the project has potential but don't know where to start iterating — the output feeds directly into /plan-hub plan, /ideation decompose, or /ideate-hub refine.",
+    "detailedDescription": "Generates short, high-signal idea sparks anchored in the actual project. Unlike /ideate-hub brainstorm (free-form, no codebase awareness), spark first scans the project for concrete surfaces to improve or expand, then produces a structured output of short prompts — each just enough to ignite further exploration.\n\nProcess:\n1. Optionally accept a user-provided area or theme to focus on (e.g. \"performance\", \"api design\", \"ux\"). If none given, scan broadly.\n2. Scan the project: read top-level structure, package.json/Cargo.toml/etc., key source directories, existing agents/skills/tools/rules. Identify patterns, gaps, rough edges, and growth vectors.\n3. Split output into two sections — IMPROVEMENTS (refine what exists) and EXPANSIONS (add new capability). Each item is a short 1-2 sentence prompt — not a spec, not a plan, just a spark.\n4. Output as a markdown table with columns: Area, Spark, Effort (S/M/L). Optionally also as an unordered list if the user prefers list format.\n5. Save to .opencode/state/ideation/work-products/{timestamp}_spark_{theme}.md\n\nEach spark should be concrete enough to be actionable but open enough to explore: \"Add retry with exponential backoff to the API client's fetch calls\" not just \"improve error handling\". Use when you know the project has potential but don't know where to start iterating — the output feeds directly into /plan-hub plan, /plan-hub decomposition, or /ideate-hub refine.",
     "tools": [
       "bash",
       "glob",
@@ -958,7 +958,7 @@
     "relatedSkills": [],
     "examples": [
       {
-        "input": "/project converge",
+        "input": "/maintain-hub converge",
         "approach": "Gate 1: tests pass (100%). Gate 2: lint clean, complexity 8. Gate 3: tsc passes. Gate 4: security scan — 1 high finding (outdated dep). Fix: update dep. Re-run: pass. Gate 5: bundle 240kb (budget 250kb). Pass. Converged."
       }
     ]
@@ -1092,11 +1092,11 @@
     "examples": [
       {
         "input": "Tool keeps failing the same way",
-        "approach": "/project self-improve — capture the error, triage to config vs agent bucket, promote if Recurrence-Count >= 3"
+        "approach": "/maintain-hub self-improve — capture the error, triage to config vs agent bucket, promote if Recurrence-Count >= 3"
       },
       {
         "input": "User keeps correcting the same thing",
-        "approach": "/project self-improve — log corrections to LEARNINGS.md, check for a knowledge gap in project rules"
+        "approach": "/maintain-hub self-improve — log corrections to LEARNINGS.md, check for a knowledge gap in project rules"
       }
     ],
     "warnings": [
@@ -1371,7 +1371,7 @@
     ],
     "examples": [
       {
-        "input": "/harvest-context session",
+        "input": "/memory-hub session",
         "approach": "Scan conversation. Find: decision 'use Redis for sessions' (rationale: faster than DB). Pattern: 'repository pattern for all data access'. Lesson: 'N+1 queries on dashboard'. Save to .opencode/state/harvest/session-{timestamp}.md. Then /memory-hub memory to promote to wiki with compliance."
       }
     ]
@@ -1691,7 +1691,7 @@
     "description": "Project governance — code, UX, performance, security principles",
     "reminder": "Establish project governance principles.",
     "inline": true,
-    "detailedDescription": "Establishes project governance principles — a \"constitution\" that subsequent work must comply with. Covers:\n\n- Code quality principles: complexity limits, duplication thresholds, coverage minimums.\n- UX principles: accessibility standards, performance budgets, interaction patterns.\n- Performance principles: response time targets, query complexity limits, bundle size limits.\n- Security principles: auth requirements, data handling rules, dependency vetting.\n\nThe constitution is saved as a durable artifact (.opencode/context/decisions.md or a dedicated governance doc). Subsequent /ideation spec-driven and /orchestrate work references the constitution as constraints.\n\nUse at the start of a project (or a major reset) to establish non-negotiable principles before features are built. Prevents the \"we should have decided that earlier\" problem.",
+    "detailedDescription": "Establishes project governance principles — a \"constitution\" that subsequent work must comply with. Covers:\n\n- Code quality principles: complexity limits, duplication thresholds, coverage minimums.\n- UX principles: accessibility standards, performance budgets, interaction patterns.\n- Performance principles: response time targets, query complexity limits, bundle size limits.\n- Security principles: auth requirements, data handling rules, dependency vetting.\n\nThe constitution is saved as a durable artifact (.opencode/context/decisions.md or a dedicated governance doc). Subsequent /swarm-hub spec-driven and /orchestrate-hub work references the constitution as constraints.\n\nUse at the start of a project (or a major reset) to establish non-negotiable principles before features are built. Prevents the \"we should have decided that earlier\" problem.",
     "tools": [
       "bash"
     ],
@@ -1748,7 +1748,7 @@
         "approach": "Audit dimensions, find e.g. 2 majors (unpinned deps with CVE, no e2e tests) + 3 minors (naming in utils/, stale README, dead code in legacy/). Ordered list: 1. pin deps, 2. e2e smoke, 3. README update, 4. rename utils, 5. delete legacy. Ask approve/deny per item, then stop."
       },
       {
-        "input": "/ideation improvements",
+        "input": "/plan-hub improvements",
         "approach": "Run the 4-phase flow: audit → itemize major/minor → ordered proposal list → approve/deny gate. Save work-product to state; do not implement approved items without explicit go-ahead."
       }
     ],
@@ -1785,7 +1785,7 @@
     "description": "Interview-style strategic planning — clarify goals, break into tasks",
     "reminder": "Strategic planning: clarify goals → ordered tasks.",
     "skill": "plan",
-    "detailedDescription": "Interview-style strategic planning that produces a structured, ordered implementation plan. The planner asks targeted questions to clarify the goal, scope, constraints, and success criteria, then decomposes the work into a sequence of verifiable tasks.\n\nEach task in the output plan has:\n- A clear objective (what to do)\n- Acceptance criteria (how to verify it's done)\n- Dependencies (what must complete first)\n- Estimated effort\n\nThe plan is saved to .opencode/state/ideation/work-products/ as a markdown document. It becomes the input for /orchestrate patterns (plan-execute, subagent-driven, ralph with the plan as goal).\n\nUnlike /plan-hub decomposition (which just breaks work down), plan includes an interview phase to ensure the goal is fully understood before decomposition. Use when the goal is clear enough to plan but has ambiguities that need clarification.",
+    "detailedDescription": "Interview-style strategic planning that produces a structured, ordered implementation plan. The planner asks targeted questions to clarify the goal, scope, constraints, and success criteria, then decomposes the work into a sequence of verifiable tasks.\n\nEach task in the output plan has:\n- A clear objective (what to do)\n- Acceptance criteria (how to verify it's done)\n- Dependencies (what must complete first)\n- Estimated effort\n\nThe plan is saved to .opencode/state/ideation/work-products/ as a markdown document. It becomes the input for /orchestrate-hub patterns (plan-execute, subagent-driven, ralph with the plan as goal).\n\nUnlike /plan-hub decomposition (which just breaks work down), plan includes an interview phase to ensure the goal is fully understood before decomposition. Use when the goal is clear enough to plan but has ambiguities that need clarification.",
     "tools": [
       "loadSkill",
       "taskTodos"
@@ -1824,7 +1824,7 @@
     ],
     "examples": [
       {
-        "input": "/orchestrate plan-execute 'migrate the auth module from JWT to session cookies'",
+        "input": "/plan-hub plan-execute 'migrate the auth module from JWT to session cookies'",
         "approach": "Plan: 1) inventory current JWT usage, 2) add session middleware, 3) update login route, 4) update auth middleware, 5) remove JWT code, 6) update tests. Execute: do each step, run tests after each."
       }
     ]
@@ -2416,7 +2416,7 @@
     "relatedSkills": [],
     "examples": [
       {
-        "input": "/orchestrate cc10x 'the login page crashes when I click submit'",
+        "input": "/swarm-hub cc10x 'the login page crashes when I click submit'",
         "approach": "Router reads the request, scans the login page code. Evidence: it's a crash with a reproducible trigger. Intent: DEBUG (confidence 0.9). Dispatch to debugging workflow."
       }
     ]
@@ -2584,7 +2584,7 @@
     "relatedSkills": [],
     "examples": [
       {
-        "input": "/ideation hive 'implement the notification system: in-app, email, push'",
+        "input": "/swarm-hub hive-plan 'implement the notification system: in-app, email, push'",
         "approach": "Architect interviews (channels? priorities? opt-out?). Discovers existing event system. Plan.md: 5 tasks (notification model, dispatcher, in-app UI, email adapter, push adapter). User approves. Hand off to /swarm-hub hive."
       }
     ]
@@ -2604,7 +2604,7 @@
     "relatedSkills": [],
     "examples": [
       {
-        "input": "/orchestrate maestro 'implement the payment webhook handler with idempotency'",
+        "input": "/swarm-hub maestro 'implement the payment webhook handler with idempotency'",
         "approach": "PM: interview about idempotency requirements. Architect: design idempotency key strategy, review existing webhooks. Coder: implement per design. Architect: review — flags 'missing replay attack prevention'. Coder: fix. Architect: approve."
       }
     ]
@@ -2663,7 +2663,7 @@
     "relatedSkills": [],
     "examples": [
       {
-        "input": "/orchestrate react 'find and fix the memory leak in the worker pool'",
+        "input": "/swarm-hub react 'find and fix the memory leak in the worker pool'",
         "approach": "Reason: 'likely candidates are event listener leaks or unbounded queues'. Act: grep for addEventListener. Observe: found 12. Reason: 'check if they're removed'. Act: grep for removeEventListener. Observe: only 3. Reason: '9 leaks'. Act: add removals. Observe: tests pass. Done."
       }
     ]
