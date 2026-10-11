@@ -40,8 +40,8 @@ See the \`self-improvement\` skill for the full capture format, triage table, an
   rules: RULES_KARPAHTY_GUIDELINES,
   relatedSkills: ["remember", "learner", "self-improve"],
   examples: [
-    { input: "Tool keeps failing the same way", approach: "/project self-improve — capture the error, triage to config vs agent bucket, promote if Recurrence-Count >= 3" },
-    { input: "User keeps correcting the same thing", approach: "/project self-improve — log corrections to LEARNINGS.md, check for a knowledge gap in project rules" },
+    { input: "Tool keeps failing the same way", approach: "/maintain-hub self-improve — capture the error, triage to config vs agent bucket, promote if Recurrence-Count >= 3" },
+    { input: "User keeps correcting the same thing", approach: "/maintain-hub self-improve — log corrections to LEARNINGS.md, check for a knowledge gap in project rules" },
   ],
   warnings: [
     "Never auto-apply config changes — promotions require user approval",

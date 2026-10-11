@@ -23,7 +23,7 @@ Use for exploratory tasks where the next action depends on observing the result 
 
   examples: [
     {
-      input: "/orchestrate react 'find and fix the memory leak in the worker pool'",
+      input: "/swarm-hub react 'find and fix the memory leak in the worker pool'",
       approach: "Reason: 'likely candidates are event listener leaks or unbounded queues'. Act: grep for addEventListener. Observe: found 12. Reason: 'check if they're removed'. Act: grep for removeEventListener. Observe: only 3. Reason: '9 leaks'. Act: add removals. Observe: tests pass. Done."
     }
   ]

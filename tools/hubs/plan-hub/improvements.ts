@@ -64,7 +64,7 @@ At the end of the audit, present the **ordered list** — sorted by impact/effor
       approach: "Audit dimensions, find e.g. 2 majors (unpinned deps with CVE, no e2e tests) + 3 minors (naming in utils/, stale README, dead code in legacy/). Ordered list: 1. pin deps, 2. e2e smoke, 3. README update, 4. rename utils, 5. delete legacy. Ask approve/deny per item, then stop."
     },
     {
-      input: "/ideation improvements",
+      input: "/plan-hub improvements",
       approach: "Run the 4-phase flow: audit → itemize major/minor → ordered proposal list → approve/deny gate. Save work-product to state; do not implement approved items without explicit go-ahead."
     }
   ],

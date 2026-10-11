@@ -25,7 +25,7 @@ Use for large features where you want a structured plan with an explicit approva
 
   examples: [
     {
-      input: "/ideation hive 'implement the notification system: in-app, email, push'",
+      input: "/swarm-hub hive-plan 'implement the notification system: in-app, email, push'",
       approach: "Architect interviews (channels? priorities? opt-out?). Discovers existing event system. Plan.md: 5 tasks (notification model, dispatcher, in-app UI, email adapter, push adapter). User approves. Hand off to /swarm-hub hive."
     }
   ]

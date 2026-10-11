@@ -15,7 +15,7 @@ Each task in the output plan has:
 - Dependencies (what must complete first)
 - Estimated effort
 
-The plan is saved to .opencode/state/ideation/work-products/ as a markdown document. It becomes the input for /orchestrate patterns (plan-execute, subagent-driven, ralph with the plan as goal).
+The plan is saved to .opencode/state/ideation/work-products/ as a markdown document. It becomes the input for /orchestrate-hub patterns (plan-execute, subagent-driven, ralph with the plan as goal).
 
 Unlike /plan-hub decomposition (which just breaks work down), plan includes an interview phase to ensure the goal is fully understood before decomposition. Use when the goal is clear enough to plan but has ambiguities that need clarification.`,
 

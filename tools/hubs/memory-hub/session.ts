@@ -24,7 +24,7 @@ This is the first step of context harvesting — extract, then promote. Use at t
 
   examples: [
     {
-      input: "/harvest-context session",
+      input: "/memory-hub session",
       approach: "Scan conversation. Find: decision 'use Redis for sessions' (rationale: faster than DB). Pattern: 'repository pattern for all data access'. Lesson: 'N+1 queries on dashboard'. Save to .opencode/state/harvest/session-{timestamp}.md. Then /memory-hub memory to promote to wiki with compliance."
     }
   ]

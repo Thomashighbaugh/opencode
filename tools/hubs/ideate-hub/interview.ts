@@ -11,7 +11,7 @@ const spec: HubSubcommandSpec = {
 
 The interviewer asks one question at a time, walks down each branch of the decision tree, and provides recommended answers to reduce user burden. Questions cover: scope boundaries, edge cases, error handling, integration points, non-functional requirements, and success criteria.
 
-Use when a request is vague ("make the app better", "improve performance", "add reporting") and you need to crystallize it into concrete, implementable requirements before planning. The interview output is a requirements document that feeds into /plan-hub plan or /orchestrate patterns.`,
+Use when a request is vague ("make the app better", "improve performance", "add reporting") and you need to crystallize it into concrete, implementable requirements before planning. The interview output is a requirements document that feeds into /plan-hub plan or /orchestrate-hub patterns.`,
 
   tools: TOOLS_LOADSKILL_BASH,
   rules: RULES_COMPLETION_GUARDRAIL,
@@ -19,7 +19,7 @@ Use when a request is vague ("make the app better", "improve performance", "add 
 
   examples: [
     {
-      input: "/ideation deep 'improve the app performance'",
+      input: "/ideate-hub interview 'improve the app performance'",
       approach: "Q: 'which operations are slow?' A: 'page loads'. Q: 'which pages?' A: 'dashboard'. Q: 'how slow?' A: '3s'. Q: 'target?' A: '<500ms'. Q: 'what's on the dashboard?' ... continues until requirements are concrete: 'dashboard initial load <500ms, currently 3s, bottleneck is N+1 queries on the tasks widget'."
     }
   ]

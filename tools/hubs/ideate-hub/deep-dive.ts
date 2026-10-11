@@ -15,7 +15,7 @@ Stage 2 — Deep-Interview: Takes the trace findings and runs a Socratic intervi
 
 3-point injection: (1) enriched starting point, (2) system context from trace, (3) seeded initial questions based on trace uncertainties.
 
-Output: a spec at .opencode/state/specs/deep-dive-{slug}.md ready for handoff to /orchestrate patterns.
+Output: a spec at .opencode/state/specs/deep-dive-{slug}.md ready for handoff to /orchestrate-hub patterns.
 
 Use when investigating a problem where both root cause AND requirements are unclear. Do NOT use when root cause is already known — use /ideate-hub interview (deep-interview) directly instead.`,
 
@@ -25,7 +25,7 @@ Use when investigating a problem where both root cause AND requirements are uncl
 
   examples: [
     {
-      input: "/ideation deep-dive 'auth tokens expire randomly'",
+      input: "/ideate-hub deep-dive 'auth tokens expire randomly'",
       approach: "Phase 1: Initialize 3 trace lanes. Phase 2: Confirm with user. Phase 3: Trace runs autonomously — lane 1 finds JWT expiry not refreshed, lane 2 finds nginx timeout mismatch, lane 3 finds clock skew. Phase 4: Interview uses trace findings to scope fix requirements ('implement refresh token rotation, align nginx timeout to 3600s, add NTP sync check'). Phase 5: spec saved for orchestration handoff."
     }
   ]

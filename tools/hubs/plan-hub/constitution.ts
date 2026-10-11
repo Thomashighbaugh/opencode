@@ -14,7 +14,7 @@ const spec: HubSubcommandSpec = {
 - Performance principles: response time targets, query complexity limits, bundle size limits.
 - Security principles: auth requirements, data handling rules, dependency vetting.
 
-The constitution is saved as a durable artifact (.opencode/context/decisions.md or a dedicated governance doc). Subsequent /ideation spec-driven and /orchestrate work references the constitution as constraints.
+The constitution is saved as a durable artifact (.opencode/context/decisions.md or a dedicated governance doc). Subsequent /swarm-hub spec-driven and /orchestrate-hub work references the constitution as constraints.
 
 Use at the start of a project (or a major reset) to establish non-negotiable principles before features are built. Prevents the "we should have decided that earlier" problem.`,
 

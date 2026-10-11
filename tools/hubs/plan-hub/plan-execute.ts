@@ -23,7 +23,7 @@ The plan document is the contract — the executor shouldn't deviate without rea
 
   examples: [
     {
-      input: "/orchestrate plan-execute 'migrate the auth module from JWT to session cookies'",
+      input: "/plan-hub plan-execute 'migrate the auth module from JWT to session cookies'",
       approach: "Plan: 1) inventory current JWT usage, 2) add session middleware, 3) update login route, 4) update auth middleware, 5) remove JWT code, 6) update tests. Execute: do each step, run tests after each."
     }
   ]

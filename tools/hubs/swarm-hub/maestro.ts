@@ -24,7 +24,7 @@ Use for quality-critical features where self-review bias is a real risk. Overkil
 
   examples: [
     {
-      input: "/orchestrate maestro 'implement the payment webhook handler with idempotency'",
+      input: "/swarm-hub maestro 'implement the payment webhook handler with idempotency'",
       approach: "PM: interview about idempotency requirements. Architect: design idempotency key strategy, review existing webhooks. Coder: implement per design. Architect: review — flags 'missing replay attack prevention'. Coder: fix. Architect: approve."
     }
   ]

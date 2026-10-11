@@ -24,7 +24,7 @@ Use when the user's request type is ambiguous and you want automatic routing to 
 
   examples: [
     {
-      input: "/orchestrate cc10x 'the login page crashes when I click submit'",
+      input: "/swarm-hub cc10x 'the login page crashes when I click submit'",
       approach: "Router reads the request, scans the login page code. Evidence: it's a crash with a reproducible trigger. Intent: DEBUG (confidence 0.9). Dispatch to debugging workflow."
     }
   ]
