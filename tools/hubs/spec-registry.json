@@ -40,35 +40,6 @@
     "agent": "@executor",
     "detailedDescription": "Delegates directly to the @executor agent. The remainder of your prompt will be passed as specific instructions to the agent."
   },
-  "build-hub/extract-standards": {
-    "label": "extract-standards",
-    "description": "Infer a style guide from the code that already exists",
-    "reminder": "Extract coding standards from existing file(s). Asks: output target + template.",
-    "skill": "code-standards-extractor",
-    "detailedDescription": "Extracts coding standards from existing source files via the code-standards-extractor skill. Uses the existing syntax of the given file(s) to establish the project's style guidelines.\n\nParameters:\n- fileName (required): the file to analyze — indentation, variable naming, commenting, conditional/functional procedures, and other syntax-related data for the file's language.\n- folderName (optional): aggregate data from all files in the folder into one dataset, then analyze as a single instance. Loops through each file, appending data to temporary memory, then treats the aggregate as one input.\n- instructions (optional): additional rules/procedures for unique cases.\n- Config flags as parameters (optional): addStandardsTest, addToREADME, addToREADMEInsertions, createNewFile, fetchStyleURL, findInconsistencies, fixInconsistencies, newFileName, outputSpecToPrompt, useTemplate. Passing any of these overrides its default.\n\nOutput modes (default: create a new standards file):\n- New file: picks the first unused name from [CONTRIBUTING.md, STYLE.md, CODE_OF_CONDUCT.md, CODING_STANDARDS.md, DEVELOPING.md, CONTRIBUTION_GUIDE.md, GUIDELINES.md, PROJECT_STANDARDS.md, BEST_PRACTICES.md, HACKING.md].\n- addToREADME=true: inserts standards into README.md (atBegin | middle | beforeEnd | bestFitUsingContext).\n- outputSpecToPrompt=true: prints standards to the prompt instead.\n- .opencode/context/: writes the guide as durable knowledge (e.g. .opencode/context/patterns/style.md) so agents load it as project context.\n- .opencode/rules/: writes the guide as an enforced rule (e.g. .opencode/rules/style.md) so it is registered and applied during code work.\n\nAlso detects syntax inconsistencies (indentation, line-breaks, comments, nesting, quote wrappers): categorizes, counts, flags low-count items; optionally fixes them to match the majority (fixInconsistencies, default true — auto-disabled when analyzing multiple files/folders). Optionally fetches the language's official style guide as extra context (fetchStyleURL, default true). Optionally writes a standards-adherence test (addStandardsTest, default false).\n\nUse when the user wants a style guide derived from an existing codebase, or wants consistency fixes applied per the majority convention.\n\n## Gatekeeping Question\n\nBefore extracting, ask (passing the flags skips the question — non-interactive path):\n\n> **Question 1 — output target?**\n> 1. New standards file — CONTRIBUTING.md / STYLE.md / …\n> 2. README.md — insert into the existing README\n> 3. .opencode/context/ — durable knowledge (context/patterns/style.md)\n> 4. .opencode/rules/ — enforced rule (rules/<name>.md)\n> 5. Prompt only — print, write no file\n> (or type your own path)\n>\n> **Question 2 — template?**\n> 1. standard\n> 2. minimal\n> (or type your own)\n>\n> **Question 3 — README placement?** (only when README is chosen)\n> 1. beforeEnd\n> 2. afterFrontmatter / middle / atBegin / bestFitUsingContext\n\nResolved answers map to `outputSpecToPrompt`, `addToREADME`, `createNewFile`/`newFileName`, and `useTemplate`.",
-    "tools": [
-      "loadSkill",
-      "bash"
-    ],
-    "relatedSkills": [
-      "rule-generator",
-      "convention-extractor"
-    ],
-    "examples": [
-      {
-        "input": "/build-hub extract-standards src/main.py",
-        "approach": "Asks output target (new standards file) and template (standard). Analyze src/main.py's syntax conventions (indentation, naming, comments), fetch the Python style guide (PEP 8), compose a standards doc using the verbose template, write to the first unused file name (e.g. STYLE.md)."
-      },
-      {
-        "input": "/build-hub extract-standards src/",
-        "approach": "Asks output target (.opencode/rules/) and template (minimal). Aggregate all files in src/ into one dataset, analyze as a single instance, write a minimal standards rule to .opencode/rules/style.md so it is registered and enforced."
-      },
-      {
-        "input": "/build-hub extract-standards app.js --addToREADME=beforeEnd",
-        "approach": "Flag passed → placement gate skipped. Extract standards from app.js and append them to README.md after the last character on a new line, instead of creating a new file."
-      }
-    ]
-  },
   "build-hub/modernize": {
     "label": "modernize",
     "description": "Modernize patterns in place, preserving behavior",
@@ -285,6 +256,18 @@
     "reminder": "Delegating to @frontend-design.",
     "agent": "@frontend-design",
     "detailedDescription": "Delegates directly to the @frontend-design agent. The remainder of your prompt will be passed as specific instructions to the agent."
+  },
+  "design-hub/icon": {
+    "label": "icon",
+    "description": "Generate web/PWA/UE icon assets from source image",
+    "reminder": "Generate icon assets from source image.",
+    "skill": "icon-generator",
+    "detailedDescription": "Generates web UI/UX icon assets from a single source SVG or PNG. Produces:\n\n- favicon.ico (multiple sizes embedded).\n- apple-touch-icon.png (180×180).\n- PWA icons (192×192, 512×512, plus maskable variants).\n- Optionally Unreal Engine packaging icons.\n\nThe generator takes one source image and produces all required sizes/formats. Use when setting up a new web app or refreshing icons.",
+    "tools": [
+      "loadSkill",
+      "bash"
+    ],
+    "relatedSkills": []
   },
   "design-hub/modularity": {
     "label": "modularity",
@@ -886,6 +869,17 @@
     ],
     "relatedSkills": []
   },
+  "ideate-hub/resume": {
+    "label": "resume",
+    "description": "Resume last ideation session",
+    "reminder": "Resume last ideation session.",
+    "inline": true,
+    "detailedDescription": "Resumes the most recent ideation session from its work-products. Loads the latest work product from .opencode/state/ideation/work-products/ and continues the ideation from where it left off.\n\nUse when a previous /ideate-hub invocation was interrupted and you want to continue without losing the work product.",
+    "tools": [
+      "bash"
+    ],
+    "relatedSkills": []
+  },
   "ideate-hub/rpikit": {
     "label": "rpikit",
     "description": "Research-Plan-Implement — stakes-based rigor scaling",
@@ -930,22 +924,6 @@
       "⚠️ EXPENSIVE: ~10× cost due to parallel branch exploration. The skill asks for confirmation before proceeding. Only use for genuinely ambiguous problems."
     ]
   },
-  "maintain-hub/consolidate-telemetry": {
-    "label": "consolidate-telemetry",
-    "description": "Consolidate SRCL telemetry log into proposed ADRs in decisions.md",
-    "reminder": "Consolidate telemetry log into ADR proposals. Asks: window + write/preview + output file.",
-    "inline": true,
-    "detailedDescription": "Consolidates the Self-Refining Config Loop (SRCL) telemetry log at .opencode/state/telemetry.ndjson into a proposed ADR appended to .opencode/context/decisions.md.\n\n**Workflow:**\n\n1. Read the NDJSON log (event-by-event, stream-friendly).\n2. Group by event kind; compute rolling metrics for the requested window (default: 7 days).\n3. Detect patterns:\n   - **High-frequency skills/rules** not currently in frontmatter triggers.\n   - **Hub subcommands** that were rejected or rerouted (action=menu after action=route).\n   - **Cache miss hot-spots** — same key missing repeatedly.\n   - **Repeated file reads** — same path read N times across sessions.\n4. Draft an ADR with: observed patterns, proposed changes (concrete, file-specific), evidence (event counts), rollback (git checkout).\n5. Append to .opencode/context/decisions.md (or .opencode/context/proposed-improvements.md if it exists).\n6. Print a summary table to the terminal.\n\n**Hot-path cost:** zero. The consolidation step runs only on explicit invocation and does LLM-free pattern detection. A user can call `/ideate-hub tree-of-thoughts` after consolidation to brainstorm alternatives if the proposals feel weak.\n\n**Validation commands:**\n- `wc -l .opencode/state/telemetry.ndjson` — log size.\n- `tail -20 .opencode/context/decisions.md` — most recent ADR.\n\nSee skill `adr-skill` for ADR structure conventions. See `opencode/state/ideation/work-products/20260723_180000_refine_self-refining-config-loop.md` for the design one-pager.\n\n## Gatekeeping Question\n\nBefore consolidating, ask (passing the flags skips the question — non-interactive path):\n\n> **Question 1 — window?**\n> 1. 7d (default)\n> 2. 24h\n> 3. 30d\n> (or type your own — Nd / Nh / Nm)\n>\n> **Question 2 — write or preview?**\n> 1. Write to decisions.md (default)\n> 2. Preview only — print to stdout, no write\n>\n> **Question 3 — output file?** (only when writing)\n> 1. decisions.md (default)\n> 2. proposed-improvements.md (if it exists)\n> (or type a path)\n\nResolved answers map to `--since`, `--dry-run`, and `--output FILE`.",
-    "tools": [
-      "bash"
-    ],
-    "rules": [
-      "context-strategy"
-    ],
-    "relatedSkills": [
-      "adr-skill"
-    ]
-  },
   "maintain-hub/converge": {
     "label": "converge",
     "description": "Five-gate quality convergence with escalating targets",
@@ -962,18 +940,6 @@
         "approach": "Gate 1: tests pass (100%). Gate 2: lint clean, complexity 8. Gate 3: tsc passes. Gate 4: security scan — 1 high finding (outdated dep). Fix: update dep. Re-run: pass. Gate 5: bundle 240kb (budget 250kb). Pass. Converged."
       }
     ]
-  },
-  "maintain-hub/icon": {
-    "label": "icon",
-    "description": "Generate web/PWA/UE icon assets from source image",
-    "reminder": "Generate icon assets from source image.",
-    "skill": "icon-generator",
-    "detailedDescription": "Generates web UI/UX icon assets from a single source SVG or PNG. Produces:\n\n- favicon.ico (multiple sizes embedded).\n- apple-touch-icon.png (180×180).\n- PWA icons (192×192, 512×512, plus maskable variants).\n- Optionally Unreal Engine packaging icons.\n\nThe generator takes one source image and produces all required sizes/formats. Use when setting up a new web app or refreshing icons.",
-    "tools": [
-      "loadSkill",
-      "bash"
-    ],
-    "relatedSkills": []
   },
   "maintain-hub/insights": {
     "label": "insights",
@@ -1055,22 +1021,6 @@
     ],
     "relatedSkills": []
   },
-  "maintain-hub/scan": {
-    "label": "scan",
-    "description": "Security scan — SAST, secrets, dependencies, compliance",
-    "reminder": "Run security vulnerability scan.",
-    "inline": true,
-    "detailedDescription": "Security vulnerability scan with four dimensions:\n\n1. SAST (static analysis): scans source code for vulnerability patterns (injection, XSS, CSRF, auth bypass, path traversal, unsafe deserialization).\n2. Secrets detection: scans for hardcoded API keys, tokens, passwords, credentials in the codebase.\n3. Dependency audit: checks dependencies against known vulnerability databases (npm audit, pip audit, etc.).\n4. Compliance checks: verifies security-relevant configurations (HTTPS, CORS, headers, rate limiting).\n\nOutput: a security report with findings classified by severity (critical, high, medium, low) and specific remediation instructions. Follows the security.md rule's response protocol.\n\nUse before commits, releases, or periodically as a security baseline. Also runs as gate 4 of /maintain-hub converge.",
-    "tools": [
-      "bash"
-    ],
-    "rules": [
-      "security"
-    ],
-    "relatedSkills": [
-      "privacy-scan"
-    ]
-  },
   "maintain-hub/self-improve": {
     "label": "self-improve",
     "description": "Capture learnings and promote recurring fixes into config",
@@ -1105,18 +1055,21 @@
       "Triage to config-vs-agent bucket before editing any asset"
     ]
   },
-  "maintain-hub/vectorize": {
-    "label": "vectorize",
-    "description": "Embed codebase + context into local vector DB for semantic retrieval",
-    "reminder": "Run vectorization over project code and context. Asks: scope.",
+  "maintain-hub/sweep": {
+    "label": "sweep",
+    "description": "Find files in .opencode/ that should be gitignored",
+    "reminder": "Sweep .opencode/ for gitignore violations.",
     "inline": true,
-    "detailedDescription": "Vectorize the project for semantic retrieval. Two local vector stores are maintained under .opencode/state/vector/ (gitignored):\n\n1. **context.db** — markdown sources: .opencode/context/**, .opencode/rules/**, .opencode/docs/**, AGENTS.md (heading-based chunking).\n2. **code.db** — the project source tree (declaration-aware chunking; skips node_modules, .git, build/dist/vendor dirs, and .opencode/state + .opencode/cache for privacy).\n\nBoth stores embed with a local in-process ONNX model (Xenova/bge-small-en-v1.5, q8, 384-dim CLS pooling) and rerank with an in-process cross-encoder (Xenova/bge-reranker-base, sigmoid scoring). No daemon, no network, zero provider API requests. Fetch the weights once with \"npx tsx skills/vectorize-context/scripts/prefetch-models.ts\"; Ollama remains available as an explicit EMBED_BACKEND=ollama escape hatch for recall comparisons.\n\nCommand (run from the project root, or set OPCODE_DIR):\n  node <skill-dir>/scripts/vectorize.ts --all      # context + code\n  node <skill-dir>/scripts/vectorize.ts --code     # code store only\n\nwhere <skill-dir> is skills/vectorize-context (global or project-local .opencode/skills/vectorize-context).\n\nIndexing is incremental (mtime-based): re-runs only embed changed files. Deleted files are cleaned from the store automatically.\n\nThe vectorize hook (plugins/hooks/vectorize-hook.ts) keeps both stores fresh as files change — it spawns sync-hook.ts as a child process (10s poll, maintenance mode; the plugin process never loads native modules). The system.transform hook injects <Relevant_Context> (docs) and <Relevant_Code> (source) blocks into complex prompts via a child-process query. Manual querying:\n  node <skill-dir>/scripts/query.ts \"question\"\n  node <skill-dir>/scripts/query.ts --code \"question\"\n\nStats: node <skill-dir>/scripts/vectorize.ts prints scanned/indexed/skipped/chunks/elapsed per store.\n\n## Gatekeeping Question\n\nBefore indexing, ask (passing the flag skips the question — non-interactive path):\n\n> **Question — vectorize scope?**\n> 1. Context + code — both stores (default)\n> 2. Code store only\n\nResolved answer maps to `--all` / `--code`.",
+    "detailedDescription": "Scans .opencode/ for files that should be gitignored but aren't. Checks:\n\n- State files (.opencode/state/) — should be gitignored (ephemeral, may contain secrets).\n- Cache files (.opencode/cache/) — should be gitignored.\n- Session files — should be gitignored (may contain PII).\n- Large files that would bloat the repo.\n- Files matching secret patterns (API keys, tokens).\n\nFor each violation, the agent recommends adding a .gitignore entry. The user confirms before modifying .gitignore.\n\nUse periodically to prevent .opencode/ bloat from breaking git push — a common issue when state files accumulate and exceed GitHub's file size limits.",
     "tools": [
       "bash"
     ],
-    "rules": [],
+    "rules": [
+      "security",
+      "context-strategy"
+    ],
     "relatedSkills": [
-      "vectorize-context"
+      "privacy-scan"
     ]
   },
   "maintain-hub/workspace": {
@@ -1150,33 +1103,6 @@
     ],
     "relatedSkills": []
   },
-  "memory-hub/codebase": {
-    "label": "codebase",
-    "description": "Generate hierarchical AGENTS.md across the codebase",
-    "reminder": "Generate hierarchical AGENTS.md documentation.",
-    "skill": "deepinit",
-    "detailedDescription": "Generates hierarchical AGENTS.md documentation across the entire codebase. Scans each directory, understands the code, and writes an AGENTS.md in each meaningful directory with:\n\n- What the directory/module does\n- Key files and their purposes\n- Patterns and conventions used\n- Dependencies on other modules\n- Testing approach\n\nThe hierarchy means parent AGENTS.md files summarize, and child files detail. An agent reading any AGENTS.md gets context for that directory without needing to read all the files.\n\nThis is the same skill as /design-hub docs. Use when you need comprehensive codebase documentation for AI navigation — especially before a large refactoring or onboarding.",
-    "tools": [
-      "loadSkill",
-      "bash"
-    ],
-    "relatedSkills": []
-  },
-  "memory-hub/compare": {
-    "label": "compare",
-    "description": "Compare options via web research, output as a ranked table",
-    "reminder": "Research and compare alternatives with structured comparison.",
-    "inline": true,
-    "detailedDescription": "Compare alternatives via web research. Researches multiple options (libraries, tools, approaches) and produces a structured comparison.\n\nProcess:\n1. Take the alternatives to compare (from user input).\n2. For each: websearch for docs, benchmarks, reviews, known issues; webfetch top results.\n3. Build a comparison table: criteria (rows) × alternatives (columns).\n4. Score each alternative on each criterion.\n5. Produce a recommendation with rationale.\n6. Save to .opencode/context/patterns/ with wiki compliance (update index.md, append to log.md, add YAML frontmatter, scan for cross-references).\n7. Privacy scan runs before save — if risk detected, divert to .opencode/state/harvest/ instead.\n\nUse when choosing between multiple options and the decision benefits from side-by-side comparison.",
-    "tools": [
-      "bash"
-    ],
-    "relatedSkills": [
-      "context7-docs",
-      "web-to-markdown",
-      "wiki"
-    ]
-  },
   "memory-hub/compress": {
     "label": "compress",
     "description": "Token compression strategies, with measured savings per technique",
@@ -1189,6 +1115,22 @@
     "relatedSkills": [
       "compact",
       "llm-cache"
+    ]
+  },
+  "memory-hub/consolidate-telemetry": {
+    "label": "consolidate-telemetry",
+    "description": "Consolidate SRCL telemetry log into proposed ADRs in decisions.md",
+    "reminder": "Consolidate telemetry log into ADR proposals. Asks: window + write/preview + output file.",
+    "inline": true,
+    "detailedDescription": "Consolidates the Self-Refining Config Loop (SRCL) telemetry log at .opencode/state/telemetry.ndjson into a proposed ADR appended to .opencode/context/decisions.md.\n\n**Workflow:**\n\n1. Read the NDJSON log (event-by-event, stream-friendly).\n2. Group by event kind; compute rolling metrics for the requested window (default: 7 days).\n3. Detect patterns:\n   - **High-frequency skills/rules** not currently in frontmatter triggers.\n   - **Hub subcommands** that were rejected or rerouted (action=menu after action=route).\n   - **Cache miss hot-spots** — same key missing repeatedly.\n   - **Repeated file reads** — same path read N times across sessions.\n4. Draft an ADR with: observed patterns, proposed changes (concrete, file-specific), evidence (event counts), rollback (git checkout).\n5. Append to .opencode/context/decisions.md (or .opencode/context/proposed-improvements.md if it exists).\n6. Print a summary table to the terminal.\n\n**Hot-path cost:** zero. The consolidation step runs only on explicit invocation and does LLM-free pattern detection. A user can call `/ideate-hub tree-of-thoughts` after consolidation to brainstorm alternatives if the proposals feel weak.\n\n**Validation commands:**\n- `wc -l .opencode/state/telemetry.ndjson` — log size.\n- `tail -20 .opencode/context/decisions.md` — most recent ADR.\n\nSee skill `adr-skill` for ADR structure conventions. See `opencode/state/ideation/work-products/20260723_180000_refine_self-refining-config-loop.md` for the design one-pager.\n\n## Gatekeeping Question\n\nBefore consolidating, ask (passing the flags skips the question — non-interactive path):\n\n> **Question 1 — window?**\n> 1. 7d (default)\n> 2. 24h\n> 3. 30d\n> (or type your own — Nd / Nh / Nm)\n>\n> **Question 2 — write or preview?**\n> 1. Write to decisions.md (default)\n> 2. Preview only — print to stdout, no write\n>\n> **Question 3 — output file?** (only when writing)\n> 1. decisions.md (default)\n> 2. proposed-improvements.md (if it exists)\n> (or type a path)\n\nResolved answers map to `--since`, `--dry-run`, and `--output FILE`.",
+    "tools": [
+      "bash"
+    ],
+    "rules": [
+      "context-strategy"
+    ],
+    "relatedSkills": [
+      "adr-skill"
     ]
   },
   "memory-hub/consume": {
@@ -1227,20 +1169,6 @@
       "wiki"
     ]
   },
-  "memory-hub/decompose": {
-    "label": "decompose",
-    "description": "Break down a concept or goal into smaller actionable units",
-    "reminder": "Decompose concept into actionable tasks.",
-    "skill": "planning-and-task-breakdown",
-    "detailedDescription": "Decomposes a concept or goal into smaller actionable units via the planning-and-task-breakdown skill. It breaks the concept into a tree of sub-concepts or tasks, each small enough to be independently actionable.\n\nOutput: a decomposition tree (markdown) saved to .opencode/context/frameworks/ with wiki compliance. Use when a concept is too abstract to act on directly and needs to be broken into concrete steps.",
-    "tools": [
-      "listAgents",
-      "bash"
-    ],
-    "relatedSkills": [
-      "planning-and-task-breakdown"
-    ]
-  },
   "memory-hub/diff": {
     "label": "diff",
     "description": "Diff current context against a checkpoint — new decisions, patterns",
@@ -1270,17 +1198,6 @@
     "relatedSkills": [
       "privacy-scan"
     ]
-  },
-  "memory-hub/journal": {
-    "label": "journal",
-    "description": "Event-sourced orchestration log — replay and time-travel debug",
-    "reminder": "Set up event-sourced orchestration journal.",
-    "inline": true,
-    "detailedDescription": "Sets up an event-sourced journal for orchestration runs. Every event (task dispatch, completion, failure, checkpoint) is appended as an immutable event with a SHA-256 checksum.\n\nFeatures:\n- Deterministic replay: re-run an orchestration from the journal to see exactly what happened.\n- Time-travel debugging: jump to any point in the execution and inspect state.\n- Integrity: checksums detect tampering or corruption.\n- Audit trail: full history of what the agent did and why.\n\nThe journal lives in .opencode/state/orchestration/journal/. Use when you need observability into orchestration runs — especially for debugging \"why did the agent do X?\" or auditing agent behavior.",
-    "tools": [
-      "bash"
-    ],
-    "relatedSkills": []
   },
   "memory-hub/memory": {
     "label": "memory",
@@ -1313,17 +1230,6 @@
     ],
     "rules": [
       "context-strategy"
-    ],
-    "relatedSkills": []
-  },
-  "memory-hub/resume": {
-    "label": "resume",
-    "description": "Resume last ideation session",
-    "reminder": "Resume last ideation session.",
-    "inline": true,
-    "detailedDescription": "Resumes the most recent ideation session from its work-products. Loads the latest work product from .opencode/state/ideation/work-products/ and continues the ideation from where it left off.\n\nUse when a previous /ideate-hub invocation was interrupted and you want to continue without losing the work product.",
-    "tools": [
-      "bash"
     ],
     "relatedSkills": []
   },
@@ -1376,36 +1282,18 @@
       }
     ]
   },
-  "memory-hub/sweep": {
-    "label": "sweep",
-    "description": "Find files in .opencode/ that should be gitignored",
-    "reminder": "Sweep .opencode/ for gitignore violations.",
+  "memory-hub/vectorize": {
+    "label": "vectorize",
+    "description": "Embed codebase + context into local vector DB for semantic retrieval",
+    "reminder": "Run vectorization over project code and context. Asks: scope.",
     "inline": true,
-    "detailedDescription": "Scans .opencode/ for files that should be gitignored but aren't. Checks:\n\n- State files (.opencode/state/) — should be gitignored (ephemeral, may contain secrets).\n- Cache files (.opencode/cache/) — should be gitignored.\n- Session files — should be gitignored (may contain PII).\n- Large files that would bloat the repo.\n- Files matching secret patterns (API keys, tokens).\n\nFor each violation, the agent recommends adding a .gitignore entry. The user confirms before modifying .gitignore.\n\nUse periodically to prevent .opencode/ bloat from breaking git push — a common issue when state files accumulate and exceed GitHub's file size limits.",
+    "detailedDescription": "Vectorize the project for semantic retrieval. Two local vector stores are maintained under .opencode/state/vector/ (gitignored):\n\n1. **context.db** — markdown sources: .opencode/context/**, .opencode/rules/**, .opencode/docs/**, AGENTS.md (heading-based chunking).\n2. **code.db** — the project source tree (declaration-aware chunking; skips node_modules, .git, build/dist/vendor dirs, and .opencode/state + .opencode/cache for privacy).\n\nBoth stores embed with a local in-process ONNX model (Xenova/bge-small-en-v1.5, q8, 384-dim CLS pooling) and rerank with an in-process cross-encoder (Xenova/bge-reranker-base, sigmoid scoring). No daemon, no network, zero provider API requests. Fetch the weights once with \"npx tsx skills/vectorize-context/scripts/prefetch-models.ts\"; Ollama remains available as an explicit EMBED_BACKEND=ollama escape hatch for recall comparisons.\n\nCommand (run from the project root, or set OPCODE_DIR):\n  node <skill-dir>/scripts/vectorize.ts --all      # context + code\n  node <skill-dir>/scripts/vectorize.ts --code     # code store only\n\nwhere <skill-dir> is skills/vectorize-context (global or project-local .opencode/skills/vectorize-context).\n\nIndexing is incremental (mtime-based): re-runs only embed changed files. Deleted files are cleaned from the store automatically.\n\nThe vectorize hook (plugins/hooks/vectorize-hook.ts) keeps both stores fresh as files change — it spawns sync-hook.ts as a child process (10s poll, maintenance mode; the plugin process never loads native modules). The system.transform hook injects <Relevant_Context> (docs) and <Relevant_Code> (source) blocks into complex prompts via a child-process query. Manual querying:\n  node <skill-dir>/scripts/query.ts \"question\"\n  node <skill-dir>/scripts/query.ts --code \"question\"\n\nStats: node <skill-dir>/scripts/vectorize.ts prints scanned/indexed/skipped/chunks/elapsed per store.\n\n## Gatekeeping Question\n\nBefore indexing, ask (passing the flag skips the question — non-interactive path):\n\n> **Question — vectorize scope?**\n> 1. Context + code — both stores (default)\n> 2. Code store only\n\nResolved answer maps to `--all` / `--code`.",
     "tools": [
       "bash"
     ],
-    "rules": [
-      "security",
-      "context-strategy"
-    ],
+    "rules": [],
     "relatedSkills": [
-      "privacy-scan"
-    ]
-  },
-  "memory-hub/web-research": {
-    "label": "web-research",
-    "description": "Parallel multi-query web research, synthesized into a saved report",
-    "reminder": "Search, fetch, and synthesize web research into a report.",
-    "inline": true,
-    "detailedDescription": "Multi-source web research pipeline for the harvest-context hub. Same mechanism as /research-hub web-research but saves directly to .opencode/context/research/ instead of ideation work-products.\n\n1. Generate multiple search queries from the research question.\n2. Run websearch in parallel for all queries.\n3. Fetch top results via webfetch (parallel).\n4. Synthesize into a structured report with key findings, evidence (source URLs), contradictions, conclusion.\n5. Save to .opencode/context/research/ with wiki compliance (update index.md, append to log.md, add YAML frontmatter, scan for cross-references).\n6. Privacy scan runs before save — if risk detected, divert to .opencode/state/harvest/ instead.\n\nUse for research questions that require external knowledge. Prefer /research-hub library-docs (Context7) first for library-specific questions.",
-    "tools": [
-      "bash"
-    ],
-    "relatedSkills": [
-      "context7-docs",
-      "web-to-markdown",
-      "wiki"
+      "vectorize-context"
     ]
   },
   "orchestrate-hub/autopilot": {
@@ -1509,6 +1397,17 @@
       }
     ]
   },
+  "orchestrate-hub/journal": {
+    "label": "journal",
+    "description": "Event-sourced orchestration log — replay and time-travel debug",
+    "reminder": "Set up event-sourced orchestration journal.",
+    "inline": true,
+    "detailedDescription": "Sets up an event-sourced journal for orchestration runs. Every event (task dispatch, completion, failure, checkpoint) is appended as an immutable event with a SHA-256 checksum.\n\nFeatures:\n- Deterministic replay: re-run an orchestration from the journal to see exactly what happened.\n- Time-travel debugging: jump to any point in the execution and inspect state.\n- Integrity: checksums detect tampering or corruption.\n- Audit trail: full history of what the agent did and why.\n\nThe journal lives in .opencode/state/orchestration/journal/. Use when you need observability into orchestration runs — especially for debugging \"why did the agent do X?\" or auditing agent behavior.",
+    "tools": [
+      "bash"
+    ],
+    "relatedSkills": []
+  },
   "orchestrate-hub/ralph": {
     "label": "ralph",
     "description": "Persistent loop — keeps working until task is verified complete",
@@ -1552,21 +1451,6 @@
       "modeState"
     ],
     "relatedSkills": []
-  },
-  "orchestrate-hub/sciomc": {
-    "label": "sciomc",
-    "description": "Parallel scientist agents for comprehensive analysis",
-    "reminder": "Parallel scientist agents for analysis.",
-    "skill": "sciomc",
-    "detailedDescription": "Orchestrates parallel @scientist agents for comprehensive data analysis or research. Each scientist agent gets a slice of the analysis problem, works independently, and the orchestrator synthesizes their findings.\n\nUse for research-heavy analysis: \"analyze the performance characteristics of these 5 caching strategies\", \"compare these 3 ORM options across all criteria\". Each scientist takes one slice, produces a structured analysis, and the orchestrator merges them into a single report with a recommendation.\n\nAUTO mode: the orchestrator decides the decomposition automatically based on the task. You can override the slice count via flags.",
-    "tools": [
-      "loadSkill",
-      "listAgents",
-      "taskTodos"
-    ],
-    "relatedSkills": [
-      "ccg"
-    ]
   },
   "orchestrate-hub/state-machine": {
     "label": "state-machine",
@@ -1716,6 +1600,13 @@
       "planning-and-task-breakdown"
     ]
   },
+  "plan-hub/effort-estimator": {
+    "label": "effort-estimator",
+    "description": "Estimate development effort — pass instructions directly to @effort-estimator",
+    "reminder": "Delegating to @effort-estimator.",
+    "agent": "@effort-estimator",
+    "detailedDescription": "Delegates directly to the @effort-estimator agent. The remainder of your prompt will be passed as specific instructions to the agent."
+  },
   "plan-hub/impact-mapping": {
     "label": "impact-mapping",
     "description": "Goal mapping — trace deliverables to business impact",
@@ -1829,19 +1720,6 @@
       }
     ]
   },
-  "plan-hub/quality": {
-    "label": "quality",
-    "description": "Code quality audit — complexity, duplication, naming, error handling",
-    "reminder": "Deep-dive code quality analysis across the codebase.",
-    "inline": true,
-    "detailedDescription": "Deep-dive code quality audit across the entire codebase. Scans for:\n\n- Complexity hotspots: functions/modules with high cyclomatic complexity.\n- Duplication clusters: repeated code blocks that should be extracted.\n- Naming violations: inconsistent or unclear naming patterns.\n- Error handling gaps: swallowed errors, missing error cases, generic catches.\n- Dead code: unreachable or unused code.\n\nEach finding is classified by severity and location. The output is a prioritized audit report: critical issues first, then warnings, then suggestions. Each issue includes its file/line location and a recommended fix.\n\nUse for brownfield codebases that need a quality baseline before improvement work. The audit identifies what to fix and in what order. Pairs well with /build-hub overhaul (which produces a phased improvement plan from the audit).",
-    "tools": [
-      "bash"
-    ],
-    "relatedSkills": [
-      "ai-slop-cleaner"
-    ]
-  },
   "plan-hub/ralplan": {
     "label": "ralplan",
     "description": "Consensus planning gate — validate plan is concrete enough to execute",
@@ -1949,6 +1827,21 @@
       "Read-only: this subcommand never modifies code. Use /build-hub with a refactoring skill to act on findings."
     ]
   },
+  "research-hub/compare": {
+    "label": "compare",
+    "description": "Compare options via web research, output as a ranked table",
+    "reminder": "Research and compare alternatives with structured comparison.",
+    "inline": true,
+    "detailedDescription": "Compare alternatives via web research. Researches multiple options (libraries, tools, approaches) and produces a structured comparison.\n\nProcess:\n1. Take the alternatives to compare (from user input).\n2. For each: websearch for docs, benchmarks, reviews, known issues; webfetch top results.\n3. Build a comparison table: criteria (rows) × alternatives (columns).\n4. Score each alternative on each criterion.\n5. Produce a recommendation with rationale.\n6. Save to .opencode/context/patterns/ with wiki compliance (update index.md, append to log.md, add YAML frontmatter, scan for cross-references).\n7. Privacy scan runs before save — if risk detected, divert to .opencode/state/harvest/ instead.\n\nUse when choosing between multiple options and the decision benefits from side-by-side comparison.",
+    "tools": [
+      "bash"
+    ],
+    "relatedSkills": [
+      "context7-docs",
+      "web-to-markdown",
+      "wiki"
+    ]
+  },
   "research-hub/competitive-analysis": {
     "label": "competitive-analysis",
     "description": "Competitive landscape — feature comparison matrix",
@@ -1983,17 +1876,34 @@
     "agent": "@explore",
     "detailedDescription": "Delegates directly to the @explore agent. The remainder of your prompt will be passed as specific instructions to the agent."
   },
-  "research-hub/graph": {
-    "label": "graph",
-    "description": "Visual relationship mapping — dependencies, components, tradeoffs",
-    "reminder": "Map relationships as visual graphs.",
-    "skill": "graph-thinking",
-    "detailedDescription": "Applies graph-based thinking to visualize complex relationships. Maps entities (components, modules, concepts) as nodes and their relationships (dependencies, data flow, constraints) as edges. The resulting graph reveals structure that linear descriptions hide: cycles, hubs, isolated clusters, critical paths.\n\nUse for: dependency analysis, architecture mapping, concept relationship exploration, and system design where understanding structure matters. The graph is rendered as a text/markdown diagram (Mermaid or ASCII) since this is a non-interactive environment.\n\nOutput: a graph diagram + analysis (key nodes, cycles, clusters, recommendations) saved to .opencode/state/ideation/work-products/.",
+  "research-hub/extract-standards": {
+    "label": "extract-standards",
+    "description": "Infer a style guide from the code that already exists",
+    "reminder": "Extract coding standards from existing file(s). Asks: output target + template.",
+    "skill": "code-standards-extractor",
+    "detailedDescription": "Extracts coding standards from existing source files via the code-standards-extractor skill. Uses the existing syntax of the given file(s) to establish the project's style guidelines.\n\nParameters:\n- fileName (required): the file to analyze — indentation, variable naming, commenting, conditional/functional procedures, and other syntax-related data for the file's language.\n- folderName (optional): aggregate data from all files in the folder into one dataset, then analyze as a single instance. Loops through each file, appending data to temporary memory, then treats the aggregate as one input.\n- instructions (optional): additional rules/procedures for unique cases.\n- Config flags as parameters (optional): addStandardsTest, addToREADME, addToREADMEInsertions, createNewFile, fetchStyleURL, findInconsistencies, fixInconsistencies, newFileName, outputSpecToPrompt, useTemplate. Passing any of these overrides its default.\n\nOutput modes (default: create a new standards file):\n- New file: picks the first unused name from [CONTRIBUTING.md, STYLE.md, CODE_OF_CONDUCT.md, CODING_STANDARDS.md, DEVELOPING.md, CONTRIBUTION_GUIDE.md, GUIDELINES.md, PROJECT_STANDARDS.md, BEST_PRACTICES.md, HACKING.md].\n- addToREADME=true: inserts standards into README.md (atBegin | middle | beforeEnd | bestFitUsingContext).\n- outputSpecToPrompt=true: prints standards to the prompt instead.\n- .opencode/context/: writes the guide as durable knowledge (e.g. .opencode/context/patterns/style.md) so agents load it as project context.\n- .opencode/rules/: writes the guide as an enforced rule (e.g. .opencode/rules/style.md) so it is registered and applied during code work.\n\nAlso detects syntax inconsistencies (indentation, line-breaks, comments, nesting, quote wrappers): categorizes, counts, flags low-count items; optionally fixes them to match the majority (fixInconsistencies, default true — auto-disabled when analyzing multiple files/folders). Optionally fetches the language's official style guide as extra context (fetchStyleURL, default true). Optionally writes a standards-adherence test (addStandardsTest, default false).\n\nUse when the user wants a style guide derived from an existing codebase, or wants consistency fixes applied per the majority convention.\n\n## Gatekeeping Question\n\nBefore extracting, ask (passing the flags skips the question — non-interactive path):\n\n> **Question 1 — output target?**\n> 1. New standards file — CONTRIBUTING.md / STYLE.md / …\n> 2. README.md — insert into the existing README\n> 3. .opencode/context/ — durable knowledge (context/patterns/style.md)\n> 4. .opencode/rules/ — enforced rule (rules/<name>.md)\n> 5. Prompt only — print, write no file\n> (or type your own path)\n>\n> **Question 2 — template?**\n> 1. standard\n> 2. minimal\n> (or type your own)\n>\n> **Question 3 — README placement?** (only when README is chosen)\n> 1. beforeEnd\n> 2. afterFrontmatter / middle / atBegin / bestFitUsingContext\n\nResolved answers map to `outputSpecToPrompt`, `addToREADME`, `createNewFile`/`newFileName`, and `useTemplate`.",
     "tools": [
       "loadSkill",
       "bash"
     ],
-    "relatedSkills": []
+    "relatedSkills": [
+      "rule-generator",
+      "convention-extractor"
+    ],
+    "examples": [
+      {
+        "input": "/build-hub extract-standards src/main.py",
+        "approach": "Asks output target (new standards file) and template (standard). Analyze src/main.py's syntax conventions (indentation, naming, comments), fetch the Python style guide (PEP 8), compose a standards doc using the verbose template, write to the first unused file name (e.g. STYLE.md)."
+      },
+      {
+        "input": "/build-hub extract-standards src/",
+        "approach": "Asks output target (.opencode/rules/) and template (minimal). Aggregate all files in src/ into one dataset, analyze as a single instance, write a minimal standards rule to .opencode/rules/style.md so it is registered and enforced."
+      },
+      {
+        "input": "/build-hub extract-standards app.js --addToREADME=beforeEnd",
+        "approach": "Flag passed → placement gate skipped. Extract standards from app.js and append them to README.md after the last character on a new line, instead of creating a new file."
+      }
+    ]
   },
   "research-hub/library-docs": {
     "label": "docs",
@@ -2017,16 +1927,20 @@
   },
   "research-hub/research": {
     "label": "research",
-    "description": "Multi-model synthesis — diverse perspectives merged into one answer",
-    "reminder": "Synthesize diverse model perspectives.",
-    "skill": "ccg",
-    "detailedDescription": "Research via multi-model synthesis: queries multiple diverse models on the research question, then merges their perspectives into a single converged answer. Different models surface different considerations, catch different errors, and propose different approaches.\n\nUse for research questions where a single model's perspective is insufficient: \"what are the tradeoffs between these 3 state management approaches\", \"how do these databases compare for our workload\". The synthesis step reconciles disagreements.\n\nThis is the /ideate-hub equivalent of /orchestrate-hub ccg — same multi-model mechanism, used for research rather than execution decisions.",
+    "description": "Web + GitHub code search — findings cached as context",
+    "reminder": "Search the web and GitHub for code, cache findings to context.",
+    "inline": true,
+    "detailedDescription": "Single research tool that combines web search and GitHub code search, then caches what it finds as durable context.\n\n1. Web search — run one or more websearch queries (SearXNG by default) to gather current best practices, docs, comparisons, and known issues.\n2. GitHub code search — use the gh_grep MCP server (grep.app) to find real-world code: how an API is actually called, idiomatic usage, imports and option names. Search for literal code patterns, not keywords.\n3. Synthesize — merge web findings and code snippets into one report with key findings, evidence (source URLs and repo/file references), contradictions, and a conclusion.\n4. Cache — write web findings to .opencode/context/research/{topic-slug}/ and code snippets to .opencode/context/research/code-snippets/{topic-slug}.md (source repo, language, why the pattern matters). Never re-fetch a cached snippet — grep that directory first.\n5. Wiki compliance — update .opencode/context/index.md, append to log.md, add YAML frontmatter, scan for cross-references.\n6. Privacy scan before save — if risk detected, divert to .opencode/state/harvest/ instead of committed context.\n\nUse when a question needs external knowledge and concrete code examples together. Check the cache first (context/research/) before spending a network call. For library-specific API docs, prefer /research-hub library-docs (Context7).",
     "tools": [
-      "loadSkill",
       "bash"
     ],
+    "rules": [
+      "efficiency-first"
+    ],
     "relatedSkills": [
-      "ask"
+      "context7-docs",
+      "web-to-markdown",
+      "wiki"
     ]
   },
   "research-hub/scientist": {
@@ -2035,6 +1949,21 @@
     "reminder": "Delegating to @scientist.",
     "agent": "@scientist",
     "detailedDescription": "Delegates directly to the @scientist agent. The remainder of your prompt will be passed as specific instructions to the agent."
+  },
+  "research-hub/sciomc": {
+    "label": "sciomc",
+    "description": "Parallel scientist agents for comprehensive analysis",
+    "reminder": "Parallel scientist agents for analysis.",
+    "skill": "sciomc",
+    "detailedDescription": "Orchestrates parallel @scientist agents for comprehensive data analysis or research. Each scientist agent gets a slice of the analysis problem, works independently, and the orchestrator synthesizes their findings.\n\nUse for research-heavy analysis: \"analyze the performance characteristics of these 5 caching strategies\", \"compare these 3 ORM options across all criteria\". Each scientist takes one slice, produces a structured analysis, and the orchestrator merges them into a single report with a recommendation.\n\nAUTO mode: the orchestrator decides the decomposition automatically based on the task. You can override the slice count via flags.",
+    "tools": [
+      "loadSkill",
+      "listAgents",
+      "taskTodos"
+    ],
+    "relatedSkills": [
+      "ccg"
+    ]
   },
   "research-hub/tech-eval": {
     "label": "tech-eval",
@@ -2049,13 +1978,6 @@
       "context7-docs",
       "web-to-markdown"
     ]
-  },
-  "research-hub/tracer": {
-    "label": "tracer",
-    "description": "Evidence-driven causal tracing — pass instructions directly to @tracer",
-    "reminder": "Delegating to @tracer.",
-    "agent": "@tracer",
-    "detailedDescription": "Delegates directly to the @tracer agent. The remainder of your prompt will be passed as specific instructions to the agent."
   },
   "research-hub/web-research": {
     "label": "web-research",
@@ -2109,13 +2031,6 @@
     "reminder": "Delegating to @config-orchestrator.",
     "agent": "@config-orchestrator",
     "detailedDescription": "Delegates directly to the @config-orchestrator agent. The remainder of your prompt will be passed as specific instructions to the agent."
-  },
-  "resource-hub/effort-estimator": {
-    "label": "effort-estimator",
-    "description": "Estimate development effort — pass instructions directly to @effort-estimator",
-    "reminder": "Delegating to @effort-estimator.",
-    "agent": "@effort-estimator",
-    "detailedDescription": "Delegates directly to the @effort-estimator agent. The remainder of your prompt will be passed as specific instructions to the agent."
   },
   "resource-hub/find-agents": {
     "label": "find-agents",
@@ -2180,8 +2095,20 @@
       "find-agents"
     ]
   },
-  "resource-hub/knowledge-graph": {
+  "resource-hub/graph": {
     "label": "graph",
+    "description": "Visual relationship mapping — dependencies, components, tradeoffs",
+    "reminder": "Map relationships as visual graphs.",
+    "skill": "graph-thinking",
+    "detailedDescription": "Applies graph-based thinking to visualize complex relationships. Maps entities (components, modules, concepts) as nodes and their relationships (dependencies, data flow, constraints) as edges. The resulting graph reveals structure that linear descriptions hide: cycles, hubs, isolated clusters, critical paths.\n\nUse for: dependency analysis, architecture mapping, concept relationship exploration, and system design where understanding structure matters. The graph is rendered as a text/markdown diagram (Mermaid or ASCII) since this is a non-interactive environment.\n\nOutput: a graph diagram + analysis (key nodes, cycles, clusters, recommendations) saved to .opencode/state/ideation/work-products/.",
+    "tools": [
+      "loadSkill",
+      "bash"
+    ],
+    "relatedSkills": []
+  },
+  "resource-hub/knowledge-graph": {
+    "label": "knowledge-graph",
     "description": "Per-project entity graph with vector-then-graph retrieval",
     "reminder": "Build/query the project knowledge graph.",
     "skill": "graph-context",
@@ -2878,6 +2805,19 @@
     "agent": "@qa-tester",
     "detailedDescription": "Delegates directly to the @qa-tester agent. The remainder of your prompt will be passed as specific instructions to the agent."
   },
+  "verify-hub/quality": {
+    "label": "quality",
+    "description": "Code quality audit — complexity, duplication, naming, error handling",
+    "reminder": "Deep-dive code quality analysis across the codebase.",
+    "inline": true,
+    "detailedDescription": "Deep-dive code quality audit across the entire codebase. Scans for:\n\n- Complexity hotspots: functions/modules with high cyclomatic complexity.\n- Duplication clusters: repeated code blocks that should be extracted.\n- Naming violations: inconsistent or unclear naming patterns.\n- Error handling gaps: swallowed errors, missing error cases, generic catches.\n- Dead code: unreachable or unused code.\n\nEach finding is classified by severity and location. The output is a prioritized audit report: critical issues first, then warnings, then suggestions. Each issue includes its file/line location and a recommended fix.\n\nUse for brownfield codebases that need a quality baseline before improvement work. The audit identifies what to fix and in what order. Pairs well with /build-hub overhaul (which produces a phased improvement plan from the audit).",
+    "tools": [
+      "bash"
+    ],
+    "relatedSkills": [
+      "ai-slop-cleaner"
+    ]
+  },
   "verify-hub/review": {
     "label": "review",
     "description": "Full review round — changes, security scan, complexity",
@@ -2889,6 +2829,22 @@
       "listAgents"
     ],
     "relatedSkills": []
+  },
+  "verify-hub/sec-scan": {
+    "label": "sec-scan",
+    "description": "Security scan — SAST, secrets, dependencies, compliance",
+    "reminder": "Run security vulnerability scan.",
+    "inline": true,
+    "detailedDescription": "Security vulnerability scan with four dimensions:\n\n1. SAST (static analysis): scans source code for vulnerability patterns (injection, XSS, CSRF, auth bypass, path traversal, unsafe deserialization).\n2. Secrets detection: scans for hardcoded API keys, tokens, passwords, credentials in the codebase.\n3. Dependency audit: checks dependencies against known vulnerability databases (npm audit, pip audit, etc.).\n4. Compliance checks: verifies security-relevant configurations (HTTPS, CORS, headers, rate limiting).\n\nOutput: a security report with findings classified by severity (critical, high, medium, low) and specific remediation instructions. Follows the security.md rule's response protocol.\n\nUse before commits, releases, or periodically as a security baseline. Also runs as gate 4 of /maintain-hub converge.",
+    "tools": [
+      "bash"
+    ],
+    "rules": [
+      "security"
+    ],
+    "relatedSkills": [
+      "privacy-scan"
+    ]
   },
   "verify-hub/security-reviewer": {
     "label": "security-reviewer",
@@ -2924,5 +2880,12 @@
     "reminder": "Delegating to @test-engineer.",
     "agent": "@test-engineer",
     "detailedDescription": "Delegates directly to the @test-engineer agent. The remainder of your prompt will be passed as specific instructions to the agent."
+  },
+  "verify-hub/tracer": {
+    "label": "tracer",
+    "description": "Evidence-driven causal tracing — pass instructions directly to @tracer",
+    "reminder": "Delegating to @tracer.",
+    "agent": "@tracer",
+    "detailedDescription": "Delegates directly to the @tracer agent. The remainder of your prompt will be passed as specific instructions to the agent."
   }
 }

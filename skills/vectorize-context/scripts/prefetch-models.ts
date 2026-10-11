@@ -45,6 +45,7 @@ function targets(): Target[] {
     id: m.id,
     file: m.cachedFile,
     task: m.task,
+    dtype: m.dtype,
   }))
   return [...required, ...optional]
 }
@@ -56,7 +57,7 @@ async function main(): Promise<number> {
   let missing = 0
   let fetched = 0
 
-  for (const { role, id, file, task } of list) {
+  for (const { role, id, file, task, dtype } of list) {
     if (isCached(id, file)) {
       console.log(`  ok       ${role.padEnd(12)} ${id}`)
       continue
@@ -71,7 +72,7 @@ async function main(): Promise<number> {
     try {
       // Task-head models load through a pipeline; the NLI/embedder/reranker
       // through the raw loader. Both honour the same cache layout.
-      if (task) await loadPipeline(task, id, { allowDownload: true, cachedFile: file })
+      if (task) await loadPipeline(task, id, { allowDownload: true, cachedFile: file, dtype })
       else await loadModel(id, { allowDownload: true })
       const ms = Date.now() - t0
       console.log(`done (${(ms / 1000).toFixed(1)}s)`)

@@ -45,35 +45,39 @@ tools/
 └── hubs/
     ├── hub-setup/      # 12 files + index.ts
     ├── resource-hub/      # 12
-    ├── memory-hub/        # 18
-    ├── research-hub/      # 13
-    ├── design-hub/        #  9
-    ├── ideate-hub/        # 16
+    ├── memory-hub/        # 13
+    ├── research-hub/      # 14
+    ├── design-hub/        # 10
+    ├── ideate-hub/        # 17
     ├── plan-hub/          # 16
-    ├── verify-hub/        # 11
+    ├── verify-hub/        # 14
     ├── swarm-hub/         # 17
-    ├── build-hub/         # 12
+    ├── build-hub/         # 11
     ├── orchestrate-hub/   # 12
     ├── git-hub/           # 10
-    ├── maintain-hub/      # 12
+    ├── maintain-hub/      #  9
     └── skills-hub/        # 13
 ```
 
 ## Legacy Routing
 
-`LEGACY_ROUTE_MAP` in `tools/hub-data.ts` maps 183 pre-split `oldHub/oldSub` keys onto their new
+`LEGACY_ROUTE_MAP` in `tools/hub-data.ts` maps the pre-split `oldHub/oldSub` keys onto their current
 `newHub/newSub` home, so `/project commit` still resolves to `/git-hub commit`. Retired with no
 redirect: `project/pt-review`, `project/pt-audit`, `project/pt-debt`, `project/pt-gain` (ponytail
 pattern) and `orchestrate/deep` (duplicate of `ideation/deep-dive`).
 
-## Delegation Table (183 subcommands)
+The 2026-10 re-homing pass moved subcommands to the hub that owns their activity (e.g. `journal` →
+`orchestrate-hub`, `sweep` → `maintain-hub`, `tracer` → `verify-hub`, `scan` renamed `sec-scan`).
+Every vacated `<hub>/<sub>` key was added to `LEGACY_ROUTE_MAP`, so a saved `/memory-hub resume`
+prompt still resolves.
+
+## Delegation Table (180 subcommands)
 
 | Menu | Subcommand | Delegation |
 |------|-----------|------------|
 | `build-hub` | `brownfield` | brownfield |
 | `build-hub` | `cleanup` | ai-slop-cleaner |
 | `build-hub` | `executor` | @executor |
-| `build-hub` | `extract-standards` | code-standards-extractor |
 | `build-hub` | `modernize` | code-simplification |
 | `build-hub` | `optimize` | inline |
 | `build-hub` | `overhaul` | overhaul |
@@ -87,6 +91,7 @@ pattern) and `orchestrate/deep` (duplicate of `ideation/deep-dive`).
 | `design-hub` | `designer` | @designer |
 | `design-hub` | `docs` | deepinit |
 | `design-hub` | `frontend-design` | @frontend-design |
+| `design-hub` | `icon` | icon-generator |
 | `design-hub` | `modularity` | architect |
 | `design-hub` | `readme` | readme-updater |
 | `design-hub` | `redesign` | redesign-existing-projects |
@@ -114,46 +119,39 @@ pattern) and `orchestrate/deep` (duplicate of `ideation/deep-dive`).
 | `ideate-hub` | `opro` | opro |
 | `ideate-hub` | `pwf` | inline |
 | `ideate-hub` | `refine` | idea-refine |
+| `ideate-hub` | `resume` | inline |
 | `ideate-hub` | `rpikit` | inline |
 | `ideate-hub` | `spark` | inline |
 | `ideate-hub` | `tree-of-thoughts` | tree-of-thoughts |
-| `maintain-hub` | `consolidate-telemetry` | inline |
 | `maintain-hub` | `converge` | inline |
-| `maintain-hub` | `icon` | icon-generator |
 | `maintain-hub` | `insights` | insights |
 | `maintain-hub` | `organize` | file-organizer |
 | `maintain-hub` | `purge` | inline |
 | `maintain-hub` | `retrospect` | inline |
 | `maintain-hub` | `sandbox` | inline |
-| `maintain-hub` | `scan` | inline |
 | `maintain-hub` | `self-improve` | self-improvement |
-| `maintain-hub` | `vectorize` | inline |
+| `maintain-hub` | `sweep` | inline |
 | `maintain-hub` | `workspace` | inline |
 | `memory-hub` | `capture` | remember |
-| `memory-hub` | `codebase` | deepinit |
-| `memory-hub` | `compare` | inline |
 | `memory-hub` | `compress` | inline |
+| `memory-hub` | `consolidate-telemetry` | inline |
 | `memory-hub` | `consume` | inline |
 | `memory-hub` | `context` | inline |
-| `memory-hub` | `decompose` | planning-and-task-breakdown |
 | `memory-hub` | `diff` | inline |
 | `memory-hub` | `export` | inline |
-| `memory-hub` | `journal` | inline |
 | `memory-hub` | `memory` | remember |
 | `memory-hub` | `prune` | inline |
-| `memory-hub` | `resume` | inline |
 | `memory-hub` | `search` | inline |
 | `memory-hub` | `secondbrain` | inline |
 | `memory-hub` | `session` | inline |
-| `memory-hub` | `sweep` | inline |
-| `memory-hub` | `web-research` | inline |
+| `memory-hub` | `vectorize` | inline |
 | `orchestrate-hub` | `autopilot` | autopilot |
 | `orchestrate-hub` | `ccg` | ccg |
 | `orchestrate-hub` | `consensus` | inline |
 | `orchestrate-hub` | `evolutionary` | inline |
+| `orchestrate-hub` | `journal` | inline |
 | `orchestrate-hub` | `ralph` | ralph |
 | `orchestrate-hub` | `resume` | inline |
-| `orchestrate-hub` | `sciomc` | sciomc |
 | `orchestrate-hub` | `state-machine` | inline |
 | `orchestrate-hub` | `status` | inline |
 | `orchestrate-hub` | `swarm` | swarm |
@@ -162,13 +160,13 @@ pattern) and `orchestrate/deep` (duplicate of `ideation/deep-dive`).
 | `plan-hub` | `bottom-up` | inline |
 | `plan-hub` | `constitution` | inline |
 | `plan-hub` | `decomposition` | inline |
+| `plan-hub` | `effort-estimator` | @effort-estimator |
 | `plan-hub` | `impact-mapping` | inline |
 | `plan-hub` | `improvements` | inline |
 | `plan-hub` | `jtbd` | inline |
 | `plan-hub` | `lean-canvas` | inline |
 | `plan-hub` | `plan-execute` | plan-execute |
 | `plan-hub` | `plan` | plan |
-| `plan-hub` | `quality` | inline |
 | `plan-hub` | `ralplan` | ralplan |
 | `plan-hub` | `requirements-analyzer` | @requirements-analyzer |
 | `plan-hub` | `spiral` | inline |
@@ -177,25 +175,26 @@ pattern) and `orchestrate/deep` (duplicate of `ideation/deep-dive`).
 | `plan-hub` | `top-down` | inline |
 | `research-hub` | `analyst` | @analyst |
 | `research-hub` | `analyze-patterns` | inline |
+| `research-hub` | `compare` | inline |
 | `research-hub` | `competitive-analysis` | inline |
 | `research-hub` | `convention-extractor` | @convention-extractor |
 | `research-hub` | `document-specialist` | @document-specialist |
 | `research-hub` | `explore` | @explore |
-| `research-hub` | `graph` | graph-thinking |
+| `research-hub` | `extract-standards` | code-standards-extractor |
 | `research-hub` | `library-docs` | inline |
-| `research-hub` | `research` | ccg |
+| `research-hub` | `research` | inline |
 | `research-hub` | `scientist` | @scientist |
+| `research-hub` | `sciomc` | sciomc |
 | `research-hub` | `tech-eval` | inline |
-| `research-hub` | `tracer` | @tracer |
 | `research-hub` | `web-research` | inline |
 | `resource-hub` | `agent` | opencode-agent-creator |
 | `resource-hub` | `command` | opencode-command-creator |
 | `resource-hub` | `config-orchestrator` | @config-orchestrator |
-| `resource-hub` | `effort-estimator` | @effort-estimator |
 | `resource-hub` | `find-agents` | find-agents |
 | `resource-hub` | `find-rules` | find-rules |
 | `resource-hub` | `find-skills` | find-skills |
 | `resource-hub` | `find-tools` | find-tools |
+| `resource-hub` | `graph` | graph-thinking |
 | `resource-hub` | `knowledge-graph` | graph-context |
 | `resource-hub` | `prompt-simplifier` | @prompt-simplifier |
 | `resource-hub` | `rule` | inline |
@@ -249,7 +248,10 @@ pattern) and `orchestrate/deep` (duplicate of `ideation/deep-dive`).
 | `verify-hub` | `debugger` | @debugger |
 | `verify-hub` | `deep-bug-hunt` | inline |
 | `verify-hub` | `qa-tester` | @qa-tester |
+| `verify-hub` | `quality` | inline |
 | `verify-hub` | `review` | inline |
+| `verify-hub` | `sec-scan` | inline |
 | `verify-hub` | `security-reviewer` | @security-reviewer |
 | `verify-hub` | `tdd` | inline |
 | `verify-hub` | `test-engineer` | @test-engineer |
+| `verify-hub` | `tracer` | @tracer |

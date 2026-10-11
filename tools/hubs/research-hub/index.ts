@@ -3,19 +3,20 @@ import conventionExtractor from "./convention-extractor"
 import analyst from "./analyst"
 import analyzePatterns from "./analyze-patterns"
 import competitiveAnalysis from "./competitive-analysis"
-import graph from "./graph"
 import research from "./research"
 import techEval from "./tech-eval"
 import webResearch from "./web-research"
 import scientist from "./scientist"
-import tracer from "./tracer"
 import libraryDocs from "./library-docs"
 import documentSpecialist from "./document-specialist"
 import explore from "./explore"
+import compare from "./compare"
+import extractStandards from "./extract-standards"
+import sciomc from "./sciomc"
 
 export const specs = [
-  conventionExtractor, analyst, analyzePatterns, competitiveAnalysis, graph, research, techEval, webResearch,
-  scientist, tracer, libraryDocs, documentSpecialist, explore
+  conventionExtractor, analyst, analyzePatterns, competitiveAnalysis, research, techEval, webResearch,
+  scientist, libraryDocs, documentSpecialist, explore, compare, extractStandards, sciomc
 ]
 
 export const subcommands: HubSubcommand[] = specs.map(s => ({

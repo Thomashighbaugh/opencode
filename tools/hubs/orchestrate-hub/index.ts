@@ -5,7 +5,7 @@ import consensus from "./consensus"
 import evolutionary from "./evolutionary"
 import ralph from "./ralph"
 import resume from "./resume"
-import sciomc from "./sciomc"
+import journal from "./journal"
 import stateMachine from "./state-machine"
 import status from "./status"
 import swarm from "./swarm"
@@ -13,7 +13,7 @@ import team from "./team"
 import ultrawork from "./ultrawork"
 
 export const specs = [
-  autopilot, ccg, consensus, evolutionary, ralph, resume, sciomc, stateMachine,
+  autopilot, ccg, consensus, evolutionary, ralph, resume, journal, stateMachine,
   status, swarm, team, ultrawork
 ]
 

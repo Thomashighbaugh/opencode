@@ -2,7 +2,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 
 import { TOOLS_BASH, RULES_SECURITY, SKILLS_PRIVACY_SCAN } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
-  label: "scan",
+  label: "sec-scan",
   description: "Security scan — SAST, secrets, dependencies, compliance",
   reminder: "Run security vulnerability scan.",
   inline: true,

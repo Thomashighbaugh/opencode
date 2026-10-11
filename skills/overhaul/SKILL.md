@@ -229,7 +229,7 @@ On user approval:
 
 ## Resume Behavior
 
-`/memory-hub resume` checks `.opencode/state/ideation/work-products/` for in-progress overhaul plans and offers to continue.
+`/ideate-hub resume` checks `.opencode/state/ideation/work-products/` for in-progress overhaul plans and offers to continue.
 
 ## Output
 

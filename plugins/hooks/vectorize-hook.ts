@@ -15,7 +15,7 @@ import { resolveRuntime } from "./runtime";
  *   - One child at a time (overlapping runs are impossible)
  *   - Child is SIGKILLed after a hard timeout (no runaway loops)
  *   - Child runs in maintenance mode: stores that don't exist yet are
- *     SKIPPED — the full initial build is the job of /maintain-hub vectorize.
+ *     SKIPPED — the full initial build is the job of /memory-hub vectorize.
  *     A fresh store can therefore never trigger a first-run index storm.
  *
  * EVENT-DRIVEN, NOT POLLED

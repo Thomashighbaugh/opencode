@@ -1,6 +1,6 @@
 ---
 name: vectorize-context
-description: Vector DB for semantic retrieval over context, rules, docs, AGENTS.md AND project source code — local ONNX embeddings + ONNX rerank, no daemon, injected via hooks, maintained by /maintain-hub vectorize
+description: Vector DB for semantic retrieval over context, rules, docs, AGENTS.md AND project source code — local ONNX embeddings + ONNX rerank, no daemon, injected via hooks, maintained by /memory-hub vectorize
 relatedSkills: graph-context, self-improvement, wiki, harvest-context
 level: 2
 license: MIT
@@ -165,7 +165,7 @@ The plugin (`plugins/hooks/hooks.ts` + `vectorize-hook.ts`) provides automatic c
    - 5-min session cache per store on prompt hash — repeat queries hit cache, no child spawn
    - Clears the stored prompt after use (no stale injection)
    - Any failure → silent skip (try/catch), zero impact on the turn
-3. `vectorize-hook.ts` keeps stores fresh: every 10s spawns `sync-hook.ts` (maintenance mode — **skips stores that don't exist yet**; the full build is `/maintain-hub vectorize`), one child at a time, SIGKILL after 90s. A fresh install can never trigger a first-run index storm.
+3. `vectorize-hook.ts` keeps stores fresh: every 10s spawns `sync-hook.ts` (maintenance mode — **skips stores that don't exist yet**; the full build is `/memory-hub vectorize`), one child at a time, SIGKILL after 90s. A fresh install can never trigger a first-run index storm.
 
 ### Manual Trigger (`/memory-hub search`)
 
@@ -214,7 +214,7 @@ The vec0 virtual table uses L2 distance. Since embeddings are normalized (unit v
 | Function | Task head | Model | Used by |
 |----------|-----------|-------|---------|
 | `entailmentScores` / `classify` / `bestHypothesis` | zero-shot NLI | `Xenova/mobilebert-uncased-mnli` | prompt-queue gate, graph type inference, graph `propose` |
-| `classifySequence` / `isInjection` | text-classification | `protectai/deberta-v3-base-injection-onnx` | `privacy-scan/scripts/scan-injection.ts` |
+| `classifySequence` / `isInjection` | text-classification | `protectai/deberta-v3-base-prompt-injection-v2` | `privacy-scan/scripts/scan-injection.ts` |
 | `extractEntities` / `sensitiveSpans` | token-classification | `rtrigoso/bert-small-pii-detection-ONNX` | `privacy-scan` classifier escalation |
 
 Task heads load through `loadPipeline()` (onnx-runtime) with the same contract as `loadModel`: `q8`, bundled cache, **query-time no-download**, and `null` when the model is absent. They are **optional** — declared in `OPTIONAL_MODELS`, fetched by `prefetch-models.ts`, and never required (a missing head disables its feature; it does not fail the install).

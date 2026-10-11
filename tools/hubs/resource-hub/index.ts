@@ -4,17 +4,17 @@ import findAgents from "./find-agents"
 import findRules from "./find-rules"
 import findSkills from "./find-skills"
 import findTools from "./find-tools"
-import effortEstimator from "./effort-estimator"
 import promptSimplifier from "./prompt-simplifier"
 import agent from "./agent"
 import command from "./command"
 import rule from "./rule"
 import skill from "./skill"
 import knowledgeGraph from "./knowledge-graph"
+import graph from "./graph"
 
 export const specs = [
-  configOrchestrator, findAgents, findRules, findSkills, findTools, effortEstimator, promptSimplifier, agent,
-  command, rule, skill, knowledgeGraph
+  configOrchestrator, findAgents, findRules, findSkills, findTools, promptSimplifier, agent,
+  command, rule, skill, knowledgeGraph, graph
 ]
 
 export const subcommands: HubSubcommand[] = specs.map(s => ({

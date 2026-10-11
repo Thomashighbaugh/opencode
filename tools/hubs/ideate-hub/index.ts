@@ -15,10 +15,11 @@ import refine from "./refine"
 import rpikit from "./rpikit"
 import spark from "./spark"
 import treeOfThoughts from "./tree-of-thoughts"
+import resume from "./resume"
 
 export const specs = [
   adversarialDebate, brainstorm, cleanroom, ddd, interview, deepDive, deepThinker, doubleDiamond,
-  eventStorming, grill, opro, pwf, refine, rpikit, spark, treeOfThoughts
+  eventStorming, grill, opro, pwf, refine, rpikit, spark, treeOfThoughts, resume
 ]
 
 export const subcommands: HubSubcommand[] = specs.map(s => ({

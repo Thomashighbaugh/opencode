@@ -809,7 +809,7 @@ export function backfillFromCode(inputDir: string | undefined): CodeBackfillResu
     adopted: 0, pruned: 0, knowledgeOrphans: 0, skipped: null, signature: null,
   };
   if (!fs.existsSync(paths.codeDbPath)) {
-    result.skipped = 'no code.db (build via /maintain-hub vectorize)';
+    result.skipped = 'no code.db (build via /memory-hub vectorize)';
     return result;
   }
 

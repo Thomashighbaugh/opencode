@@ -208,7 +208,7 @@ FINAL_ID="$(date +%Y%m%d_%H%M%S)_${METHOD}_${TOPIC_SLUG}_final"
 
 ## Resume Behavior
 
-`/memory-hub resume` checks `.opencode/state/ideation/work-products/` for the most recent in-progress work and offers to continue from where it left off.
+`/ideate-hub resume` checks `.opencode/state/ideation/work-products/` for the most recent in-progress work and offers to continue from where it left off.
 
 ## Status Behavior
 

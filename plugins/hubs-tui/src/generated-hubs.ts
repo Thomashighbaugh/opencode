@@ -87,10 +87,6 @@ export const HUBS: Hub[] = [
         "description": "Find and vet TypeScript tools for this stack from registries"
       },
       {
-        "label": "effort-estimator",
-        "description": "Estimate development effort — pass instructions directly to @effort-estimator"
-      },
-      {
         "label": "prompt-simplifier",
         "description": "Simplify prompt logic — pass instructions directly to @prompt-simplifier"
       },
@@ -111,31 +107,23 @@ export const HUBS: Hub[] = [
         "description": "Create a reusable skill from session knowledge"
       },
       {
-        "label": "graph",
+        "label": "knowledge-graph",
         "description": "Per-project entity graph with vector-then-graph retrieval"
+      },
+      {
+        "label": "graph",
+        "description": "Visual relationship mapping — dependencies, components, tradeoffs"
       }
     ]
   },
   {
     "name": "memory-hub",
     "title": "Memory",
-    "description": "Durable knowledge and session context — harvest, compress, search, journal",
+    "description": "Durable knowledge and session context — harvest, compress, search, vectorize",
     "subs": [
       {
         "label": "capture",
         "description": "Capture session knowledge, promote insights to project memory and docs"
-      },
-      {
-        "label": "resume",
-        "description": "Resume last ideation session"
-      },
-      {
-        "label": "codebase",
-        "description": "Generate hierarchical AGENTS.md across the codebase"
-      },
-      {
-        "label": "compare",
-        "description": "Compare options via web research, output as a ranked table"
       },
       {
         "label": "compress",
@@ -150,20 +138,12 @@ export const HUBS: Hub[] = [
         "description": "Harvest, extract, organize, and map context files"
       },
       {
-        "label": "decompose",
-        "description": "Break down a concept or goal into smaller actionable units"
-      },
-      {
         "label": "diff",
         "description": "Diff current context against a checkpoint — new decisions, patterns"
       },
       {
         "label": "export",
         "description": "Export context as a summary, bundle, or team report"
-      },
-      {
-        "label": "journal",
-        "description": "Event-sourced orchestration log — replay and time-travel debug"
       },
       {
         "label": "memory",
@@ -186,12 +166,12 @@ export const HUBS: Hub[] = [
         "description": "Extract decisions and learnings from the current session"
       },
       {
-        "label": "sweep",
-        "description": "Find files in .opencode/ that should be gitignored"
+        "label": "consolidate-telemetry",
+        "description": "Consolidate SRCL telemetry log into proposed ADRs in decisions.md"
       },
       {
-        "label": "web-research",
-        "description": "Parallel multi-query web research, synthesized into a saved report"
+        "label": "vectorize",
+        "description": "Embed codebase + context into local vector DB for semantic retrieval"
       }
     ]
   },
@@ -217,12 +197,8 @@ export const HUBS: Hub[] = [
         "description": "Competitive landscape — feature comparison matrix"
       },
       {
-        "label": "graph",
-        "description": "Visual relationship mapping — dependencies, components, tradeoffs"
-      },
-      {
         "label": "research",
-        "description": "Multi-model synthesis — diverse perspectives merged into one answer"
+        "description": "Web + GitHub code search — findings cached as context"
       },
       {
         "label": "tech-eval",
@@ -237,10 +213,6 @@ export const HUBS: Hub[] = [
         "description": "Data analysis specialist — pass instructions directly to @scientist"
       },
       {
-        "label": "tracer",
-        "description": "Evidence-driven causal tracing — pass instructions directly to @tracer"
-      },
-      {
         "label": "docs",
         "description": "Official library docs via Context7 — React, Next, Tailwind, any"
       },
@@ -251,6 +223,18 @@ export const HUBS: Hub[] = [
       {
         "label": "explore",
         "description": "Codebase search specialist — pass instructions directly to @explore"
+      },
+      {
+        "label": "compare",
+        "description": "Compare options via web research, output as a ranked table"
+      },
+      {
+        "label": "extract-standards",
+        "description": "Infer a style guide from the code that already exists"
+      },
+      {
+        "label": "sciomc",
+        "description": "Parallel scientist agents for comprehensive analysis"
       }
     ]
   },
@@ -294,6 +278,10 @@ export const HUBS: Hub[] = [
       {
         "label": "writer",
         "description": "Technical documentation writer — pass instructions directly to @writer"
+      },
+      {
+        "label": "icon",
+        "description": "Generate web/PWA/UE icon assets from source image"
       }
     ]
   },
@@ -365,6 +353,10 @@ export const HUBS: Hub[] = [
       {
         "label": "tree-of-thoughts",
         "description": "⚠️ EXPENSIVE: Explore parallel solution branches for open-ended problems"
+      },
+      {
+        "label": "resume",
+        "description": "Resume last ideation session"
       }
     ]
   },
@@ -406,10 +398,6 @@ export const HUBS: Hub[] = [
         "description": "Interview-style strategic planning — clarify goals, break into tasks"
       },
       {
-        "label": "quality",
-        "description": "Code quality audit — complexity, duplication, naming, error handling"
-      },
-      {
         "label": "ralplan",
         "description": "Consensus planning gate — validate plan is concrete enough to execute"
       },
@@ -436,6 +424,10 @@ export const HUBS: Hub[] = [
       {
         "label": "plan-execute",
         "description": "Architect plans the whole thing, executor builds it stepwise"
+      },
+      {
+        "label": "effort-estimator",
+        "description": "Estimate development effort — pass instructions directly to @effort-estimator"
       }
     ]
   },
@@ -487,6 +479,18 @@ export const HUBS: Hub[] = [
       {
         "label": "test-engineer",
         "description": "Test strategy specialist — pass instructions directly to @test-engineer"
+      },
+      {
+        "label": "quality",
+        "description": "Code quality audit — complexity, duplication, naming, error handling"
+      },
+      {
+        "label": "sec-scan",
+        "description": "Security scan — SAST, secrets, dependencies, compliance"
+      },
+      {
+        "label": "tracer",
+        "description": "Evidence-driven causal tracing — pass instructions directly to @tracer"
       }
     ]
   },
@@ -595,10 +599,6 @@ export const HUBS: Hub[] = [
         "description": "Focused task executor — pass instructions directly to @executor"
       },
       {
-        "label": "extract-standards",
-        "description": "Infer a style guide from the code that already exists"
-      },
-      {
         "label": "modernize",
         "description": "Modernize patterns in place, preserving behavior"
       },
@@ -650,8 +650,8 @@ export const HUBS: Hub[] = [
         "description": "Resume last orchestration session"
       },
       {
-        "label": "sciomc",
-        "description": "Parallel scientist agents for comprehensive analysis"
+        "label": "journal",
+        "description": "Event-sourced orchestration log — replay and time-travel debug"
       },
       {
         "label": "state-machine",
@@ -728,16 +728,8 @@ export const HUBS: Hub[] = [
     "description": "Project hygiene, insights, and self-improvement",
     "subs": [
       {
-        "label": "consolidate-telemetry",
-        "description": "Consolidate SRCL telemetry log into proposed ADRs in decisions.md"
-      },
-      {
         "label": "converge",
         "description": "Five-gate quality convergence with escalating targets"
-      },
-      {
-        "label": "icon",
-        "description": "Generate web/PWA/UE icon assets from source image"
       },
       {
         "label": "insights",
@@ -760,20 +752,16 @@ export const HUBS: Hub[] = [
         "description": "Policy-based tool control — file, command, and network limits"
       },
       {
-        "label": "scan",
-        "description": "Security scan — SAST, secrets, dependencies, compliance"
-      },
-      {
         "label": "self-improve",
         "description": "Capture learnings and promote recurring fixes into config"
       },
       {
-        "label": "vectorize",
-        "description": "Embed codebase + context into local vector DB for semantic retrieval"
-      },
-      {
         "label": "workspace",
         "description": "Manage .opencode across projects — init, sync, health"
+      },
+      {
+        "label": "sweep",
+        "description": "Find files in .opencode/ that should be gitignored"
       }
     ]
   },

@@ -48,6 +48,7 @@ export async function classifySequence(
     const pipe = await loadPipeline(model.task, opts.modelId || model.id, {
       allowDownload: opts.allowDownload ?? false,
       cachedFile: model.cachedFile,
+      dtype: model.dtype as any,
     })
     const out = await pipe(premise.slice(0, 2000), { topk: 1 })
     const top = Array.isArray(out) ? out[0] : out
@@ -97,6 +98,7 @@ export async function extractEntities(
     const pipe = await loadPipeline(model.task, opts.modelId || model.id, {
       allowDownload: opts.allowDownload ?? false,
       cachedFile: model.cachedFile,
+      dtype: model.dtype as any,
     })
     const out = await pipe(src.slice(0, 4000), { aggregation_strategy: 'simple' })
     if (!Array.isArray(out)) return null

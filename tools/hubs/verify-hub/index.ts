@@ -10,10 +10,13 @@ import deepBugHunt from "./deep-bug-hunt"
 import qaTester from "./qa-tester"
 import review from "./review"
 import testEngineer from "./test-engineer"
+import quality from "./quality"
+import secScan from "./sec-scan"
+import tracer from "./tracer"
 
 export const specs = [
   critic, securityReviewer, tdd, audit, codeReview, createTests, debuggerSpec, deepBugHunt,
-  qaTester, review, testEngineer
+  qaTester, review, testEngineer, quality, secScan, tracer
 ]
 
 export const subcommands: HubSubcommand[] = specs.map(s => ({

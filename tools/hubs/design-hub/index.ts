@@ -8,10 +8,11 @@ import designer from "./designer"
 import frontendDesign from "./frontend-design"
 import readme from "./readme"
 import writer from "./writer"
+import icon from "./icon"
 
 export const specs = [
   docs, archPrep, architecture, modularity, redesign, designer, frontendDesign, readme,
-  writer
+  writer, icon
 ]
 
 export const subcommands: HubSubcommand[] = specs.map(s => ({

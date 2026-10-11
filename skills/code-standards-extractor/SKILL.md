@@ -1,6 +1,6 @@
 ---
 name: code-standards-extractor
-description: Extract coding standards from existing source files and produce a standards document. Use when the user wants a STYLE.md / CODING_STANDARDS.md / CONTRIBUTING.md generated from an existing file or folder, wants conventions inferred from the codebase ("use the existing syntax of these files as the style guide"), or wants a standards test written to enforce them. Invoked via /build-hub extract-standards.
+description: Extract coding standards from existing source files and produce a standards document. Use when the user wants a STYLE.md / CODING_STANDARDS.md / CONTRIBUTING.md generated from an existing file or folder, wants conventions inferred from the codebase ("use the existing syntax of these files as the style guide"), or wants a standards test written to enforce them. Invoked via /research-hub extract-standards.
 level: 2
 license: MIT
 ---
@@ -9,7 +9,7 @@ license: MIT
 
 ## Gatekeeping Question
 
-`/build-hub extract-standards` asks before extracting (passing the flags skips it):
+`/research-hub extract-standards` asks before extracting (passing the flags skips it):
 
 > **Question 1 — output target?** New standards file / README.md / `.opencode/context/` (durable knowledge) / `.opencode/rules/` (enforced rule) / Prompt only (or type a path)
 > **Question 2 — template?** standard / minimal (or type your own)

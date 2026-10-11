@@ -105,8 +105,24 @@ export const REQUIRED_MODELS = {
  * `tests/global/onnx.test.ts` — stays exactly three.
  */
 export const OPTIONAL_MODELS = {
-  /** Prompt-injection sequence classifier. Root `model.onnx`, no quantized file. */
-  injection: { id: 'protectai/deberta-v3-base-injection-onnx', task: 'text-classification', cachedFile: 'model.onnx' },
+  /**
+   * Prompt-injection sequence classifier.
+   *
+   * Was `protectai/deberta-v3-base-injection-onnx`: that repo publishes `model.onnx`
+   * at the repo ROOT with no `onnx/` subfolder, and transformers.js always resolves
+   * under `onnx/`, so it can never be fetched. This is the canonical ProtectAI
+   * classifier (same family, 692k downloads) with the standard `onnx/` layout.
+   *
+   * `dtype: 'fp32'` is load-bearing — it ships an fp32 ONNX with no quantized
+   * variant, and every quantized dtype makes transformers.js append
+   * `_quantized` to the filename it resolves.
+   */
+  injection: {
+    id: 'protectai/deberta-v3-base-prompt-injection-v2',
+    task: 'text-classification',
+    cachedFile: 'onnx/model.onnx',
+    dtype: 'fp32',
+  },
   /** PII / secret token classifier (bert-small, Apache-2.0). */
   pii: { id: 'rtrigoso/bert-small-pii-detection-ONNX', task: 'token-classification', cachedFile: 'onnx/model_quantized.onnx' },
   /** Stronger NLI head, opt-in — switching invalidates the gate's measured threshold. */

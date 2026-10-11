@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_LOADSKILL_BASH, RULES_KARPAHTY_GUIDELINES } from "../shared-spec-fragments"
 
 const spec: HubSubcommandSpec = {
-  label: "graph",
+  label: "knowledge-graph",
   description: "Per-project entity graph with vector-then-graph retrieval",
   reminder: "Build/query the project knowledge graph.",
   skill: "graph-context",

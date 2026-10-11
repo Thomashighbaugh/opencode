@@ -5,7 +5,6 @@ import pipeline from "./pipeline"
 import vibeCode from "./vibe-code"
 import cleanup from "./cleanup"
 import executor from "./executor"
-import extractStandards from "./extract-standards"
 import modernize from "./modernize"
 import optimize from "./optimize"
 import refactor from "./refactor"
@@ -13,7 +12,7 @@ import simplify from "./simplify"
 import simplifyCode from "./simplify-code"
 
 export const specs = [
-  overhaul, brownfield, pipeline, vibeCode, cleanup, executor, extractStandards, modernize,
+  overhaul, brownfield, pipeline, vibeCode, cleanup, executor, modernize,
   optimize, refactor, simplify, simplifyCode
 ]
 

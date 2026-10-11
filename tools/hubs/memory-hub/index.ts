@@ -1,27 +1,21 @@
 import { HubSubcommand } from "../../hub-data"
 import capture from "./capture"
-import resume from "./resume"
-import codebase from "./codebase"
-import compare from "./compare"
 import compress from "./compress"
 import consume from "./consume"
 import context from "./context"
-import decompose from "./decompose"
 import diff from "./diff"
 import exportSpec from "./export"
-import journal from "./journal"
 import memory from "./memory"
 import prune from "./prune"
 import search from "./search"
 import secondbrain from "./secondbrain"
 import session from "./session"
-import sweep from "./sweep"
-import webResearch from "./web-research"
+import consolidateTelemetry from "./consolidate-telemetry"
+import vectorize from "./vectorize"
 
 export const specs = [
-  capture, resume, codebase, compare, compress, consume, context, decompose,
-  diff, exportSpec, journal, memory, prune, search, secondbrain, session,
-  sweep, webResearch
+  capture, compress, consume, context, diff, exportSpec, memory, prune, search, secondbrain,
+  session, consolidateTelemetry, vectorize
 ]
 
 export const subcommands: HubSubcommand[] = specs.map(s => ({
