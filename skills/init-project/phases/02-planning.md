@@ -194,7 +194,7 @@ Output JSON plan to .opencode/state/init-plan.json"
 
 ## Mode-Specific Planning
 
-### --minimal Mode
+### Minimal Mode
 
 Create only essential files:
 - `.opencode/opencode.jsonc` - Basic config
@@ -206,7 +206,7 @@ Skip:
 - Custom agents
 - Templates
 
-### --full Mode
+### Full Mode
 
 Create complete structure:
 - All minimal files

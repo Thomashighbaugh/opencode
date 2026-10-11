@@ -1,8 +1,8 @@
-# Phase 7: Routing & Integration (--full only)
+# Phase 7: Routing & Integration (full mode only)
 
 Wire project-specific resources into the hub system, validate all cross-references, and run a final integration check.
 
-**Skip condition:** This phase ONLY runs when `--full` flag is active. Default `setup` skips it.
+**Skip condition:** This phase ONLY runs in **full** mode (chosen at the gatekeeping question, or via `--full`). Standard `setup`/`refresh` skip it.
 
 ## Purpose
 

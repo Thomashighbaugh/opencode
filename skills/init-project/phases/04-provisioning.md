@@ -20,11 +20,11 @@ Task(subagent_type="config-orchestrator",
 Read from `.opencode/state/init-plan.json`:
 - Language, framework, package manager
 - Project directories and structure
-- Mode flag: `--minimal`, default, or `--full`
+- Mode: minimal / standard / full (chosen at the gatekeeping question; `--minimal` / `--full` skip the question)
 
 ## Mode Scaling
 
-| Aspect | `--minimal` | Default | `--full` (thorough) |
+| Aspect | `--minimal` | Standard | `--full` (thorough) |
 |--------|-------------|---------|---------------------|
 | **Agents** | 0 (none) | 2-3 stub agents | 5+ custom agents with full prompts |
 | **Tools** | 0 (none) | 0 (none) | 1-2 project-specific TypeScript tools |
@@ -63,7 +63,7 @@ Create agent markdown files in `.opencode/agents/`:
 
 **Minimal mode** — skip (no agents created).
 
-**Default mode** — create stub agents:
+**Standard mode** — create stub agents:
 ```markdown
 ---
 description: Development agent for {project}
@@ -154,7 +154,7 @@ Create command markdown files in `.opencode/commands/` wrapping common workflows
 
 **Minimal mode** — skip.
 
-**Default mode** — create 2-3 stub commands:
+**Standard mode** — create 2-3 stub commands:
 ```markdown
 ---
 description: {description}

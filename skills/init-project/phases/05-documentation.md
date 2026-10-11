@@ -18,7 +18,7 @@ Read detection and plan results:
 
 ## Skip Condition
 
-**Skip this phase if `--minimal` mode is active.**
+**Skip this phase in minimal mode.**
 
 Minimal mode only creates the root AGENTS.md (already done in Phase 3).
 

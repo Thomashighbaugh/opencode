@@ -316,7 +316,7 @@ REPORT_EOF
 ## Next Steps
 
 1. Review `.opencode/AGENTS.md` and customize for your project
-2. Run `/deepinit` to create documentation hierarchy (if --minimal used)
+2. Run `/deepinit` to create documentation hierarchy (if minimal mode used)
 3. Commit `.opencode/` to version control
 4. Add project-specific agents or skills as needed
 
@@ -403,10 +403,10 @@ Errors:
 Report saved to: .opencode/state/init-report.md
 
 To retry:
-  /init-project --force
+  /hub-setup setup --force
 
 To resume from last checkpoint:
-  /init-project --resume
+  /hub-setup setup --resume
 ```
 
 ## Cleanup
