@@ -5,7 +5,7 @@ import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "vectorize",
   description: "Embed codebase + context into local vector DB for semantic retrieval",
-  reminder: "Run vectorization over project code and context.",
+  reminder: "Run vectorization over project code and context. Asks: scope.",
   inline: true,
 
   detailedDescription: `Vectorize the project for semantic retrieval. Two local vector stores are maintained under .opencode/state/vector/ (gitignored):
@@ -27,7 +27,17 @@ The vectorize hook (plugins/hooks/vectorize-hook.ts) keeps both stores fresh as 
   node <skill-dir>/scripts/query.ts "question"
   node <skill-dir>/scripts/query.ts --code "question"
 
-Stats: node <skill-dir>/scripts/vectorize.ts prints scanned/indexed/skipped/chunks/elapsed per store.`,
+Stats: node <skill-dir>/scripts/vectorize.ts prints scanned/indexed/skipped/chunks/elapsed per store.
+
+## Gatekeeping Question
+
+Before indexing, ask (passing the flag skips the question — non-interactive path):
+
+> **Question — vectorize scope?**
+> 1. Context + code — both stores (default)
+> 2. Code store only
+
+Resolved answer maps to \`--all\` / \`--code\`.`,
 
   tools: TOOLS_BASH,
   rules: [],

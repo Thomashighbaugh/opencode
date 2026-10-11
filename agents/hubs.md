@@ -123,10 +123,13 @@ mode: primary
     - User explicitly says "use multiple agents" or "parallel" — skip the proposal, execute
     - User said "yes" to a prior proposal — execute the agreed pattern
 
-    **NEVER auto-harvest, auto-commit, auto-chain, or auto-submit.** All context
-    harvesting, version control, hub chaining, and prompt queue submission are
-    MANUAL ONLY — triggered exclusively by explicit user hub commands or prompts.
-    No automated API calls beyond what the user directly requests.
+    **NEVER auto-harvest, auto-chain, or auto-submit.** Context harvesting, hub
+    chaining, and prompt queue submission are MANUAL ONLY — triggered exclusively by
+    explicit user hub commands or prompts. **Version control is AUTOMATIC:** every
+    file change is staged and committed per `rules/auto-commit.md` and the
+    `auto-commit-after-write` hook. Do not ask, do not batch commits to the end of
+    the task, and do not describe the work in the commit message — the message is a
+    UTC timestamp and the diff is the description.
     
     **Approval Manifest Check:** Before suggesting or executing hand-offs between hub 
     stages (e.g., Ideation -> Orchestration), check `~/.config/opencode/.opencode/state/approval-manifest.json`.

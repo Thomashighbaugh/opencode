@@ -5,7 +5,7 @@ import { TOOLS_BASH, RULES_COMPLETION_KARPAHTY } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "deep-bug-hunt",
   description: "Critical bug hunt on recent changes — regressions, data loss, security holes",
-  reminder: "Hunt recent commits for critical correctness bugs.",
+  reminder: "Hunt recent commits for critical correctness bugs. Asks: hunt mode.",
   inline: true,
 
   detailedDescription: `Deep bug hunt — inspect recent changes and find critical correctness bugs that escaped review. Synthesizes three methodologies: post-merge blast-radius triage (deep-bug-hunt), engagement-mode confirmation + false-positive discipline (bb-methodology), and the 4-phase Root Cause → Pattern → Hypothesis → Fix investigation (bug-hunt).
@@ -17,6 +17,17 @@ const spec: HubSubcommandSpec = {
 | \`deep-bug-hunt\` (no args) | Recent-commit sweep | Auditing what merged recently |
 | \`deep-bug-hunt <symptom>\` | Investigation | A known bug or failure needs root cause |
 | \`deep-bug-hunt --audit <scope>\` | Proactive audit | Sweeping a package/dir for unreported bugs |
+
+## Gatekeeping Question
+
+Before starting, ask (passing the flag/arg skips the question — non-interactive path):
+
+> **Question — hunt mode?**
+> 1. Recent-commit sweep (default) — commits merged in the last 24h on the default branch
+> 2. Investigate a symptom — type what broke
+> 3. Proactive audit — type a scope (package/dir) to read line-by-line
+
+Resolved answer selects the mode; options 2 and 3 also collect the target (symptom / scope).
 
 ## Step 0: Mode confirmation (before anything else)
 
@@ -80,16 +91,16 @@ STOP after reporting — do not continue into unrelated refactors. Per karpathy-
   relatedSkills: ["systematic-debugging", "verify", "trace"],
   examples: [
     {
-      input: "/project deep-bug-hunt",
-      approach: "Sweep last 24h commits on the default branch for critical correctness bugs; report a summary table; fix only confirmed high-severity issues.",
+      input: "/verify-hub deep-bug-hunt",
+      approach: "Asks hunt mode (Recent-commit sweep). Sweep last 24h commits on the default branch for critical correctness bugs; report a summary table; fix only confirmed high-severity issues."
     },
     {
-      input: "/project deep-bug-hunt 'feature X broke after yesterday's deployment'",
-      approach: "Reproduce, git-archaeology to find the breaking commit (git log --since, git bisect), compare against working reference, single-hypothesis test, minimal root-cause fix with a failing test first.",
+      input: "/verify-hub deep-bug-hunt",
+      approach: "Asks hunt mode — user picks Investigate and types the symptom. Reproduce, git-archaeology to find the breaking commit (git log --since, git bisect), compare against working reference, single-hypothesis test, minimal root-cause fix with a failing test first."
     },
     {
-      input: "/project deep-bug-hunt --audit src/auth/",
-      approach: "Line-by-line systematic read of the auth package; classify findings HIGH/MEDIUM/LOW; check failure-injection test coverage; report summary table with file:line and proposed fixes.",
+      input: "/verify-hub deep-bug-hunt --audit src/auth/",
+      approach: "Flag passed → mode gate skipped. Line-by-line systematic read of the auth package; classify findings HIGH/MEDIUM/LOW; check failure-injection test coverage; report summary table with file:line and proposed fixes."
     },
   ],
   warnings: [

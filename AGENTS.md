@@ -85,7 +85,7 @@ Every turn, every subagent invocation, every verification round costs an API req
 | **Context** | `.opencode/context/` | Committed | Durable knowledge |
 | **Secrets** | `.opencode/state/sessions/` | Gitignored | Session lifetime only |
 
-**All context operations are MANUAL ONLY.** No auto-harvest, auto-commit, auto-chain, or auto-submit.
+**Context operations are MANUAL ONLY** — no auto-harvest, auto-chain, or auto-submit. **Version control is AUTOMATIC** — every file change is staged and committed with a UTC-timestamp message per `rules/auto-commit.md` and the `auto-commit-after-write` hook.
 
 ## Critical: No Auto-Mode Activation
 

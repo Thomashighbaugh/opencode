@@ -5,7 +5,7 @@ import { TOOLS_BASH, RULES_CONTEXT_STRATEGY, SKILLS_ADR } from "../shared-spec-f
 const spec: HubSubcommandSpec = {
   label: "consolidate-telemetry",
   description: "Consolidate SRCL telemetry log into proposed ADRs in decisions.md",
-  reminder: "Consolidate telemetry log into ADR proposals.",
+  reminder: "Consolidate telemetry log into ADR proposals. Asks: window + write/preview + output file.",
   inline: true,
 
   detailedDescription: `Consolidates the Self-Refining Config Loop (SRCL) telemetry log at .opencode/state/telemetry.ndjson into a proposed ADR appended to .opencode/context/decisions.md.
@@ -23,18 +23,34 @@ const spec: HubSubcommandSpec = {
 5. Append to .opencode/context/decisions.md (or .opencode/context/proposed-improvements.md if it exists).
 6. Print a summary table to the terminal.
 
-**Flags:**
-- \`--since 7d\` — window (default: 7d, accepts Nd/Nh/Nm).
-- \`--dry-run\` — print ADR to stdout, do not write to disk.
-- \`--output FILE\` — write to alternate path (default: decisions.md).
-
 **Hot-path cost:** zero. The consolidation step runs only on explicit invocation and does LLM-free pattern detection. A user can call \`/ideate-hub tree-of-thoughts\` after consolidation to brainstorm alternatives if the proposals feel weak.
 
 **Validation commands:**
 - \`wc -l .opencode/state/telemetry.ndjson\` — log size.
 - \`tail -20 .opencode/context/decisions.md\` — most recent ADR.
 
-See skill \`adr-skill\` for ADR structure conventions. See \`opencode/state/ideation/work-products/20260723_180000_refine_self-refining-config-loop.md\` for the design one-pager.`,
+See skill \`adr-skill\` for ADR structure conventions. See \`opencode/state/ideation/work-products/20260723_180000_refine_self-refining-config-loop.md\` for the design one-pager.
+
+## Gatekeeping Question
+
+Before consolidating, ask (passing the flags skips the question — non-interactive path):
+
+> **Question 1 — window?**
+> 1. 7d (default)
+> 2. 24h
+> 3. 30d
+> (or type your own — Nd / Nh / Nm)
+>
+> **Question 2 — write or preview?**
+> 1. Write to decisions.md (default)
+> 2. Preview only — print to stdout, no write
+>
+> **Question 3 — output file?** (only when writing)
+> 1. decisions.md (default)
+> 2. proposed-improvements.md (if it exists)
+> (or type a path)
+
+Resolved answers map to \`--since\`, \`--dry-run\`, and \`--output FILE\`.`,
 
   tools: TOOLS_BASH,
   rules: RULES_CONTEXT_STRATEGY,

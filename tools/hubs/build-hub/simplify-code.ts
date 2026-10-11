@@ -4,7 +4,7 @@ import { TOOLS_LOADSKILL_BASH, RULES_KARPAHTY_GUIDELINES } from "../shared-spec-
 const spec: HubSubcommandSpec = {
   label: "simplify-code",
   description: "Simplify for clarity — behavior preserved, scope respected",
-  reminder: "Simplify code while preserving exact behavior.",
+  reminder: "Simplify code while preserving exact behavior. Asks: apply or review only.",
   skill: "code-simplification",
 
   detailedDescription: `Code simplification via the code-simplification skill — a process-driven, model-agnostic workflow that reduces complexity while preserving exact behavior.
@@ -20,19 +20,29 @@ Process: understand before touching (Chesterton's Fence — check git blame for 
 
 Distinct from /build-hub simplify (which delegates to @code-simplifier agent): this subcommand runs the skill's structured checklist directly. Use either per preference — the skill is ideal when you want the full process-driven pass with explicit verification gates.
 
-Includes language-specific guidance for TypeScript/JavaScript, Python, and React/JSX, a common-rationalizations table, red flags, and a verification checklist.`,
+Includes language-specific guidance for TypeScript/JavaScript, Python, and React/JSX, a common-rationalizations table, red flags, and a verification checklist.
+
+## Gatekeeping Question
+
+Before starting, ask (passing the flag skips the question — non-interactive path):
+
+> **Question — apply changes or review only?**
+> 1. Apply — make the simplifications (default)
+> 2. Review-only — report opportunities, change nothing
+
+Resolved answer maps to \`--review-only\`.`,
 
   tools: TOOLS_LOADSKILL_BASH,
   rules: RULES_KARPAHTY_GUIDELINES,
   relatedSkills: [],
   examples: [
     {
-      input: "/project simplify-code src/services/payment.ts",
-      approach: "Load the code-simplification skill, apply Chesterton's Fence understanding pass, scan for structural/naming/redundancy signals, simplify incrementally with tests after each change, then run the verification checklist."
+      input: "/build-hub simplify-code src/services/payment.ts",
+      approach: "Asks apply-or-review (Apply). Load the code-simplification skill, apply Chesterton's Fence understanding pass, scan for structural/naming/redundancy signals, simplify incrementally with tests after each change, then run the verification checklist."
     },
     {
-      input: "/project simplify-code --review-only",
-      approach: "Run the skill's signal-scanning pass without applying changes — report opportunities (deep nesting, duplication, naming) so the user decides what to simplify."
+      input: "/build-hub simplify-code --review-only",
+      approach: "Flag passed → gate skipped (review-only). Run the skill's signal-scanning pass without applying changes — report opportunities (deep nesting, duplication, naming) so the user decides what to simplify."
     }
   ],
 }

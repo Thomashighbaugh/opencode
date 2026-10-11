@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 const spec: HubSubcommandSpec = {
   label: "remediate",
   description: "Watch CI, diagnose the cause, fix, re-run until green",
-  reminder: "Auto-remediate build failures until green.",
+  reminder: "Auto-remediate build failures until green. Asks: CI command + max iterations.",
   inline: true,
 
   detailedDescription: `Automated CI/build failure remediation loop:
@@ -15,15 +15,31 @@ const spec: HubSubcommandSpec = {
 
 Bounded by a max-iterations cap to prevent infinite loops on unfixable failures (e.g. infrastructure issues, missing credentials). When the cap is hit, escalate to the user with the failure taxonomy and attempted fixes.
 
-Use when a CI pipeline is failing and you want the agent to grind through fixes autonomously. NOT for failures that require human judgment (product decisions, ambiguous requirements).`,
+Use when a CI pipeline is failing and you want the agent to grind through fixes autonomously. NOT for failures that require human judgment (product decisions, ambiguous requirements).
+
+## Gatekeeping Question
+
+Before starting, ask (passing the flags skips the question — non-interactive path):
+
+> **Question 1 — CI failure command?** — the command whose output shows the failing log
+> 1. gh run view --log-failed
+> 2. Type your own (e.g. "make ci", "npm run ci")
+>
+> **Question 2 — max iterations?**
+> 1. 3
+> 2. 5 (default)
+> 3. 10
+> (or type your own number)
+
+Resolved answers map to \`--ci="..."\` and \`--max-iter=N\`.`,
 
   tools: ["bash", "modeState", "taskTodos"],
   relatedSkills: ["systematic-debugging"],
 
   examples: [
     {
-      input: "/orchestrate remediate --ci='gh run view --log-failed' --max-iter=5",
-      approach: "Fetch failing log. Analyze: 'TypeError in auth.test.ts:42'. Fix: correct the type. Re-run CI. Still failing? New error: 'missing env var'. Fix: add to CI config. Re-run. Green. Done."
+      input: "/swarm-hub remediate",
+      approach: "Asks CI command (gh run view --log-failed) and max iterations (5). Fetch failing log. Analyze: 'TypeError in auth.test.ts:42'. Fix: correct the type. Re-run CI. Still failing? New error: 'missing env var'. Fix: add to CI config. Re-run. Green. Done."
     }
   ]
 }

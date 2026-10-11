@@ -4,10 +4,25 @@ import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "optimize",
   description: "Analyze code for performance and security issues, then apply targeted fixes",
-  reminder: "Analyze and optimize code for performance/security.",
+  reminder: "Analyze and optimize code for performance/security. Asks: focus + measurement.",
   inline: true,
 
-  detailedDescription: `Analyzes code for performance and security issues, then applies targeted fixes. Invoked via /build-hub optimize <target> [--perf] [--security] [--dry-run] [--measure].
+  detailedDescription: `Analyzes code for performance and security issues, then applies targeted fixes.
+
+## Gatekeeping Question
+
+Before analyzing, ask (passing the flags skips the question — non-interactive path):
+
+> **Question 1 — optimize focus?**
+> 1. Performance — bottlenecks, memory, algorithms, caching, concurrency
+> 2. Security — injection, auth bypass, secret exposure, unsafe deserialization, CSRF, rate limiting
+> 3. Both (default) — full scan
+>
+> **Question 2 — verify with before/after measurement?**
+> 1. No (default)
+> 2. Yes — measure the same scenario before and after
+
+Resolved answers map to \`--perf\` / \`--security\` and \`--measure\`.
 
 ## Workflow
 
@@ -97,16 +112,16 @@ For each issue: Location (file:line), Category (Performance | Memory | Algorithm
 
   examples: [
     {
-      input: "/project optimize src/api/users.ts --perf",
-      approach: "Priority-ordered analysis finds N+1 query in listUsers (loop calling User.find inside map). Impact: 1000 users → ~1000 round-trips (~2000ms) → 1 batched query (~50ms), 40x. Fix with eager loading (JOIN or IN clause). Run tests after the change. Report: 1 finding (Critical), fixed, impact quantified."
+      input: "/build-hub optimize src/api/users.ts",
+      approach: "Asks focus (Performance) and measurement (No). Priority-ordered analysis finds N+1 query in listUsers (loop calling User.find inside map). Impact: 1000 users → ~1000 round-trips (~2000ms) → 1 batched query (~50ms), 40x. Fix with eager loading (JOIN or IN clause). Run tests after the change. Report: 1 finding (Critical), fixed, impact quantified."
     },
     {
-      input: "/project optimize src/ --security",
-      approach: "Security scan only across src/. Finds hardcoded API key in config.ts (Critical — fix immediately). Finds SQL injection in search endpoint (High — parameterize query). Report: 2 findings (1 critical fixed, 1 high fixed)."
+      input: "/build-hub optimize src/ --security",
+      approach: "Flag passed → focus gate skipped (security only). Finds hardcoded API key in config.ts (Critical — fix immediately). Finds SQL injection in search endpoint (High — parameterize query). Report: 2 findings (1 critical fixed, 1 high fixed)."
     },
     {
-      input: "/project optimize src/payment.ts --measure",
-      approach: "Full scan with measurement. Defines the repeatable scenario (warmup + N iterations + quiescent point), measures baseline, applies fixes (redundant JSON.parse in hot path, O(n²) loop, missing memory cleanup), reruns the same scenario, compares before/after. Reports findings with quantitative before/after numbers."
+      input: "/build-hub optimize src/payment.ts",
+      approach: "Asks focus (Both) and measurement (Yes). Defines the repeatable scenario (warmup + N iterations + quiescent point), measures baseline, applies fixes (redundant JSON.parse in hot path, O(n²) loop, missing memory cleanup), reruns the same scenario, compares before/after. Reports findings with quantitative before/after numbers."
     }
   ],
 

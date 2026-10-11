@@ -27,13 +27,13 @@ Directly invoke the matching subcommand. Print the reminder, then delegate to th
 
 | Subcommand | Phases | Skill/Delegate | What It Does |
 |------------|--------|----------------|--------------|
-| `setup` | 0-8 | self (all phases) | Full project initialization — default runs 0-5+8, `--full` adds 6-7 |
+| `setup` | 0-8 | self (all phases) | Full project initialization — asks scope (standard/full/minimal), then runs the matching phases |
 | `detect` | 0-1 | `stack-detector` agent | Deep stack detection — languages, frameworks, build tools, testing, ORM, CSS, CI/CD, infra |
 | `recommend` | 2 | `stack-recommender` skill | Map stack fingerprint to recommended global resources (skills, agents, rules, hint pack) |
 | `docs` | 5 | `deepinit` skill | Regenerate hierarchical AGENTS.md documentation |
 | `context` | 6 | `@architect` + `@convention-extractor` + `@explore` | Deep codebase mapping, context synthesis, agent upgrade (same as `setup --full` Phase 6) |
 | `verify` | 8 | `verifier` agent | Validate configuration completeness and integrity, including .gitignore privacy protections |
-| `refresh` | 0-8 (merge) | self (all phases, merge mode) | Update existing config — default runs 0-5+8 merge, `--full` adds 6-7 (deep re-mapping + integration) |
+| `refresh` | 0-8 (merge) | self (all phases, merge mode) | Update existing config — asks standard or full, then runs 0-5+8 or all 0-8 (merge) |
 | `status` | — | self (inline) | List state files and show checkpoint progress |
 | `map-codebase` | — | inline | Analyze existing codebase — spawn parallel agents to map stack, architecture, conventions (subset of Phase 6) |
 | `doctor` | — | inline | Run diagnostic health check — validate Hubs installation, config integrity, state consistency |
@@ -59,13 +59,13 @@ Each subcommand follows the hub pattern:
 
 | Subcommand | Reminder on Invoke |
 |------------|-------------------|
-| `setup` | Full init from scratch. I'll verify global Hubs, detect your stack, scaffold config, provision agents/tools, generate docs, and validate. Use --full for deep codebase mapping and context capture. |
+| `setup` | Full init from scratch. I'll verify global Hubs, detect your stack, scaffold config, provision agents/tools, generate docs, and validate. On first run I'll ask: standard, full, or minimal? |
 | `detect` | Deep stack detection via @stack-detector. I'll analyze languages, frameworks, build tools, testing, ORM, CSS, CI/CD, and more. |
 | `recommend` | Recommending global resources via stack-recommender. I'll map your detected stack to relevant skills, agents, rules, and a hint pack. |
 | `docs` | Generating codebase documentation via deepinit. I'll create hierarchical AGENTS.md files across your directories. |
 | `context` | Deep codebase mapping via parallel agents (@architect, @convention-extractor, @explore). I'll synthesize architecture and conventions into durable context and upgrade your project agents. |
 | `verify` | Validating configuration via @verifier. I'll check file existence, config syntax, parent refs, and gitignore. |
-| `refresh` | Updating existing config. I'll preserve your manual edits and merge new detections. Use --full for deep codebase re-mapping and context refresh. |
+| `refresh` | Updating existing config. I'll preserve your manual edits and merge new detections. On first run I'll ask: standard or full refresh. |
 | `status` | Showing init state and checkpoint progress. |
 | `map-codebase` | Mapping existing codebase. I'll spawn parallel agents to analyze stack, architecture, and conventions. |
 | `doctor` | Running Hubs health diagnostics. I'll validate installation, config integrity, and state consistency. |
@@ -84,7 +84,7 @@ Flags modify subcommand behavior and are passed through:
 | Flag | Effect | Applies To |
 |------|--------|------------|
 | `--minimal` | Essential files only, no docs | `setup`, `refresh` |
-| `--full` | Everything including context and routing | `setup`, `refresh` |
+| `--full` | Force full mode; on `refresh`, skips the standard/full gatekeeping question | `setup`, `refresh` |
 | `--force` | Skip "already exists" checks | `setup`, `refresh`, `docs` |
 | `--language <lang>` | Force language, skip detection | `setup`, `detect`, `refresh` |
 | `--no-detect` | Use generic defaults | `setup`, `refresh` |
@@ -93,6 +93,8 @@ Flags modify subcommand behavior and are passed through:
 Default (no flags, `setup` subcommand): Phases 0-5 + 8 (full scaffold + provision + docs + verify, no deep context capture or routing integration).
 
 With `--full`: All 9 phases (0-8) including Phase 6 (deep codebase mapping + context capture via parallel agents) and Phase 7 (routing integration validation).
+
+**Gatekeeping questions:** neither `setup` nor `refresh` requires `--full`/`--minimal`. On first run (no mode flag) each asks a single question — `setup`: **standard, full, or minimal?**; `refresh`: **standard or full?** — and runs the matching phase set. Passing the mode flag skips the question.
 
 Applies to both `setup` and `refresh`. In `refresh`, all phases run in merge mode — preserving manual edits, diffing existing context, and updating only changed sections.
 
@@ -211,7 +213,20 @@ The effort in Phase 4 scales with the init mode:
 
 ## Subcommand: setup
 
-Full project initialization from scratch. Default mode runs phases 0-5 + 8 (scaffold, provision, docs, verify). With `--full`, all 9 phases run including deep context capture (Phase 6) and routing integration (Phase 7).
+Full project initialization from scratch. On first run it asks the setup scope, then runs the matching phase set: standard (0-5 + 8), full (all 9 phases, adding deep context capture Phase 6 and routing integration Phase 7), or minimal.
+
+### Gatekeeping Question (first run)
+
+When `setup` is invoked without a mode flag (`--full`/`--minimal`), ask before starting:
+
+**Question:** "Setup scope — standard, full, or minimal?"
+
+**Options:**
+1. **Standard** — phases 0-5 + 8. Scaffold, provision, docs, verify.
+2. **Full** — all 9 phases (0-8). Adds deep codebase mapping (Phase 6) and routing integration (Phase 7). Adds 5-15 minutes.
+3. **Minimal** — essential files only, no docs.
+
+Pass `--full` or `--minimal` to skip the question.
 
 ### Pre-Flight
 
@@ -388,9 +403,21 @@ Verified:
 
 ## Subcommand: refresh
 
-Update existing configuration, preserving manual edits. Default mode runs phases 0-5 + 8 in merge mode. With `--full`, all 9 phases run (0-8) including deep codebase re-mapping (Phase 6) and routing integration validation (Phase 7).
+Update existing configuration, preserving manual edits. On first run it asks whether to do a **standard** or **full** refresh, then runs phases 0-5 + 8 or all 9 phases (0-8) in merge mode. Passing `--full` skips the question.
 
-### Default Behavior (merge mode, phases 0-5 + 8)
+### Gatekeeping Question (first run)
+
+When `refresh` is invoked without a mode flag (`--full`), ask before doing any work:
+
+**Question:** "Refresh mode — standard or full?"
+
+**Options:**
+1. **Standard** — phases 0-5 + 8, merge mode. Re-detect stack, merge recommendations, re-provision (preserving manual edits), update docs, verify.
+2. **Full** — all 9 phases (0-8). Standard plus deep codebase re-mapping (Phase 6) and routing integration validation (Phase 7). Adds 5-15 minutes.
+
+Pass `--full` to skip the question and force full refresh.
+
+### Standard Behavior (merge mode, phases 0-5 + 8)
 
 1. **Read existing** — parse current `.opencode/opencode.jsonc` and `AGENTS.md`
 2. **Diff structure** — compare current directory tree vs what AGENTS.md describes
@@ -403,7 +430,7 @@ Update existing configuration, preserving manual edits. Default mode runs phases
 
 ### Full Behavior (merge mode, phases 0-8)
 
-All default behavior PLUS:
+All standard behavior PLUS:
 
 9. **Phase 6: Deep codebase re-mapping** — Re-spawn 3 parallel agents:
    - `@architect` — re-analyze architecture, detect new modules/refactored boundaries
@@ -414,14 +441,14 @@ All default behavior PLUS:
 10. **Phase 7: Routing re-validation** — Validate all agent extends paths, skill frontmatter, tool exports, rule registration, .gitignore. Fix broken cross-references. Generate updated integration report.
 11. **Phase 8: Verify + diff report** — Final health check plus a change diff showing what was added, updated, and flagged as stale.
 
-### When to use refresh --full
+### When to choose full refresh
 
 - Codebase has evolved significantly since last init (new modules, refactors, architectural changes)
 - New conventions adopted (team changed naming, error handling, testing patterns)
 - Context feels stale — agents give generic advice that doesn't match current codebase
 - After absorbing another project (merger, acquisition, monorepo consolidation)
 
-### When default refresh is sufficient
+### When standard refresh is sufficient
 
 - Minor dependency updates, no architectural changes
 - Config drift fix, opencode.jsonc needs syncing

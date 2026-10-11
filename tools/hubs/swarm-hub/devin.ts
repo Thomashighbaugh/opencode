@@ -4,7 +4,7 @@ import { TOOLS_BASH_LISTAGENTS_MODESTATE_TASKTODOS, RULES_COMPLETION_GUARDRAIL }
 const spec: HubSubcommandSpec = {
   label: "devin",
   description: "Autonomous plan → code → debug → deploy with root-cause loops",
-  reminder: "Plan→Code→Debug→Deploy pipeline.",
+  reminder: "Plan→Code→Debug→Deploy pipeline. Asks: deploy command.",
   inline: true,
 
   detailedDescription: `Four-phase autonomous pipeline inspired by Devin-style agentic coding:
@@ -16,7 +16,18 @@ const spec: HubSubcommandSpec = {
 
 The distinguishing feature is the Debug sub-loop: rather than just "try again", it does root-cause analysis first. This prevents fix-attempt cycles that treat symptoms rather than causes.
 
-Use for end-to-end feature delivery where you expect bugs during implementation and want autonomous root-cause debugging rather than blind retries.`,
+Use for end-to-end feature delivery where you expect bugs during implementation and want autonomous root-cause debugging rather than blind retries.
+
+## Gatekeeping Question
+
+Before starting, ask (passing the flag skips the question — non-interactive path):
+
+> **Question — deploy command?**
+> 1. Skip deploy — stop after verification
+> 2. Pick a package.json script (e.g. "npm run deploy")
+> (or type your own command)
+
+Resolved answer maps to \`--deploy="..."\`.`,
 
   tools: TOOLS_BASH_LISTAGENTS_MODESTATE_TASKTODOS,
   rules: RULES_COMPLETION_GUARDRAIL,
@@ -24,8 +35,8 @@ Use for end-to-end feature delivery where you expect bugs during implementation 
 
   examples: [
     {
-      input: "/orchestrate devin --deploy='npm run deploy' 'add WebSocket support to the chat server'",
-      approach: "Plan: add WS server, client adapter, message handler, reconnection logic. Code: implement each. Debug: tests fail on reconnection — root cause is race condition in close handler. Fix. Re-verify: pass. Deploy."
+      input: "/swarm-hub devin 'add WebSocket support to the chat server'",
+      approach: "Asks deploy command (npm run deploy). Plan: add WS server, client adapter, message handler, reconnection logic. Code: implement each. Debug: tests fail on reconnection — root cause is race condition in close handler. Fix. Re-verify: pass. Deploy."
     }
   ]
 }
