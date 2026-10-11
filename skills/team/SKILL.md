@@ -9,6 +9,14 @@ license: MIT
 
 # Team Skill
 
+## Gatekeeping Question
+
+`/orchestrate-hub team` asks before dispatching (passing `--agents=N` skips it):
+
+> **Question — team size?** 2 / 3 (common default) / 4 / 5 agents (or type your own number).
+
+Resolved answer maps to `--agents=N`.
+
 Spawn N coordinated agents working on a shared task list using OpenCode's native team tools. Replaces the legacy `/swarm` skill (SQLite-based) with built-in team management, inter-agent messaging, and task dependencies.
 
 ## Usage

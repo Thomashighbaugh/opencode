@@ -7,6 +7,14 @@ license: MIT
 
 # CCG - Tri-Model Orchestration
 
+## Gatekeeping Question
+
+`/orchestrate-hub ccg` asks before querying (passing `--models` skips it):
+
+> **Question — which models?** (multi-select; default: a diverse set) Diverse default / Fast set / Reasoning set — select any combination, or type your own comma-separated list.
+
+Resolved answer maps to `--models=<comma-separated>`.
+
 CCG routes through the canonical `/ask` skill to get perspectives from multiple models, then synthesizes into one answer.
 
 Use this when you want parallel external perspectives without launching tmux team workers.

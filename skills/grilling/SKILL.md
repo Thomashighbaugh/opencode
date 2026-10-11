@@ -5,6 +5,14 @@ level: 2
 license: MIT
 ---
 
+## Gatekeeping Question
+
+`/ideate-hub grill` asks before grilling (passing `--plan` skips it):
+
+> **Question — what to grill?** Type a plan/topic inline, or select an existing plan (`.opencode/state/ideation/*.md`), or type a path.
+
+Resolved answer is either the inline topic or `--plan=<file>`.
+
 Interview me relentlessly about every aspect of this until we reach a shared understanding. Walk down each branch of the decision tree, resolving dependencies between decisions one-by-one. For each question, provide your recommended answer.
 
 Ask the questions one at a time, waiting for feedback on each question before continuing. Asking multiple questions at once is bewildering.

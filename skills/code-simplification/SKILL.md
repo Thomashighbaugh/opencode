@@ -7,6 +7,14 @@ license: MIT
 
 # Code Simplification
 
+## Gatekeeping Question
+
+`/build-hub simplify-code` asks before starting (passing `--review-only` skips it):
+
+> **Question — apply changes or review only?** Apply (default) / Review-only.
+
+Resolved answer maps to `--review-only`.
+
 > Inspired by the [Claude Code Simplifier plugin](https://github.com/anthropics/claude-plugins-official/blob/main/plugins/code-simplifier/agents/code-simplifier.md). Adapted here as a model-agnostic, process-driven skill for any AI coding agent.
 
 ## Overview

@@ -15,6 +15,19 @@ metadata:
 
 # OpenCode Delegate
 
+## Gatekeeping Question
+
+`/swarm-hub delegate` asks before dispatching (passing the flags skips the corresponding question):
+
+> **Question 1 — implement or review-only?** Implement (write agent, `--auto`) / Review-only (plan agent, no `--auto`)
+> **Question 2 — model/lane?** pick a configured lane, or type provider/model
+> **Question 3 — repo?** pick a known repo, or type a path
+> **Question 4 — brief source?** inline description / existing brief file (type a path)
+> **Question 5 — fresh or continue last?** Fresh run / Continue last (`--resume-last`)
+> **Question 6 — timeout?** 5m / 10m / 30m (or type your own)
+
+Resolved answers map to `--read-only`, `--model`/`--lane`, `--cd`, `--brief`, `--resume-last`, `--timeout`. `--auto` is derived from Question 1.
+
 You are the **orchestrator**. This skill lets you hand a bounded coding task to a separate
 **implementer** — the OpenCode CLI — then review what it produced and land it yourself. You write
 the brief and own the judgment; OpenCode does the typing in its own session; you verify and commit.

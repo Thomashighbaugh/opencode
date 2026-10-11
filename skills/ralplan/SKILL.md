@@ -8,6 +8,14 @@ license: MIT
 
 # Ralplan (Consensus Planning Alias)
 
+## Gatekeeping Question
+
+`/plan-hub ralplan` asks before validating (passing `--plan` skips it):
+
+> **Question — which plan to validate?** Select an existing plan (`.opencode/state/ideation/*.md`), or type a topic (generate the plan first via `/plan-hub plan`), or type a path.
+
+Resolved answer maps to `--plan=<file>`. The skill's own flags (`--interactive`, `--deliberate`, `--architect`, `--critic`) are separate and unaffected.
+
 Ralplan is a shorthand alias for `/omc-plan --consensus`. It triggers iterative planning with Planner, Architect, and Critic agents until consensus is reached, with **RALPLAN-DR structured deliberation** (short mode by default, deliberate mode for high-risk work).
 
 ## Usage

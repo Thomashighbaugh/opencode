@@ -6,6 +6,15 @@ level: 4
 license: MIT
 ---
 
+## Gatekeeping Question
+
+`/orchestrate-hub ralph` asks before looping (passing the flags skips each question):
+
+> **Question 1 — verifier agent?** @verifier (default) / @qa-tester / @security-reviewer / @code-reviewer (or type your own @agent)
+> **Question 2 — completion goal?** type your own (preset: "all tests pass")
+
+Resolved answers map to `--verifier=@x` and `--goal="..."`. The skill's own flags (`--no-prd`, `--no-deslop`, `--critic=`, `--external-verify`, `--self-verify`) are separate and unaffected.
+
 [RALPH + ULTRAWORK - ITERATION {{ITERATION}}/{{MAX}}]
 
 Your previous attempt did not output the completion promise. Continue working on the task.

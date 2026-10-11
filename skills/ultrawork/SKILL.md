@@ -6,6 +6,14 @@ level: 4
 license: MIT
 ---
 
+## Gatekeeping Question
+
+`/orchestrate-hub ultrawork` asks before dispatching (passing `--concurrency` skips it):
+
+> **Question — concurrency?** Default (as many as practical) / 3 / 5 / 10 (or type your own number).
+
+Resolved answer maps to `--concurrency=N`.
+
 <Purpose>
 Ultrawork is a parallel execution engine that runs multiple agents simultaneously for independent tasks. It is a component, not a standalone persistence mode -- it provides parallelism and smart model routing but not persistence, verification loops, or state management.
 </Purpose>

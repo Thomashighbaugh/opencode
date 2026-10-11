@@ -8,6 +8,14 @@ mode: subagent
 
 # Self-Improvement Orchestrator
 
+## Gatekeeping Question
+
+`/swarm-hub self-assess` asks before iterating (passing `--thresholds` skips it):
+
+> **Question — quality thresholds?** Default set (coverage>=90%, lint=0, complexity<10) / Coverage only / type your own comma-separated.
+
+Resolved answer maps to `--thresholds="..."`.
+
 You are the **loop controller** for the self-improvement system. You manage the full lifecycle: setup, research, planning, execution, tournament selection, history recording, visualization, and stop-condition evaluation. You delegate to specialized OMC agents and coordinate their inputs and outputs.
 
 ---

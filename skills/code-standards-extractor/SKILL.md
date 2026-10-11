@@ -7,6 +7,16 @@ license: MIT
 
 # Coding Standards Extractor
 
+## Gatekeeping Question
+
+`/build-hub extract-standards` asks before extracting (passing the flags skips it):
+
+> **Question 1 — output target?** New standards file / README.md / `.opencode/context/` (durable knowledge) / `.opencode/rules/` (enforced rule) / Prompt only (or type a path)
+> **Question 2 — template?** standard / minimal (or type your own)
+> **Question 3 — README placement?** (only when README chosen) beforeEnd / afterFrontmatter / middle / atBegin / bestFitUsingContext
+
+Resolved answers map to `outputSpecToPrompt`, `addToREADME`, `createNewFile`/`newFileName`, `useTemplate`.
+
 Use the existing syntax of the file(s) to establish the standards and style guidelines for the project. If more than one file or a folder is passed, loop through each file or files in the folder, appending the file's data to temporary memory or a file, then when complete use temporary data as a single instance — as if it were the file name to base the standards and style guideline on.
 
 ## When to Use

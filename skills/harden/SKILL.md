@@ -7,6 +7,16 @@ license: MIT
 
 # Harden
 
+## Gatekeeping Question
+
+`/swarm-hub harden` asks before wrapping (passing the flags skips it):
+
+> **Question 1 — wrap which orchestration pattern?** ralph / autopilot / team / ultrawork (or type your own)
+> **Question 2 — circuit-breaker threshold?** 3/5 (default) / 5/10 (or type your own `failures/attempts`)
+> **Question 3 — verification-gate command?** pick a `package.json` script, or type your own (e.g. "npm test")
+
+Resolved answers map to `--wrap`, `--circuit-breaker`, `--gate`.
+
 Composable security and robustness hardening. Run `@security-reviewer` to audit the codebase, apply fixes for discovered vulnerabilities, then re-verify that all issues are resolved. Uses composable robustness patterns: safeTask for error tracking, circuitBreaker for failure rate control, verificationGate for downstream blocking.
 
 ## When to Use

@@ -7,6 +7,14 @@ license: MIT
 
 # Agent Hive Methodology
 
+## Gatekeeping Question
+
+`/swarm-hub hive` asks before executing (passing `--plan` skips it):
+
+> **Question — which plan to execute?** Select an approved plan (`.opencode/state/ideation/*.md`), or type a topic (run `/swarm-hub hive-plan` first), or type a path.
+
+Resolved answer maps to `--plan=<file>`.
+
 > **Stop vibing. Start hiving.** Plan first. Execute with trust. Context persists.
 
 Inspired by [hung319/agent-hive](https://github.com/hung319/agent-hive)'s PHILOSOPHY.md — a multi-agent orchestration framework grounded in bee colony efficiency.
