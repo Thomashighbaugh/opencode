@@ -52,7 +52,7 @@ For GitHub agents, direct the user to the repo for setup instructions.
 
 After installing an agent-related skill package, integrate it into the existing agent ecosystem:
 
-1. **Update /resource-hub agent spec** — If the package provides agent definition patterns (like `opencode-agent-creator` or `custom-agent-definitions`), add it as a relatedSkill to `/resource-hub agent` so the agent-creation workflow loads it automatically.
+1. **Update /resource-hub create agent spec** — If the package provides agent definition patterns (like `opencode-agent-creator` or `custom-agent-definitions`), add it as a relatedSkill to `/resource-hub create agent` so the agent-creation workflow loads it automatically.
 
 2. **Update agent-creator skill** — If the package enhances agent creation, update the `opencode-agent-creator` skill's "Best Practices" or "References" section to mention the new package.
 

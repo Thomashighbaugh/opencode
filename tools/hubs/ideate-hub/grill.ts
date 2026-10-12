@@ -15,7 +15,7 @@ const spec: HubSubcommandSpec = {
 4. Resolves dependencies between decisions: if decision B depends on A, A is resolved first.
 5. Surfaces hidden assumptions that would cause rework if discovered during implementation.
 
-The output is a fully-stress-tested plan with every decision resolved and every assumption surfaced. Use before committing to implementation — especially for plans from /plan-hub plan, /design-hub architecture, or any design that seems "done" but might hide assumptions.
+The output is a fully-stress-tested plan with every decision resolved and every assumption surfaced. Use before committing to implementation — especially for plans from /plan-hub plan, /build-hub architecture, or any design that seems "done" but might hide assumptions.
 
 ## Gatekeeping Question
 

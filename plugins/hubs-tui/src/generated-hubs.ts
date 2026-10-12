@@ -71,40 +71,64 @@ export const HUBS: Hub[] = [
         "description": "Hand config orchestration to the config orchestrator"
       },
       {
-        "label": "find-agents",
-        "description": "Find and vet subagents for this stack from registries"
-      },
-      {
-        "label": "find-rules",
-        "description": "Find and vet rules for this stack from registries and templates"
-      },
-      {
-        "label": "find-skills",
-        "description": "Find installable skills for this stack — scans registries, vets, ranks"
-      },
-      {
-        "label": "find-tools",
-        "description": "Find and vet TypeScript tools for this stack from registries"
-      },
-      {
         "label": "prompt-simplifier",
         "description": "Simplify prompt logic — pass instructions directly to @prompt-simplifier"
       },
       {
-        "label": "agent",
-        "description": "Create a project-specific agent"
+        "label": "create",
+        "description": "Create a skill, rule, tool, command, or agent (type-gated)"
       },
       {
-        "label": "command",
-        "description": "Create a project slash command"
+        "label": "add",
+        "description": "Quick-add wizard — write a minimal resource of any type"
       },
       {
-        "label": "rule",
-        "description": "Create a project rule (.opencode/rules/)"
+        "label": "edit",
+        "description": "Interactively edit a resource's metadata or content"
       },
       {
-        "label": "skill",
-        "description": "Create a reusable skill from session knowledge"
+        "label": "info",
+        "description": "Show a resource's full frontmatter and content"
+      },
+      {
+        "label": "list",
+        "description": "List resources by scope with quality and usage stats"
+      },
+      {
+        "label": "remove",
+        "description": "Remove a resource by name after confirming"
+      },
+      {
+        "label": "scan",
+        "description": "Fast non-interactive inventory of all resource scopes"
+      },
+      {
+        "label": "search",
+        "description": "Search resources by name, description, or content"
+      },
+      {
+        "label": "validate",
+        "description": "Check a resource's structure and report what to fix"
+      },
+      {
+        "label": "package",
+        "description": "Validate a resource, then build a distributable archive"
+      },
+      {
+        "label": "sync",
+        "description": "Sync resources between user and project scope, showing diff"
+      },
+      {
+        "label": "setup",
+        "description": "Wizard — create resource dirs, scan inventory, choose actions"
+      },
+      {
+        "label": "update",
+        "description": "Iterate an existing resource through the creator workflow"
+      },
+      {
+        "label": "find",
+        "description": "Discover resources from registries — skills, agents, rules, tools"
       },
       {
         "label": "knowledge-graph",
@@ -241,23 +265,11 @@ export const HUBS: Hub[] = [
   {
     "name": "design-hub",
     "title": "Design",
-    "description": "Architecture, design, and documentation authoring",
+    "description": "UI/UX design and documentation authoring",
     "subs": [
       {
         "label": "docs",
         "description": "Generate hierarchical AGENTS.md documentation across the codebase"
-      },
-      {
-        "label": "arch-prep",
-        "description": "Architecture prep for upcoming features — extension points, refactoring runway"
-      },
-      {
-        "label": "architecture",
-        "description": "Architectural friction analysis — propose deep-module refactors"
-      },
-      {
-        "label": "modularity",
-        "description": "Module boundary analysis — detect circular dependencies, suggest reorg"
       },
       {
         "label": "redesign",
@@ -572,7 +584,7 @@ export const HUBS: Hub[] = [
   {
     "name": "build-hub",
     "title": "Build",
-    "description": "Implementation, refactoring, and code transformation",
+    "description": "Implementation, architecture, refactoring, and code transformation",
     "subs": [
       {
         "label": "overhaul",
@@ -581,6 +593,18 @@ export const HUBS: Hub[] = [
       {
         "label": "brownfield",
         "description": "Add a feature to existing code — find the seams, then implement"
+      },
+      {
+        "label": "arch-prep",
+        "description": "Architecture prep for upcoming features — extension points, refactoring runway"
+      },
+      {
+        "label": "architecture",
+        "description": "Architectural friction analysis — propose deep-module refactors"
+      },
+      {
+        "label": "modularity",
+        "description": "Module boundary analysis — detect circular dependencies, suggest reorg"
       },
       {
         "label": "pipeline",
@@ -762,65 +786,6 @@ export const HUBS: Hub[] = [
       {
         "label": "sweep",
         "description": "Find files in .opencode/ that should be gitignored"
-      }
-    ]
-  },
-  {
-    "name": "skills-hub",
-    "title": "Skills",
-    "description": "Skill authoring and lifecycle management",
-    "subs": [
-      {
-        "label": "add",
-        "description": "Wizard that writes a new SKILL.md from prompted answers"
-      },
-      {
-        "label": "create",
-        "description": "Create a skill end to end, including scripts and references"
-      },
-      {
-        "label": "edit",
-        "description": "Interactively edit a skill's description, triggers, or content"
-      },
-      {
-        "label": "info",
-        "description": "Show a skill's full frontmatter and content"
-      },
-      {
-        "label": "list",
-        "description": "List every skill by scope with quality and usage stats"
-      },
-      {
-        "label": "package",
-        "description": "Validate a skill, then build a distributable archive"
-      },
-      {
-        "label": "remove",
-        "description": "Remove a skill by name after confirming"
-      },
-      {
-        "label": "scan",
-        "description": "Fast non-interactive inventory of user and project skill scopes"
-      },
-      {
-        "label": "search",
-        "description": "Search skills by name, description, or content across all scopes"
-      },
-      {
-        "label": "setup",
-        "description": "Wizard — create skill dirs, scan inventory, choose actions"
-      },
-      {
-        "label": "sync",
-        "description": "Sync skills between user and project scope, showing the diff"
-      },
-      {
-        "label": "update",
-        "description": "Iterate an existing skill through the skill-creator workflow"
-      },
-      {
-        "label": "validate",
-        "description": "Check a skill's structure and report what to fix"
       }
     ]
   },

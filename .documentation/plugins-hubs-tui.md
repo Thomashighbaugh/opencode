@@ -8,7 +8,7 @@ Registered as `"plugin": ["file://./plugins/hubs-tui/dist/tui.js"]`.
 
 ## What it provides
 
-- **Hub command palettes** — every one of the 14 hubs as a `DialogSelect`, grouped and
+- **Hub command palettes** — every one of the 13 hubs as a `DialogSelect`, grouped and
   searchable.
 - **The `/focus` command** — a native slash command for session focus state.
 - **Prompt stashing** — stash the current input, retrieve it later.

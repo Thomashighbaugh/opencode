@@ -17,7 +17,7 @@ When documenting archetypes, note that each contains four subdirectories (agents
 
 Preserves the existing tone, links, and structure — it updates content, doesn't rewrite from scratch. Output is SEO-optimized and technically proficient.
 
-Use when the codebase has changed significantly and the README is stale. Not for creating a README from scratch (use /resource-hub command or writing skills for that).`,
+Use when the codebase has changed significantly and the README is stale. Not for creating a README from scratch (use /resource-hub create command or writing skills for that).`,
 
   tools: TOOLS_LOADSKILL_BASH,
   relatedSkills: ["crafting-effective-readmes"],

@@ -1,20 +1,26 @@
 import { HubSubcommand } from "../../hub-data"
 import configOrchestrator from "./config-orchestrator"
-import findAgents from "./find-agents"
-import findRules from "./find-rules"
-import findSkills from "./find-skills"
-import findTools from "./find-tools"
 import promptSimplifier from "./prompt-simplifier"
-import agent from "./agent"
-import command from "./command"
-import rule from "./rule"
-import skill from "./skill"
 import knowledgeGraph from "./knowledge-graph"
 import graph from "./graph"
+import create from "./create"
+import add from "./add"
+import edit from "./edit"
+import info from "./info"
+import list from "./list"
+import remove from "./remove"
+import scan from "./scan"
+import search from "./search"
+import validate from "./validate"
+import packageSpec from "./package"
+import sync from "./sync"
+import setup from "./setup"
+import update from "./update"
+import find from "./find"
 
 export const specs = [
-  configOrchestrator, findAgents, findRules, findSkills, findTools, promptSimplifier, agent,
-  command, rule, skill, knowledgeGraph, graph
+  configOrchestrator, promptSimplifier, create, add, edit, info, list, remove,
+  scan, search, validate, packageSpec, sync, setup, update, find, knowledgeGraph, graph
 ]
 
 export const subcommands: HubSubcommand[] = specs.map(s => ({

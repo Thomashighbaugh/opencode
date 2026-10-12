@@ -142,8 +142,8 @@ This ensures the stack-recommender's mapping tables are complete and no resource
 After `provision`, if the composer reports missing tool or rule templates, run discovery:
 
 ```bash
-/resource-hub find-tools   # Search registries for missing TypeScript tools
-/resource-hub find-rules   # Search registries for missing OpenCode rules
+/resource-hub find tools   # Search registries for missing TypeScript tools
+/resource-hub find rules   # Search registries for missing OpenCode rules
 ```
 
 These can also run standalone to discover resources for any project, independent of the detection pipeline.

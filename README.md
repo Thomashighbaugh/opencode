@@ -44,7 +44,7 @@ is the standing constraint that shapes the whole design.
                               │                              │
                       ┌───────▼──────────────────────────────▼─────────┐
                       │  31 subagents · 125 skills · 46 tools        │
-                      │  14 hubs / 183 subcommands · 20 rules         │
+                      │  13 hubs / 173 subcommands · 20 rules         │
                       └──────────────────────────────────────────────┘
 ```
 
@@ -108,7 +108,7 @@ Two design decisions carry this:
 
 ### 3. A command system, not a slash-command pile
 
-14 topical hubs, 183 subcommands, two-tier routing. Bare hub → slim identity slice; explicit
+13 topical hubs, 173 subcommands, two-tier routing. Bare hub → slim identity slice; explicit
 `/hub subcommand` → full spec in one response. **One LLM round-trip instead of two.**
 
 Every subcommand description is ≤ 80 characters and self-contained, because the TUI dialog shows
@@ -183,7 +183,7 @@ Every model is then local: embeddings, reranking, and the prompt-queue classifie
 | [Memory System](.documentation/memory-system.md) | Durable context, state vs context, the wiki layer |
 | [Knowledge Plane](.documentation/knowledge-plane.md) | Graph + vector retrieval, invariants, incremental rebuilds |
 | [Orchestration](.documentation/subagent-orchestration.md) | 31 subagents, delegation, the `task` tool |
-| [Hub Command System](.documentation/hub-command-system.md) | 14 hubs, 183 subcommands, two-tier routing |
+| [Hub Command System](.documentation/hub-command-system.md) | 13 hubs, 173 subcommands, two-tier routing |
 | [Rules & Skills](.documentation/rules-and-skills.md) | Rule loading, 125 skills, 46 tools |
 | [Efficiency](.documentation/request-token-efficiency.md) | Request and token budgets |
 | [Testing Strategy](.documentation/testing-strategy.md) | 1,086 behavioural tests and what they protect |

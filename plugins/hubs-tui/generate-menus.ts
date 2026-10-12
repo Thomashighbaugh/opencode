@@ -19,7 +19,6 @@ import buildHub from "../../tools/hub-build-hub"
 import orchestrateHub from "../../tools/hub-orchestrate-hub"
 import gitHub from "../../tools/hub-git-hub"
 import maintainHub from "../../tools/hub-maintain-hub"
-import skillsHub from "../../tools/hub-skills-hub"
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -53,8 +52,7 @@ const hubs: Hub[] = [
   buildHub,
   orchestrateHub,
   gitHub,
-  maintainHub,
-  skillsHub,].map((h) => ({
+  maintainHub,].map((h) => ({
   name: h.name,
   title: titleFromName(h.name),
   description: h.description,

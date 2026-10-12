@@ -41,22 +41,21 @@ The full `detailedDescription`, `tools`, `rules`, `relatedSkills`, `examples`, a
 tools/
 ├── hubMenu.ts              # Hub menu router tool
 ├── hub-data.ts             # Types, loaders, HUB_FILE_MAP, SUBCOMMAND_DIR_MAP, LEGACY_ROUTE_MAP
-├── hub-<name>-hub.ts       # Thin manifest (14 files) — identity slice only
+├── hub-<name>-hub.ts       # Thin manifest (13 files) — identity slice only
 └── hubs/
     ├── hub-setup/      # 12 files + index.ts
-    ├── resource-hub/      # 12
+    ├── resource-hub/      # 18
     ├── memory-hub/        # 13
     ├── research-hub/      # 14
-    ├── design-hub/        # 10
+    ├── design-hub/        #  7
     ├── ideate-hub/        # 17
     ├── plan-hub/          # 16
     ├── verify-hub/        # 14
     ├── swarm-hub/         # 17
-    ├── build-hub/         # 11
+    ├── build-hub/         # 14
     ├── orchestrate-hub/   # 12
     ├── git-hub/           # 10
     ├── maintain-hub/      #  9
-    └── skills-hub/        # 13
 ```
 
 ## Legacy Routing
@@ -68,17 +67,23 @@ pattern) and `orchestrate/deep` (duplicate of `ideation/deep-dive`).
 
 The 2026-10 re-homing pass moved subcommands to the hub that owns their activity (e.g. `journal` →
 `orchestrate-hub`, `sweep` → `maintain-hub`, `tracer` → `verify-hub`, `scan` renamed `sec-scan`).
+A later 2026-10 pass moved the architecture cluster (`arch-prep`, `architecture`, `modularity`) out
+of `design-hub` — where "design" ambiguously spanned visual UI/UX and project architecture — into
+`build-hub`, alongside `refactor`/`modernize`/`overhaul`.
 Every vacated `<hub>/<sub>` key was added to `LEGACY_ROUTE_MAP`, so a saved `/memory-hub resume`
 prompt still resolves.
 
-## Delegation Table (180 subcommands)
+## Delegation Table (173 subcommands)
 
 | Menu | Subcommand | Delegation |
 |------|-----------|------------|
+| `build-hub` | `arch-prep` | architect |
+| `build-hub` | `architecture` | improve-codebase-architecture |
 | `build-hub` | `brownfield` | brownfield |
 | `build-hub` | `cleanup` | ai-slop-cleaner |
 | `build-hub` | `executor` | @executor |
 | `build-hub` | `modernize` | code-simplification |
+| `build-hub` | `modularity` | architect |
 | `build-hub` | `optimize` | inline |
 | `build-hub` | `overhaul` | overhaul |
 | `build-hub` | `pipeline` | inline |
@@ -86,13 +91,10 @@ prompt still resolves.
 | `build-hub` | `simplify-code` | code-simplification |
 | `build-hub` | `simplify` | code-simplification |
 | `build-hub` | `vibe-code` | vibe-code |
-| `design-hub` | `arch-prep` | architect |
-| `design-hub` | `architecture` | improve-codebase-architecture |
 | `design-hub` | `designer` | @designer |
 | `design-hub` | `docs` | deepinit |
 | `design-hub` | `frontend-design` | @frontend-design |
 | `design-hub` | `icon` | icon-generator |
-| `design-hub` | `modularity` | architect |
 | `design-hub` | `readme` | readme-updater |
 | `design-hub` | `redesign` | redesign-existing-projects |
 | `design-hub` | `writer` | @writer |
@@ -187,18 +189,24 @@ prompt still resolves.
 | `research-hub` | `sciomc` | sciomc |
 | `research-hub` | `tech-eval` | inline |
 | `research-hub` | `web-research` | inline |
-| `resource-hub` | `agent` | opencode-agent-creator |
-| `resource-hub` | `command` | opencode-command-creator |
+| `resource-hub` | `add` | inline |
 | `resource-hub` | `config-orchestrator` | @config-orchestrator |
-| `resource-hub` | `find-agents` | find-agents |
-| `resource-hub` | `find-rules` | find-rules |
-| `resource-hub` | `find-skills` | find-skills |
-| `resource-hub` | `find-tools` | find-tools |
+| `resource-hub` | `create` | inline |
+| `resource-hub` | `edit` | inline |
+| `resource-hub` | `find` | inline |
 | `resource-hub` | `graph` | graph-thinking |
+| `resource-hub` | `info` | inline |
 | `resource-hub` | `knowledge-graph` | graph-context |
+| `resource-hub` | `list` | inline |
+| `resource-hub` | `package` | inline |
 | `resource-hub` | `prompt-simplifier` | @prompt-simplifier |
-| `resource-hub` | `rule` | inline |
-| `resource-hub` | `skill` | skill-creator |
+| `resource-hub` | `remove` | inline |
+| `resource-hub` | `scan` | inline |
+| `resource-hub` | `search` | inline |
+| `resource-hub` | `setup` | inline |
+| `resource-hub` | `sync` | inline |
+| `resource-hub` | `update` | inline |
+| `resource-hub` | `validate` | inline |
 | `hub-setup` | `config` | opencode-configure |
 | `hub-setup` | `detect` | stack-detector |
 | `hub-setup` | `doctor` | inline |
@@ -211,19 +219,6 @@ prompt still resolves.
 | `hub-setup` | `status` | inline |
 | `hub-setup` | `tag` | tag-resources |
 | `hub-setup` | `verify` | verify |
-| `skills-hub` | `add` | inline |
-| `skills-hub` | `create` | skill-creator |
-| `skills-hub` | `edit` | inline |
-| `skills-hub` | `info` | inline |
-| `skills-hub` | `list` | inline |
-| `skills-hub` | `package` | inline |
-| `skills-hub` | `remove` | inline |
-| `skills-hub` | `scan` | inline |
-| `skills-hub` | `search` | inline |
-| `skills-hub` | `setup` | inline |
-| `skills-hub` | `sync` | inline |
-| `skills-hub` | `update` | inline |
-| `skills-hub` | `validate` | inline |
 | `swarm-hub` | `cc10x` | inline |
 | `swarm-hub` | `delegate` | opencode-delegate |
 | `swarm-hub` | `devin` | inline |

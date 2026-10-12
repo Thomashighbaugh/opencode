@@ -197,7 +197,6 @@ export const HUB_FILE_MAP: Record<string, string> = {
   "orchestrate-hub": "./hub-orchestrate-hub",
   "git-hub": "./hub-git-hub",
   "maintain-hub": "./hub-maintain-hub",
-  "skills-hub": "./hub-skills-hub",
 }
 
 export function loadHub(name: string): HubDefinition | null {
@@ -241,7 +240,6 @@ const SUBCOMMAND_DIR_MAP: Record<string, string> = {
   "orchestrate-hub": "orchestrate-hub",
   "git-hub": "git-hub",
   "maintain-hub": "maintain-hub",
-  "skills-hub": "skills-hub",
 }
 
 // ─── Legacy Route Map ──────────────────────────────────────────────────
@@ -292,8 +290,8 @@ export const LEGACY_ROUTE_MAP: Record<string, string> = {
   "ideation/quality": "verify-hub/quality",  "ideation/ralplan": "plan-hub/ralplan",
   "ideation/requirements-analyzer": "plan-hub/requirements-analyzer",  "ideation/spiral": "plan-hub/spiral",
   "ideation/status": "plan-hub/status",  "ideation/story-mapping": "plan-hub/story-mapping",
-  "ideation/top-down": "plan-hub/top-down",  "ideation/arch-prep": "design-hub/arch-prep",
-  "ideation/architecture": "design-hub/architecture",  "ideation/modularity": "design-hub/modularity",
+  "ideation/top-down": "plan-hub/top-down",  "ideation/arch-prep": "build-hub/arch-prep",
+  "ideation/architecture": "build-hub/architecture",  "ideation/modularity": "build-hub/modularity",
   "ideation/redesign": "design-hub/redesign",  "ideation/analyst": "research-hub/analyst",
   "ideation/analyze-patterns": "research-hub/analyze-patterns",  "ideation/competitive-analysis": "research-hub/competitive-analysis",
   "ideation/graph": "resource-hub/graph",  "ideation/research": "research-hub/research",
@@ -352,13 +350,13 @@ export const LEGACY_ROUTE_MAP: Record<string, string> = {
   "project/converge": "maintain-hub/converge",  "project/icon": "design-hub/icon",
   "project/organize": "maintain-hub/organize",  "project/purge": "maintain-hub/purge",
   "project/sandbox": "maintain-hub/sandbox",  "project/workspace": "maintain-hub/workspace",
-  "skills/add": "skills-hub/add",  "skills/create": "skills-hub/create",
-  "skills/edit": "skills-hub/edit",  "skills/info": "skills-hub/info",
-  "skills/list": "skills-hub/list",  "skills/package": "skills-hub/package",
-  "skills/remove": "skills-hub/remove",  "skills/scan": "skills-hub/scan",
-  "skills/search": "skills-hub/search",  "skills/setup": "skills-hub/setup",
-  "skills/sync": "skills-hub/sync",  "skills/update": "skills-hub/update",
-  "skills/validate": "skills-hub/validate",
+  "skills/add": "resource-hub/add",  "skills/create": "resource-hub/create",
+  "skills/edit": "resource-hub/edit",  "skills/info": "resource-hub/info",
+  "skills/list": "resource-hub/list",  "skills/package": "resource-hub/package",
+  "skills/remove": "resource-hub/remove",  "skills/scan": "resource-hub/scan",
+  "skills/search": "resource-hub/search",  "skills/setup": "resource-hub/setup",
+  "skills/sync": "resource-hub/sync",  "skills/update": "resource-hub/update",
+  "skills/validate": "resource-hub/validate",
 
   // ─── 2026-10 re-homing ──────────────────────────────────────────────
   // Subcommands moved to the hub that owns their activity. The vacated
@@ -375,6 +373,27 @@ export const LEGACY_ROUTE_MAP: Record<string, string> = {
   "research-hub/tracer": "verify-hub/tracer",  "research-hub/graph": "resource-hub/graph",
   "build-hub/extract-standards": "research-hub/extract-standards",
   "orchestrate-hub/sciomc": "research-hub/sciomc",
+  // 2026-10: "design" in design-hub was ambiguous — it bundled project architecture
+  // with visual UI/UX design. The architecture cluster moved to build-hub, which
+  // already owns refactor/modernize/overhaul (code-structure work).
+  "design-hub/arch-prep": "build-hub/arch-prep",
+  "design-hub/architecture": "build-hub/architecture",
+  "design-hub/modularity": "build-hub/modularity",
+  // skills-hub dissolved into resource-hub: the 13 skill-lifecycle ops are now
+  // type-generic (skills/rules/tools/commands/agents) behind a question gate.
+  "skills-hub/add": "resource-hub/add",  "skills-hub/create": "resource-hub/create",
+  "skills-hub/edit": "resource-hub/edit",  "skills-hub/info": "resource-hub/info",
+  "skills-hub/list": "resource-hub/list",  "skills-hub/package": "resource-hub/package",
+  "skills-hub/remove": "resource-hub/remove",  "skills-hub/scan": "resource-hub/scan",
+  "skills-hub/search": "resource-hub/search",  "skills-hub/setup": "resource-hub/setup",
+  "skills-hub/sync": "resource-hub/sync",  "skills-hub/update": "resource-hub/update",
+  "skills-hub/validate": "resource-hub/validate",
+  // resource-hub per-type creators fold into the generalized `create`; finders
+  // fold into the generalized `find`.
+  "resource-hub/agent": "resource-hub/create",  "resource-hub/command": "resource-hub/create",
+  "resource-hub/rule": "resource-hub/create",  "resource-hub/skill": "resource-hub/create",
+  "resource-hub/find-agents": "resource-hub/find",  "resource-hub/find-rules": "resource-hub/find",
+  "resource-hub/find-skills": "resource-hub/find",  "resource-hub/find-tools": "resource-hub/find",
 }
 
 // ─── Pre-compiled Spec Registry ───────────────────────────────────────

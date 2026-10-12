@@ -8,7 +8,7 @@
 - **30 subagents** — all `mode: subagent`, dispatched by `hubs` or by an explicit user request. See `agents/hubs.md`
 - **123 workflow skills** for development tasks
 - **38 TypeScript tools** for session management and file editing
-- **180 hub subcommand specs** across 14 hub directories
+- **173 hub subcommand specs** across 13 hub directories
 - **Hook system plugin** for mode detection, state persistence, and context injection
 - **Multi-tier cache system** — tool, file, session, vector search caching
 - **Durable context storage** — knowledge compounds across sessions
@@ -133,23 +133,22 @@ keep working: `/init-project <sub>` and `/scaffold-hub <sub>` both route to `/hu
 | Command | # | Subcommands |
 |--------|--:|-------------|
 | `/hub-setup` | 12 | config, detect, doctor, map-codebase, provision, recommend, refresh, reset, setup, status, tag, verify |
-| `/resource-hub` | 12 | agent, command, config-orchestrator, find-agents, find-rules, find-skills, find-tools, graph, knowledge-graph, prompt-simplifier, rule, skill |
+| `/resource-hub` | 18 | add, config-orchestrator, create, edit, find, graph, info, knowledge-graph, list, package, prompt-simplifier, remove, scan, search, setup, sync, update, validate |
 | `/memory-hub` | 13 | capture, compress, consolidate-telemetry, consume, context, diff, export, memory, prune, search, secondbrain, session, vectorize |
 | `/research-hub` | 14 | analyst, analyze-patterns, compare, competitive-analysis, convention-extractor, document-specialist, explore, extract-standards, library-docs, research, scientist, sciomc, tech-eval, web-research |
-| `/design-hub` | 10 | arch-prep, architecture, designer, docs, frontend-design, icon, modularity, readme, redesign, writer |
+| `/design-hub` | 7 | designer, docs, frontend-design, icon, readme, redesign, writer |
 | `/ideate-hub` | 17 | adversarial-debate, brainstorm, cleanroom, ddd, deep-dive, deep-thinker, double-diamond, event-storming, grill, interview, opro, pwf, refine, resume, rpikit, spark, tree-of-thoughts |
 | `/plan-hub` | 16 | bottom-up, constitution, decomposition, effort-estimator, impact-mapping, improvements, jtbd, lean-canvas, plan, plan-execute, ralplan, requirements-analyzer, spiral, status, story-mapping, top-down |
 | `/verify-hub` | 14 | audit, code-review, create-tests, critic, debugger, deep-bug-hunt, qa-tester, quality, review, sec-scan, security-reviewer, tdd, test-engineer, tracer |
 | `/swarm-hub` | 17 | cc10x, delegate, devin, gastown, gsd, harden, hive, hive-plan, maestro, metaswarm, pair, react, remediate, ruflo, self-assess, spec-driven, subagent-driven |
-| `/build-hub` | 11 | brownfield, cleanup, executor, modernize, optimize, overhaul, pipeline, refactor, simplify, simplify-code, vibe-code |
+| `/build-hub` | 14 | arch-prep, architecture, brownfield, cleanup, executor, modernize, modularity, optimize, overhaul, pipeline, refactor, simplify, simplify-code, vibe-code |
 | `/orchestrate-hub` | 12 | autopilot, ccg, consensus, evolutionary, journal, ralph, resume, state-machine, status, swarm, team, ultrawork |
 | `/git-hub` | 10 | archive, changelog, commit, commit-drafter, gh, git-cleanup, git-master, git-stage-thread, pr, release |
 | `/maintain-hub` | 9 | converge, insights, organize, purge, retrospect, sandbox, self-improve, sweep, workspace |
-| `/skills-hub` | 13 | add, create, edit, info, list, package, remove, scan, search, setup, sync, update, validate |
 
 ### Two-Tier Subcommand Routing
 
-Each of the 180 hub subcommands has a dedicated spec file in `tools/hubs/<hub>/<subcommand>.ts` containing the full `HubSubcommandSpec` — `detailedDescription`, `tools`, `rules`, `relatedSkills`, `examples`, `warnings`.
+Each of the 173 hub subcommands has a dedicated spec file in `tools/hubs/<hub>/<subcommand>.ts` containing the full `HubSubcommandSpec` — `detailedDescription`, `tools`, `rules`, `relatedSkills`, `examples`, `warnings`.
 
 **Direct selection** (`/orchestrate-hub ralph`): `hubMenu route` returns the full spec in one response (detailedDescription + inlined rules + related skill pointers + examples). No follow-up `loadSkill` or rule-read calls needed.
 
@@ -190,7 +189,7 @@ See `rules/hub-routing.md` for the complete delegation table and architecture de
 │   ├── hubMenu.ts       # Hub menu router (route returns full spec, menu returns slim slice)
 │   ├── hub-data.ts      # Hub types, subcommand spec loader, state helpers
 │   ├── hub-<name>.ts    # Thin hub manifests (10 lines each, identity slice only)
-│   ├── hubs/            # Per-subcommand spec files (180 files across 14 directories)
+│   ├── hubs/            # Per-subcommand spec files (173 files across 13 directories)
 │   └── ...              # File editing, cache, session, skill tools
 ├── plugins/             # Hook system + TUI plugin
 ├── rules/               # Shared rules (loaded as instructions)

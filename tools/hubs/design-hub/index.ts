@@ -1,8 +1,5 @@
 import { HubSubcommand } from "../../hub-data"
 import docs from "./docs"
-import archPrep from "./arch-prep"
-import architecture from "./architecture"
-import modularity from "./modularity"
 import redesign from "./redesign"
 import designer from "./designer"
 import frontendDesign from "./frontend-design"
@@ -11,8 +8,7 @@ import writer from "./writer"
 import icon from "./icon"
 
 export const specs = [
-  docs, archPrep, architecture, modularity, redesign, designer, frontendDesign, readme,
-  writer, icon
+  docs, redesign, designer, frontendDesign, readme, writer, icon
 ]
 
 export const subcommands: HubSubcommand[] = specs.map(s => ({

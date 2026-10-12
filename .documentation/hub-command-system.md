@@ -1,6 +1,6 @@
 # Hub Command System
 
-14 topical hubs, 183 subcommands, two-tier routing. `/hub-setup` is the project-config front door; it absorbed `/scaffold-hub`, and `/init-project` before that, without changing a single subcommand. A command system built to spend **one LLM
+13 topical hubs, 173 subcommands, two-tier routing. `/hub-setup` is the project-config front door; it absorbed `/scaffold-hub`, and `/init-project` before that, without changing a single subcommand. A command system built to spend **one LLM
 round-trip instead of two**, and to stay unambiguous in a flat dialog.
 
 ---
@@ -10,19 +10,18 @@ round-trip instead of two**, and to stay unambiguous in a flat dialog.
 | Hub | Subcommands | Purpose |
 | --- | ----------: | ------- |
 | `scaffold-hub`   | 12 | Detect the stack, provision project config, health checks |
-| `resource-hub`   | 12 | Find and vet agents, skills, rules, tools, connectors |
+| `resource-hub`   | 18 | Find, create, and manage agents, skills, rules, tools, commands |
 | `memory-hub`     | 18 | Durable context — capture, retrieve, curate, compound |
 | `research-hub`   | 13 | Research, analysis, pattern extraction, tracing |
-| `design-hub`     |  9 | Architecture, design, docs, READMEs |
+| `design-hub`     |  7 | UI/UX design, docs, READMEs |
 | `ideate-hub`     | 16 | Brainstorm, grill, DDD, MOC, tree-of-thoughts |
 | `plan-hub`       | 16 | Requirements, decomposition, constitution, plans |
 | `verify-hub`     | 11 | Review, audit, TDD, security, debugging |
 | `swarm-hub`      | 17 | Multi-agent patterns — hive, pair, swarm, consensus |
-| `build-hub`      | 12 | Implement, refactor, simplify, modernize, pipeline |
+| `build-hub`      | 14 | Implement, architecture, refactor, simplify, modernize, pipeline |
 | `orchestrate-hub`| 12 | Long-running modes — ralph, autopilot, consensus |
 | `git-hub`        | 10 | Commits, PRs, releases, changelog |
 | `maintain-hub`   | 12 | Retrospectives, health, workspace, convergence |
-| `skills-hub`     | 13 | Create, validate, package, sync skills |
 
 The 2026-09-28 split moved every menu to a `-hub` suffix. Legacy names (`/orchestration`,
 `/ideation`, `/project`) still resolve through `LEGACY_ROUTE_MAP` in `tools/hub-data.ts`, so old
@@ -80,7 +79,7 @@ Every subcommand is a `HubSubcommandSpec` in `tools/hubs/<hub>/<subcommand>.ts`:
 | `examples` / `warnings` | Usage and hazards |
 
 A spec may reference skills, agents, commands, and rules. `tests/global/delegation.test.ts`
-(184 tests) validates that **every reference resolves to a file that exists**. Four broken
+(173 tests) validates that **every reference resolves to a file that exists**. Four broken
 references were found this way and fixed.
 
 ---

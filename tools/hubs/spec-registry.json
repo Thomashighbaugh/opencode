@@ -1,4 +1,33 @@
 {
+  "build-hub/arch-prep": {
+    "label": "arch-prep",
+    "description": "Architecture prep for upcoming features — extension points, refactoring runway",
+    "reminder": "Design architecture to accommodate upcoming features.",
+    "agent": "architect",
+    "detailedDescription": "Architecture preparation: designs the architectural runway for upcoming features BEFORE coding begins. The @architect agent:\n\n1. Reviews the upcoming feature(s) and their requirements.\n2. Identifies extension points: where should the new code attach? Are existing interfaces sufficient, or do they need to grow?\n3. Plans module additions: new modules needed, their boundaries, their interfaces.\n4. Anticipates refactoring runway: what existing code needs to change to accommodate the new feature cleanly? (E.g. extract an interface, introduce a seam, move a responsibility.)\n\nThe output is an architecture preparation document that makes the subsequent implementation smoother — the seams and extension points are designed upfront, not discovered mid-implementation.\n\nUse when a feature is complex enough that \"just start coding\" will lead to rework. The prep work is cheaper than refactoring mid-implementation.",
+    "tools": [
+      "listAgents",
+      "bash"
+    ],
+    "relatedSkills": [
+      "adr-skill"
+    ]
+  },
+  "build-hub/architecture": {
+    "label": "architecture",
+    "description": "Architectural friction analysis — propose deep-module refactors",
+    "reminder": "Surface deepening opportunities with markdown comparison tables.",
+    "skill": "improve-codebase-architecture",
+    "detailedDescription": "Architectural analysis applying John Ousterhout's \"deep module\" principle: modules should have small interfaces (shallow surface) hiding large implementations (deep capability). Shallow modules (large interface, tiny implementation) are architectural friction.\n\nProcess:\n1. Parallel sub-agents explore the codebase, each looking for shallow modules — places where the interface is large relative to the implementation, or where coupling is high.\n2. Each sub-agent generates candidate refactors that deepen the module (shrink the interface, grow the implementation).\n3. Candidates are presented as markdown comparison tables for side-by-side evaluation.\n4. The user picks a candidate, and it's grilled (via /ideate-hub grill) to stress-test it before implementation.\n\nUse for codebases that feel hard to change — where every change touches many files. The deepening refactors improve testability and navigability.",
+    "tools": [
+      "loadSkill",
+      "listAgents",
+      "bash"
+    ],
+    "relatedSkills": [
+      "grilling"
+    ]
+  },
   "build-hub/brownfield": {
     "label": "brownfield",
     "description": "Add a feature to existing code — find the seams, then implement",
@@ -54,6 +83,20 @@
       "karpathy-guidelines"
     ],
     "relatedSkills": []
+  },
+  "build-hub/modularity": {
+    "label": "modularity",
+    "description": "Module boundary analysis — detect circular dependencies, suggest reorg",
+    "reminder": "Analyze module boundaries and coupling.",
+    "agent": "architect",
+    "detailedDescription": "Module boundary analysis via the @architect agent. Examines:\n\n- Coupling: which modules depend on which (dependency graph).\n- Cohesion: are module contents related (high cohesion = good) or grab-bags (low cohesion = bad)?\n- Circular dependencies: A→B→A cycles that make changes cascade and testing hard.\n- Boundary clarity: are module interfaces well-defined or leaky?\n\nThe architect produces a modularity report with: the dependency graph, circular dependency hotspots, low-cohesion modules, and reorganization recommendations (extract this, merge these, break that cycle).\n\nUse when the codebase feels \"tangled\" — changes in one place break unrelated things, tests require extensive mocking, or adding a feature touches many modules.",
+    "tools": [
+      "listAgents",
+      "bash"
+    ],
+    "relatedSkills": [
+      "improve-codebase-architecture"
+    ]
   },
   "build-hub/optimize": {
     "label": "optimize",
@@ -201,35 +244,6 @@
       }
     ]
   },
-  "design-hub/arch-prep": {
-    "label": "arch-prep",
-    "description": "Architecture prep for upcoming features — extension points, refactoring runway",
-    "reminder": "Design architecture to accommodate upcoming features.",
-    "agent": "architect",
-    "detailedDescription": "Architecture preparation: designs the architectural runway for upcoming features BEFORE coding begins. The @architect agent:\n\n1. Reviews the upcoming feature(s) and their requirements.\n2. Identifies extension points: where should the new code attach? Are existing interfaces sufficient, or do they need to grow?\n3. Plans module additions: new modules needed, their boundaries, their interfaces.\n4. Anticipates refactoring runway: what existing code needs to change to accommodate the new feature cleanly? (E.g. extract an interface, introduce a seam, move a responsibility.)\n\nThe output is an architecture preparation document that makes the subsequent implementation smoother — the seams and extension points are designed upfront, not discovered mid-implementation.\n\nUse when a feature is complex enough that \"just start coding\" will lead to rework. The prep work is cheaper than refactoring mid-implementation.",
-    "tools": [
-      "listAgents",
-      "bash"
-    ],
-    "relatedSkills": [
-      "adr-skill"
-    ]
-  },
-  "design-hub/architecture": {
-    "label": "architecture",
-    "description": "Architectural friction analysis — propose deep-module refactors",
-    "reminder": "Surface deepening opportunities with markdown comparison tables.",
-    "skill": "improve-codebase-architecture",
-    "detailedDescription": "Architectural analysis applying John Ousterhout's \"deep module\" principle: modules should have small interfaces (shallow surface) hiding large implementations (deep capability). Shallow modules (large interface, tiny implementation) are architectural friction.\n\nProcess:\n1. Parallel sub-agents explore the codebase, each looking for shallow modules — places where the interface is large relative to the implementation, or where coupling is high.\n2. Each sub-agent generates candidate refactors that deepen the module (shrink the interface, grow the implementation).\n3. Candidates are presented as markdown comparison tables for side-by-side evaluation.\n4. The user picks a candidate, and it's grilled (via /ideate-hub grill) to stress-test it before implementation.\n\nUse for codebases that feel hard to change — where every change touches many files. The deepening refactors improve testability and navigability.",
-    "tools": [
-      "loadSkill",
-      "listAgents",
-      "bash"
-    ],
-    "relatedSkills": [
-      "grilling"
-    ]
-  },
   "design-hub/designer": {
     "label": "designer",
     "description": "UI/UX designer-developer — pass instructions directly to @designer",
@@ -269,26 +283,12 @@
     ],
     "relatedSkills": []
   },
-  "design-hub/modularity": {
-    "label": "modularity",
-    "description": "Module boundary analysis — detect circular dependencies, suggest reorg",
-    "reminder": "Analyze module boundaries and coupling.",
-    "agent": "architect",
-    "detailedDescription": "Module boundary analysis via the @architect agent. Examines:\n\n- Coupling: which modules depend on which (dependency graph).\n- Cohesion: are module contents related (high cohesion = good) or grab-bags (low cohesion = bad)?\n- Circular dependencies: A→B→A cycles that make changes cascade and testing hard.\n- Boundary clarity: are module interfaces well-defined or leaky?\n\nThe architect produces a modularity report with: the dependency graph, circular dependency hotspots, low-cohesion modules, and reorganization recommendations (extract this, merge these, break that cycle).\n\nUse when the codebase feels \"tangled\" — changes in one place break unrelated things, tests require extensive mocking, or adding a feature touches many modules.",
-    "tools": [
-      "listAgents",
-      "bash"
-    ],
-    "relatedSkills": [
-      "improve-codebase-architecture"
-    ]
-  },
   "design-hub/readme": {
     "label": "readme",
     "description": "Rewrite README to match the current codebase, keeping its tone",
     "reminder": "Update README with current codebase state.",
     "skill": "readme-updater",
-    "detailedDescription": "Updates the README to reflect the current codebase state via the readme-updater skill. Scans:\n\n- Agents, skills, tools, rules, commands, archetypes (each with agents/, rules/, skills/, tools/ subdirs), plugins.\n- Project structure and configuration.\n- Existing README content.\n\nWhen documenting archetypes, note that each contains four subdirectories (agents/, rules/, skills/, tools/) — all four must be provisioned per-project: agents/ and rules/ go in opencode.jsonc, skills/ and tools/ are copied/linked into .opencode/.\n\nPreserves the existing tone, links, and structure — it updates content, doesn't rewrite from scratch. Output is SEO-optimized and technically proficient.\n\nUse when the codebase has changed significantly and the README is stale. Not for creating a README from scratch (use /resource-hub command or writing skills for that).",
+    "detailedDescription": "Updates the README to reflect the current codebase state via the readme-updater skill. Scans:\n\n- Agents, skills, tools, rules, commands, archetypes (each with agents/, rules/, skills/, tools/ subdirs), plugins.\n- Project structure and configuration.\n- Existing README content.\n\nWhen documenting archetypes, note that each contains four subdirectories (agents/, rules/, skills/, tools/) — all four must be provisioned per-project: agents/ and rules/ go in opencode.jsonc, skills/ and tools/ are copied/linked into .opencode/.\n\nPreserves the existing tone, links, and structure — it updates content, doesn't rewrite from scratch. Output is SEO-optimized and technically proficient.\n\nUse when the codebase has changed significantly and the README is stale. Not for creating a README from scratch (use /resource-hub create command or writing skills for that).",
     "tools": [
       "loadSkill",
       "bash"
@@ -789,7 +789,7 @@
     "description": "Stress-test a plan with relentless one-at-a-time questioning",
     "reminder": "Grill plans relentlessly until shared understanding. Asks: topic or plan.",
     "skill": "grilling",
-    "detailedDescription": "Relentless Socratic questioning that stress-tests a plan or design before implementation. The griller:\n\n1. Decomposes the plan into a decision tree.\n2. Walks down each branch one question at a time — not all at once. Each question resolves one decision before moving to the next.\n3. For each question, provides a recommended answer (the user can accept or override).\n4. Resolves dependencies between decisions: if decision B depends on A, A is resolved first.\n5. Surfaces hidden assumptions that would cause rework if discovered during implementation.\n\nThe output is a fully-stress-tested plan with every decision resolved and every assumption surfaced. Use before committing to implementation — especially for plans from /plan-hub plan, /design-hub architecture, or any design that seems \"done\" but might hide assumptions.\n\n## Gatekeeping Question\n\nBefore grilling, ask (passing the flag skips the question — non-interactive path):\n\n> **Question — what to grill?**\n> 1. Type a plan/topic inline (e.g. \"replace JWT auth with session cookies\")\n> 2. Select an existing plan file (list .opencode/state/ideation/*.md)\n> (or type a path)\n\nResolved answer is either the inline topic or `--plan=<file>`.",
+    "detailedDescription": "Relentless Socratic questioning that stress-tests a plan or design before implementation. The griller:\n\n1. Decomposes the plan into a decision tree.\n2. Walks down each branch one question at a time — not all at once. Each question resolves one decision before moving to the next.\n3. For each question, provides a recommended answer (the user can accept or override).\n4. Resolves dependencies between decisions: if decision B depends on A, A is resolved first.\n5. Surfaces hidden assumptions that would cause rework if discovered during implementation.\n\nThe output is a fully-stress-tested plan with every decision resolved and every assumption surfaced. Use before committing to implementation — especially for plans from /plan-hub plan, /build-hub architecture, or any design that seems \"done\" but might hide assumptions.\n\n## Gatekeeping Question\n\nBefore grilling, ask (passing the flag skips the question — non-interactive path):\n\n> **Question — what to grill?**\n> 1. Type a plan/topic inline (e.g. \"replace JWT auth with session cookies\")\n> 2. Select an existing plan file (list .opencode/state/ideation/*.md)\n> (or type a path)\n\nResolved answer is either the inline topic or `--plan=<file>`.",
     "tools": [
       "loadSkill",
       "bash"
@@ -1998,29 +1998,13 @@
       }
     ]
   },
-  "resource-hub/agent": {
-    "label": "agent",
-    "description": "Create a project-specific agent",
-    "reminder": "Create a project-specific agent.",
-    "skill": "opencode-agent-creator",
-    "detailedDescription": "Creates a project-specific OpenCode agent using the agent-creator workflow. Defines:\n\n- Agent name and description\n- Model tier (Pro, Default, Fast)\n- Mode (primary or subagent)\n- Tools the agent has access to\n- The agent's prompt (role, constraints, workflow, output format)\n- Links to related community agent-creation skills for advanced patterns\n\nThe agent is saved to agents/{name}.md with proper YAML frontmatter. It becomes available immediately for delegation via the Task tool.\n\n**Supplementary skills loaded automatically:**\n- `creating-opencode-agents` — in-depth guide for agent definition best practices, model selection, permission scoping\n- `custom-agent-definitions` — advanced agent patterns (isolated research agent, read-only explorer, security auditor)\n\nUse when you need a specialized agent for a project-specific domain — e.g. a \"migration-agent\" that knows the legacy system's patterns, or a \"domain-agent\" that understands the business domain.",
+  "resource-hub/add": {
+    "label": "add",
+    "description": "Quick-add wizard — write a minimal resource of any type",
+    "reminder": "Quick-add a resource via wizard.",
+    "inline": true,
+    "detailedDescription": "Quick-add wizard. Prompts for the essentials and writes a minimal resource file. The fast path — for full creation with scripts, references, and validation use /resource-hub create instead.\n\n## Resource Type Gate\n\nIf the resource type is not given inline, ask via the `question` tool:\n\n> **Which resource type?**\n> 1. skill   2. rule   3. tool   4. command   5. agent\n\nPass the type inline (e.g. `/resource-hub add rule`) or `--type=rule` to skip the gate.\n\nThen prompt for:\n\n- Name (kebab-case).\n- Description (one line — what it does).\n- Scope: user (`~/.config/opencode/`) or project (`.opencode/`).\n\nWrites the minimal file for the chosen type:\n\n| Type    | Minimal output                     |\n| ------- | ---------------------------------- |\n| skill   | `SKILL.md` with YAML frontmatter     |\n| rule    | `.opencode/rules/{name}.md`          |\n| tool    | `.opencode/tools/{name}.ts` stub      |\n| command | `.opencode/commands/{name}.md`        |\n| agent   | `agents/{name}.md`                   |\n\nUse when you have a simple resource to add quickly without the full creation workflow.",
     "tools": [
-      "loadSkill",
-      "bash"
-    ],
-    "relatedSkills": [
-      "creating-opencode-agents",
-      "custom-agent-definitions"
-    ]
-  },
-  "resource-hub/command": {
-    "label": "command",
-    "description": "Create a project slash command",
-    "reminder": "Create a project slash command.",
-    "skill": "opencode-command-creator",
-    "detailedDescription": "Creates a project-specific slash command in .opencode/commands/. A command is a markdown file with YAML frontmatter that defines a reusable workflow triggered by /command-name.\n\nThe command-creator workflow:\n1. Define the command: name, description, argument hint.\n2. Write the command body: instructions, steps, $ARGUMENTS placeholders.\n3. Optionally register in opencode.jsonc.\n4. Save to .opencode/commands/{name}.md.\n\nThe new command is immediately available. Use for project-specific workflows that you invoke repeatedly: \"/deploy-checklist\", \"/db-migrate\", \"/release-prep\".",
-    "tools": [
-      "loadSkill",
       "bash"
     ],
     "relatedSkills": []
@@ -2032,29 +2016,41 @@
     "agent": "@config-orchestrator",
     "detailedDescription": "Delegates directly to the @config-orchestrator agent. The remainder of your prompt will be passed as specific instructions to the agent."
   },
-  "resource-hub/find-agents": {
-    "label": "find-agents",
-    "description": "Find and vet subagents for this stack from registries",
-    "reminder": "Search registries for relevant project agents.",
-    "skill": "find-agents",
-    "detailedDescription": "Discovers skill packages related to agent creation and configuration. Searches agent registries and GitHub for specialized agent instructions.\n\nNote: The skills.sh ecosystem catalogs SKILL.md knowledge packages, not standalone agent .md definition files. Found packages provide instructions and workflows for:\n- Creating custom agent definitions (agent .md files with frontmatter)\n- Configuring agent tools, permissions, and models\n- Agent lifecycle and best practices\n\nResults are installed as skills, not agent files. To create actual agent .md files, use the `opencode-agent-creator` skill or the `provision` skill for project-scoped agents.\n\nUse during setup/refresh or standalone.",
+  "resource-hub/create": {
+    "label": "create",
+    "description": "Create a skill, rule, tool, command, or agent (type-gated)",
+    "reminder": "Create a resource — pick the type.",
+    "inline": true,
+    "detailedDescription": "Full end-to-end creation workflow for any OpenCode resource type. Absorbs the former per-type creators (skill / agent / command / rule) into a single type-gated command.\n\n## Resource Type Gate\n\nIf the resource type is not given inline, ask via the `question` tool:\n\n> **Which resource type?**\n> 1. skill   2. rule   3. tool   4. command   5. agent\n\nPass the type inline (e.g. `/resource-hub create skill`) or `--type=skill` to skip the gate.\n\n## Dispatch\n\nLoad and follow the creator for the chosen type:\n\n| Type    | Workflow                 | Output                                              |\n| ------- | ------------------------ | --------------------------------------------------- |\n| skill   | `skill-creator`          | `skills/{name}/SKILL.md` + bundled scripts/references |\n| rule    | `rule-generator`         | `.opencode/rules/{name}.md` (+ registration)         |\n| tool    | `tool-creator`           | `tools/{name}.ts` or `.opencode/tools/{name}.ts`     |\n| command | `opencode-command-creator` | `.opencode/commands/{name}.md`                       |\n| agent   | `opencode-agent-creator` | `agents/{name}.md`                                   |\n\nEach workflow: gather requirements → design structure → write → validate. For a quick, simple resource use /resource-hub add; to iterate an existing one use /resource-hub update.\n\nUse when creating a reusable resource that others (or future-you) will use.",
     "tools": [
       "loadSkill",
       "bash"
     ],
     "relatedSkills": [
-      "find-skills",
-      "find-tools",
-      "custom-agent-definitions",
-      "creating-opencode-agents"
+      "skill-creator",
+      "opencode-agent-creator",
+      "opencode-command-creator",
+      "rule-generator",
+      "tool-creator"
     ]
   },
-  "resource-hub/find-rules": {
-    "label": "find-rules",
-    "description": "Find and vet rules for this stack from registries and templates",
-    "reminder": "Search registries for relevant project rules.",
-    "skill": "find-rules",
-    "detailedDescription": "Discovers OpenCode rules relevant to the project. Searches registries (GitHub, skills.sh) and the local template catalog for convention and guideline rules matching the project's stack and practices.\n\nInstalled rules go to .opencode/rules/ (project scope) and are loaded as agent instructions.\n\nUse during setup/refresh or standalone when you want project-specific coding conventions enforced as rules.",
+  "resource-hub/edit": {
+    "label": "edit",
+    "description": "Interactively edit a resource's metadata or content",
+    "reminder": "Edit resource metadata or content interactively.",
+    "inline": true,
+    "detailedDescription": "Edits an existing resource interactively. Finds it by name (searching user and project scopes), displays current values, and allows changing its metadata or body.\n\n## Resource Type Gate\n\nIf the resource type is not given inline, ask via the `question` tool:\n\n> **Which resource type?**\n> 1. skill   2. rule   3. tool   4. command   5. agent\n\nPass the type inline (e.g. `/resource-hub edit agent`) or `--type=agent` to skip the gate.\n\nEditable per type:\n\n| Type    | Editable fields                                             |\n| ------- | ----------------------------------------------------------- |\n| skill   | description, triggers, content, name (renames the directory) |\n| rule    | description, body, tags, registration                        |\n| tool    | description, parameters, handler body                        |\n| command | description, argument hint, body                             |\n| agent   | description, model tier, mode, tools, prompt                 |\n\nWrites changes back to the resource file. Use to refine a resource after creation or when its purpose evolves.",
+    "tools": [
+      "bash"
+    ],
+    "relatedSkills": []
+  },
+  "resource-hub/find": {
+    "label": "find",
+    "description": "Discover resources from registries — skills, agents, rules, tools",
+    "reminder": "Search registries for relevant project resources.",
+    "inline": true,
+    "detailedDescription": "Discovers *new* installable resources relevant to the project by searching registries. Absorbs the former `find-skills` / `find-agents` / `find-rules` / `find-tools` subcommands into one type-gated command.\n\nThis searches external registries. To search resources already on disk, use /resource-hub search.\n\n## Resource Type Gate\n\nIf the resource type is not given inline, ask via the `question` tool:\n\n> **Which resource type?**\n> 1. skills   2. agents   3. rules   4. tools\n\nPass the type inline (e.g. `/resource-hub find rules`) or `--type=rules` to skip the gate.\n\n## Dispatch\n\nLoad and follow the finder for the chosen type:\n\n| Type   | Finder skill  | Sources                                     | Install target |\n| ------ | ------------- | ------------------------------------------- | -------------- |\n| skills | `find-skills` | skills.sh, clawhub.ai, GitHub               | `.opencode/`    |\n| agents | `find-agents` | agent registries, GitHub                    | installed as skills |\n| rules  | `find-rules`  | GitHub, skills.sh, local template catalog   | `.opencode/rules/` |\n| tools  | `find-tools`  | GitHub, npm, local template catalog         | `.opencode/tools/` |\n\nEach: search sources in parallel → security-scan top hits → present ranked recommendations with source reputation → user selects which to install.\n\nUse during /hub-setup setup/refresh or standalone to extend the project's resource set.",
     "tools": [
       "loadSkill",
       "bash"
@@ -2062,37 +2058,8 @@
     "relatedSkills": [
       "find-skills",
       "find-agents",
+      "find-rules",
       "find-tools"
-    ]
-  },
-  "resource-hub/find-skills": {
-    "label": "find-skills",
-    "description": "Find installable skills for this stack — scans registries, vets, ranks",
-    "reminder": "Search registries for relevant project skills.",
-    "skill": "find-skills",
-    "detailedDescription": "Discovers skills relevant to the current project by searching across skill registries simultaneously. Sources:\n\n- skills.sh registry\n- clawhub.ai\n- GitHub (repos tagged as opencode-skills)\n\nProcess:\n1. Search all registries in parallel for skills matching the project's stack and needs.\n2. Security-scan top results (check for dangerous patterns, secrets, suspicious code).\n3. Present ranked recommendations with descriptions, source reputation, and security scan results.\n4. User selects which to install; the skill installs them to the project's .opencode/ directory (project scope).\n\nUse during /hub-setup setup/refresh or standalone when you want to extend the project's skill set with community skills.",
-    "tools": [
-      "loadSkill",
-      "bash"
-    ],
-    "relatedSkills": [
-      "find-agents",
-      "find-tools"
-    ]
-  },
-  "resource-hub/find-tools": {
-    "label": "find-tools",
-    "description": "Find and vet TypeScript tools for this stack from registries",
-    "reminder": "Search registries for relevant project tools.",
-    "skill": "find-tools",
-    "detailedDescription": "Discovers TypeScript tools relevant to the project. Searches registries (GitHub, npm) and the local template catalog for automation tools matching the project's needs.\n\nInstalled tools go to .opencode/tools/ (project scope — never user/global scope) and are auto-discovered by OpenCode.\n\nUse during setup/refresh or standalone when you want project-specific automation tools (e.g. a deploy tool, a migration tool).",
-    "tools": [
-      "loadSkill",
-      "bash"
-    ],
-    "relatedSkills": [
-      "find-skills",
-      "find-agents"
     ]
   },
   "resource-hub/graph": {
@@ -2103,6 +2070,17 @@
     "detailedDescription": "Applies graph-based thinking to visualize complex relationships. Maps entities (components, modules, concepts) as nodes and their relationships (dependencies, data flow, constraints) as edges. The resulting graph reveals structure that linear descriptions hide: cycles, hubs, isolated clusters, critical paths.\n\nUse for: dependency analysis, architecture mapping, concept relationship exploration, and system design where understanding structure matters. The graph is rendered as a text/markdown diagram (Mermaid or ASCII) since this is a non-interactive environment.\n\nOutput: a graph diagram + analysis (key nodes, cycles, clusters, recommendations) saved to .opencode/state/ideation/work-products/.",
     "tools": [
       "loadSkill",
+      "bash"
+    ],
+    "relatedSkills": []
+  },
+  "resource-hub/info": {
+    "label": "info",
+    "description": "Show a resource's full frontmatter and content",
+    "reminder": "Show full resource details and content.",
+    "inline": true,
+    "detailedDescription": "Shows detailed information about a specific resource. Finds it by name, parses its metadata, and displays the full picture.\n\n## Resource Type Gate\n\nIf the resource type is not given inline, ask via the `question` tool:\n\n> **Which resource type?**\n> 1. skill   2. rule   3. tool   4. command   5. agent\n\nPass the type inline (e.g. `/resource-hub info tool`) or `--type=tool` to skip the gate.\n\nDisplays:\n\n- Name, description, triggers/metadata, scope.\n- Full content (workflow, steps, heuristics, examples).\n- Any bundled resources (scripts, references).\n- Quality/usage stats where available.\n\nUse to inspect a resource before using it or to verify its content after editing.",
+    "tools": [
       "bash"
     ],
     "relatedSkills": []
@@ -2141,6 +2119,29 @@
       "Query path never throws — empty graph degrades to vector-only results"
     ]
   },
+  "resource-hub/list": {
+    "label": "list",
+    "description": "List resources by scope with quality and usage stats",
+    "reminder": "List resources by scope with metadata.",
+    "inline": true,
+    "detailedDescription": "Lists available resources organized by scope.\n\n## Resource Type Gate\n\nIf the resource type is not given inline, ask via the `question` tool:\n\n> **Which resource type?**\n> 1. skills   2. rules   3. tools   4. commands   5. agents   6. all\n\nPass the type inline (e.g. `/resource-hub list rules`) or `--type=rules` to skip the gate. `all` lists every type.\n\nScopes:\n\n1. Built-in (`~/.config/opencode/skills/` etc.): the bundled set (read-only).\n2. User (`~/.config/opencode/`): resources created or installed at user scope.\n3. Project (`.opencode/`): project-specific resources.\n\nEach resource is listed with: name, description, scope, and any quality/usage stats. Output is a table for easy scanning.\n\nUse to see what is available and in which scope.",
+    "tools": [
+      "bash",
+      "skill-categories"
+    ],
+    "relatedSkills": []
+  },
+  "resource-hub/package": {
+    "label": "package",
+    "description": "Validate a resource, then build a distributable archive",
+    "reminder": "Validate and package resource for distribution.",
+    "inline": true,
+    "detailedDescription": "Packages a resource for distribution.\n\n## Resource Type Gate\n\nIf the resource type is not given inline, ask via the `question` tool:\n\n> **Which resource type?**\n> 1. skill   2. rule   3. tool   4. command   5. agent\n\nPass the type inline (e.g. `/resource-hub package skill`) or `--type=skill` to skip the gate.\n\nProcess:\n\n1. Validate the resource structure (see /resource-hub validate).\n2. If validation passes: create a distributable zip containing the resource directory.\n3. If validation fails: report errors and suggest fixes — do not package.\n\nNot every type is distributable standalone: skills and tools package cleanly; rules, commands, and agents are usually project-local and package only when you explicitly intend to publish them.\n\nThe resulting zip can be shared and installed by others. Use to distribute a resource to other OpenCode users or publish to a registry.",
+    "tools": [
+      "bash"
+    ],
+    "relatedSkills": []
+  },
   "resource-hub/prompt-simplifier": {
     "label": "prompt-simplifier",
     "description": "Simplify prompt logic — pass instructions directly to @prompt-simplifier",
@@ -2148,145 +2149,46 @@
     "agent": "@prompt-simplifier",
     "detailedDescription": "Delegates directly to the @prompt-simplifier agent. The remainder of your prompt will be passed as specific instructions to the agent."
   },
-  "resource-hub/rule": {
-    "label": "rule",
-    "description": "Create a project rule (.opencode/rules/)",
-    "reminder": "Create a project rule file.",
-    "inline": true,
-    "detailedDescription": "Creates a project-specific rule file in .opencode/rules/. Rules are loaded as agent instructions at startup and constrain agent behavior within the project.\n\nA rule file is a markdown document with:\n- A description (what the rule enforces)\n- The rule body (what agents must/must not do)\n- BAD/GOOD examples where applicable\n- Tags for resource filtering\n\nRules are project-scoped (loaded only for this project) vs global rules in ~/.config/opencode/rules/ (loaded for all projects). Use for conventions that are project-specific: \"all API responses must include a request-id header\", \"database migrations must be reversible\", \"no direct DB access outside repositories\".",
-    "tools": [
-      "bash"
-    ],
-    "relatedSkills": [
-      "rule-generator"
-    ]
-  },
-  "resource-hub/skill": {
-    "label": "skill",
-    "description": "Create a reusable skill from session knowledge",
-    "reminder": "Extract a repeatable workflow as a skill.",
-    "skill": "skill-creator",
-    "detailedDescription": "Extracts a repeatable workflow from the current session and packages it as a reusable OpenCode skill. The skill-creator workflow:\n\n1. Identify the repeatable pattern in the session (what did the agent do that could be reused?).\n2. Define the skill: name, description, triggers (when should this skill activate?).\n3. Write the skill content: workflow steps, heuristics, examples.\n4. Bundle any scripts or references the skill needs.\n5. Save to skills/{name}/SKILL.md with proper YAML frontmatter.\n\nThe new skill is immediately available for future sessions. Use when you notice the agent did something useful and repeatable — \"extract this as a skill so it's available next time\".",
-    "tools": [
-      "loadSkill",
-      "bash"
-    ],
-    "relatedSkills": [
-      "learner",
-      "skillify",
-      "create-opencode-plugin"
-    ]
-  },
-  "skills-hub/add": {
-    "label": "add",
-    "description": "Wizard that writes a new SKILL.md from prompted answers",
-    "reminder": "Quick-add a skill via interactive wizard.",
-    "inline": true,
-    "detailedDescription": "Quick-add wizard for skill creation. Prompts for:\n\n- Skill name (kebab-case).\n- Description (one line — what it does).\n- Triggers (when should it activate?).\n- Scope: user (~/.config/opencode/skills/omc-learned/) or project (.opencode/state/skills/).\n\nWrites a minimal SKILL.md with YAML frontmatter. This is the fast path — for full skill creation with scripts, references, and validation, use /skills-hub create instead.\n\nUse when you have a simple skill to add quickly without the full creation workflow.",
-    "tools": [
-      "bash"
-    ],
-    "relatedSkills": [
-      "skill-creator"
-    ]
-  },
-  "skills-hub/create": {
-    "label": "create",
-    "description": "Create a skill end to end, including scripts and references",
-    "reminder": "Full skill creation with bundled resources.",
-    "skill": "skill-creator",
-    "detailedDescription": "Full skill creation workflow via the skill-creator skill. Process:\n\n1. Gather requirements: what should the skill do? When should it trigger? What resources does it need?\n2. Plan: design the skill's structure — workflow steps, heuristics, examples, scripts, references.\n3. Create: write SKILL.md with proper YAML frontmatter, workflow sections, and bundled resources.\n4. Validate: check the skill structure (frontmatter, required sections, script paths).\n5. Package: if validation passes, optionally package for distribution.\n\nThe full workflow handles complex skills with scripts, references, and assets. For simple skills, use /skills-hub add instead.\n\nUse when creating a reusable skill that others (or future-you) will use.",
-    "tools": [
-      "loadSkill",
-      "bash"
-    ],
-    "relatedSkills": []
-  },
-  "skills-hub/edit": {
-    "label": "edit",
-    "description": "Interactively edit a skill's description, triggers, or content",
-    "reminder": "Edit skill metadata or content interactively.",
-    "inline": true,
-    "detailedDescription": "Edits an existing skill interactively. Finds the skill by name (searching user and project scopes), displays current values, and allows changing:\n\n- Description\n- Triggers\n- Content (workflow, steps, heuristics)\n- Name (rename, which also renames the directory)\n\nWrites changes back to the skill file. Use to refine skills after creation or when their purpose evolves.",
-    "tools": [
-      "bash"
-    ],
-    "relatedSkills": []
-  },
-  "skills-hub/info": {
-    "label": "info",
-    "description": "Show a skill's full frontmatter and content",
-    "reminder": "Show full skill details and content.",
-    "inline": true,
-    "detailedDescription": "Shows detailed information about a specific skill. Finds by name, parses the YAML frontmatter, and displays:\n\n- Name, description, triggers, scope\n- Full content (workflow, steps, heuristics, examples)\n- Any bundled resources (scripts, references)\n- Quality/usage stats from frontmatter\n\nUse to inspect a skill before using it or to verify its content after editing.",
-    "tools": [
-      "bash"
-    ],
-    "relatedSkills": []
-  },
-  "skills-hub/list": {
-    "label": "list",
-    "description": "List every skill by scope with quality and usage stats",
-    "reminder": "List all skills by scope with metadata.",
-    "inline": true,
-    "detailedDescription": "Lists all available skills organized by scope:\n\n1. Built-in skills (~/.config/opencode/skills/): the bundled skill set (read-only).\n2. User skills (~/.config/opencode/skills/omc-learned/): skills you've created or installed at user scope.\n3. Project skills (.opencode/state/skills/): project-specific skills.\n4. Plugin skill categories: if the opencode-skills-collection plugin is installed, show its categories.\n\nEach skill is listed with: name, description, scope, and any quality/usage stats available from the YAML frontmatter. Output is a table for easy scanning.\n\nUse to see what skills are available and in which scope.",
-    "tools": [
-      "bash",
-      "skill-categories"
-    ],
-    "relatedSkills": []
-  },
-  "skills-hub/package": {
-    "label": "package",
-    "description": "Validate a skill, then build a distributable archive",
-    "reminder": "Validate and package skill for distribution.",
-    "inline": true,
-    "detailedDescription": "Packages a skill for distribution. Process:\n\n1. Validate the skill structure (frontmatter, required sections, script paths resolve).\n2. If validation passes: create a distributable zip containing the skill directory.\n3. If validation fails: report errors and suggest fixes — do not package.\n\nThe resulting zip can be shared and installed by others. Use when you want to distribute a skill to other OpenCode users or publish to a skill registry.",
-    "tools": [
-      "bash"
-    ],
-    "relatedSkills": []
-  },
-  "skills-hub/remove": {
+  "resource-hub/remove": {
     "label": "remove",
-    "description": "Remove a skill by name after confirming",
-    "reminder": "Delete a skill after confirmation.",
+    "description": "Remove a resource by name after confirming",
+    "reminder": "Delete a resource after confirmation.",
     "inline": true,
-    "detailedDescription": "Removes a skill by name. Searches both user and project scopes, shows what will be deleted, and asks for confirmation before removing. Warns if the skill isn't found in either scope.\n\nNon-destructive by default — requires explicit confirmation. Use to clean up skills that are no longer needed.",
+    "detailedDescription": "Removes a resource by name. Non-destructive by default — requires explicit confirmation.\n\n## Resource Type Gate\n\nIf the resource type is not given inline, ask via the `question` tool:\n\n> **Which resource type?**\n> 1. skill   2. rule   3. tool   4. command   5. agent\n\nPass the type inline (e.g. `/resource-hub remove skill`) or `--type=skill` to skip the gate.\n\nSearches both user and project scopes, shows exactly what will be deleted, and asks for confirmation before removing. Warns if the resource is not found in either scope.\n\nUse to clean up resources that are no longer needed.",
     "tools": [
       "bash"
     ],
     "relatedSkills": []
   },
-  "skills-hub/scan": {
+  "resource-hub/scan": {
     "label": "scan",
-    "description": "Fast non-interactive inventory of user and project skill scopes",
-    "reminder": "Quick inventory scan of all skill directories.",
+    "description": "Fast non-interactive inventory of all resource scopes",
+    "reminder": "Quick inventory scan of resource directories.",
     "inline": true,
-    "detailedDescription": "Quick non-interactive inventory scan of skill directories. Reports:\n\n- Built-in skills: count + path.\n- User skills: count + path.\n- Project skills: count + path.\n- Plugin skill categories (if installed): counts per category.\n\nNo interaction — just a summary. Use for a quick overview of what's available without the full /skills-hub list detail.",
+    "detailedDescription": "Quick non-interactive inventory scan. No interaction — just a summary. Use for a fast overview without the full /resource-hub list detail.\n\n## Resource Type Gate\n\nIf the resource type is not given inline, ask via the `question` tool:\n\n> **Which resource type?**\n> 1. skills   2. rules   3. tools   4. commands   5. agents   6. all\n\nPass the type inline (e.g. `/resource-hub scan tools`) or `--type=all` to skip the gate. `all` is the default.\n\nReports per type and scope:\n\n- Built-in resources: count + path.\n- User resources: count + path.\n- Project resources: count + path.\n- Plugin skill categories (if installed): counts per category.",
     "tools": [
       "bash",
       "skill-categories"
     ],
     "relatedSkills": []
   },
-  "skills-hub/search": {
+  "resource-hub/search": {
     "label": "search",
-    "description": "Search skills by name, description, or content across all scopes",
-    "reminder": "Search skills by name, triggers, or content.",
+    "description": "Search resources by name, description, or content",
+    "reminder": "Search resources by name, triggers, or content.",
     "inline": true,
-    "detailedDescription": "Searches skills by content, triggers, name, or description. Case-insensitive matching across all scopes (built-in, user, project). Results are ranked by relevance.\n\nUse to find a skill when you know roughly what it does but not its exact name.",
+    "detailedDescription": "Searches resources by content, triggers, name, or description. Case-insensitive matching across all scopes (built-in, user, project). Results are ranked by relevance.\n\nThis searches resources already on disk. To discover *new* resources from external registries, use /resource-hub find.\n\n## Resource Type Gate\n\nIf the resource type is not given inline, ask via the `question` tool:\n\n> **Which resource type?**\n> 1. skills   2. rules   3. tools   4. commands   5. agents   6. all\n\nPass the type inline (e.g. `/resource-hub search rule`) or `--type=all` to skip the gate. `all` is the default.\n\nUse to find a resource when you know roughly what it does but not its exact name.",
     "tools": [
       "bash"
     ],
     "relatedSkills": []
   },
-  "skills-hub/setup": {
+  "resource-hub/setup": {
     "label": "setup",
-    "description": "Wizard — create skill dirs, scan inventory, choose actions",
-    "reminder": "Set up skill directories and inventory.",
+    "description": "Wizard — create resource dirs, scan inventory, choose actions",
+    "reminder": "Set up resource directories and inventory.",
     "inline": true,
-    "detailedDescription": "Interactive setup wizard for skill directories. Steps:\n\n1. Create skill directories if they don't exist (user + project scope).\n2. Scan existing inventory in both scopes.\n3. Offer actions: add a new skill, list existing, scan the current conversation for skill opportunities, import a skill from a file/URL, or done.\n\nUse when first setting up skills for a project or user account.",
+    "detailedDescription": "Interactive setup wizard for resource directories.\n\n## Resource Type Gate\n\nIf the resource type is not given inline, ask via the `question` tool:\n\n> **Which resource type?**\n> 1. skills   2. rules   3. tools   4. commands   5. agents\n\nPass the type inline (e.g. `/resource-hub setup agent`) or `--type=agent` to skip the gate. With no type given, steps run across all types.\n\nSteps:\n\n1. Create the resource directories if they don't exist (user + project scope).\n2. Scan the existing inventory in both scopes.\n3. Offer actions: add a new resource, list existing, scan the current conversation for opportunities, import a resource from a file/URL, or done.\n\nUse when first setting up a resource type for a project or user account.",
     "tools": [
       "bash"
     ],
@@ -2294,36 +2196,41 @@
       "learner"
     ]
   },
-  "skills-hub/sync": {
+  "resource-hub/sync": {
     "label": "sync",
-    "description": "Sync skills between user and project scope, showing the diff",
-    "reminder": "Sync skills across user and project scopes.",
+    "description": "Sync resources between user and project scope, showing diff",
+    "reminder": "Sync resources across user and project scopes.",
     "inline": true,
-    "detailedDescription": "Syncs skills between user scope (~/.config/opencode/skills/omc-learned/) and project scope (.opencode/state/skills/). Process:\n\n1. Scan both scopes.\n2. Categorize: skills only in user, only in project, in both.\n3. For skills in both: show diff (are they identical or different versions?).\n4. Offer to copy or merge with confirmation.\n\nUse when you want to propagate a skill from user scope to a project (or vice versa), or reconcile differences between scopes.",
+    "detailedDescription": "Syncs resources between user scope (`~/.config/opencode/`) and project scope (`.opencode/`).\n\n## Resource Type Gate\n\nIf the resource type is not given inline, ask via the `question` tool:\n\n> **Which resource type?**\n> 1. skills   2. rules   3. tools   4. commands   5. agents\n\nPass the type inline (e.g. `/resource-hub sync skill`) or `--type=skill` to skip the gate.\n\nProcess:\n\n1. Scan both scopes for that type.\n2. Categorize: only in user, only in project, in both.\n3. For resources in both: show the diff (identical or divergent versions?).\n4. Offer to copy or merge with confirmation.\n\nUse to propagate a resource from user scope to a project (or vice versa), or reconcile differences between scopes.",
     "tools": [
       "bash"
     ],
     "relatedSkills": []
   },
-  "skills-hub/update": {
+  "resource-hub/update": {
     "label": "update",
-    "description": "Iterate an existing skill through the skill-creator workflow",
-    "reminder": "Update skill content and resources.",
+    "description": "Iterate an existing resource through the creator workflow",
+    "reminder": "Update resource content and resources.",
     "inline": true,
-    "detailedDescription": "Updates an existing skill using the skill-creator's iteration workflow:\n\n1. Read the current skill (content, frontmatter, resources).\n2. Identify improvements (with user input or auto-detected).\n3. Apply changes (content updates, new sections, revised triggers).\n4. Validate the structure after changes.\n\nDifferent from /skills-hub edit (which is a simple field-by-field editor) — update uses the skill-creator's structured workflow for more comprehensive changes. Use when a skill needs significant revision rather than a quick field tweak.",
+    "detailedDescription": "Updates an existing resource using the matching creator's iteration workflow:\n\n1. Read the current resource (content, metadata, bundled resources).\n2. Identify improvements (with user input or auto-detected).\n3. Apply changes (content updates, new sections, revised triggers/metadata).\n4. Validate the structure after changes.\n\nDifferent from /resource-hub edit (a simple field-by-field editor) — update uses the creator's structured workflow for more comprehensive changes.\n\n## Resource Type Gate\n\nIf the resource type is not given inline, ask via the `question` tool:\n\n> **Which resource type?**\n> 1. skill   2. rule   3. tool   4. command   5. agent\n\nPass the type inline (e.g. `/resource-hub update skill`) or `--type=skill` to skip the gate.\n\nDispatch: skill → `skill-creator`, rule → `rule-generator`, tool → `tool-creator`, command → `opencode-command-creator`, agent → `opencode-agent-creator`.",
     "tools": [
+      "loadSkill",
       "bash"
     ],
     "relatedSkills": [
-      "skill-creator"
+      "skill-creator",
+      "opencode-agent-creator",
+      "opencode-command-creator",
+      "rule-generator",
+      "tool-creator"
     ]
   },
-  "skills-hub/validate": {
+  "resource-hub/validate": {
     "label": "validate",
-    "description": "Check a skill's structure and report what to fix",
-    "reminder": "Validate skill structure and metadata.",
+    "description": "Check a resource's structure and report what to fix",
+    "reminder": "Validate resource structure and metadata.",
     "inline": true,
-    "detailedDescription": "Validates a skill's structure without packaging it. Checks:\n\n- SKILL.md exists and is readable.\n- YAML frontmatter is valid and has required fields (name, description).\n- Required sections exist (workflow or steps, depending on skill type).\n- Script paths in frontmatter resolve to actual files.\n- Reference paths resolve.\n- No obvious issues (empty sections, broken links).\n\nReports errors with specific locations and suggested fixes. Use after editing a skill or before packaging to ensure it's structurally sound.",
+    "detailedDescription": "Validates a resource's structure without packing it. Reports errors with specific locations and suggested fixes. Use after editing or before packaging.\n\n## Resource Type Gate\n\nIf the resource type is not given inline, ask via the `question` tool:\n\n> **Which resource type?**\n> 1. skill   2. rule   3. tool   4. command   5. agent\n\nPass the type inline (e.g. `/resource-hub validate skill`) or `--type=skill` to skip the gate.\n\nChecks per type (common core + type-specific):\n\n| Type    | Checks                                                              |\n| ------- | ------------------------------------------------------------------- |\n| skill   | SKILL.md exists; valid frontmatter (name, description); sections; script/reference paths resolve |\n| rule    | file exists; description present; body non-empty; tags valid          |\n| tool    | TypeScript parses; schema + handler exported; `tool-scaffolder` validation passes |\n| command | frontmatter valid; body non-empty; `$ARGUMENTS` usage consistent       |\n| agent   | frontmatter valid (name, description, mode, tools); `<Agent_Prompt>` wrapper where required |\n\nReports errors with specific locations and suggested fixes.",
     "tools": [
       "bash"
     ],

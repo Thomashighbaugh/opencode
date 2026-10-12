@@ -330,7 +330,7 @@ If the recommendations include `tools[]`:
 3. Write the result to `$PROJECT_DIR/.opencode/tools/{name}.ts`
 4. Add a `tools` entry to `opencode.jsonc` referencing the generated file
 
-If a tool template doesn't exist locally, suggest running `/resource-hub find-tools` to search registries.
+If a tool template doesn't exist locally, suggest running `/resource-hub find tools` to search registries.
 
 ### Step 3b: Generate Fine-Grained Rules (from templates/rules)
 
@@ -341,7 +341,7 @@ If the recommendations include `fine_rules[]`:
 3. Write the result to `$PROJECT_DIR/.opencode/rules/{category}-{name}.md`
 4. Add the rule to `opencode.jsonc` under `instructions`
 
-If a rule template doesn't exist locally, suggest running `/resource-hub find-rules` to search registries.
+If a rule template doesn't exist locally, suggest running `/resource-hub find rules` to search registries.
 
 ### Step 4: Generate Agent Wrappers (if gaps)
 
@@ -371,8 +371,8 @@ For each identified gap, create a minimal agent that fills the missing capabilit
 ### Gaps Identified
 - ⚠️ No global skill for Next.js App Router → created project agent wrapper
 - ⚠️ No global rule for Prisma conventions → added to project rules
-- ⚠️ No tool template for {missing_tool} → suggest `/resource-hub find-tools`
-- ⚠️ No rule template for {missing_rule} → suggest `/resource-hub find-rules`
+- ⚠️ No tool template for {missing_tool} → suggest `/resource-hub find tools`
+- ⚠️ No rule template for {missing_rule} → suggest `/resource-hub find rules`
 
 ### Next Steps
 1. Review generated files and customize as needed
