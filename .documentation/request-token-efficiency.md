@@ -162,6 +162,6 @@ it blamed the code under test. Both now assert on mechanism.
 | `queueContextMessage` | [Event Interception](plugins-hooks.md) |
 | `injectOn: "failure"` | [Command Hooks](plugins-command-hooks.md) |
 | `CacheManager.getStats()` | [Rules & Skills](rules-and-skills.md) |
-| Turn/token budgets in focus state | [Orchestration](subagent-orchestration.md) |
+| Turn/token budgets in goal state | [Orchestration](subagent-orchestration.md) |
 
 → Next: [Testing Strategy](testing-strategy.md)

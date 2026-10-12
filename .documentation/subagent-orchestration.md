@@ -121,7 +121,7 @@ in the loop has not saved the human any decisions.
 | This system uses | From |
 | ---------------- | ---- |
 | `after`/`task` hooks fire on every dispatch | [Command Hooks](plugins-command-hooks.md) |
-| Mode and focus state persistence | [Memory System](memory-system.md) |
+| Mode and goal state persistence | [Memory System](memory-system.md) |
 | Per-agent hooks in agent frontmatter | [Command Hooks](plugins-command-hooks.md) |
 | Turn/token budgets | [Efficiency](request-token-efficiency.md) |
 | Subagent identity as graph nodes | [Knowledge Plane](knowledge-plane.md) |

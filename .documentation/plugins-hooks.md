@@ -8,7 +8,7 @@ event-driven knowledge sync all hang off it.
 | ------------------------- | ----: | -------------------------------------------------------------- |
 | `hooks.ts`                | 1,501 | Plugin entry; all hook registration and dispatch              |
 | `session.ts`              |   636 | Session lifecycle, pending-message queue, stall classification |
-| `focus.ts`                |   614 | Session focus/goal state, turn and token budgets               |
+| `goal.ts`                |   614 | Session goal state, turn and token budgets               |
 | `keywords.ts`             |   282 | Magic-keyword detection (`ralph`, `autopilot`, …) — **detect only** |
 | `modes.ts`                |   258 | Mode state machine, persistence, resume                        |
 | `vectorize-hook.ts`       |   224 | Event-driven sync supervisor for the knowledge plane           |
@@ -129,12 +129,12 @@ nothing.
 
 ---
 
-## Focus and budgets
+## Goal and budgets
 
-`focus.ts` maintains a session-scoped goal with explicit **turn and token budgets**.
+`goal.ts` maintains a session-scoped goal with explicit **turn and token budgets**.
 
 This is where `rules/efficiency-first.md` stops being prose. The rule says a standing constraint
-applies every interaction cycle; `focus.ts` is the mechanism that can observe whether it is
+applies every interaction cycle; `goal.ts` is the mechanism that can observe whether it is
 being honoured, and `modes.ts` can halt a run that blows its budget.
 
 ---
@@ -183,7 +183,7 @@ hand. A regression to per-turn retrieval was invisible until someone noticed lat
 | ONNX embeddings + `better-sqlite3`        | [ONNX Runtime](onnx-runtime.md) · [knowledge plane](knowledge-plane.md) |
 | child-process supervision                | [vectorize supervisor](knowledge-plane.md)   |
 | `rules/efficiency-first.md` budgets      | [efficiency](request-token-efficiency.md)    |
-| persisted mode/focus state               | [memory system](memory-system.md)            |
+| persisted mode/goal state               | [memory system](memory-system.md)            |
 
 ---
 

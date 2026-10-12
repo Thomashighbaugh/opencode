@@ -1,7 +1,7 @@
 /**
- * focus.ts — Local focus/goal plugin (in-repo, no external deps)
+ * goal.ts — Local goal plugin (in-repo, no external deps)
  *
- * Provides a session-scoped "focus" that steers hub command output toward
+ * Provides a session-scoped "goal" that steers hub command output toward
  * achieving the stated objective. Integrated into hooks.ts system.transform
  * and session.idle hooks.
  *
@@ -10,11 +10,11 @@
  *
  * Key differences from upstream:
  * - No npm dependency — lives in plugins/hooks/ alongside hooks.ts
- * - Focus steers hub commands (orchestrate, ideation, harvest-context, project)
- *   by injecting focus context into system prompt on every turn
- * - Uses our existing state dirs (.opencode/state/focus/) instead of .opencode/goals/
+ * - Goal steers hub commands (orchestrate, ideation, harvest-context, project)
+ *   by injecting goal context into system prompt on every turn
+ * - Uses our existing state dirs (.opencode/state/goal/) instead of .opencode/goals/
  * - Integrated with our existing hooks.ts system.transform hook
- * - No command.execute.before hook — focus is set via /focus command handled by agent
+ * - No command.execute.before hook — goal is set via /goal command handled by agent
  * - Simpler: no multi-goal, no sisyphus sequences, no agent tools
  */
 
@@ -25,8 +25,8 @@ import { dirname, join } from "node:path"
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
-const STATE_FILE_VERSION = 1
-const STATE_SUBPATH = join(".opencode", "state", "focus", "state.json")
+const STATE_FILE_VERSION = 2
+const STATE_SUBPATH = join(".opencode", "state", "goal", "state.json")
 const MAX_HISTORY = 20
 const MAX_CHECKPOINTS = 5
 const CHECKPOINT_CHAR_LIMIT = 280
@@ -48,7 +48,7 @@ const DEFAULT_OPTIONS = {
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
-interface FocusOptions {
+interface GoalOptions {
   maxTurns: number
   maxDurationMs: number
   maxTokens: number
@@ -63,8 +63,8 @@ interface FocusOptions {
   maxPromptFailures: number
 }
 
-interface FocusState {
-  focusId: string
+interface GoalState {
+  goalId: string
   objective: string
   successCriteria: string
   constraints: string
@@ -84,12 +84,12 @@ interface FocusState {
   lastCheckpoint: { summary: string; timestamp: number } | null
   checkpoints: Array<{ summary: string; timestamp: number }>
   history: Array<{ type: string; detail: string; timestamp: number }>
-  options: FocusOptions
+  options: GoalOptions
 }
 
 // ─── In-memory state ────────────────────────────────────────────────────────
 
-const focusStates = new Map<string, FocusState>()
+const goalStates = new Map<string, GoalState>()
 const activeContinues = new Map<string, string>() // sessionID → token
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -147,12 +147,12 @@ function ledgerPathFor(statePath: string): string {
 
 // ─── Persistence ────────────────────────────────────────────────────────────
 
-async function persistState(directory: string, state: FocusState): Promise<boolean> {
+async function persistState(directory: string, state: GoalState): Promise<boolean> {
   const statePath = resolveStateFilePath(directory)
   try {
     await fs.mkdir(dirname(statePath), { recursive: true, mode: 0o700 })
     const tmpPath = statePath + "." + process.pid + "." + randomUUID() + ".tmp"
-    await fs.writeFile(tmpPath, JSON.stringify({ version: STATE_FILE_VERSION, focus: state }, null, 2), {
+    await fs.writeFile(tmpPath, JSON.stringify({ version: STATE_FILE_VERSION, goal: state }, null, 2), {
       encoding: "utf8", mode: 0o600,
     })
     await fs.rename(tmpPath, statePath)
@@ -163,13 +163,13 @@ async function persistState(directory: string, state: FocusState): Promise<boole
   }
 }
 
-async function loadPersistedState(directory: string): Promise<FocusState | null> {
+async function loadPersistedState(directory: string): Promise<GoalState | null> {
   const statePath = resolveStateFilePath(directory)
   try {
     const raw = await fs.readFile(statePath, "utf8")
     const parsed = JSON.parse(raw)
-    if (parsed?.version !== STATE_FILE_VERSION || !isPlainObject(parsed.focus)) return null
-    return parsed.focus as FocusState
+    if (parsed?.version !== STATE_FILE_VERSION || !isPlainObject(parsed.goal)) return null
+    return parsed.goal as GoalState
   } catch {
     return null
   }
@@ -184,21 +184,21 @@ function appendLedgerLine(ledgerPath: string, entry: Record<string, unknown>) {
   } catch { /* best-effort */ }
 }
 
-function emitLedgerEvent(directory: string, state: FocusState, type: string, detail: string) {
+function emitLedgerEvent(directory: string, state: GoalState, type: string, detail: string) {
   const ledgerPath = ledgerPathFor(resolveStateFilePath(directory))
   appendLedgerLine(ledgerPath, {
-    ts: Date.now(), sessionID: state.sessionID, focusId: state.focusId,
+    ts: Date.now(), sessionID: state.sessionID, goalId: state.goalId,
     objective: state.objective, type, detail,
   })
 }
 
 // ─── State management ───────────────────────────────────────────────────────
 
-function pushHistory(state: FocusState, type: string, detail: string, ts = Date.now()) {
+function pushHistory(state: GoalState, type: string, detail: string, ts = Date.now()) {
   state.history = [...(state.history || []), makeHistoryEntry(type, detail, ts)].slice(-MAX_HISTORY)
 }
 
-function recordCheckpoint(state: FocusState, text: string, ts = Date.now()) {
+function recordCheckpoint(state: GoalState, text: string, ts = Date.now()) {
   const summary = summarizeText(text)
   if (!summary || state.lastCheckpoint?.summary === summary) return
   const cp = { summary, timestamp: ts }
@@ -206,8 +206,8 @@ function recordCheckpoint(state: FocusState, text: string, ts = Date.now()) {
   state.checkpoints = [...(state.checkpoints || []), cp].slice(-MAX_CHECKPOINTS)
 }
 
-function resetBudget(state: FocusState) {
-  state.focusId = randomUUID()
+function resetBudget(state: GoalState) {
+  state.goalId = randomUUID()
   state.startedAt = Date.now()
   state.turnCount = 0
   state.totalTokens = 0
@@ -222,16 +222,16 @@ function resetBudget(state: FocusState) {
 // ─── Public API ─────────────────────────────────────────────────────────────
 
 /**
- * Set or replace the session focus.
- * Returns the new FocusState.
+ * Set or replace the session goal.
+ * Returns the new GoalState.
  */
-export function setFocus(
+export function setGoal(
   directory: string,
   sessionID: string,
   objective: string,
   opts?: { successCriteria?: string; constraints?: string; maxTurns?: number; maxDurationMs?: number; maxTokens?: number },
-): FocusState {
-  const existing = focusStates.get(sessionID)
+): GoalState {
+  const existing = goalStates.get(sessionID)
   if (existing) {
     // Replace objective, keep budget + history
     existing.objective = objective
@@ -240,15 +240,15 @@ export function setFocus(
     existing.stopped = false
     existing.stopReason = ""
     existing.blockedReason = ""
-    existing.lastStatus = "Focus updated."
-    pushHistory(existing, "refocused", objective)
-    emitLedgerEvent(directory, existing, "refocused", objective)
+    existing.lastStatus = "Goal updated."
+    pushHistory(existing, "goal-updated", objective)
+    emitLedgerEvent(directory, existing, "goal-updated", objective)
     persistState(directory, existing)
     return existing
   }
 
-  const state: FocusState = {
-    focusId: randomUUID(),
+  const state: GoalState = {
+    goalId: randomUUID(),
     objective,
     successCriteria: opts?.successCriteria || "",
     constraints: opts?.constraints || "",
@@ -264,10 +264,10 @@ export function setFocus(
     stopReason: "",
     blockedReason: "",
     budgetWrapupSent: false,
-    lastStatus: "Focus set.",
+    lastStatus: "Goal set.",
     lastCheckpoint: null,
     checkpoints: [],
-    history: [makeHistoryEntry("focused", objective)],
+    history: [makeHistoryEntry("goal-set", objective)],
     options: {
       maxTurns: toPositiveInteger(opts?.maxTurns, DEFAULT_OPTIONS.maxTurns),
       maxDurationMs: toPositiveInteger(opts?.maxDurationMs, DEFAULT_OPTIONS.maxDurationMs),
@@ -284,74 +284,74 @@ export function setFocus(
     },
   }
 
-  focusStates.set(sessionID, state)
-  emitLedgerEvent(directory, state, "focused", objective)
+  goalStates.set(sessionID, state)
+  emitLedgerEvent(directory, state, "goal-set", objective)
   persistState(directory, state)
   return state
 }
 
 /**
- * Clear the session focus.
+ * Clear the session goal.
  */
-export function clearFocus(directory: string, sessionID: string): boolean {
-  const state = focusStates.get(sessionID)
+export function clearGoal(directory: string, sessionID: string): boolean {
+  const state = goalStates.get(sessionID)
   if (!state) return false
   state.stopped = true
   state.stopReason = "cleared"
-  state.lastStatus = "Focus cleared."
-  pushHistory(state, "cleared", "Focus cleared by user.")
-  emitLedgerEvent(directory, state, "cleared", "Focus cleared.")
+  state.lastStatus = "Goal cleared."
+  pushHistory(state, "cleared", "Goal cleared by user.")
+  emitLedgerEvent(directory, state, "cleared", "Goal cleared.")
   persistState(directory, state)
-  focusStates.delete(sessionID)
+  goalStates.delete(sessionID)
   activeContinues.delete(sessionID)
   return true
 }
 
 /**
- * Pause the session focus (stop auto-continue without clearing).
+ * Pause the session goal (stop auto-continue without clearing).
  */
-export function pauseFocus(directory: string, sessionID: string): boolean {
-  const state = focusStates.get(sessionID)
+export function pauseGoal(directory: string, sessionID: string): boolean {
+  const state = goalStates.get(sessionID)
   if (!state) return false
   state.stopped = true
   state.stopReason = "paused"
-  state.lastStatus = "Focus paused."
-  pushHistory(state, "paused", "Focus paused by user.")
-  emitLedgerEvent(directory, state, "paused", "Focus paused.")
+  state.lastStatus = "Goal paused."
+  pushHistory(state, "paused", "Goal paused by user.")
+  emitLedgerEvent(directory, state, "paused", "Goal paused.")
   persistState(directory, state)
   activeContinues.delete(sessionID)
   return true
 }
 
 /**
- * Resume a paused/stopped focus.
+ * Resume a paused/stopped goal.
  */
-export function resumeFocus(directory: string, sessionID: string): boolean {
-  const state = focusStates.get(sessionID)
+export function resumeGoal(directory: string, sessionID: string): boolean {
+  const state = goalStates.get(sessionID)
   if (!state) return false
   state.stopped = false
   state.stopReason = ""
   state.blockedReason = ""
-  state.lastStatus = "Focus resumed."
-  pushHistory(state, "resumed", "Focus resumed by user.")
-  emitLedgerEvent(directory, state, "resumed", "Focus resumed.")
+  state.lastStatus = "Goal resumed."
+  pushHistory(state, "resumed", "Goal resumed by user.")
+  emitLedgerEvent(directory, state, "resumed", "Goal resumed.")
   persistState(directory, state)
   return true
 }
 
 /**
- * Get the current focus state for a session.
+ * Get the current goal state for a session.
  */
-export function getFocus(sessionID: string): FocusState | null {
-  return focusStates.get(sessionID) || null
+export function getGoal(sessionID: string): GoalState | null {
+  return goalStates.get(sessionID) || null
 }
 
 /**
- * Get formatted focus status string.
+ * Get formatted goal status string.
  */
-export function formatFocusStatus(sessionID: string): string {
-  const state = focusStates.get(sessionID)
-  if (!state) return "No active focus."
+export function formatGoalStatus(sessionID: string): string {
+  const state = goalStates.get(sessionID)
+  if (!state) return "No active goal."
 
   const elapsed = Math.round((Date.now() - state.startedAt) / 1000)
   const lastProgress = state.lastProgressAt > 0
@@ -362,7 +362,7 @@ export function formatFocusStatus(sessionID: string): string {
     : "none yet"
 
   const lines = [
-    `Focus: ${state.objective}`,
+    `Goal: ${state.objective}`,
   ]
   if (state.successCriteria) lines.push(`Success: ${state.successCriteria}`)
   if (state.constraints) lines.push(`Constraints: ${state.constraints}`)
@@ -380,25 +380,25 @@ export function formatFocusStatus(sessionID: string): string {
 }
 
 /**
- * Build the focus block for system prompt injection.
- * This is what steers hub commands toward the focus objective.
+ * Build the goal block for system prompt injection.
+ * This is what steers hub commands toward the goal objective.
  */
-export function buildFocusBlock(sessionID: string): string | null {
-  const state = focusStates.get(sessionID)
+export function buildGoalBlock(sessionID: string): string | null {
+  const state = goalStates.get(sessionID)
   if (!state || state.stopped) return null
 
   const lines = [
-    "<active_focus>",
+    "<active_goal>",
     `Objective: ${state.objective}`,
   ]
   if (state.successCriteria) lines.push(`Success criteria: ${state.successCriteria}`)
   if (state.constraints) lines.push(`Constraints: ${state.constraints}`)
   lines.push(
     `Progress: ${state.turnCount} turns, ${state.totalTokens.toLocaleString()} tokens used.`,
-    "Steer all hub command output toward achieving this focus.",
-    "When the focus is satisfied, end with [focus:complete].",
-    "When blocked by user input, end with [focus:blocked] and explain the blocker.",
-    "</active_focus>",
+    "Steer all hub command output toward achieving this goal.",
+    "When the goal is satisfied, end with [goal:complete].",
+    "When blocked by user input, end with [goal:blocked] and explain the blocker.",
+    "</active_goal>",
   )
   return lines.join("\n")
 }
@@ -407,7 +407,7 @@ export function buildFocusBlock(sessionID: string): string | null {
  * Build a continuation message for auto-continue on idle.
  */
 export function buildContinueMessage(sessionID: string): string | null {
-  const state = focusStates.get(sessionID)
+  const state = goalStates.get(sessionID)
   if (!state || state.stopped) return null
 
   const remainingTokens = Math.max(0, state.options.maxTokens - state.totalTokens)
@@ -416,8 +416,8 @@ export function buildContinueMessage(sessionID: string): string | null {
   const budgetWrapup = state.totalTokens >= state.options.maxTokens * state.options.budgetWrapupRatio
 
   const lines = [
-    "<focus_continuation>",
-    `<focus_objective>${state.objective}</focus_objective>`,
+    "<goal_continuation>",
+    `<goal_objective>${state.objective}</goal_objective>`,
     "",
     "<progress>",
     `turns: ${state.turnCount}/${state.options.maxTurns}`,
@@ -436,7 +436,7 @@ export function buildContinueMessage(sessionID: string): string | null {
   } else {
     lines.push(
       "<next_step>",
-      "Continue working toward the focus. Take the next concrete step. Verify actual state before assuming prior work succeeded.",
+      "Continue working toward the goal. Take the next concrete step. Verify actual state before assuming prior work succeeded.",
       "</next_step>",
     )
   }
@@ -444,8 +444,8 @@ export function buildContinueMessage(sessionID: string): string | null {
   lines.push(
     "",
     "<completion>",
-    "Before [focus:complete], verify against objective and current state. Put [focus:evidence] <summary> on the line before [focus:complete].",
-    "For blockers, explain the specific need on the line before [focus:blocked].",
+    "Before [goal:complete], verify against objective and current state. Put [goal:evidence] <summary> on the line before [goal:complete].",
+    "For blockers, explain the specific need on the line before [goal:blocked].",
     "Unsubstantiated claims are rejected.",
     "</completion>",
   )
@@ -454,17 +454,17 @@ export function buildContinueMessage(sessionID: string): string | null {
 }
 
 /**
- * Check if the assistant's last text indicates focus completion or blocking.
+ * Check if the assistant's last text indicates goal completion or blocking.
  */
-export function checkFocusMarkers(text: string): { type: "complete" | "blocked" | "none"; evidence?: string; blocker?: string } {
+export function checkGoalMarkers(text: string): { type: "complete" | "blocked" | "none"; evidence?: string; blocker?: string } {
   const safeText = typeof text === "string" ? text : String(text || "")
   const trimmed = safeText.trimEnd()
   const lines = trimmed.split("\n")
 
-  // Check for [focus:complete] or focus:complete
+  // Check for [goal:complete] or goal:complete
   const completeIdx = lines.findIndex(l => {
     const t = l.trim().toLowerCase()
-    return t === "[focus:complete]" || t === "focus:complete"
+    return t === "[goal:complete]" || t === "goal:complete"
   })
 
   if (completeIdx >= 0) {
@@ -472,7 +472,7 @@ export function checkFocusMarkers(text: string): { type: "complete" | "blocked" 
     for (let i = completeIdx - 1; i >= 0; i--) {
       const raw = lines[i].trim()
       if (!raw) continue
-      const match = raw.match(/^\[?\s*focus:evidence\s*\]?[:\-\s]*(.*)$/i)
+      const match = raw.match(/^\[?\s*goal:evidence\s*\]?[:\-\s]*(.*)$/i)
       if (match) {
         const inline = match[1].trim()
         if (inline) return { type: "complete", evidence: inline }
@@ -483,10 +483,10 @@ export function checkFocusMarkers(text: string): { type: "complete" | "blocked" 
     return { type: "complete", evidence: "" } // marker found but no evidence
   }
 
-  // Check for [focus:blocked] or focus:blocked
+  // Check for [goal:blocked] or goal:blocked
   const blockedIdx = lines.findIndex(l => {
     const t = l.trim().toLowerCase()
-    return t === "[focus:blocked]" || t === "focus:blocked"
+    return t === "[goal:blocked]" || t === "goal:blocked"
   })
 
   if (blockedIdx >= 0) {
@@ -500,10 +500,10 @@ export function checkFocusMarkers(text: string): { type: "complete" | "blocked" 
 }
 
 /**
- * Update focus state with token usage from a message.
+ * Update goal state with token usage from a message.
  */
 export function recordTurn(sessionID: string, tokens: number, outputText: string, hasToolCall: boolean) {
-  const state = focusStates.get(sessionID)
+  const state = goalStates.get(sessionID)
   if (!state || state.stopped) return
 
   state.turnCount++
@@ -553,10 +553,10 @@ export function recordTurn(sessionID: string, tokens: number, outputText: string
 }
 
 /**
- * Mark focus as completed (with evidence).
+ * Mark goal as completed (with evidence).
  */
-export function completeFocus(directory: string, sessionID: string, evidence: string) {
-  const state = focusStates.get(sessionID)
+export function completeGoal(directory: string, sessionID: string, evidence: string) {
+  const state = goalStates.get(sessionID)
   if (!state) return
   state.stopped = true
   state.stopReason = "completed"
@@ -564,15 +564,15 @@ export function completeFocus(directory: string, sessionID: string, evidence: st
   pushHistory(state, "completed", evidence)
   emitLedgerEvent(directory, state, "completed", evidence)
   persistState(directory, state)
-  focusStates.delete(sessionID)
+  goalStates.delete(sessionID)
   activeContinues.delete(sessionID)
 }
 
 /**
- * Mark focus as blocked.
+ * Mark goal as blocked.
  */
-export function blockFocus(directory: string, sessionID: string, blocker: string) {
-  const state = focusStates.get(sessionID)
+export function blockGoal(directory: string, sessionID: string, blocker: string) {
+  const state = goalStates.get(sessionID)
   if (!state) return
   state.stopped = true
   state.stopReason = "blocked"
@@ -585,24 +585,24 @@ export function blockFocus(directory: string, sessionID: string, blocker: string
 }
 
 /**
- * Initialize focus state from persisted file on session start.
+ * Initialize goal state from persisted file on session start.
  */
-export async function initializeFocus(directory: string, sessionID: string): Promise<void> {
+export async function initializeGoal(directory: string, sessionID: string): Promise<void> {
   const persisted = await loadPersistedState(directory)
   if (persisted && persisted.sessionID === sessionID && !persisted.stopped) {
     // Recover in paused state — don't auto-continue blindly after restart
     persisted.stopped = true
     persisted.stopReason = "recovered"
-    persisted.lastStatus = "Focus recovered from persisted state. Resume with /focus resume."
-    focusStates.set(sessionID, persisted)
+    persisted.lastStatus = "Goal recovered from persisted state. Resume with /goal resume."
+    goalStates.set(sessionID, persisted)
   }
 }
 
 /**
- * Clear all in-memory focus state (on session end).
+ * Clear all in-memory goal state (on session end).
  */
-export function clearSessionFocus(sessionID: string) {
-  focusStates.delete(sessionID)
+export function clearSessionGoal(sessionID: string) {
+  goalStates.delete(sessionID)
   activeContinues.delete(sessionID)
 }
 

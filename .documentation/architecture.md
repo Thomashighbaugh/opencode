@@ -18,7 +18,7 @@ How the pieces fit, and why the boundaries are where they are.
 │  ├── hooks/           │◀── queueContextMessage │  ├── rules/    (20)      │
 │  │   event intercept  │                        │  ├── skills/  (125)      │
 │  │   cache · modes    │─── injects ───────────▶│  ├── agents/   (31)      │
-│  │   focus · telemetry│                        │  └── tools/    (46)      │
+│  │   goal · telemetry │                        │  └── tools/    (46)      │
 │  ├── command-hooks/   │                        └─────────────┬────────────┘
 │  │   declarative shell│                                      │
 │  └── hubs-tui/        │                        ┌─────────────▼────────────┐
@@ -82,7 +82,7 @@ derived index over it.
       ▼
   experimental.chat.system.transform
       │   ├─ consumeContextMessages()      ← anything queued this session
-      │   ├─ focus goal + budget state
+      │   ├─ goal objective + budget state
       │   └─ per-turn efficiency reminder   (char-budgeted)
       ▼
   model call  ◀── retrieval: session cache → graph (SQL) → vectors → rerank

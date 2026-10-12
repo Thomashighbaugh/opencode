@@ -33,7 +33,7 @@ is the standing constraint that shapes the whole design.
 ```
                       ┌──────────────────────────────────────────────┐
    user input  ──────▶│  plugins/hooks/hooks.ts   (event interceptor) │
-                      │  8 hook points · modes · focus · telemetry     │
+                      │  8 hook points · modes · goal · telemetry      │
                       └───────┬──────────────────────────────┬─────────┘
                               │                              │
               ┌───────────────▼───────────┐     ┌────────────▼─────────────┐
@@ -175,7 +175,7 @@ Every model is then local: embeddings, reranking, and the prompt-queue classifie
 | Page | Covers |
 | ---- | ------ |
 | [Architecture](.documentation/architecture.md) | Layer-by-layer design, data flow, extension points |
-| [Event Interception](.documentation/plugins-hooks.md) | `plugins/hooks/` — modes, focus, telemetry, caching, vectorize |
+| [Event Interception](.documentation/plugins-hooks.md) | `plugins/hooks/` — modes, goal, telemetry, caching, vectorize |
 | [Command Hooks](.documentation/plugins-command-hooks.md) | `plugins/command-hooks/` — declarative shell hooks on events |
 | [TUI Plugin](.documentation/plugins-hubs-tui.md) | `plugins/hubs-tui/` — native dialogs, generated menu bundle |
 | [Prompt Queue](.documentation/prompt-queue.md) | `plugins/prompt-queue/` — FIFO follow-ups, released only when a turn ends without a question |

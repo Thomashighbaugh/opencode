@@ -4,7 +4,7 @@
  * Registers all hook handlers: session lifecycle, tool lifecycle,
  * chat messages, permission auto-approval, context preservation,
  * and context injection. Imports supporting functions from the
- * session, modes, keywords, focus, and telemetry modules.
+ * session, modes, keywords, goal, and telemetry modules.
  *
  * This is the plugin entry point (exported as default).
  */
@@ -62,10 +62,10 @@ import {
 } from "./keywords"
 
 import {
-  buildFocusBlock,
-  initializeFocus,
-  clearSessionFocus,
-} from "./focus"
+  buildGoalBlock,
+  initializeGoal,
+  clearSessionGoal,
+} from "./goal"
 
 import { recordTelemetry, classifyToolEvent } from "./telemetry"
 import { ChildRegistry } from "./child-registry"
@@ -322,10 +322,10 @@ export const JocPlugin: Plugin = async ({ project, client, directory, worktree }
         // ── [Change 6]: Emit session created event ──────────────────
         emit('session:created', { sessionId, directory })
 
-        // ── Focus: recover persisted focus state ───────────────────
+        // ── Goal: recover persisted goal state ───────────────────
         try {
-          initializeFocus(directory, sessionId)
-        } catch { /* focus plugin unavailable */ }
+          initializeGoal(directory, sessionId)
+        } catch { /* goal plugin unavailable */ }
 
         break
       }
@@ -348,10 +348,10 @@ export const JocPlugin: Plugin = async ({ project, client, directory, worktree }
 
         clearSessionContext(sessionId)
 
-        // ── Focus: clear session focus state ────────────────────────
+        // ── Goal: clear session goal state ────────────────────────
         try {
-          clearSessionFocus(sessionId)
-        } catch { /* focus plugin unavailable */ }
+          clearSessionGoal(sessionId)
+        } catch { /* goal plugin unavailable */ }
 
         // ── Save context warmup for next session ─────────────────────
         // Persist top query→context mappings so the next session starts warm.
@@ -1102,13 +1102,13 @@ Propose the mode to the user and ask before activating.
       output.system.push(contextBlock)
     }
 
-    // ── Focus injection: steer hub commands toward active focus ────
+    // ── Goal injection: steer hub commands toward active goal ────
     try {
-      const focusBlock = buildFocusBlock(sessionId)
-      if (focusBlock) {
-        output.system.push(focusBlock)
+      const goalBlock = buildGoalBlock(sessionId)
+      if (goalBlock) {
+        output.system.push(goalBlock)
       }
-    } catch { /* focus plugin unavailable */ }
+    } catch { /* goal plugin unavailable */ }
 
     // ── Efficiency reminder (every turn) ─────────────────────────────
     // The rule lives in rules/efficiency-first.md and is in the system prompt

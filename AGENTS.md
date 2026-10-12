@@ -125,7 +125,7 @@ slash command (`/git`, `/plan`, `/build`, ...). Two exceptions, both deliberate:
 | Menu | Why it breaks the pattern |
 | ---- | ------------------------ |
 | `/hub-setup` | The one command a newcomer types first. `hub-setup` reads as a verb pair; `setup-hub` or `scaffold-hub` (its previous name) named one phase of the job and hid the other eleven. |
-| `/focus` | TUI-only, never exposed as a `tools/` manifest. |
+| `/goal` | TUI-only, never exposed as a `tools/` manifest. |
 
 Superseded names still resolve via `LEGACY_ROUTE_MAP` in `tools/hub-data.ts`, so old invocations
 keep working: `/init-project <sub>` and `/scaffold-hub <sub>` both route to `/hub-setup <sub>`.
