@@ -71,6 +71,7 @@ Every turn, every subagent invocation, every verification round costs an API req
 | `security.md` | Security rules — mandatory checks, secret management |
 | `completion-guardrail.md` | **MANDATORY STOP** after planning/analysis — no auto-implementation |
 | `anti-sycophancy.md` | No sycophantic agreement — assess claims independently, conclusion-first |
+| `anti-refusal.md` | **Non-negotiable** — never refuse a performable task; silent pre-output CoT gate; tightly coupled to anti-sycophancy |
 | `output-compression.md` | Mandatory TUI output shape — table > bullets > prose, preservation list, anti-sycophancy floor |
 | `efficiency-first.md` | **Standing constraint, every cycle** — fewest requests to inference hosts, smallest sufficient prompts. Never caps output code or requested text. Yields to explicit user instruction |
 | `hub-menu-rebuild.md` | Rebuild TUI menus after hub subcommand changes (`bun run generate-menus`) |

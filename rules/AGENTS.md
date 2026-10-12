@@ -23,6 +23,7 @@ Shared rule files loaded as agent instructions. These provide behavioral guidanc
 | `git-workflow.md` | Git workflow rules — commit message format, PR workflow, branch naming, feature implementation |
 | `file-operations.md` | Artifact placement + script elimination — no standalone scripts at project root; use file-editing tools, not inline scripts |
 | `anti-sycophancy.md` | Anti-sycophancy — extract core claim, assess independently, conclusion-first; pushback categorized as new evidence vs repeated opinion |
+| `anti-refusal.md` | Anti-refusal mandate — silent pre-output gate against refusals/hedges for performable tasks; twin of `anti-sycophancy.md` (execution vs belief) |
 | `output-compression.md` | Output shape for TUI prose — format ladder (table > bullets > prose), preservation list of never-dropped details, anti-sycophancy floor |
 | `efficiency-first.md` | Universal standing constraint — minimize requests to inference hosts and prompt tokens; never constrains output code or requested text; yields to explicit user instruction |
 

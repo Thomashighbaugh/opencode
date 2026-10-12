@@ -73,6 +73,7 @@
         "./rules/completion-guardrail.md",
         "./rules/output-compression.md",
         "./rules/anti-sycophancy.md",
+        "./rules/anti-refusal.md",
         "./rules/efficiency-first.md",
         "./rules/hub-menu-rebuild.md",
         "./rules/session-artifact-promotion.md",
