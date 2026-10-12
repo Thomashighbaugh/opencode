@@ -12,6 +12,9 @@ TUI (Terminal User Interface) plugin for OpenCode Hubs. Provides native DialogSe
 |------|-------------|
 | `index.js` | Plugin entry point |
 | `package.json` | Package manifest and dependencies |
+| `src/tui.tsx` | TUI plugin entry — registers hub menus, prompt-queue, and todo commands |
+| `src/todo-commands.ts` | `/todo` slash command + ctrl+p palette entry (menu actions) |
+| `src/todo-store.ts` | Per-project todo store (`.opencode/todo/`) — pure fs, unit-tested |
 | `hubs-tui-hubs-0.1.0.tgz` | Packaged distribution archive |
 | `bun.lock` | Bun lockfile for dependency resolution |
 

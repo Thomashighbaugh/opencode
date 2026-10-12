@@ -121,12 +121,13 @@ Retries are per-subagent: one stuck subagent never blocks the others. Subagent t
 ## Hub Commands
 
 Menus are **topical** and carry a `-hub` suffix so a menu never collides with an OpenCode built-in
-slash command (`/git`, `/plan`, `/build`, ...). Two exceptions, both deliberate:
+slash command (`/git`, `/plan`, `/build`, ...). Three exceptions, all deliberate:
 
 | Menu | Why it breaks the pattern |
 | ---- | ------------------------ |
 | `/hub-setup` | The one command a newcomer types first. `hub-setup` reads as a verb pair; `setup-hub` or `scaffold-hub` (its previous name) named one phase of the job and hid the other eleven. |
 | `/goal` | TUI-only, never exposed as a `tools/` manifest. |
+| `/todo` | TUI-only project todo list; reachable as a slash command **and** from the ctrl+p palette. |
 
 Superseded names still resolve via `LEGACY_ROUTE_MAP` in `tools/hub-data.ts`, so old invocations
 keep working: `/init-project <sub>` and `/scaffold-hub <sub>` both route to `/hub-setup <sub>`.

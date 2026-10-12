@@ -3,6 +3,7 @@ import type { TuiPlugin, TuiPluginApi, TuiPluginMeta, TuiDialogSelectOption } fr
 import { HUBS } from './generated-hubs'
 import type { Hub } from './generated-hubs'
 import { registerQueueCommands } from './queue-commands'
+import { registerTodoCommands } from './todo-commands'
 
 const tui: TuiPlugin = async (api: TuiPluginApi, _o: any, _m: TuiPluginMeta) => {
   // Prompt-queue palette entries (ctrl+p menu, not a slash command). Registered
@@ -14,6 +15,14 @@ const tui: TuiPlugin = async (api: TuiPluginApi, _o: any, _m: TuiPluginMeta) => 
   } catch (e) {
     // A palette entry that fails to register must not take the hub menu with it.
     console.error('[hubs-tui] prompt-queue commands unavailable:', e)
+  }
+
+  // Project todo list — the human's list, distinct from the agent's taskTodos.
+  // Reachable as `/todo` and from the ctrl+p palette. See src/todo-commands.ts.
+  try {
+    registerTodoCommands(api, (api.state?.path?.directory as string) || process.cwd())
+  } catch (e) {
+    console.error('[hubs-tui] todo commands unavailable:', e)
   }
 
   api.command!.register(() =>

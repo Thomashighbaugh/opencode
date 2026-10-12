@@ -11,6 +11,9 @@ Registered as `"plugin": ["file://./plugins/hubs-tui/dist/tui.js"]`.
 - **Hub command palettes** — every one of the 13 hubs as a `DialogSelect`, grouped and
   searchable.
 - **The `/goal` command** — a native slash command for session goal state.
+- **The `/todo` command** — a project todo list (slash command + ctrl+p): add, list, complete,
+  delete, inject into the input box, or copy to the clipboard. Completed items archive to
+  `.opencode/todo/archive.jsonl`.
 - **Prompt stashing** — stash the current input, retrieve it later.
 
 ---
