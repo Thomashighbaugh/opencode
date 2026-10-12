@@ -478,7 +478,14 @@ describe('plugin: end to end', () => {
 describe('wiring', () => {
   it('the hooks plugin is registered in opencode.jsonc', () => {
     const cfg = fs.readFileSync(path.join(CONFIG_DIR, 'opencode.jsonc'), 'utf-8')
-    expect(cfg).toContain('./plugins/prompt-queue/index.ts')
+    expect(cfg).toContain('./plugins/prompt-queue/plugin.ts')
+  })
+
+  it('the loader-facing entry exports only functions', async () => {
+    // OpenCode's legacy plugin loader invokes every enumerable export as a
+    // plugin factory and drops the whole plugin if any value is not a function.
+    const entry: Record<string, unknown> = await import(path.join(CONFIG_DIR, 'plugins', 'prompt-queue', 'plugin.ts'))
+    expect(Object.entries(entry).filter(([, v]) => typeof v !== 'function')).toEqual([])
   })
 
   it('the ctrl+p palette entry exists and is not a slash command', () => {

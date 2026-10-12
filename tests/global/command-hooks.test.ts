@@ -989,7 +989,14 @@ describe('end-to-end: the plugin as OpenCode loads it', () => {
 
   it('the plugin is registered in opencode.jsonc', () => {
     const cfg = fs.readFileSync(path.join(CONFIG_DIR, 'opencode.jsonc'), 'utf-8')
-    expect(cfg).toContain('./plugins/command-hooks/index.ts')
+    expect(cfg).toContain('./plugins/command-hooks/plugin.ts')
+  })
+
+  it('the loader-facing entry exports only functions', async () => {
+    // OpenCode's legacy plugin loader invokes every enumerable export as a
+    // plugin factory and drops the whole plugin if any value is not a function.
+    const entry: Record<string, unknown> = await import(path.join(CONFIG_DIR, 'plugins', 'command-hooks', 'plugin.ts'))
+    expect(Object.entries(entry).filter(([, v]) => typeof v !== 'function')).toEqual([])
   })
 
   it('the skill is discoverable and documents the surface it exposes', () => {
