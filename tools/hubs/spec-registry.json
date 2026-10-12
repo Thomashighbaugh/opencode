@@ -2047,10 +2047,10 @@
   },
   "resource-hub/find": {
     "label": "find",
-    "description": "Discover resources from registries — skills, agents, rules, tools",
+    "description": "Discover resources from registries — skills, agents, rules, tools, commands",
     "reminder": "Search registries for relevant project resources.",
     "inline": true,
-    "detailedDescription": "Discovers *new* installable resources relevant to the project by searching registries. Absorbs the former `find-skills` / `find-agents` / `find-rules` / `find-tools` subcommands into one type-gated command.\n\nThis searches external registries. To search resources already on disk, use /resource-hub search.\n\n## Resource Type Gate\n\nIf the resource type is not given inline, ask via the `question` tool:\n\n> **Which resource type?**\n> 1. skills   2. agents   3. rules   4. tools\n\nPass the type inline (e.g. `/resource-hub find rules`) or `--type=rules` to skip the gate.\n\n## Dispatch\n\nLoad and follow the finder for the chosen type:\n\n| Type   | Finder skill  | Sources                                     | Install target |\n| ------ | ------------- | ------------------------------------------- | -------------- |\n| skills | `find-skills` | skills.sh, clawhub.ai, GitHub               | `.opencode/`    |\n| agents | `find-agents` | agent registries, GitHub                    | installed as skills |\n| rules  | `find-rules`  | GitHub, skills.sh, local template catalog   | `.opencode/rules/` |\n| tools  | `find-tools`  | GitHub, npm, local template catalog         | `.opencode/tools/` |\n\nEach: search sources in parallel → security-scan top hits → present ranked recommendations with source reputation → user selects which to install.\n\nUse during /hub-setup setup/refresh or standalone to extend the project's resource set.",
+    "detailedDescription": "Discovers *new* installable resources relevant to the project by searching registries. Absorbs the former `find-skills` / `find-agents` / `find-rules` / `find-tools` subcommands into one type-gated command.\n\nThis searches external registries. To search resources already on disk, use /resource-hub search.\n\n## Resource Type Gate\n\nIf the resource type is not given inline, ask via the `question` tool:\n\n> **Which resource type?**\n> 1. skills   2. agents   3. rules   4. tools   5. commands\n\nPass the type inline (e.g. `/resource-hub find rules`) or `--type=rules` to skip the gate.\n\n## Dispatch\n\nLoad and follow the finder for the chosen type:\n\n| Type     | Finder skill    | Sources                                     | Install target |\n| -------- | --------------- | ------------------------------------------- | -------------- |\n| skills   | `find-skills`   | skills.sh, clawhub.ai, GitHub               | `.opencode/`    |\n| agents   | `find-agents`   | agent registries, GitHub                    | installed as skills |\n| rules    | `find-rules`    | GitHub, skills.sh, local template catalog   | `.opencode/rules/` |\n| tools    | `find-tools`    | GitHub, npm, local template catalog         | `.opencode/tools/` |\n| commands | `find-commands` | GitHub, skills.sh, local command packs      | `.opencode/commands/` |\n\nEach: search sources in parallel → security-scan top hits → present ranked recommendations with source reputation → user selects which to install.\n\nUse during /hub-setup setup/refresh or standalone to extend the project's resource set.",
     "tools": [
       "loadSkill",
       "bash"
@@ -2059,7 +2059,8 @@
       "find-skills",
       "find-agents",
       "find-rules",
-      "find-tools"
+      "find-tools",
+      "find-commands"
     ]
   },
   "resource-hub/graph": {

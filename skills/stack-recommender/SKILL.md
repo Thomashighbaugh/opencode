@@ -296,7 +296,7 @@ Rules:
 6. **De-duplicate and prioritize** — remove duplicate resource references and order by relevance.
 7. **Return recommendations** — structured JSON with `hint_pack`, `hints`, `research`, `preferences`, skills, agents, rules, tools, fine_rules, commands, gaps, and notes. `project-config-composer` **synthesizes** from these; it never copies a pack.
 8. If calling from `/init-project`, pass the recommendations to `project-config-composer` for `.opencode/` generation
-9. If `tools` or `fine_rules` are present, `find-tools` and `find-rules` can be called to search registries for additional resources not in the local template catalog
+9. If `tools` or `fine_rules` are present, `/resource-hub find` can be called to search registries for additional resources not in the local template catalog (type-gated: skills, agents, rules, tools, commands)
 
 ## Integration
 

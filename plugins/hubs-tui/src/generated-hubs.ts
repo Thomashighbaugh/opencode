@@ -128,7 +128,7 @@ export const HUBS: Hub[] = [
       },
       {
         "label": "find",
-        "description": "Discover resources from registries — skills, agents, rules, tools"
+        "description": "Discover resources from registries — skills, agents, rules, tools, commands"
       },
       {
         "label": "knowledge-graph",

@@ -17,7 +17,7 @@ Unified project initialization hub with subcommand routing. Detects, scaffolds, 
 
 ## No-Argument Behavior
 
-When invoked without arguments (`/hub-setup`), list the subcommands as plain text and ask the user to choose. Do NOT call `hubMenu` or any other tool — just output the list directly. Available subcommands: setup, detect, recommend, docs, context, verify, refresh, status, map-codebase, doctor, reset, provision, tag, find-skills, find-agents, find-tools, find-rules.
+When invoked without arguments (`/hub-setup`), list the subcommands as plain text and ask the user to choose. Do NOT call `hubMenu` or any other tool — just output the list directly. Available subcommands: setup, detect, recommend, docs, context, verify, refresh, status, map-codebase, doctor, reset, provision, tag, find.
 
 ## With-Argument Behavior
 
@@ -40,10 +40,7 @@ Directly invoke the matching subcommand. Print the reminder, then delegate to th
 | `reset` | — | inline | Reset project state — archive .opencode/state and .opencode/context, start fresh |
 | `provision` | 4 | `provision` skill | Auto-generate .opencode/ agents, skills, tools, rules from stack fingerprint + recommendations |
 | `tag` | — | `tag-resources` skill | Audit and fix resource tags on global skills, agents, rules, and archetypes |
-| `find-skills` | — | `find-skills` skill | Search skill registries for relevant per-repo skills |
-| `find-agents` | — | `find-agents` skill | Search agent registries for relevant per-repo agents |
-| `find-tools` | — | `find-tools` skill | Search registries and local template catalog for relevant TypeScript tools |
-| `find-rules` | — | `find-rules` skill | Search registries and local template catalog for relevant OpenCode rules |
+| `find` | — | `find` (type-gated) | Discover skills, agents, rules, tools, or commands from registries — `/resource-hub find <type>` |
 
 ### Subcommand Behavior
 
@@ -72,10 +69,7 @@ Each subcommand follows the hub pattern:
 | `reset` | Resetting project state. I'll archive .opencode/state and .opencode/context to a timestamped backup and start fresh. |
 | `provision` | Auto-generating .opencode/ agents/skills/tools/rules via provision skill. I'll create project-specific resources from your stack analysis. |
 | `tag` | Auditing global resource tags via tag-resources. I'll scan skills, agents, rules, and archetypes for missing or incomplete tags. |
-| `find-skills` | Searching skill registries for relevant skills for this project. |
-| `find-agents` | Searching agent registries for relevant agents for this project. |
-| `find-tools` | Searching registries and local template catalog for relevant TypeScript tools for this project. |
-| `find-rules` | Searching registries and local template catalog for relevant OpenCode rules for this project. |
+| `find` | Searching registries for a resource type — skills, agents, rules, tools, or commands. |
 
 ### Flag Parsing
 
