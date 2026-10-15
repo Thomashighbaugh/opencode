@@ -15,7 +15,9 @@ After any `write`, `edit`, or `patch` that changed files — and after any bash
 command that changed files — run:
 
 ```bash
-git add -A && git commit -q -m "$(date -u +%Y-%m-%dT%H:%M:%SZ)" || true
+# Stage everything except submodule pointer changes, then commit.
+excludes=$(git submodule foreach --quiet 'printf ":(exclude)%s\n" "$sm_path"' 2>/dev/null)
+git add -A -- $excludes && git commit -q -m "$(date -u +%Y-%m-%dT%H:%M:%SZ)" || true
 ```
 
 - The message is the timestamp. It exists so the commit is valid, not to describe
@@ -24,8 +26,12 @@ git add -A && git commit -q -m "$(date -u +%Y-%m-%dT%H:%M:%SZ)" || true
   must not read as a failure.
 - **Never `git push` here.** Committing is mechanical; publishing is a deliberate
   act and stays manual unless the user asks.
-- `git add -A` stages the whole working tree. That is the intent: the repository is
-  the record of every change, including ones made by scripts and subagents.
+- The whole working tree is staged — the repository is the record of every change,
+  including ones made by scripts and subagents — **except submodule pointers**. A
+  submodule is its own repository with its own history; a drifted gitlink
+  (`external/*` in this repo) is not a consequence of editing a file, and folding it
+  into a timestamp commit silently advances the revision the superproject records.
+  Submodule pointer updates are staged deliberately, or not at all.
 
 ## Safety (non-negotiable — this is the one case the rule yields)
 

@@ -141,9 +141,17 @@
             // This is deliberately aggressive — it commits the whole working tree
             // per change. That is the requested tradeoff: noisy history in
             // exchange for never losing work and never paying to describe it.
+            //
+            // Submodule pointer (gitlink) changes are excluded. A submodule is its
+            // own repository, managed deliberately in its own right; a drifted
+            // gitlink is not a consequence of editing a file, and folding one into
+            // a timestamp commit silently advances the revision the superproject
+            // records. Each submodule path becomes a `:(exclude)` pathspec so
+            // `git add` stages everything else. Repos without submodules are
+            // unaffected (the exclude list is empty).
             "id": "auto-commit-after-write",
             "when": { "phase": "after", "tool": ["write", "edit", "patch", "regex-edit", "json-edit", "yaml-edit", "conf-edit", "multi-edit"] },
-            "run": "if git rev-parse --git-dir >/dev/null 2>&1; then git add -A 2>/dev/null; if git diff --cached --quiet; then exit 0; fi; if git diff --cached | grep -qiE 'BEGIN [A-Z ]*PRIVATE KEY|sk-[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16}'; then echo 'secret-like content staged; auto-commit skipped'; exit 1; fi; git commit -q -m \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"; fi",
+            "run": "if git rev-parse --git-dir >/dev/null 2>&1; then excludes=$(git submodule foreach --quiet 'printf \":(exclude)%s\\n\" \"$sm_path\"' 2>/dev/null); git add -A -- $excludes 2>/dev/null; if git diff --cached --quiet; then exit 0; fi; if git diff --cached | grep -qiE 'BEGIN [A-Z ]*PRIVATE KEY|sk-[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16}'; then echo 'secret-like content staged; auto-commit skipped'; exit 1; fi; git commit -q -m \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"; fi",
             "injectOn": "failure",
             "inject": "<auto-commit exit=\"{exitCode}\">\nThe mechanical auto-commit (rules/auto-commit.md) did not complete. A staged change looked like it contained a secret, so the commit was skipped rather than committed. Review `git diff --cached`: unstage the secret, or commit deliberately if it is a false positive.\n\n```\n{stdout}{stderr}\n```\n</auto-commit>",
             "toast": {
