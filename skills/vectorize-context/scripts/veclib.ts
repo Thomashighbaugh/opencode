@@ -71,6 +71,7 @@ const CODE_EXTENSIONS = new Set([
 // always skipped (session data may contain PII).
 const CODE_SKIP_DIRS = new Set([
   'node_modules', 'dist', 'build', 'out', 'target', 'coverage', 'venv', 'vendor', 'tmp', 'Pods',
+  'backups', 'backup', 'archive', 'archived',
 ]);
 
 const MAX_CODE_CHUNK_LINES = 60;

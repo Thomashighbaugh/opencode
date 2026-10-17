@@ -510,12 +510,40 @@ describe('wiring', () => {
     expect(written.items[0].text).toBe('shared item')
   })
 
-  it('the TUI plugin registers the queue commands and still builds', () => {
+  it('the TUI plugin registers the queue commands and wires the build entry', () => {
     const src = fs.readFileSync(path.join(CONFIG_DIR, 'plugins', 'hubs-tui', 'src', 'tui.tsx'), 'utf-8')
     expect(src).toContain('registerQueueCommands')
     // A palette entry that throws must not take the hub menu down with it.
     expect(src).toContain('catch')
-    expect(fs.existsSync(path.join(CONFIG_DIR, 'plugins', 'hubs-tui', 'dist', 'tui.js'))).toBe(true)
+
+    // dist/tui.js is gitignored and rebuilt locally (rules/hub-menu-rebuild.md),
+    // so it is absent on a fresh clone — assert the wiring, not the artifact.
+    const pkg = JSON.parse(
+      fs.readFileSync(path.join(CONFIG_DIR, 'plugins', 'hubs-tui', 'package.json'), 'utf-8'),
+    )
+    expect(pkg.scripts?.build).toContain('src/tui.tsx')
+    expect(pkg.scripts?.build).toContain('dist')
+  })
+
+  // Bun is the build tool for the TUI half and is not installed in every
+  // environment (the CI job uses Node). Verify the bundle when we can.
+  const hasBun = (() => {
+    try {
+      return spawnSync('bun', ['--version'], { stdio: 'ignore' }).status === 0
+    } catch {
+      return false
+    }
+  })()
+
+  it.skipIf(!hasBun)('the TUI plugin still builds', () => {
+    const dir = path.join(CONFIG_DIR, 'plugins', 'hubs-tui')
+    const built = spawnSync('bun', ['build', 'src/tui.tsx', '--outdir', 'dist', '--target', 'bun', '--minify'], {
+      cwd: dir,
+      encoding: 'utf-8',
+    })
+    expect(built.stderr || built.stdout).toBeTruthy()
+    expect(built.status).toBe(0)
+    expect(fs.existsSync(path.join(dir, 'dist', 'tui.js'))).toBe(true)
   })
 
   it('queue state is gitignored session data, not durable config', () => {
