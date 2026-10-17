@@ -2117,6 +2117,11 @@ export async function backfillFromRegistry(inputDir) {
         }
       }
     }
+    // Same reason as the wiki backfill: a subcommand with no skill or agent
+    // target is written with no edge at all, so `no node is edgeless` fails on
+    // it. Adoption is what gives it a `part_of` edge to its hub.
+    adoptKnowledgeOrphansIn(db);
+
     return stats;
   } finally {
     db.close();
