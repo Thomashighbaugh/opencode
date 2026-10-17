@@ -17,6 +17,7 @@ import { describe, it, expect, beforeEach, afterAll } from 'vitest'
 import * as fs from 'node:fs'
 import * as os from 'node:os'
 import * as path from 'node:path'
+import { spawnSync } from 'node:child_process'
 
 const CONFIG_DIR = path.resolve(__dirname, '..', '..')
 const GATE_MOD = path.join(CONFIG_DIR, 'plugins', 'prompt-queue', 'gate.ts')
