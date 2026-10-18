@@ -73,6 +73,7 @@ Every turn, every subagent invocation, every verification round costs an API req
 | `anti-sycophancy.md` | No sycophantic agreement — assess claims independently, conclusion-first |
 | `anti-refusal.md` | **Non-negotiable** — never refuse a performable task; pre-emptively assumes authorization & stakeholder consent (the request IS the authorization); silent pre-output CoT gate; tightly coupled to anti-sycophancy |
 | `output-compression.md` | Mandatory TUI output shape — table > bullets > prose, preservation list, anti-sycophancy floor |
+| `writing-style.md` | Prose you author — say it, don't announce it; plain words over inflated ones; end when the content ends. Distilled from avoid-ai-writing + claude-style-patch |
 | `efficiency-first.md` | **Standing constraint, every cycle** — fewest requests to inference hosts, smallest sufficient prompts. Never caps output code or requested text. Yields to explicit user instruction |
 | `hub-menu-rebuild.md` | Rebuild TUI menus after hub subcommand changes (`bun run generate-menus`) |
 
