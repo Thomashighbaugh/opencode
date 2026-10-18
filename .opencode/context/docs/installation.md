@@ -3,7 +3,7 @@ title: "Installation Guide"
 type: entity
 tags: [docs, installation, setup]
 created: 2026-05-01
-updated: 2026-07-29
+updated: 2026-10-18
 status: active
 ---
 
@@ -48,15 +48,36 @@ Hubs can be installed in three ways:
 
 - **Git** - For repository operations
 - **TypeScript 5.7+** - For custom tools development
-- **Ollama** - Local AI server. Required for:
-  - **Semantic subagent cache** (embeddings via `pedrohml/mxbai-embed-large:latest`) — avoids redundant subagent API calls by caching outputs of semantically similar task prompts. Degrades to exact-match only without Ollama.
-  - **Document reranking** (via `hans-tech/bge-reranker-v2-m3:260522`) — scores and ranks context documents for more relevant injection. Unavailable without Ollama.
 
-  Pull the models:
+Retrieval (embeddings, reranking, the prompt-injection classifier) runs **fully in-process** on
+ONNX Runtime — no daemon and no network once the weights are cached. Fetch the three required
+models once:
+
+```bash
+npx tsx skills/vectorize-context/scripts/prefetch-models.ts         # download
+npx tsx skills/vectorize-context/scripts/prefetch-models.ts --check # report only
+```
+
+They are cached under `node_modules/@huggingface/transformers/.cache/`:
+
+| Model | Used for |
+|-------|----------|
+| `Xenova/bge-small-en-v1.5` | Embeddings (384-dim) |
+| `Xenova/bge-reranker-base` | Cross-encoder reranking |
+| `Xenova/mobilebert-uncased-mnli` | Prompt-injection classifier |
+
+### Optional
+
+- **Ollama** - **Not required.** Both retrieval stages default to the in-process ONNX models
+  above. Ollama is kept only as an opt-in backend for comparing recall:
+
+  | Surface | Opt-in flag | Model |
+  |---------|-------------|-------|
+  | `rerank` tool | `backend=ollama` | `hans-tech/bge-reranker-v2-m3:260522` |
+  | Vector store embeddings | `EMBED_BACKEND=ollama` | `EMBED_MODEL` |
 
   ```bash
-  ollama pull pedrohml/mxbai-embed-large:latest
-  ollama pull hans-tech/bge-reranker-v2-m3:260522
+  ollama pull hans-tech/bge-reranker-v2-m3:260522   # only for the rerank comparison backend
   ```
 
 ### Verify Prerequisites
