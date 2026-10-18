@@ -247,7 +247,7 @@ The recommendation output now includes `tools` and `fine_rules` arrays:
     "hint_pack": "nextjs-webapp",
     "skills": [...],
     "agents": [...],
-    "rules": ["coding-style.md", "testing.md", "security.md"],
+    "rules": ["coding-style.md", "testing.md", "security.md", "writing-style.md"],
     "tools": [
       { "name": "universal/project-info", "reason": "TypeScript project info tool" },
       { "name": "universal/run-checks", "reason": "Universal check runner" },
