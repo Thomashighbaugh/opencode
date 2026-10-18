@@ -3,7 +3,7 @@ title: "LLM Wiki Index"
 type: concept
 tags: [wiki, index, catalog]
 created: 2026-07-04
-updated: 2026-10-06
+updated: 2026-10-18
 status: active
 ---
 
@@ -37,9 +37,11 @@ check that stops this file drifting again.
 | [[context/research/agentic-self-improvement-2026]] | source-summary | recursive-self-improvement, rsi, self-improving-agent, coding-agent, trust-layer, autonomy, feedback-loop, guardrails, agenttrust, weco-aide2, karpathy-autoresearch | active |
 | [[context/research/arcanum]] | source-summary | opencode, plugin, monorepo, skills, memory, cli, agent, runecraft | active |
 | [[context/research/auto-moc-rsi]] | source-summary | recursive-self-improvement, rsi, maps-of-content, moc, zettelkasten, taxonomy-learning, quality-scoring, rule-improvement, trust-scoring, autonomy, evidence-gating | active |
+| [[context/research/avoid-ai-writing/2026-10-18]] | source-summary | ai-writing, editing, prose, humanizer, de-slop, word-tiers, patterns, line-editing, fiction, voice | active |
 | [[context/research/brain-memory]] | source-summary | opencode, plugin, memory, mcp, brain, neuroscience, spaced-repetition, file-system, agent-memory | active |
 | [[context/research/bros-harness-opencode-plugin]] | — | — | — |
 | [[context/research/caveman]] | source-summary | opencode, claude-code, codex, gemini, skill, compression, tokens, caveman, prompt-engineering | active |
+| [[context/research/claude-style-patch/2026-10-18]] | source-summary | ai-writing, prose, style, claude, claudish, line-editing, docs, voice, clarity | active |
 | [[context/research/ecc-agent-harness-guides]] | — | — | — |
 | [[context/research/karpathy-guidelines/20260711_karpathy-guidelines]] | research | coding-standards, ai-coding | — |
 | [[context/research/lit-search-cite]] | source-summary | opencode, claude-code, skill, academic, literature-search, cnki, pubmed, arxiv, citation | active |
