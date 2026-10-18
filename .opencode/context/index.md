@@ -68,6 +68,7 @@ check that stops this file drifting again.
 | [[context/research/openloops]] | source-summary | loops, scheduler, daemon, agents, opencode, cli, workflow | active |
 | [[context/research/patterns-for-building-ai-agents]] | — | — | — |
 | [[context/research/ponytail/20260711_ponytail]] | research | agentic, ai-coding, lazy-dev | — |
+| [[context/research/premise-workshop/2026-10-18]] | source-summary | premise, ideation, logline, what-if, story-concept, form-choice, titles, comps, fiction, planning | active |
 | [[context/research/prompt-engineering-survey]] | academic-paper | — | — |
 | [[context/research/recursive-self-improvement]] | source-summary | recursive-self-improvement, rsi, agent, claude-code, trust, autonomy, feedback-loop, graduation, confidence-scoring | active |
 | [[context/research/relearning-flow-kedbin]] | — | — | — |

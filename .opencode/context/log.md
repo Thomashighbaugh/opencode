@@ -255,3 +255,15 @@ Chronological record of all wiki operations. Append-only.
   - Core overlap: colon-hinged sentences, verbless fragment openers, "not X but Y" antithesis, stacked compression, announcing vs. saying
   - Never-inject guardrails (fabricated perspective, manufactured stakes, invented specifics) are the rewrite-side failure mode
 - **Cross-references**: [[context/research/avoid-ai-writing/2026-10-18]] ↔ [[context/research/claude-style-patch/2026-10-18]]
+
+## [2026-10-18] consume | Premise Workshop (local skill)
+
+- **Operation**: Ingested a local skill directory (`./premise-workshop/`) via `/memory-hub consume` and worked it into the Buchbinder premise pipeline
+- **Source**: local `premise-workshop/` (SKILL.md + 4 references), authored for a Story Skills ecosystem
+- **Files created**:
+  - `research/premise-workshop/2026-10-18.md` — source-summary: the spark→premise pipeline, logline stress tests, three-level stakes, common premise failures, and the Buchbinder mapping
+- **Adapted into Buchbinder**:
+  - `skills/fiction/writing-techniques/premise-workshop/` (SKILL.md + `references/{what-if-generation,premise-tests,form-choice,title-and-comps}.md`) — external CLI/`story.md` references replaced with Buchbinder equivalents (`specification.md`, `manifest.md`, `track.json`, `namecraft`)
+  - Wired into `/buchbinder ideation` (Premise dimension → workshop method) and `/buchbinder specify` (premise stress-test gains the logline tests, counter-premise, and three-level stakes)
+- **Key findings**: the method's leverage is the logline stress test + counter-premise test ("could a reasonable person believe the antagonist's argument?") + three-level stakes that must be able to worsen by the midpoint
+- **Cross-references**: [[context/research/premise-workshop/2026-10-18]]
