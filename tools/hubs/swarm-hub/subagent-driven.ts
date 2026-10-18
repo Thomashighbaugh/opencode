@@ -1,6 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
-import { TOOLS_LOADSKILL_LISTAGENTS_MODESTATE_TASKTODOS_BASH, RULES_COMPLETION_GUARDRAIL, SKILLS_VERIFY } from "../shared-spec-fragments"
+import { TOOLS_LOADSKILL_LISTAGENTS_MODESTATE_TASKTODOS_BASH, SKILLS_VERIFY } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "subagent-driven",
   description: "One fresh subagent per task, with review gates after each",
@@ -33,7 +33,6 @@ Before dispatching, ask (passing the flag skips the question — non-interactive
 Resolved answer maps to \`--plan=<file>\`.`,
 
   tools: TOOLS_LOADSKILL_LISTAGENTS_MODESTATE_TASKTODOS_BASH,
-  rules: RULES_COMPLETION_GUARDRAIL,
   relatedSkills: SKILLS_VERIFY,
 
   examples: [

@@ -1,6 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
-import { TOOLS_LOADSKILL_BASH, RULES_COMPLETION_GUARDRAIL } from "../shared-spec-fragments"
+import { TOOLS_LOADSKILL_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "deep",
   description: "Socratic interview with ambiguity gating — crystallize vague requirements",
@@ -14,7 +14,6 @@ The interviewer asks one question at a time, walks down each branch of the decis
 Use when a request is vague ("make the app better", "improve performance", "add reporting") and you need to crystallize it into concrete, implementable requirements before planning. The interview output is a requirements document that feeds into /plan-hub plan or /orchestrate-hub patterns.`,
 
   tools: TOOLS_LOADSKILL_BASH,
-  rules: RULES_COMPLETION_GUARDRAIL,
   relatedSkills: [],
 
   examples: [

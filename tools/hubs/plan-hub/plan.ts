@@ -1,6 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
-import { RULES_COMPLETION_GUARDRAIL, SKILLS_PLANNING_BREAKDOWN } from "../shared-spec-fragments"
+import { SKILLS_PLANNING_BREAKDOWN } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "plan",
   description: "Interview-style strategic planning — clarify goals, break into tasks",
@@ -20,7 +20,6 @@ The plan is saved to .opencode/state/ideation/work-products/ as a markdown docum
 Unlike /plan-hub decomposition (which just breaks work down), plan includes an interview phase to ensure the goal is fully understood before decomposition. Use when the goal is clear enough to plan but has ambiguities that need clarification.`,
 
   tools: ["loadSkill", "taskTodos"],
-  rules: RULES_COMPLETION_GUARDRAIL,
   relatedSkills: SKILLS_PLANNING_BREAKDOWN,
 
   examples: [

@@ -1,6 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
-import { TOOLS_BASH, RULES_COMPLETION_GUARDRAIL } from "../shared-spec-fragments"
+import { TOOLS_BASH } from "../shared-spec-fragments"
 
 const spec: HubSubcommandSpec = {
   label: "improvements",
@@ -56,7 +56,6 @@ At the end of the audit, present the **ordered list** — sorted by impact/effor
 **Pairs with:** /build-hub overhaul (8-dimension phased plan), /plan-hub quality (code quality deep-dive), /build-hub optimize, /build-hub refactor. Use this when the user wants a quick "what should I improve?" sweep with a decision gate; use overhaul when they want the full phased plan.`,
 
   tools: TOOLS_BASH,
-  rules: RULES_COMPLETION_GUARDRAIL,
   relatedSkills: [],
   examples: [
     {
