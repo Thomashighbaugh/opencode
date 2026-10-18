@@ -183,20 +183,26 @@ menu that is already open.
 
 ## Known limitation: composer capture
 
-The intent is to move text you have **already typed** into the queue. The current TUI plugin API
-exposes `appendPrompt`, `submitPrompt` and `clearPrompt` but offers **no way to read the composer
-buffer**, and `TuiPromptRef` is only obtainable by rendering a prompt the plugin does not own.
-
-So the text is collected through a dialog instead. That is a real limitation rather than a design
-preference, and it is isolated in a single function:
+The intent is to move text you have **already typed** into the queue. The API does expose the
+composer — `TuiPromptRef.current.input` (`@opencode-ai/plugin/dist/tui.d.ts`) — but only to a plugin
+that **renders** the prompt: the ref is handed to whatever owns the `session_prompt` slot. Reading it
+therefore means taking the prompt over, which is not a decoration a plugin should do to the host's
+input bar. So the text is collected through a dialog instead, isolated in one function:
 
 ```ts
 export function composerText(): string { return '' }
 ```
 
-When OpenCode exposes a prompt ref, that function is the only thing that changes. "Add current
-input to queue" is already wired to it, and a blank capture falls back to the dialog rather than
-queueing an empty task.
+Wiring a real capture is a single-function change if the API ever offers a read that does not
+require ownership. "Add current input to queue" is already wired to it, and a blank capture falls
+back to the dialog rather than queueing an empty task.
+
+### Clearing the composer
+
+`clearPrompt` is directory-scoped (`{ directory?: string; workspace?: string }`). It was called with
+**no argument**, and its rejection swallowed by `.catch(() => {})`, so a clear that targeted nothing
+looked like a success while the composer kept its text. It now passes the directory and reports a
+failure instead of hiding it.
 
 ---
 
@@ -229,8 +235,8 @@ will be.
 
 | This system uses | From |
 | ---------------- | ---- |
-| `session.idle`, `session.messages`, `session.promptAsync` | [Event Interception](plugins-hooks.md) |
-| `api.command.register`, `DialogSelect`, `DialogPrompt`, `clearPrompt` | [TUI Plugin](plugins-hubs-tui.md) |
+| `session.idle` / `session.status`, `session.messages`, `session.promptAsync` | [Event Interception](plugins-hooks.md) |
+| `api.command.register`, `DialogSelect`, `DialogPrompt`, `clearPrompt({ directory })` | [TUI Plugin](plugins-hubs-tui.md) |
 | `.opencode/state/` for session state | [Memory System](memory-system.md) |
 | Existing plugin's non-blocking discipline | [Command Hooks](plugins-command-hooks.md) |
 
