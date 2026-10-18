@@ -17,12 +17,10 @@ export const TOOLS_LOADSKILL_BASH_AGENTCONTEXT: HubSubcommandSpec['tools'] = ["l
 export const TOOLS_BASH_SKILLCATEGORIES: HubSubcommandSpec['tools'] = ["bash", "skill-categories"]
 
 // ─── Shared rules arrays (appear in 2+ spec files) ───────────────
-export const RULES_COMPLETION_GUARDRAIL: HubSubcommandSpec['rules'] = ["completion-guardrail"]
 export const RULES_SECURITY: HubSubcommandSpec['rules'] = ["security"]
 export const RULES_CONTEXT_STRATEGY: HubSubcommandSpec['rules'] = ["context-strategy"]
 export const RULES_KARPAHTY_GUIDELINES: HubSubcommandSpec['rules'] = ["karpathy-guidelines"]
 export const RULES_CONTEXT_STRATEGY_SECURITY: HubSubcommandSpec['rules'] = ["context-strategy", "security"]
-export const RULES_COMPLETION_KARPAHTY: HubSubcommandSpec['rules'] = ["completion-guardrail", "karpathy-guidelines"]
 
 // ─── Shared relatedSkills arrays (appear in 2+ spec files) ───────
 export const SKILLS_VERIFY: HubSubcommandSpec['relatedSkills'] = ["verify"]

@@ -69,7 +69,6 @@ Every turn, every subagent invocation, every verification round costs an API req
 | `file-operations.md` | No standalone scripts at project root; use file-editing tools, not inline scripts |
 | `hub-description-directive.md` | Hub subcommand description conventions |
 | `security.md` | Security rules — mandatory checks, secret management |
-| `completion-guardrail.md` | **MANDATORY STOP** after planning/analysis — no auto-implementation |
 | `anti-sycophancy.md` | No sycophantic agreement — assess claims independently, conclusion-first |
 | `anti-refusal.md` | **Non-negotiable** — never refuse a performable task; pre-emptively assumes authorization & stakeholder consent (the request IS the authorization); silent pre-output CoT gate; tightly coupled to anti-sycophancy |
 | `output-compression.md` | Mandatory TUI output shape — table > bullets > prose, preservation list, anti-sycophancy floor |

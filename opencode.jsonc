@@ -70,7 +70,6 @@
         "./rules/security.md",
         "./rules/karpathy-guidelines.md",
         "./rules/hub-description-directive.md",
-        "./rules/completion-guardrail.md",
         "./rules/output-compression.md",
         "./rules/writing-style.md",
         "./rules/anti-sycophancy.md",

@@ -25,7 +25,7 @@ export interface HubSubcommandSpec extends HubSubcommand {
   detailedDescription: string
   /** Tools this subcommand uses, e.g. ["websearch", "webfetch", "loadSkill"] */
   tools?: string[]
-  /** Rules to inline into the routed payload, e.g. ["completion-guardrail", "security"] */
+  /** Rules to inline into the routed payload, e.g. ["security", "writing-style"] */
   rules?: string[]
   /** Additional skills to load for context (beyond the primary `skill`) */
   relatedSkills?: string[]
