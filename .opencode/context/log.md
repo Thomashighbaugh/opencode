@@ -267,3 +267,16 @@ Chronological record of all wiki operations. Append-only.
   - Wired into `/buchbinder ideation` (Premise dimension → workshop method) and `/buchbinder specify` (premise stress-test gains the logline tests, counter-premise, and three-level stakes)
 - **Key findings**: the method's leverage is the logline stress test + counter-premise test ("could a reasonable person believe the antagonist's argument?") + three-level stakes that must be able to worsen by the midpoint
 - **Cross-references**: [[context/research/premise-workshop/2026-10-18]]
+
+## [2026-10-18] consume | Theme Craft + Worldbuilding (local skills)
+
+- **Operation**: Ingested two local skill directories (`./theme-craft/`, `./worldbuilding/`) via `/memory-hub consume` and worked them into the Buchbinder ideation/manifest/specify/revision pipeline; the three dropped source dirs (premise-workshop, theme-craft, worldbuilding) were then removed from the repo root
+- **Files created**:
+  - `research/theme-craft/2026-10-18.md` — controlling idea (value + cause), counter-premise, lie/truth/ghost-wound, three arc types, antagonist design, motif plant-and-vary, theme audit
+  - `research/worldbuilding/2026-10-18.md` — element types, economy/logistics/costs, maps and routes, calendars/seasons/moons, naming, and the Buchbinder mapping
+- **Adapted into Buchbinder**:
+  - `skills/fiction/writing-techniques/theme-craft/` (SKILL.md + 5 references) — wired into `/buchbinder manifest` (Thematic Statement → controlling idea + counter-premise), `/buchbinder ideation` (Theme dimension), `/buchbinder specify` (theme alignment), `character-depth` (arc-type/lie/truth/ghost-wound), `/buchbinder revise` + `/buchbinder review` (theme audit)
+  - `skills/fiction/writing-techniques/worldbuilding/` (SKILL.md + 9 references) — wired into `/buchbinder ideation` (Setting dimension), `/buchbinder specify` (Level 4 Knowledge Map), `/buchbinder manifest` (Content Principles)
+- **Key findings**: theme is dramatized through choices and consequences, never commentary; the counter-premise test ("could a reasonable person believe the antagonist's argument?") is the same idea as premise-workshop's; the world exists to pressure the characters and embody the counter-premise
+- **Stripping**: all external workflow artifacts (Story CLI, `story.md`, `story-maintenance` conventions, `character-management`/`plot-structure`/`scene-craft`/`submission` refs) removed; storage remapped to `./book/knowledge/`, `./book/metadata/`, `namecraft`
+- **Cross-references**: [[context/research/theme-craft/2026-10-18]] ↔ [[context/research/worldbuilding/2026-10-18]] ↔ [[context/research/premise-workshop/2026-10-18]]

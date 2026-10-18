@@ -74,7 +74,9 @@ check that stops this file drifting again.
 | [[context/research/relearning-flow-kedbin]] | — | — | — |
 | [[context/research/reranker-research-2026-07-07]] | research-report | reranker, embedding, RAG, local, context-injection, vector-search, cross-encoder | active |
 | [[context/research/short-leash-ai-method-okturtles]] | — | — | — |
+| [[context/research/theme-craft/2026-10-18]] | source-summary | theme, controlling-idea, lie-truth, arc-types, antagonist, motif, symbolism, theme-audit, fiction, planning | active |
 | [[context/research/systematic-debugging]] | — | — | — |
+| [[context/research/worldbuilding/2026-10-18]] | source-summary | worldbuilding, setting, locations, systems, factions, artifacts, calendars, routes, naming, glossary, fiction | active |
 
 ## Frameworks (Architecture & Design)
 
