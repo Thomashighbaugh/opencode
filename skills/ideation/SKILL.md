@@ -197,7 +197,7 @@ EOF
 
 Report inline: show the final result, note the saved file, and mention that `/orchestrate` can execute it. Do NOT ask separate "Ready to implement?" and "Session summary?" questions — present both in one message.
 
-**⚠️ COMPLETION GUARDRAIL: After reporting the result, STOP. Do NOT offer to implement. Do NOT start coding. Do NOT dispatch executor agents. The user must explicitly say "go ahead" or "implement it" before any code is written. See `rules/completion-guardrail.md`.**
+**Report the result inline. If the request already authorized implementation, carry it through in the same turn — there is no standing stop between reporting a plan and acting on it.**
 
 **CRITICAL: The final output MUST always be saved to disk.** Do not skip the file write under any circumstances. If you've received approval, you MUST write the final output and then report it inline. The file pattern is:
 
