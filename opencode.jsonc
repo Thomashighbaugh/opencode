@@ -84,6 +84,16 @@
             "path": "./.opencode/context",
             "description": "Durable project knowledge base — decisions, patterns, research, frameworks, and theory. Use when seeking project-specific context, ADRs, or discovered patterns."
         },
+        "avoid-ai-writing": {
+            "repository": "conorbronsdon/avoid-ai-writing",
+            "description": "AI writing pattern catalog and detector — what to flag in prose and how to rewrite it. Reference for line-editing, humanizing, and de-slopping drafted text",
+            "hidden": true
+        },
+        "claude-style-patch": {
+            "repository": "andrewroxby/claude-style-patch",
+            "description": "Positive prose style contract (Claude Style Patch) — how to write clearly: sentences, colons, stacked compression, endings. Reference for house style and agent output style",
+            "hidden": true
+        },
         "openhands": {
             "repository": "All-Hands-AI/OpenHands",
             "description": "OpenHands AI agent platform — reference for agent harness patterns and autonomous coding architectures",

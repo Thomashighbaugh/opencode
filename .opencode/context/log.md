@@ -238,3 +238,20 @@ Chronological record of all wiki operations. Append-only.
 - **Also this session**: added `rules/hub-menu-rebuild.md` (TUI menu regeneration after hub subcommand changes — root cause of missing /project graph) + registered in opencode.jsonc instructions + AGENTS.md core rules
 - **Cross-references**: [[vectorize-context]], [[graph-context]], [[self-improvement]], hub-menu-rebuild rule
 - 2026-09-29 | consume | research/opencode-command-hooks/20260929_000000_reference-shanebishop1-opencode-command-hooks.md | Ingested github.com/shanebishop1/opencode-command-hooks (MIT) as the design reference for the local plugins/command-hooks port
+
+## [2026-10-18] consume | AI-writing style references
+
+- **Operation**: Ingested two external repositories as durable context via `/memory-hub consume`
+- **Sources**:
+  - `github.com/conorbronsdon/avoid-ai-writing` (MIT, skill v3.38.0) — AI-ism detector & rewrite catalog
+  - `github.com/andrewroxby/claude-style-patch` (CC0) — positive prose style contract
+- **Files created**:
+  - `research/avoid-ai-writing/2026-10-18.md` — source-summary: modes, editing contract, P0/P1/P2 severity tiers, full word tiers (1A/1B/2/3/3-phrases), never-inject list, tone calibration, pattern catalog, context + voice profiles, tolerance matrix, detector category map
+  - `research/claude-style-patch/2026-10-18.md` — source-summary: lodestar, sentences, colons, "say it don't announce it", stacked compression, structure, headers, endings, docs/comments/editing guidance, exemplar
+- **References added**: `avoid-ai-writing`, `claude-style-patch` (both `hidden: true`) in `opencode.jsonc`
+- **Key findings**:
+  - Two complementary layers: avoid-ai-writing is a negative catalog (what to flag, 54-type deterministic detector); claude-style-patch is a positive style contract (how to write)
+  - avoid-ai-writing: AI-ism patterns are signals not proof (detector FP >60% on non-native writers); Tier 1A frequency claim is inherited, not measured
+  - Core overlap: colon-hinged sentences, verbless fragment openers, "not X but Y" antithesis, stacked compression, announcing vs. saying
+  - Never-inject guardrails (fabricated perspective, manufactured stakes, invented specifics) are the rewrite-side failure mode
+- **Cross-references**: [[context/research/avoid-ai-writing/2026-10-18]] ↔ [[context/research/claude-style-patch/2026-10-18]]
