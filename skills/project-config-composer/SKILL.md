@@ -231,16 +231,29 @@ tags: [nextjs, react, conventions, framework]
 - Layouts in `app/layout.tsx`, nested layouts in route groups
 ```
 
-### 4b. Universal Rule: Session Artifact Promotion
+### 4b. Universal Rules: Session Artifact Promotion + Writing Style
 
-Every generated project **must** include the global rule `session-artifact-promotion.md`:
+Every generated project **must** include two global rules, regardless of stack:
+
+**1. `session-artifact-promotion.md`**
 
 1. Copy `~/.config/opencode/rules/session-artifact-promotion.md` to `.opencode/rules/session-artifact-promotion.md`.
 2. Add `"./rules/session-artifact-promotion.md"` to `instructions` in the project `opencode.jsonc`.
 
-This rule makes session-created tools land in the project's durable `.opencode/` tree instead of
-being reinvented next session. It is universal, not stack-specific — always include it, never gate
-it behind a recommendation.
+Makes session-created tools land in the project's durable `.opencode/` tree instead of being
+reinvented next session.
+
+**2. `writing-style.md`**
+
+1. Copy `~/.config/opencode/rules/writing-style.md` to `.opencode/rules/writing-style.md`.
+2. Add `"./rules/writing-style.md"` to `instructions` in the project `opencode.jsonc`.
+
+Governs the prose the agent authors in this project — say it don't announce it, plain words over
+inflated ones, end when the content ends. Keeps the agent's written output from reading as
+machine-made.
+
+Both are universal, not stack-specific — always include them, never gate them behind a
+recommendation.
 
 ### 5. Agent Wrappers (only when gap is flagged)
 
