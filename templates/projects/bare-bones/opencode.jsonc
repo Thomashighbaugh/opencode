@@ -3,7 +3,8 @@
   "instructions": [
     "AGENTS.md",
     "./rules/session-artifact-promotion.md",
-    "./rules/auto-commit.md"
+    "./rules/auto-commit.md",
+    "./rules/writing-style.md"
   ],
   "permission": {
     "edit": "allow",
