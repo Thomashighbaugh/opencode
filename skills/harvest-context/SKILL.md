@@ -195,7 +195,7 @@ Related:
   - /orchestrate to execute a plan
 ```
 
-**⚠️ COMPLETION GUARDRAIL: After reporting the result, STOP. Do NOT offer to implement. Do NOT start coding. The user must explicitly approve before any code is written. See `rules/completion-guardrail.md`.**
+**Report the result. If the request authorized implementation, carry it through in the same turn — there is no standing stop between reporting and acting.**
 
 ## Scope Selection
 
