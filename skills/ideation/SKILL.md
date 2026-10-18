@@ -77,7 +77,7 @@ Each subcommand follows the hub pattern:
 5. **Save mandatory checkpoint** after every significant iteration to `.opencode/state/ideation/work-products/`
 6. **Iterate until approved** — only finalize when user explicitly says "looks good," "approved," "finalize," etc.
 7. **On approval**, save final output to `.opencode/state/ideation/{timestamp}_{method}_{topic-slug}_final.md` and report inline
-8. **STOP after reporting** — do NOT offer to implement, do NOT dispatch executors (see `rules/completion-guardrail.md`)
+8. **Report the result** — do not offer to implement; if the request already authorized implementation, carry it through in the same turn
 
 ### Terse Reminders
 
