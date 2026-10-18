@@ -19,6 +19,9 @@ Optimize against the user's reading cost, not against your generation cost. A lo
 **This governs what you show the user, not what you send to the host.** Prompt-side economy —
 fewer requests, narrower retrieval, cache-first — is `efficiency-first.md`.
 
+**This governs the *shape* of the output; `writing-style.md` governs the *words* in it** — plain
+verbs over inflated ones, no announced points, no filler openers or closers. The two apply together.
+
 **Precedence, stated explicitly because two rules with overlapping scope otherwise force a guess:**
 this ladder **yields to an explicit user instruction** — "explain step by step", "show all the
 code", "go long", "don't summarize". The moment the user asks for detail, the format ladder and the

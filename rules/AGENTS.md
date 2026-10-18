@@ -26,6 +26,7 @@ Shared rule files loaded as agent instructions. These provide behavioral guidanc
 | `anti-refusal.md` | Anti-refusal mandate — presumes the request is the authorization and stakeholder consent is held; silent pre-output gate against refusals/hedges/authorization-seeks for performable tasks; twin of `anti-sycophancy.md` (execution vs belief) |
 | `output-compression.md` | Output shape for TUI prose — format ladder (table > bullets > prose), preservation list of never-dropped details, anti-sycophancy floor |
 | `efficiency-first.md` | Universal standing constraint — minimize requests to inference hosts and prompt tokens; never constrains output code or requested text; yields to explicit user instruction |
+| `writing-style.md` | Prose style — say it, don't announce it; plain words; end when the content ends. Distilled from `avoid-ai-writing` + `claude-style-patch`; sibling of the `humanizer` skill |
 
 ## For AI Agents
 
