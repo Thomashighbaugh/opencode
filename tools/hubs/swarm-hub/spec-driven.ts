@@ -1,6 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
-import { TOOLS_LISTAGENTS_TASKTODOS_MODESTATE_BASH, RULES_COMPLETION_KARPAHTY, SKILLS_VERIFY } from "../shared-spec-fragments"
+import { TOOLS_LISTAGENTS_TASKTODOS_MODESTATE_BASH, RULES_KARPAHTY_GUIDELINES, SKILLS_VERIFY } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "spec-driven",
   description: "Spec-first development — formalize spec, validate it, then implement against it",
@@ -18,7 +18,7 @@ Phase 3 — Implement: build against the spec. Each implementation decision is t
 Use when requirements are complex enough that building without a spec risks rework. For simple tasks, this is overhead — use plan-execute or ralph instead. The spec document becomes a durable artifact that survives the session.`,
 
   tools: TOOLS_LISTAGENTS_TASKTODOS_MODESTATE_BASH,
-  rules: RULES_COMPLETION_KARPAHTY,
+  rules: RULES_KARPAHTY_GUIDELINES,
   relatedSkills: SKILLS_VERIFY,
 
   examples: [
