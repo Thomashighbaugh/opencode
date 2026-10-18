@@ -410,7 +410,16 @@ export function registerQueueCommands(api: TuiPluginApi, directory: string): () 
                   writeQueue(directory, s)
                   toast('Prompt Queue', `Queued (${s.items.length + s.deferred.length} waiting)`, 'success')
                   // Clear the composer so the same text is not sent by accident.
-                  void api.client.tui.clearPrompt().catch(() => {})
+                  // `clearPrompt` is directory-scoped in the v2 TUI API: calling
+                  // it with no argument targeted nothing, and `.catch(() => {})`
+                  // hid the failure — which is exactly "the input bar kept its
+                  // text after queueing". Pass the directory and surface a
+                  // failure instead of swallowing it.
+                  void api.client.tui
+                    .clearPrompt({ directory })
+                    .catch((e: any) =>
+                      toast('Prompt Queue', `Queued, but could not clear the input: ${e?.message ?? e}`, 'warning'),
+                    )
                 },
                 onCancel: () => api.ui.dialog.clear(),
               }),
