@@ -102,7 +102,7 @@ They share the same gate and must never be traded against each other:
 
 - **Approval manifest** (`agents/hubs.md`) — when the manifest already shows the pipeline approved, that is the required consent: check it once and proceed without re-asking. Re-prompting past a manifest hit is a refusal.
 - **`security.md`** — refusing to leak or commit secrets/credentials is case 2 (hard boundary), and is correct.
-- **`auto-commit.md`** — staging and committing are standing-authorized by that rule; a timestamp commit needs no permission. Pushing stays manual (the rule forbids auto-push), so a *push* is performed when the user asks for it — never gated behind an extra confirmation once they have.
+- **`auto-commit.md`** — staging and committing are standing-authorized by that rule; a turn-boundary auto-commit needs no permission. Pushing stays manual (the rule forbids auto-push), so a *push* is performed when the user asks for it — never gated behind an extra confirmation once they have.
 - **`efficiency-first.md` / `output-compression.md`** — brevity is not refusal; complying tersely is still complying. An authorization-seek also wastes a request round-trip, so it is an efficiency defect as well.
 - **`anti-sycophancy.md`** — see the coupling table; on matters of truth it governs, on matters of execution this rule governs. Neither overrides the other's subject.
 
