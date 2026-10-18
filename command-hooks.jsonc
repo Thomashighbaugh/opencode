@@ -140,6 +140,46 @@
             "run": "printf 'repo: %s\\nbranch: %s\\n' \"$(basename \"$PWD\")\" \"$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo none)\"",
             "injectOn": "always",
             "inject": "<session-context>\n{stdout}\n</session-context>"
+        },
+        {
+            // The mechanical half of rules/auto-commit.md.
+            //
+            // One commit per completed turn, not one per file edit. The hook fires
+            // when the root session goes idle — the point at which the agent has
+            // stopped working — so a turn that edits ten files produces a single
+            // commit instead of ten. A turn that changed nothing exits at the
+            // `git diff --cached --quiet` check and costs nothing.
+            //
+            // The message is mechanical (file count plus the first four paths), so
+            // it describes the diff without an inference call. It is not a summary
+            // of the work; the diff is.
+            //
+            // It refuses to commit a change that looks like a secret, which is the
+            // one case the rule yields on: a false skip costs a review, a false
+            // commit leaks a credential into history permanently. Silent on success
+            // (`injectOn: "failure"`), so a normal commit spends nothing.
+            //
+            // Submodule pointer (gitlink) changes are excluded. A submodule is its
+            // own repository, managed deliberately in its own right; a drifted
+            // gitlink is not a consequence of editing a file, and folding one into
+            // an auto-commit silently advances the revision the superproject
+            // records. Each submodule path becomes a `:(exclude)` pathspec so
+            // `git add` stages everything else. Repos without submodules are
+            // unaffected (the exclude list is empty).
+            //
+            // `rootSessionOnly` defaults to true for session.idle, so a subagent's
+            // session finishing mid-fan-out does not commit a half-done tree.
+            "id": "auto-commit-on-idle",
+            "when": { "event": "session.idle" },
+            "run": "if git rev-parse --git-dir >/dev/null 2>&1; then excludes=$(git submodule foreach --quiet 'printf \":(exclude)%s\\n\" \"$sm_path\"' 2>/dev/null); git add -A -- $excludes 2>/dev/null; if git diff --cached --quiet; then exit 0; fi; if git diff --cached | grep -qiE 'BEGIN [A-Z ]*PRIVATE KEY|sk-[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16}'; then echo 'secret-like content staged; auto-commit skipped'; exit 1; fi; names=$(git diff --cached --name-only); count=$(printf '%s\\n' \"$names\" | grep -c .); shown=$(printf '%s\\n' \"$names\" | head -4 | tr '\\n' ' '); msg=\"auto: ${count} file(s): ${shown}\"; if [ \"$count\" -gt 4 ]; then msg=\"${msg}+$((count-4)) more\"; fi; git commit -q -m \"$msg\"; fi",
+            "injectOn": "failure",
+            "inject": "<auto-commit exit=\"{exitCode}\">\nThe mechanical auto-commit (rules/auto-commit.md) did not complete. A staged change looked like it contained a secret, so the commit was skipped rather than committed. Review `git diff --cached`: unstage the secret, or commit deliberately if it is a false positive.\n\n```\n{stdout}{stderr}\n```\n</auto-commit>",
+            "toast": {
+                "title": "auto-commit",
+                "message": "skipped (exit {exitCode})",
+                "variant": "error",
+                "duration": 8000
+            }
         }
     ]
 }
