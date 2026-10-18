@@ -1,6 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
-import { TOOLS_BASH, RULES_COMPLETION_KARPAHTY } from "../shared-spec-fragments"
+import { TOOLS_BASH, RULES_KARPAHTY_GUIDELINES } from "../shared-spec-fragments"
 
 const spec: HubSubcommandSpec = {
   label: "deep-bug-hunt",
@@ -87,7 +87,7 @@ Present findings as a summary table (\`# | Bug | Severity | File | Fix\`). If a 
 STOP after reporting — do not continue into unrelated refactors. Per karpathy-guidelines: surgical changes only, fix verified before claiming done.`,
 
   tools: TOOLS_BASH,
-  rules: RULES_COMPLETION_KARPAHTY,
+  rules: RULES_KARPAHTY_GUIDELINES,
   relatedSkills: ["systematic-debugging", "verify", "trace"],
   examples: [
     {
