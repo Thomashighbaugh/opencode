@@ -517,6 +517,19 @@ describe('wiring', () => {
     expect(src).not.toMatch(/\bslash:\s*\{/)
   })
 
+  it('captures the composer through the session_prompt slot', () => {
+    // The prompt publishes its ref only to whoever renders it, so capture is a
+    // slot renderer, not an API read. Locks in the mechanism and the host-ref
+    // forward that keeps the host's own prompt working.
+    const src = fs.readFileSync(path.join(CONFIG_DIR, 'plugins', 'hubs-tui', 'src', 'queue-commands.ts'), 'utf-8')
+    expect(src).toContain('registerComposerCapture')
+    expect(src).toContain('session_prompt:')
+    expect(src).toContain('api.ui.Prompt')
+    expect(src).toContain('props.ref?.(r)')
+    const tui = fs.readFileSync(path.join(CONFIG_DIR, 'plugins', 'hubs-tui', 'src', 'tui.tsx'), 'utf-8')
+    expect(tui).toContain('registerComposerCapture(api)')
+  })
+
   it('the TUI half reads the same state file the hooks half drains', () => {
     const src = fs.readFileSync(path.join(CONFIG_DIR, 'plugins', 'hubs-tui', 'src', 'queue-commands.ts'), 'utf-8')
     const d = tmp()
