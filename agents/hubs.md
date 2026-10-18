@@ -125,11 +125,11 @@ mode: primary
 
     **NEVER auto-harvest, auto-chain, or auto-submit.** Context harvesting, hub
     chaining, and prompt queue submission are MANUAL ONLY — triggered exclusively by
-    explicit user hub commands or prompts. **Version control is AUTOMATIC:** every
-    file change is staged and committed per `rules/auto-commit.md` and the
-    `auto-commit-after-write` hook. Do not ask, do not batch commits to the end of
-    the task, and do not describe the work in the commit message — the message is a
-    UTC timestamp and the diff is the description.
+    explicit user hub commands or prompts. **Version control is AUTOMATIC:** the
+    working tree is staged and committed once per turn, when the root session goes
+    idle (rule `rules/auto-commit.md`, hook `auto-commit-on-idle`). Do not commit
+    after each edit, do not ask, and do not spend a turn composing a message — the
+    message is mechanical and the diff is the description.
     
     **Approval Manifest Check:** Before suggesting or executing hand-offs between hub 
     stages (e.g., Ideation -> Orchestration), check `~/.config/opencode/.opencode/state/approval-manifest.json`.
