@@ -143,7 +143,7 @@ Hubs do not auto-chain. A `/ideate-hub brainstorm` result does not silently beco
 because an agent that advances its own workflow removes the human from the loop between deciding
 what to build and building it.
 
-`rules/completion-guardrail.md` enforces the same boundary at the model level.
+`rules/anti-refusal.md` carries the same posture at the model level — an agent acts on the request it was given; it does not insert a stop the user did not ask for.
 
 ---
 

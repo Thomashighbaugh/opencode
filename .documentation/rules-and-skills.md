@@ -25,8 +25,8 @@ Listed in `opencode.jsonc` → `instructions`, so they are in context on every t
 | `file-operations.md` | Artifact placement; no root-level scripts |
 | `security.md` | Mandatory checks, secret handling |
 | `hub-description-directive.md` | Subcommand description conventions |
-| `completion-guardrail.md` | Mandatory stop between planning and implementation |
 | `output-compression.md` | Output shape — table > bullets > prose |
+| `writing-style.md` | Prose style — say it, don't announce it; plain words; end when the content ends |
 | `anti-sycophancy.md` | No reflexive agreement |
 | `efficiency-first.md` | **The standing constraint** — request and token budgets |
 | `hub-menu-rebuild.md` | Regenerate the TUI after hub changes |

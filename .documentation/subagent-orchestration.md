@@ -105,14 +105,12 @@ a known blind spot; the same model reviewing its own output inherits it.
 
 ---
 
-## Completion guardrail
+## No standing stop
 
-`rules/completion-guardrail.md` is a **mandatory stop** between planning and implementation. After
-an analysis, plan, or research task, the agent presents the result and waits.
-
-The only exception is explicit pre-authorisation in the same command — "plan and implement X", or
-a chained command. A harness that lets a model move from a plan to writing code without a human
-in the loop has not saved the human any decisions.
+There is no mandatory stop between planning and implementation. `rules/anti-refusal.md` presumes the
+request is the authorization: a plan that has been requested is a plan already approved for
+execution, and an agent that stops to ask "shall I proceed?" has added a gate no rule names. Explicit
+user authorization is inherited by the whole task — read, edit, test, commit, dispatch.
 
 ---
 
