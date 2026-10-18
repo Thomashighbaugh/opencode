@@ -472,6 +472,25 @@ describe('plugin: end to end', () => {
     await h.hooks.event({ event: { type: 'session.created', properties: { sessionID: 's5', info: { id: 's5' } } } })
     expect(h.sent).toEqual([])
   })
+
+  it('fires on a session.status idle, not just session.idle', async () => {
+    // Some runtimes report turn-end as `session.status` with an idle status
+    // rather than a bare `session.idle`. A gate deaf to that never runs.
+    const d = tmp()
+    q.enqueue(d, 'status idle task')
+    const h = await harness(d, turn('Done. Nothing to ask.'))
+    await h.hooks.event({ event: { type: 'session.status', properties: { sessionID: 's6', status: { type: 'idle' } } } })
+    expect(h.sent).toHaveLength(1)
+    expect(h.sent[0]).toContain('status idle task')
+  })
+
+  it('does not fire on a busy session.status', async () => {
+    const d = tmp()
+    q.enqueue(d, 'x')
+    const h = await harness(d, turn('Done.'))
+    await h.hooks.event({ event: { type: 'session.status', properties: { sessionID: 's7', status: { type: 'busy' } } } })
+    expect(h.sent).toEqual([])
+  })
 })
 
 // ─── wiring ────────────────────────────────────────────────────────────────

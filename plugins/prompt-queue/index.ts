@@ -333,7 +333,16 @@ export const PromptQueuePlugin: Plugin = async ({ client, directory }) => {
         return
       }
 
-      if (event.type !== 'session.idle') return
+      // ── Turn ended ────────────────────────────────────────────────────────
+      // Turn-end arrives as `session.idle` on some runtimes and as
+      // `session.status` with `status.type === 'idle'` on others (both are in the
+      // SDK event union). Listening to only the first made the gate deaf on the
+      // second: the queue filled and nothing ever drained, which reads as "it is
+      // not queueing". Both events mean the same thing — the turn concluded.
+      const isIdle =
+        event.type === 'session.idle' ||
+        (event.type === 'session.status' && event.properties?.status?.type === 'idle')
+      if (!isIdle) return
       const sessionId: string | undefined = event.properties?.sessionID ?? event.properties?.info?.id
       if (!sessionId) return
       // A retried idle event for the same session must not double-drain; the
