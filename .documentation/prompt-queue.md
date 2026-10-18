@@ -9,7 +9,7 @@ A to-do list for a conversation, written in the order the thoughts arrive rather
 | --------------- | ----- |
 | Entry point     | **ctrl+p command palette** → "Prompt Queue" — not a slash command |
 | Ordering        | FIFO, with explicitly-deferred items appended at the end |
-| Release trigger | A turn completes and did **not** end on a question |
+| Release trigger | A turn completes — `session.idle`, or `session.status` with an idle status — and did **not** end on a question |
 | Rollover        | Work deferred in a held turn rides along with the next drain |
 | Code            | `plugins/prompt-queue/` (gate + drain) · `plugins/hubs-tui/src/queue-commands.ts` (UI) |
 | Tests           | 50 |
@@ -39,7 +39,7 @@ when the assistant has finished saying something and stopped needing anything.
 ```
    ctrl+p palette (TUI process)                 hooks plugin (server process)
    ──────────────────────────────               ──────────────────────────────
-   "Prompt Queue"                               on session.idle
+   "Prompt Queue"                               on session.idle / session.status(idle)
      ├─ Add to Prompt Queue                      ├─ read the last assistant turn
      ├─ Run queued prompts now                   ├─ evaluate the gate
      ├─ Hold the queue                           │    ├─ question → HOLD, carry deferred
