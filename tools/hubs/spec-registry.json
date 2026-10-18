@@ -742,9 +742,6 @@
       "loadSkill",
       "bash"
     ],
-    "rules": [
-      "completion-guardrail"
-    ],
     "relatedSkills": [],
     "examples": [
       {
@@ -817,9 +814,6 @@
     "tools": [
       "loadSkill",
       "bash"
-    ],
-    "rules": [
-      "completion-guardrail"
     ],
     "relatedSkills": [],
     "examples": [
@@ -1310,7 +1304,6 @@
       "bash"
     ],
     "rules": [
-      "completion-guardrail",
       "karpathy-guidelines"
     ],
     "relatedSkills": [
@@ -1387,9 +1380,6 @@
       "modeState",
       "bash"
     ],
-    "rules": [
-      "completion-guardrail"
-    ],
     "examples": [
       {
         "input": "/orchestrate-hub evolutionary 'implement user, post, comment, and like resources'",
@@ -1419,9 +1409,6 @@
       "modeState",
       "taskTodos",
       "bash"
-    ],
-    "rules": [
-      "completion-guardrail"
     ],
     "relatedSkills": [
       "verify"
@@ -1499,9 +1486,6 @@
       "taskTodos",
       "bash"
     ],
-    "rules": [
-      "completion-guardrail"
-    ],
     "relatedSkills": [
       "verify"
     ],
@@ -1544,9 +1528,6 @@
       "listAgents",
       "bash",
       "modeState"
-    ],
-    "rules": [
-      "completion-guardrail"
     ],
     "examples": [
       {
@@ -1625,12 +1606,9 @@
     "description": "Audit the project for major and minor improvements, ranked",
     "reminder": "Audit project and present improvement proposals for approve/deny.",
     "inline": true,
-    "detailedDescription": "Audits the project you are running in and produces a list of improvement items — each with a proposed solution — ending with an ordered proposal list for the user to approve or deny.\n\n**Phase 1 — Initial audit (breadth-first scan):**\n\n1. Map the project: language, framework, entry points, module layout, build/test commands.\n2. Scan each dimension quickly (evidence over vibes — cite files/lines):\n   - Architecture — coupling, layering, circular deps, dead modules\n   - Code quality — complexity hotspots, duplication, naming, error handling gaps\n   - Testing — coverage gaps, brittle tests, missing integration/e2e\n   - Dependencies — outdated, vulnerable, unused\n   - Developer experience — build speed, tooling friction, onboarding docs\n   - Config — project .opencode/ assets (rules, skills, agents) that are stale, missing, or mis-wired\n3. Keep the audit proportionate: 5–15 minutes of scanning, not an exhaustive review.\n\n**Phase 2 — Itemize findings (major vs minor):**\n\n- **Major**: structural impact — security vulnerabilities, architectural problems, systemic test gaps, broken workflows, stale config assets.\n- **Minor**: contained impact — naming, small refactors, doc gaps, single-file issues, one-line config fixes.\n\nEvery item has the shape:\n\n```\n- [MAJOR|MINOR] <short title>\n  - Evidence: <file:line or observed behavior>\n  - Proposed solution: <concrete, file-specific fix — what would be changed>\n  - Impact: <what improves>\n  - Effort: <S / M / L>\n```\n\n**Phase 3 — Ordered proposal list:**\n\nAt the end of the audit, present the **ordered list** — sorted by impact/effort ratio (highest first), majors before minors within the same ratio tier. Number the items 1..N.\n\n**Phase 4 — User approve/deny:**\n\n1. Present the ordered list to the user.\n2. Ask for approval item-by-item (or as a batch) via the `question` tool: Approve / Deny per item.\n3. Record decisions: approved items are the actionable backlog; denied items are dropped or deferred with the reason noted.\n4. **STOP after the approval pass** — do NOT implement anything. Per the completion-guardrail, implementation starts only when the user explicitly says so (e.g., \"/orchestrate\" or \"implement item 1-3\").\n\n**Output & state:**\n\n- Write the audit + proposal list to `.opencode/state/ideation/work-products/YYYYMMDD_HHMMSS_improvements_{topic-slug}_{stage}.md` using the ideation naming convention.\n- Terminal summary table: item # | severity | title | effort | status (approved/denied).\n\n**Pairs with:** /build-hub overhaul (8-dimension phased plan), /plan-hub quality (code quality deep-dive), /build-hub optimize, /build-hub refactor. Use this when the user wants a quick \"what should I improve?\" sweep with a decision gate; use overhaul when they want the full phased plan.",
+    "detailedDescription": "Audits the project you are running in and produces a list of improvement items — each with a proposed solution — ending with an ordered proposal list for the user to approve or deny.\n\n**Phase 1 — Initial audit (breadth-first scan):**\n\n1. Map the project: language, framework, entry points, module layout, build/test commands.\n2. Scan each dimension quickly (evidence over vibes — cite files/lines):\n   - Architecture — coupling, layering, circular deps, dead modules\n   - Code quality — complexity hotspots, duplication, naming, error handling gaps\n   - Testing — coverage gaps, brittle tests, missing integration/e2e\n   - Dependencies — outdated, vulnerable, unused\n   - Developer experience — build speed, tooling friction, onboarding docs\n   - Config — project .opencode/ assets (rules, skills, agents) that are stale, missing, or mis-wired\n3. Keep the audit proportionate: 5–15 minutes of scanning, not an exhaustive review.\n\n**Phase 2 — Itemize findings (major vs minor):**\n\n- **Major**: structural impact — security vulnerabilities, architectural problems, systemic test gaps, broken workflows, stale config assets.\n- **Minor**: contained impact — naming, small refactors, doc gaps, single-file issues, one-line config fixes.\n\nEvery item has the shape:\n\n```\n- [MAJOR|MINOR] <short title>\n  - Evidence: <file:line or observed behavior>\n  - Proposed solution: <concrete, file-specific fix — what would be changed>\n  - Impact: <what improves>\n  - Effort: <S / M / L>\n```\n\n**Phase 3 — Ordered proposal list:**\n\nAt the end of the audit, present the **ordered list** — sorted by impact/effort ratio (highest first), majors before minors within the same ratio tier. Number the items 1..N.\n\n**Phase 4 — User approve/deny:**\n\n1. Present the ordered list to the user.\n2. Ask for approval item-by-item (or as a batch) via the `question` tool: Approve / Deny per item.\n3. Record decisions: approved items are the actionable backlog; denied items are dropped or deferred with the reason noted.\n4. **Stop after the approval pass** — implementation starts only when the user explicitly says so (e.g., \"/orchestrate\" or \"implement item 1-3\").\n\n**Output & state:**\n\n- Write the audit + proposal list to `.opencode/state/ideation/work-products/YYYYMMDD_HHMMSS_improvements_{topic-slug}_{stage}.md` using the ideation naming convention.\n- Terminal summary table: item # | severity | title | effort | status (approved/denied).\n\n**Pairs with:** /build-hub overhaul (8-dimension phased plan), /plan-hub quality (code quality deep-dive), /build-hub optimize, /build-hub refactor. Use this when the user wants a quick \"what should I improve?\" sweep with a decision gate; use overhaul when they want the full phased plan.",
     "tools": [
       "bash"
-    ],
-    "rules": [
-      "completion-guardrail"
     ],
     "relatedSkills": [],
     "examples": [
@@ -1681,9 +1659,6 @@
       "loadSkill",
       "taskTodos"
     ],
-    "rules": [
-      "completion-guardrail"
-    ],
     "relatedSkills": [
       "planning-and-task-breakdown"
     ],
@@ -1706,9 +1681,6 @@
       "taskTodos",
       "modeState",
       "bash"
-    ],
-    "rules": [
-      "completion-guardrail"
     ],
     "relatedSkills": [
       "verify"
@@ -2297,9 +2269,6 @@
       "modeState",
       "taskTodos"
     ],
-    "rules": [
-      "completion-guardrail"
-    ],
     "relatedSkills": [
       "systematic-debugging",
       "verify"
@@ -2343,9 +2312,6 @@
       "taskTodos",
       "modeState"
     ],
-    "rules": [
-      "completion-guardrail"
-    ],
     "examples": [
       {
         "input": "/swarm-hub gsd 'add user profile pages: avatar upload, bio editor, settings panel'",
@@ -2385,9 +2351,6 @@
       "taskTodos",
       "bash"
     ],
-    "rules": [
-      "completion-guardrail"
-    ],
     "relatedSkills": [],
     "examples": [
       {
@@ -2412,9 +2375,6 @@
     "tools": [
       "bash",
       "listAgents"
-    ],
-    "rules": [
-      "completion-guardrail"
     ],
     "relatedSkills": [],
     "examples": [
@@ -2574,7 +2534,6 @@
       "bash"
     ],
     "rules": [
-      "completion-guardrail",
       "karpathy-guidelines"
     ],
     "relatedSkills": [
@@ -2599,9 +2558,6 @@
       "modeState",
       "taskTodos",
       "bash"
-    ],
-    "rules": [
-      "completion-guardrail"
     ],
     "relatedSkills": [
       "verify"
@@ -2680,7 +2636,6 @@
       "bash"
     ],
     "rules": [
-      "completion-guardrail",
       "karpathy-guidelines"
     ],
     "relatedSkills": [
