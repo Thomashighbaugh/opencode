@@ -181,28 +181,27 @@ menu that is already open.
 
 ---
 
-## Known limitation: composer capture
+## Composer capture
 
-The intent is to move text you have **already typed** into the queue. The API does expose the
-composer — `TuiPromptRef.current.input` (`@opencode-ai/plugin/dist/tui.d.ts`) — but only to a plugin
-that **renders** the prompt: the ref is handed to whatever owns the `session_prompt` slot. Reading it
-therefore means taking the prompt over, which is not a decoration a plugin should do to the host's
-input bar. So the text is collected through a dialog instead, isolated in one function:
+The intent is to move text you have **already typed** into the queue — the same thing the built-in
+prompt stash does. The prompt publishes its state through a `TuiPromptRef` (`current.input`,
+`reset()`), but only to whoever **renders** it: the host mounts the prompt inside the `session_prompt`
+slot (`mode="replace"`) and hands out the ref through that slot's `ref` prop.
 
-```ts
-export function composerText(): string { return '' }
-```
+`registerComposerCapture` (`plugins/hubs-tui/src/queue-commands.ts`) registers a renderer for that
+slot. It renders the standard `api.ui.Prompt` with every host prop forwarded — including calling
+`props.ref` with our ref, so the host keeps its own reference — and stores the handle.
+`composerText()` reads it; `clearComposer()` calls `reset()` on it, which is what the stash does.
 
-Wiring a real capture is a single-function change if the API ever offers a read that does not
-require ownership. "Add current input to queue" is already wired to it, and a blank capture falls
-back to the dialog rather than queueing an empty task.
+If the slot API is unavailable the registration is skipped, the host's own prompt stands, and capture
+falls back to the dialog.
 
 ### Clearing the composer
 
 `clearPrompt` is directory-scoped (`{ directory?: string; workspace?: string }`). It was called with
 **no argument**, and its rejection swallowed by `.catch(() => {})`, so a clear that targeted nothing
-looked like a success while the composer kept its text. It now passes the directory and reports a
-failure instead of hiding it.
+looked like a success while the composer kept its text. It is now the backstop behind `reset()`, and
+is passed the directory.
 
 ---
 
