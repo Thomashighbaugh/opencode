@@ -2,7 +2,7 @@
 import type { TuiPlugin, TuiPluginApi, TuiPluginMeta, TuiDialogSelectOption } from '@opencode-ai/plugin/tui'
 import { HUBS } from './generated-hubs'
 import type { Hub } from './generated-hubs'
-import { registerQueueCommands } from './queue-commands'
+import { registerQueueCommands, registerComposerCapture } from './queue-commands'
 import { registerTodoCommands } from './todo-commands'
 
 const tui: TuiPlugin = async (api: TuiPluginApi, _o: any, _m: TuiPluginMeta) => {
@@ -15,6 +15,15 @@ const tui: TuiPlugin = async (api: TuiPluginApi, _o: any, _m: TuiPluginMeta) => 
   } catch (e) {
     // A palette entry that fails to register must not take the hub menu with it.
     console.error('[hubs-tui] prompt-queue commands unavailable:', e)
+  }
+
+  // Capture the composer so the queue can move typed-but-unsent text into it, the
+  // way the built-in prompt stash does. Registers the session_prompt slot; a
+  // runtime without that slot simply keeps the dialog fallback.
+  try {
+    registerComposerCapture(api)
+  } catch (e) {
+    console.error('[hubs-tui] composer capture unavailable:', e)
   }
 
   // Project todo list — the human's list, distinct from the agent's taskTodos.

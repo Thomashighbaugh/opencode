@@ -21,15 +21,17 @@ import * as path from 'node:path'
  *
  * ── Composer capture ────────────────────────────────────────────────────────
  *
- * The intent is to move text the user has already typed into the queue. The
- * current TUI plugin API exposes `appendPrompt`, `submitPrompt` and `clearPrompt`
- * but no way to READ the composer buffer, and `TuiPromptRef` is only obtainable by
- * rendering the prompt a plugin does not own. So this collects the text through a
- * dialog.
+ * The intent is to move text the user has already typed into the queue — the same
+ * thing the built-in prompt stash does. The prompt publishes its state through a
+ * `TuiPromptRef` (`current.input`, `reset()`), but only to whoever renders it: the
+ * host mounts the prompt inside the `session_prompt` slot, and that slot's `ref`
+ * prop is how the ref is handed out. So `registerComposerCapture` renders the
+ * standard `api.ui.Prompt` into that slot, forwards every host prop — including
+ * `props.ref`, so the host keeps its own reference — and keeps a local handle.
  *
- * That is a real limitation, not a design preference, and it is isolated in
- * `composerText()`: when OpenCode exposes a prompt ref, that function becomes the
- * only thing that changes.
+ * The handle is what `composerText()` reads and `clearComposer()` clears. If the
+ * slot API is unavailable the registration is skipped and capture falls back to
+ * the dialog.
  */
 
 type QueueItem = { id: string; text: string; enqueuedAt: string; source: 'manual' | 'deferred'; editedAt?: string; copiedFrom?: string }
@@ -118,14 +120,69 @@ function renderForComposer(items: QueueItem[], reason: string): string {
   ].join('\n')
 }
 
+/** Live handle to the composer, captured by `registerComposerCapture`. */
+let composerRef: any = null
+
 /**
  * Text the user has typed but not sent.
  *
- * Currently always empty — the API exposes no reader. Isolated so that adding
- * one is a single-function change rather than a rework of the menu.
+ * Backed by the live prompt ref. Empty when the slot API was unavailable, in
+ * which case the dialog collects the text instead.
  */
 export function composerText(): string {
-  return ''
+  const input = composerRef?.current?.input
+  return typeof input === 'string' ? input : ''
+}
+
+/**
+ * Clear the composer after a capture.
+ *
+ * `reset()` on the captured ref is the reliable clear — it is what the built-in
+ * prompt stash does. `clearPrompt({ directory })` is the backstop for when no ref
+ * was captured (and is directory-scoped in the v2 API; calling it bare targeted
+ * nothing, which is why the input bar used to keep its text).
+ */
+export function clearComposer(api: TuiPluginApi, directory: string): void {
+  try {
+    composerRef?.reset?.()
+  } catch {
+    // The ref can remount across route changes; clearPrompt below still applies.
+  }
+  void api.client.tui.clearPrompt({ directory }).catch(() => {})
+}
+
+/**
+ * Hold the live prompt ref by rendering the session prompt through the
+ * `session_prompt` slot — the only way the prompt publishes its ref.
+ *
+ * A no-op when the slot API is absent, so an older runtime degrades to the
+ * dialog rather than losing the prompt. Every host prop is forwarded and the
+ * host's own `ref` callback is called with our ref, so this substitutes the
+ * prompt's renderer without removing the prompt itself.
+ */
+export function registerComposerCapture(api: TuiPluginApi): void {
+  if (!api?.slots?.register || !api?.ui?.Prompt) return
+  try {
+    api.slots.register({
+      slots: {
+        session_prompt: (_ctx: any, props: any) =>
+          api.ui.Prompt({
+            sessionID: props.session_id,
+            visible: props.visible,
+            disabled: props.disabled,
+            onSubmit: props.on_submit,
+            right: api.ui.Slot({ name: 'session_prompt_right', session_id: props.session_id }),
+            ref: (r: any) => {
+              composerRef = r
+              props.ref?.(r)
+            },
+          }),
+      },
+    } as any)
+  } catch (e) {
+    // Never take the prompt down: if this throws, the host's own prompt stands.
+    console.error('[hubs-tui] composer capture unavailable:', e)
+  }
 }
 
 export function registerQueueCommands(api: TuiPluginApi, directory: string): () => void {
@@ -410,16 +467,7 @@ export function registerQueueCommands(api: TuiPluginApi, directory: string): () 
                   writeQueue(directory, s)
                   toast('Prompt Queue', `Queued (${s.items.length + s.deferred.length} waiting)`, 'success')
                   // Clear the composer so the same text is not sent by accident.
-                  // `clearPrompt` is directory-scoped in the v2 TUI API: calling
-                  // it with no argument targeted nothing, and `.catch(() => {})`
-                  // hid the failure — which is exactly "the input bar kept its
-                  // text after queueing". Pass the directory and surface a
-                  // failure instead of swallowing it.
-                  void api.client.tui
-                    .clearPrompt({ directory })
-                    .catch((e: any) =>
-                      toast('Prompt Queue', `Queued, but could not clear the input: ${e?.message ?? e}`, 'warning'),
-                    )
+                  clearComposer(api, directory)
                 },
                 onCancel: () => api.ui.dialog.clear(),
               }),
