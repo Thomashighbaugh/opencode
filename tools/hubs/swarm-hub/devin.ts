@@ -1,6 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
-import { TOOLS_BASH_LISTAGENTS_MODESTATE_TASKTODOS, RULES_COMPLETION_GUARDRAIL } from "../shared-spec-fragments"
+import { TOOLS_BASH_LISTAGENTS_MODESTATE_TASKTODOS } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "devin",
   description: "Autonomous plan → code → debug → deploy with root-cause loops",
@@ -30,7 +30,6 @@ Before starting, ask (passing the flag skips the question — non-interactive pa
 Resolved answer maps to \`--deploy="..."\`.`,
 
   tools: TOOLS_BASH_LISTAGENTS_MODESTATE_TASKTODOS,
-  rules: RULES_COMPLETION_GUARDRAIL,
   relatedSkills: ["systematic-debugging", "verify"],
 
   examples: [

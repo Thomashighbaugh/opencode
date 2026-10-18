@@ -1,6 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
-import { RULES_COMPLETION_GUARDRAIL } from "../shared-spec-fragments"
+import {  } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "gsd",
   description: "Discuss → plan → execute → verify → ship, one fresh context per task",
@@ -20,7 +20,6 @@ The wave-based design means parallelism is maximized (tasks in a wave run concur
 Use for medium-to-large features that benefit from parallel execution with a clear ship-ready end state. Each task's atomic commit makes rollback granular.`,
 
   tools: ["bash", "listAgents", "taskTodos", "modeState"],
-  rules: RULES_COMPLETION_GUARDRAIL,
 
   examples: [
     {

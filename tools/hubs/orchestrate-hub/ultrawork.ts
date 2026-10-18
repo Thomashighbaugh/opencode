@@ -1,6 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
-import { RULES_COMPLETION_GUARDRAIL } from "../shared-spec-fragments"
+import {  } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "ultrawork",
   description: "Maximum parallel execution for high-throughput tasks",
@@ -29,7 +29,6 @@ Before dispatching, ask (passing the flag skips the question — non-interactive
 Resolved answer maps to \`--concurrency=N\`.`,
 
   tools: ["taskTodos", "listAgents", "bash", "modeState"],
-  rules: RULES_COMPLETION_GUARDRAIL,
 
   examples: [
     {

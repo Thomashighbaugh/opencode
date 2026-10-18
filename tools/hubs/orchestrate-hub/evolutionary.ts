@@ -1,6 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
-import { TOOLS_LISTAGENTS_TASKTODOS_MODESTATE_BASH, RULES_COMPLETION_GUARDRAIL } from "../shared-spec-fragments"
+import { TOOLS_LISTAGENTS_TASKTODOS_MODESTATE_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "evolutionary",
   description: "Ship incrementally, validating fitness each generation",
@@ -31,7 +31,6 @@ Before the first generation, ask (passing the flag skips the question — non-in
 Resolved answer maps to \`--fitness="..."\`.`,
 
   tools: TOOLS_LISTAGENTS_TASKTODOS_MODESTATE_BASH,
-  rules: RULES_COMPLETION_GUARDRAIL,
 
   examples: [
     {

@@ -1,6 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
-import { TOOLS_LOADSKILL_BASH, RULES_COMPLETION_GUARDRAIL } from "../shared-spec-fragments"
+import { TOOLS_LOADSKILL_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "deep-dive",
   description: "Trace the root cause, then crystallize the requirements",
@@ -20,7 +20,6 @@ Output: a spec at .opencode/state/specs/deep-dive-{slug}.md ready for handoff to
 Use when investigating a problem where both root cause AND requirements are unclear. Do NOT use when root cause is already known — use /ideate-hub interview (deep-interview) directly instead.`,
 
   tools: TOOLS_LOADSKILL_BASH,
-  rules: RULES_COMPLETION_GUARDRAIL,
   relatedSkills: [],
 
   examples: [

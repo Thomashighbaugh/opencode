@@ -1,6 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
-import { TOOLS_LOADSKILL_LISTAGENTS_MODESTATE_TASKTODOS_BASH, RULES_COMPLETION_GUARDRAIL } from "../shared-spec-fragments"
+import { TOOLS_LOADSKILL_LISTAGENTS_MODESTATE_TASKTODOS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "hive",
   description: "Batched parallel workers with worktree isolation and blocked-worker protocol",
@@ -30,7 +30,6 @@ Before executing, ask (passing the flag skips the question — non-interactive p
 Resolved answer maps to \`--plan=<file>\`.`,
 
   tools: TOOLS_LOADSKILL_LISTAGENTS_MODESTATE_TASKTODOS_BASH,
-  rules: RULES_COMPLETION_GUARDRAIL,
   relatedSkills: [],
 
   examples: [

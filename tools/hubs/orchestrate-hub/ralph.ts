@@ -1,6 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
-import { RULES_COMPLETION_GUARDRAIL, SKILLS_VERIFY } from "../shared-spec-fragments"
+import { SKILLS_VERIFY } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "ralph",
   description: "Persistent loop — keeps working until task is verified complete",
@@ -35,7 +35,6 @@ Key behaviors:
 - Checkpoints written every iteration so resume is lossless`,
 
   tools: ["loadSkill", "modeState", "taskTodos", "bash"],
-  rules: RULES_COMPLETION_GUARDRAIL,
   relatedSkills: SKILLS_VERIFY,
 
   examples: [

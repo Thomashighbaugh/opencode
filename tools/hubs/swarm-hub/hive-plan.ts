@@ -1,6 +1,6 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
-import { TOOLS_BASH_LISTAGENTS, RULES_COMPLETION_GUARDRAIL } from "../shared-spec-fragments"
+import { TOOLS_BASH_LISTAGENTS } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "hive-plan",
   description: "Agent swarm planning — interview, discover, produce plan.md with approval gate",
@@ -20,7 +20,6 @@ The approved plan.md becomes the input for /swarm-hub hive (Swarm Bee phase). Th
 Use for large features where you want a structured plan with an explicit approval gate before parallel execution. The gate ensures the user signs off on the plan before agents start building.`,
 
   tools: TOOLS_BASH_LISTAGENTS,
-  rules: RULES_COMPLETION_GUARDRAIL,
   relatedSkills: [],
 
   examples: [
