@@ -8,7 +8,7 @@ license: MIT
 
 # Vectorize Context
 
-Indexes scoped project markdown (`.opencode/context/`, `.opencode/rules/`, `.opencode/docs/`, root `AGENTS.md`) **and the project source tree** into two local sqlite-vec vector databases for semantic retrieval. **Local-only** — embeddings run via Ollama at `127.0.0.1:11434`; reranking runs via an ONNX cross-encoder (`@huggingface/transformers`). **Zero provider API requests** during retrieval or injection.
+Indexes scoped project markdown (`.opencode/context/`, `.opencode/rules/`, `.opencode/docs/`, root `AGENTS.md`) **and the project source tree** into two local sqlite-vec vector databases for semantic retrieval. **Local-only** — embeddings and reranking both run in-process on ONNX Runtime (`@huggingface/transformers`) — no daemon, no Ollama. **Zero provider API requests** during retrieval or injection.
 
 ## Two Stores
 
@@ -34,7 +34,7 @@ The system uses **lazy freshness**: every query automatically stats all scoped f
 | Plugin watcher detects file change | `vectorize-hook.ts` spawns `sync-hook.ts` (10s poll) |
 | Full re-index needed | Delete `.opencode/state/vector/*.db` — auto-rebuilds on next query |
 
-The embedding model is **only called when there's actual work to do** (files changed). If everything is up to date, `ensureIndexed()` returns instantly with no Ollama calls.
+The embedding model is **only called when there's actual work to do** (files changed). If everything is up to date, `ensureIndexed()` returns instantly with no embedding calls.
 
 ## Scoped Sources
 
@@ -121,7 +121,7 @@ QUERY="auth patterns" node {skill_dir}/scripts/query.ts
 npm install better-sqlite3 sqlite-vec @huggingface/transformers
 ```
 
-Requires Node.js 18+ and a running Ollama server (`http://127.0.0.1:11434`) for embeddings:
+Requires Node.js 18+. Embeddings run in-process — no daemon:
 
 | Model | Purpose | Dimension |
 |-------|---------|-----------|
