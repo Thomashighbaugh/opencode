@@ -1,6 +1,5 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
-import {  } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "gsd",
   description: "Discuss → plan → execute → verify → ship, one fresh context per task",
