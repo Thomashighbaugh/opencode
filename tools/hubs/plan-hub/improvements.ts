@@ -46,7 +46,7 @@ At the end of the audit, present the **ordered list** — sorted by impact/effor
 1. Present the ordered list to the user.
 2. Ask for approval item-by-item (or as a batch) via the \`question\` tool: Approve / Deny per item.
 3. Record decisions: approved items are the actionable backlog; denied items are dropped or deferred with the reason noted.
-4. **STOP after the approval pass** — do NOT implement anything. Per the completion-guardrail, implementation starts only when the user explicitly says so (e.g., "/orchestrate" or "implement item 1-3").
+4. **Stop after the approval pass** — implementation starts only when the user explicitly says so (e.g., "/orchestrate" or "implement item 1-3").
 
 **Output & state:**
 
