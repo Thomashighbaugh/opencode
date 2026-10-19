@@ -1,0 +1,9 @@
+{
+  // Auto-continue: send "continue" when a Profundo turn dies on a transient error.
+  // Defaults live in plugins/auto-continue/core.ts; this file only overrides them.
+  "enabled": true,
+  "providers": ["profundo"],
+  "throttleMs": 5000,
+  "delayMs": 500,
+  "maxConsecutive": 5
+}

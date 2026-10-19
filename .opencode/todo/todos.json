@@ -1,10 +1,4 @@
 {
   "version": 1,
-  "items": [
-    {
-      "id": "mvfs8fqs-hng7f",
-      "text": "clean up reference section of opencode.jsonc replacing it with internal references to the context wiki",
-      "createdAt": "2026-10-19T21:44:38.068Z"
-    }
-  ]
+  "items": []
 }

@@ -456,6 +456,7 @@
         "./plugins/hooks/hooks.ts",
         "./plugins/command-hooks/plugin.ts",
         "./plugins/prompt-queue/plugin.ts",
+        "./plugins/auto-continue/plugin.ts",
         "@opencode-plugins/env-protection",
         "@franlol/opencode-md-table-formatter@0.0.3"
     ],
