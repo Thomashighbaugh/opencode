@@ -34,6 +34,7 @@ TypeScript tool implementations (19 tools) that extend the OpenCode runtime. Too
 | `conf-edit.ts` | Edit config files (.env, INI, key=value) — get, set, delete, comment/uncomment. No sed. |
 | `multi-edit.ts` | Batch operations across files by glob — find, replace. No find+xargs+sed. |
 | `document-convert.ts` | Convert PDF, EPUB, DOC, DOCX, ODT, RTF, HTML, or text to markdown/JSON — local unpdf + mammoth + Turndown, no model calls. |
+| `codeSearch.ts` | Semantic code search — the grep+read replacement. Hybrid dense (bge-small) + BM25 with RRF, Semble-style symbol/definition boosts, and a bge-reranker cross-encoder. Index persisted under `.opencode/state/vector/codesearch/`, mtime-invalidated. |
 
 ## For AI Agents
 
