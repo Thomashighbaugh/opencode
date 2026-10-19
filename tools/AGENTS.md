@@ -33,6 +33,7 @@ TypeScript tool implementations (19 tools) that extend the OpenCode runtime. Too
 | `yaml-edit.ts` | Edit YAML by dot-path — get, set, delete, merge, array ops. No yq or sed-on-YAML. |
 | `conf-edit.ts` | Edit config files (.env, INI, key=value) — get, set, delete, comment/uncomment. No sed. |
 | `multi-edit.ts` | Batch operations across files by glob — find, replace. No find+xargs+sed. |
+| `document-convert.ts` | Convert PDF, EPUB, DOC, DOCX, ODT, RTF, HTML, or text to markdown/JSON — local unpdf + mammoth + Turndown, no model calls. |
 
 ## For AI Agents
 
