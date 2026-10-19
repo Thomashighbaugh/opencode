@@ -16,7 +16,7 @@ import extractStandards from "./extract-standards"
 import sciomc from "./sciomc"
 
 export const specs = [
-  conventionExtractor, analyst, analyzePatterns, competitiveAnalysis, research, techEval, webResearch,
+  conventionExtractor, analyst, analyzePatterns, competitiveAnalysis, deepResearch, research, techEval, webResearch,
   scientist, libraryDocs, documentSpecialist, explore, compare, extractStandards, sciomc
 ]
 
