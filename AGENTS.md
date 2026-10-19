@@ -138,7 +138,7 @@ keep working: `/init-project <sub>` and `/scaffold-hub <sub>` both route to `/hu
 | `/hub-setup` | 12 | config, detect, doctor, map-codebase, provision, recommend, refresh, reset, setup, status, tag, verify |
 | `/resource-hub` | 18 | add, config-orchestrator, create, edit, find, graph, info, knowledge-graph, list, package, prompt-simplifier, remove, scan, search, setup, sync, update, validate |
 | `/memory-hub` | 13 | capture, compress, consolidate-telemetry, consume, context, diff, export, memory, prune, search, secondbrain, session, vectorize |
-| `/research-hub` | 14 | analyst, analyze-patterns, compare, competitive-analysis, convention-extractor, document-specialist, explore, extract-standards, library-docs, research, scientist, sciomc, tech-eval, web-research |
+| `/research-hub` | 14 | analyst, analyze-patterns, compare, competitive-analysis, convention-extractor, deep-research, document-specialist, explore, extract-standards, library-docs, scientist, sciomc, tech-eval, web-research |
 | `/design-hub` | 7 | designer, docs, frontend-design, icon, readme, redesign, writer |
 | `/ideate-hub` | 17 | adversarial-debate, brainstorm, cleanroom, ddd, deep-dive, deep-thinker, double-diamond, event-storming, grill, interview, opro, pwf, refine, resume, rpikit, spark, tree-of-thoughts |
 | `/plan-hub` | 16 | bottom-up, constitution, decomposition, effort-estimator, impact-mapping, improvements, jtbd, lean-canvas, plan, plan-execute, ralplan, requirements-analyzer, spiral, status, story-mapping, top-down |

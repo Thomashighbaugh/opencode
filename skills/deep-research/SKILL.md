@@ -127,7 +127,17 @@ First, get today's date: `date +%Y-%m-%d`. Use it for all date-filtered searches
 2. **What specific questions or goals** should the research answer?
 3. **Any geographic, time, or segment constraints?**
 
-**Type classification:** Load `references/type-router.md` and classify the topic. The router matches the topic to one or more types and produces the axis breakdown for the research plan. If no core type fits, it assigns a catch-all fallback type. If multiple types match, it merges them.
+**Type classification — delegated to a planning subagent.** Load `references/type-router.md` and dispatch ONE planning subagent (`@planner` when available, otherwise `general`) with the original request, any scope answers, and the path to `references/type-router.md`. The planning subagent must:
+
+1. Classify the topic into one or more types (core, catch-all, or a merge of 2–3 types).
+2. Produce the axis plan: axis name, description, research goals, and suggested subagent type per axis, ordered by relevance.
+3. Flag assumptions and ambiguities it had to resolve.
+
+The planning subagent returns the plan; the primary agent reviews it, corrects it if the classifier drifted, and owns the final plan. The planning subagent does **no** web research — its only job is classification and axis planning. This keeps the primary agent's context on the goal rather than on taxonomy bookkeeping.
+
+In **quick** mode, skip the planning subagent and classify inline; the overhead is not worth it for a narrow question. If no `@planner` agent is available, use `general` with the same instructions.
+
+The router matches the topic to one or more types and produces the axis breakdown for the research plan. If no core type fits, it assigns a catch-all fallback type. If multiple types match, it merges them.
 
 Set output paths:
 
@@ -160,7 +170,7 @@ You are a research analyst. Your task: research one specific axis of a larger st
 **Geographic/time constraints:** {any from scope interview, or "none"}
 
 Instructions:
-1. Run web searches and fetch the relevant source pages. Use `websearch` for broad queries, `ax` or `webfetch` for specific pages.
+1. Run web searches and fetch the relevant source pages. Use `searxng_searxng_web_search` (local SearXNG — the default engine) for broad queries; fall back to `websearch` only if SearXNG is unreachable. Use `ax` or `webfetch` for specific pages.
 2. For each finding, note the source URL, access date, and confidence level (High/Medium/Low per the ladder in researcher.md).
 3. Tag each source: **Primary** (official docs, government filings, peer-reviewed papers), **Established** (major publications, analyst firms with editorial process), or **Low** (blogs, forums, single opinions). Flag Low-tier sources visibly.
 4. Critical claims (numbers, market share, projections) need 2+ sources or get confidence: Low.

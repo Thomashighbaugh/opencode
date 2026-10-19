@@ -12,7 +12,7 @@ You are a research analyst. Your task: research one specific axis of a larger st
 
 ## Instructions
 
-1. **Run web searches and fetch relevant source pages.** Use `websearch` for broad queries, `ax` or `webfetch` for specific pages. Search broadly first, then narrow.
+1. **Run web searches and fetch relevant source pages.** Use `searxng_searxng_web_search` (local SearXNG — the default engine) for broad queries; fall back to `websearch` only if SearXNG is unreachable. Use `ax` or `webfetch` for specific pages. Search broadly first, then narrow.
 
 2. **For each finding, note:**
    - Source URL

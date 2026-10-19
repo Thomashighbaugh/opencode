@@ -221,8 +221,8 @@ export const HUBS: Hub[] = [
         "description": "Competitive landscape — feature comparison matrix"
       },
       {
-        "label": "research",
-        "description": "Web + GitHub code search — findings cached as context"
+        "label": "deep-research",
+        "description": "Serial subagent research — multi-source, cited report on any topic"
       },
       {
         "label": "tech-eval",

@@ -4,7 +4,6 @@ import analyst from "./analyst"
 import analyzePatterns from "./analyze-patterns"
 import competitiveAnalysis from "./competitive-analysis"
 import deepResearch from "./deep-research"
-import research from "./research"
 import techEval from "./tech-eval"
 import webResearch from "./web-research"
 import scientist from "./scientist"
@@ -16,7 +15,7 @@ import extractStandards from "./extract-standards"
 import sciomc from "./sciomc"
 
 export const specs = [
-  conventionExtractor, analyst, analyzePatterns, competitiveAnalysis, deepResearch, research, techEval, webResearch,
+  conventionExtractor, analyst, analyzePatterns, competitiveAnalysis, deepResearch, techEval, webResearch,
   scientist, libraryDocs, documentSpecialist, explore, compare, extractStandards, sciomc
 ]
 

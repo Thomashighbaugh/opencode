@@ -2,6 +2,8 @@
 
 Load this file at Step 1 to classify the research topic into one or more types, then use the type-specific reference files for axis breakdowns.
 
+> **Who runs this file:** In standard and deep modes, dispatch a planning subagent (`@planner`, or `general` if unavailable) and give it this file. The subagent classifies the topic, merges types, and returns the axis plan. The primary agent reviews and owns the plan. In quick mode, classify inline. The planning subagent does no web research.
+
 ## Classification Process
 
 1. **Read the topic and goals.** What is the user actually trying to learn?

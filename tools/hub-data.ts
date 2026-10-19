@@ -294,7 +294,9 @@ export const LEGACY_ROUTE_MAP: Record<string, string> = {
   "ideation/architecture": "build-hub/architecture",  "ideation/modularity": "build-hub/modularity",
   "ideation/redesign": "design-hub/redesign",  "ideation/analyst": "research-hub/analyst",
   "ideation/analyze-patterns": "research-hub/analyze-patterns",  "ideation/competitive-analysis": "research-hub/competitive-analysis",
-  "ideation/graph": "resource-hub/graph",  "ideation/research": "research-hub/research",
+  "ideation/graph": "resource-hub/graph",  "ideation/research": "research-hub/deep-research",
+  // `research` was replaced by the deep-research pipeline; keep old prompts resolving.
+  "research-hub/research": "research-hub/deep-research",
   "ideation/tech-eval": "research-hub/tech-eval",  "ideation/web-research": "research-hub/web-research",
   "ideation/critic": "verify-hub/critic",  "ideation/overhaul": "build-hub/overhaul",
   "ideation/effort-estimator": "plan-hub/effort-estimator",  "ideation/prompt-simplifier": "resource-hub/prompt-simplifier",
