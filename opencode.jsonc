@@ -475,7 +475,8 @@
         "./rules/hub-menu-rebuild.md",
         "./rules/session-artifact-promotion.md",
         "./rules/auto-commit.md",
-        "./rules/code-search-first.md"
+        "./rules/code-search-first.md",
+        "./rules/ax-first.md"
     ],
     "references": {
         "context": {

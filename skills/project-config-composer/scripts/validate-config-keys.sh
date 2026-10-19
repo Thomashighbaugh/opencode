@@ -67,7 +67,8 @@ if [ "$SYNTAX_ONLY" -eq 1 ]; then
 	exit 0
 fi
 
-VALID_KEYS="$(curl -fsSL "$SCHEMA_URL" | jq -r '
+SCHEMA_JSON="$(if command -v ax >/dev/null 2>&1; then ax --body -f "$SCHEMA_URL" 2>/dev/null; else curl -fsSL "$SCHEMA_URL"; fi)"
+VALID_KEYS="$(printf '%s' "$SCHEMA_JSON" | jq -r '
   (. as $s | ($s."$defs".Config // $s.definitions.Config // $s) | (.properties // {}) | keys[])')"
 
 CONFIG_KEYS="$(printf '%s' "$JSON" | jq -r 'keys[]')"

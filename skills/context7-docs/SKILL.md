@@ -143,7 +143,7 @@ Context7 supports thousands of libraries including:
 ## Prerequisites
 
 - Node.js 18+ installed
-- curl installed
+- ax installed (preferred; `nix profile install github:yusukebe/ax`) or curl
 - **Option A:** Install MCPorter via Homebrew: `brew tap steipete/tap && brew install mcporter`
 - **Option B:** Use via npx (no install required): `npx mcporter`
 

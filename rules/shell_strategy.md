@@ -102,7 +102,7 @@ Reference tables for non-interactive shell operations. Load this file when you n
 | **Tar** | `tar xf file.tar` | `tar xf file.tar` (usually safe) |
 | **SSH** | `ssh host` | `ssh -o BatchMode=yes -o StrictHostKeyChecking=no host` |
 | **SCP** | `scp file host:` | `scp -o BatchMode=yes file host:` |
-| **Curl** | `curl url` | `curl -fsSL url` |
+| **Curl** | `curl url` | `ax url` (preferred — see `ax-first.md`) or `curl -fsSL url` when ax can't do it |
 | **Wget** | `wget url` | `wget -q url` |
 
 ### Docker

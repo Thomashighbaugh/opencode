@@ -1313,7 +1313,7 @@
     "examples": [
       {
         "input": "/orchestrate-hub autopilot 'add a /health endpoint that returns 200 and DB connection status'",
-        "approach": "Plan: locate server entry, add route, add DB check. Execute: write the route. Verify: curl the endpoint, confirm 200 + JSON body."
+        "approach": "Plan: locate server entry, add route, add DB check. Execute: write the route. Verify: ax the endpoint, confirm 200 + JSON body."
       }
     ],
     "warnings": [
