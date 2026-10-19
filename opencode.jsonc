@@ -412,9 +412,13 @@
         "websearch": "allow",
         "webfetch": "allow",
         "lsp": "allow",
-        "bash": "allow",
+        "bash": {
+            "*": "allow",
+            "grep *": "ask",
+            "rg *": "ask"
+        },
         "read": "allow",
-        "grep": "allow",
+        "grep": "ask",
         "glob": "allow",
         "skill": "allow",
         "task": "allow",
@@ -470,7 +474,8 @@
         "./rules/efficiency-first.md",
         "./rules/hub-menu-rebuild.md",
         "./rules/session-artifact-promotion.md",
-        "./rules/auto-commit.md"
+        "./rules/auto-commit.md",
+        "./rules/code-search-first.md"
     ],
     "references": {
         "context": {
