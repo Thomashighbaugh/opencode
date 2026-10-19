@@ -75,6 +75,7 @@ Every turn, every subagent invocation, every verification round costs an API req
 | `writing-style.md` | Prose you author — say it, don't announce it; plain words over inflated ones; end when the content ends. Distilled from avoid-ai-writing + claude-style-patch |
 | `efficiency-first.md` | **Standing constraint, every cycle** — fewest requests to inference hosts, smallest sufficient prompts. Never caps output code or requested text. Yields to explicit user instruction |
 | `hub-menu-rebuild.md` | Rebuild TUI menus after hub subcommand changes (`bun run generate-menus`) |
+| `ax-first.md` | Use `ax` instead of `curl` for web/API fetches and HTML extraction |
 
 **On-demand rules** (load via tool when needed): `hub-routing.md`, `resource-tags.md`, `global-reference.md`, `hub-state.md`
 
@@ -256,5 +257,8 @@ Retrieved snippets are expensive to re-fetch and are the kind of knowledge worth
 4. Keep entries current: if a cached snippet turns out to be outdated, correct it in place rather
    than adding a near-duplicate.
 
+## ax Directive (curl Replacement)
+
+[`ax`](https://github.com/yusukebe/ax) is installed on this system (Nix profile: `nix profile install github:yusukebe/ax`) and is the preferred tool for any web/API fetch, page-to-markdown conversion, or HTML extraction — anywhere `curl` would otherwise be used. See `rules/ax-first.md` for the decision order and curl-to-ax flag mapping. Full playbook: `ax agent-context` or `skills/ax/SKILL.md`.
 
 
