@@ -14,7 +14,7 @@ It runs on this config's stack: local bge-small embeddings + BM25, RRF-merged, c
 | # | If you need... | Use |
 |---|----------------|-----|
 | 1 | To find where something is defined / how a behavior is implemented / which files touch a concept | `codeSearch` — one call, locations back |
-| 2 | An exact string: an error message, a literal constant, a specific identifier spelling, a regex over the whole tree | `Grep` — `codeSearch` is semantic, not literal |
+| 2 | An exact string: an error message, a literal constant, a specific identifier spelling, a regex over the whole tree | `Grep` — semantic search is the wrong tool for a literal. Grep is permission-gated (`ask`) for exactly this reason: reaching for it should be a deliberate choice, not a reflex. |
 | 3 | A specific file you already know you need | `Read` — no search involved |
 | 4 | To triage before reading | `codeSearch` with `maxSnippetLines: 0` → locations only, then `Read` the winners |
 
