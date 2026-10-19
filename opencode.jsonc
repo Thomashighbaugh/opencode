@@ -10,6 +10,59 @@
             "options": {
                 "baseURL": "http://127.0.0.1:11434/v1"
             }
+        },
+        "profundo": {
+            "name": "Profundo AI",
+            "npm": "@ai-sdk/openai-compatible",
+            "options": {
+                "baseURL": "https://api.profundoai.com/v1"
+            },
+            "models": {
+                // Anthropic
+                "claude-opus-5": { "name": "Claude Opus 5" },
+                "claude-opus-4-8": { "name": "Claude Opus 4.8" },
+                "claude-opus-4-7": { "name": "Claude Opus 4.7" },
+                "claude-opus-4-6": { "name": "Claude Opus 4.6" },
+                "claude-sonnet-5": { "name": "Claude Sonnet 5" },
+                "claude-fable-5-1": { "name": "Claude Fable 5.1" },
+                "claude-fable-5": { "name": "Claude Fable 5" },
+                // OpenAI
+                "gpt-6-astra": { "name": "GPT 6 Astra" },
+                "gpt-5.6-luna": { "name": "GPT 5.6 Luna" },
+                "gpt-5.6-sol": { "name": "GPT 5.6 Sol" },
+                "gpt-5.6-terra": { "name": "GPT 5.6 Terra" },
+                "gpt-5.5": { "name": "GPT 5.5" },
+                "gpt-5.4-mini": { "name": "GPT 5.4 Mini" },
+                // Moonshot AI
+                "kimi-k3": { "name": "Kimi K3" },
+                "kimi-k2.7-code": { "name": "Kimi K2.7 Code" },
+                // Zhipu AI
+                "glm-5.3": { "name": "GLM 5.3" },
+                "glm-5.2": { "name": "GLM 5.2" },
+                "glm-5.3-flash": { "name": "GLM 5.3 Flash" },
+                // DeepSeek
+                "deepseek-v4-pro": { "name": "DeepSeek V4 Pro" },
+                "deepseek-v4-flash": { "name": "DeepSeek V4 Flash" },
+                "deepseek-v4-1-flash": { "name": "DeepSeek V4.1 Flash" },
+                // Alibaba
+                "qwen-3.8-max": { "name": "Qwen 3.8 Max" },
+                "qwen-3.8-max-thinking": { "name": "Qwen 3.8 Max (Thinking)" },
+                "qwen-3.7-max": { "name": "Qwen 3.7 Max" },
+                "qwen-3.7-max-thinking": { "name": "Qwen 3.7 Max (Thinking)" },
+                "qwen-3.6-max-preview": { "name": "Qwen 3.6 Max (Preview)" },
+                "qwen-3.6-max-preview-thinking": { "name": "Qwen 3.6 Max (Preview, Thinking)" },
+                "qwen-3.7-plus": { "name": "Qwen 3.7 Plus" },
+                "qwen-3.7-plus-thinking": { "name": "Qwen 3.7 Plus (Thinking)" },
+                "qwen-3.6-plus": { "name": "Qwen 3.6 Plus" },
+                "qwen-3.6-plus-thinking": { "name": "Qwen 3.6 Plus (Thinking)" },
+                "qwen-3.5-plus": { "name": "Qwen 3.5 Plus" },
+                "qwen-3.5-plus-thinking": { "name": "Qwen 3.5 Plus (Thinking)" },
+                "qwen-3.5-omni-plus": { "name": "Qwen 3.5 Omni Plus" },
+                "qwen3.8-flash": { "name": "Qwen 3.8 Flash" },
+                // Other
+                "xiaomi-mimo-2.5": { "name": "Xiaomi MiMo 2.5" },
+                "nexum-router": { "name": "Nexum Router" }
+            }
         }
     },
     "permission": {
