@@ -3,7 +3,7 @@ title: "LLM Wiki Index"
 type: concept
 tags: [wiki, index, catalog]
 created: 2026-07-04
-updated: 2026-10-18
+updated: 2026-10-20
 status: active
 ---
 
@@ -37,7 +37,7 @@ check that stops this file drifting again.
 | [[context/research/agentic-self-improvement-2026]] | source-summary | recursive-self-improvement, rsi, self-improving-agent, coding-agent, trust-layer, autonomy, feedback-loop, guardrails, agenttrust, weco-aide2, karpathy-autoresearch | active |
 | [[context/research/arcanum]] | source-summary | opencode, plugin, monorepo, skills, memory, cli, agent, runecraft | active |
 | [[context/research/auto-moc-rsi]] | source-summary | recursive-self-improvement, rsi, maps-of-content, moc, zettelkasten, taxonomy-learning, quality-scoring, rule-improvement, trust-scoring, autonomy, evidence-gating | active |
-| [[context/research/avoid-ai-writing/2026-10-18]] | source-summary | ai-writing, editing, prose, humanizer, de-slop, word-tiers, patterns, line-editing, fiction, voice | active |
+| [[context/research/avoid-ai-writing/2026-10-18]] | source-summary | ai-writing, editing, prose, humanizer, de-slop, style, word-tiers, patterns, line-editing, fiction, voice | active |
 | [[context/research/brain-memory]] | source-summary | opencode, plugin, memory, mcp, brain, neuroscience, spaced-repetition, file-system, agent-memory | active |
 | [[context/research/bros-harness-opencode-plugin]] | — | — | — |
 | [[context/research/caveman]] | source-summary | opencode, claude-code, codex, gemini, skill, compression, tokens, caveman, prompt-engineering | active |
@@ -74,8 +74,9 @@ check that stops this file drifting again.
 | [[context/research/relearning-flow-kedbin]] | — | — | — |
 | [[context/research/reranker-research-2026-07-07]] | research-report | reranker, embedding, RAG, local, context-injection, vector-search, cross-encoder | active |
 | [[context/research/short-leash-ai-method-okturtles]] | — | — | — |
-| [[context/research/theme-craft/2026-10-18]] | source-summary | theme, controlling-idea, lie-truth, arc-types, antagonist, motif, symbolism, theme-audit, fiction, planning | active |
 | [[context/research/systematic-debugging]] | — | — | — |
+| [[context/research/technical-article-writer/2026-10-19]] | source-summary | technical-writing, blog-posts, developer-content, article-structures, hooks, copywriting, skill, writing-taxonomy | active |
+| [[context/research/theme-craft/2026-10-18]] | source-summary | theme, controlling-idea, lie-truth, arc-types, antagonist, motif, symbolism, theme-audit, fiction, planning | active |
 | [[context/research/worldbuilding/2026-10-18]] | source-summary | worldbuilding, setting, locations, systems, factions, artifacts, calendars, routes, naming, glossary, fiction | active |
 
 ## Frameworks (Architecture & Design)

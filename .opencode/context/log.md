@@ -280,3 +280,13 @@ Chronological record of all wiki operations. Append-only.
 - **Key findings**: theme is dramatized through choices and consequences, never commentary; the counter-premise test ("could a reasonable person believe the antagonist's argument?") is the same idea as premise-workshop's; the world exists to pressure the characters and embody the counter-premise
 - **Stripping**: all external workflow artifacts (Story CLI, `story.md`, `story-maintenance` conventions, `character-management`/`plot-structure`/`scene-craft`/`submission` refs) removed; storage remapped to `./book/knowledge/`, `./book/metadata/`, `namecraft`
 - **Cross-references**: [[context/research/theme-craft/2026-10-18]] ↔ [[context/research/worldbuilding/2026-10-18]] ↔ [[context/research/premise-workshop/2026-10-18]]
+- **Cross-references**: [[context/research/theme-craft/2026-10-18]] ↔ [[context/research/worldbuilding/2026-10-18]] ↔ [[context/research/premise-workshop/2026-10-18]]
+
+## [2026-10-19] consume | technical-article-writer skill (local, ~/Downloads)
+
+- **Operation**: Ingested `~/Downloads/technical-article-writer` (samber/cc-skills v1.3.2, MIT — SKILL.md + 2 references + evals.json) via `/memory-hub consume`; user asked for the digest to imagine a broader taxonomy of technical-writing output types than the skill's enumerated 8, representative of CS/software writing as it actually appears
+- **Files created**:
+  - `research/technical-article-writer/2026-10-19.md` — digest of the phase-gated workflow, 8 content-type templates, hooks/titles framework, plus an expanded taxonomy (practice-transfer, knowledge-transfer, experience-transfer, opinion, tool/product, community/career, formal genres, interactive/non-prose) and a gap analysis of the skill's 8 types
+- **Key findings**: the skill's 8 types cover the blog-post core but miss postmortems (the most conventionalized genre in the industry), internals series, "X from scratch" build-alongs, release notes/launch posts, concept histories, and X-vs-Y conceptual comparisons; series/annotated-diff/live-narrative are cross-cutting modes, not types
+- **Privacy**: no secrets/PII in source (MIT-licensed public skill)
+- **Cross-references**: [[context/research/technical-article-writer/2026-10-19]] ↔ [[context/research/avoid-ai-writing/2026-10-18]] ↔ [[context/research/claude-style-patch/2026-10-18]]
