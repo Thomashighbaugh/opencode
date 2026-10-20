@@ -2,7 +2,7 @@
 
 A production-grade agentic AI configuration for [OpenCode](https://opencode.ai) — 31 specialised
 subagents, a hybrid retrieval plane, declarative event hooks, a 14-hub command system, and a
-1,327-test suite that asserts on *behaviour* rather than on source text.
+2,801-test suite that asserts on *behaviour* rather than on source text.
 
 This repository is the agent's entire operating system. It is not a prompt collection: it is a
 runtime with policy enforcement, an incremental knowledge graph, a token budget, and an
@@ -56,7 +56,7 @@ is the standing constraint that shapes the whole design.
 | Graph retrieval      | `skills/graph-context/scripts/graphlib.ts`     | 2,708 LOC                |
 | Vector retrieval     | `skills/vectorize-context/scripts/veclib.ts`   | 1,484 LOC                |
 | Tooling              | `tools/`                                      | 54 tools, 13,900 LOC    |
-| Evals                | `tests/`                                       | 1,327 tests, 21 suites   |
+| Evals                | `tests/`                                       | 2,801 tests, 27 files   |
 | Knowledge store      | SQLite                                        | 3,744 nodes / 22,551 edges |
 
 ---
@@ -118,7 +118,7 @@ a flat list with no hub name. Descriptions that name their hub are rejected by a
 
 ### 4. Evals that drive real code
 
-No test in this repository asserts that source text contains a substring. 1,327 tests drive the
+No test in this repository asserts that source text contains a substring. 2,801 tests drive the
 actual runtime:
 
 - **Behavioural** — hooks are invoked and their side effects observed.
@@ -151,7 +151,7 @@ actual runtime:
 
 ```bash
 # Verify the whole system
-bun run test:run                          # 1086 tests
+bun run test:run                          # 2801 tests
 npx tsc --noEmit -p tsconfig.json         # config + plugins
 npx tsc --noEmit -p skills/tsconfig.json  # skills
 
@@ -186,7 +186,7 @@ Every model is then local: embeddings, reranking, and the prompt-queue classifie
 | [Hub Command System](.documentation/hub-command-system.md) | 14 hubs, 175 subcommands, two-tier routing |
 | [Rules & Skills](.documentation/rules-and-skills.md) | Rule loading, 128 skills, 54 tools |
 | [Efficiency](.documentation/request-token-efficiency.md) | Request and token budgets |
-| [Testing Strategy](.documentation/testing-strategy.md) | 1,327 behavioural tests and what they protect |
+| [Testing Strategy](.documentation/testing-strategy.md) | 2,801 behavioural tests and what they protect |
 | [Complete Feature Reference](.documentation/features.md) | Every feature and project-scoped optimization, with implementation notes |
 
 ---
@@ -199,7 +199,7 @@ Every model is then local: embeddings, reranking, and the prompt-queue classifie
 ├── rules/                  25 rules — 15 preloaded, 10 on demand
 ├── tools/                  54 TypeScript tools
 ├── plugins/                hooks · command-hooks · prompt-queue · hubs-tui
-├── tests/                  1,327 tests across 21 suites
+├── tests/                  2,801 tests across 27 files
 ├── command-hooks.jsonc     global declarative hooks
 ├── .documentation/         14 pages — architecture, plugins, memory, evals
 ├── opencode.jsonc          plugin, MCP, instructions, references

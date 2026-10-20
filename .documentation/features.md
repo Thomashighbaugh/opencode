@@ -338,4 +338,4 @@ These are features that activate only when working inside a project with `.openc
 
 ---
 
-*Generated 2026-10-19. Counts: 31 agents · 128 skills · 25 rules · 54 tools · 14 hubs · 175 subcommands · 5 plugins · 3 MCP servers · 1,327 tests.*
+*Generated 2026-10-19. Counts: 31 agents · 129 skills · 25 rules · 54 tools · 14 hubs · 175 subcommands · 5 plugins · 3 MCP servers · 2,801 tests.*

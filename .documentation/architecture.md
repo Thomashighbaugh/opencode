@@ -164,7 +164,7 @@ Each is asserted by a test. See [Testing Strategy](testing-strategy.md).
 | Embeddings   | ONNX Runtime, `Xenova/bge-small-en-v1.5` q8, 384-dim                 |
 | Reranking    | ONNX Runtime, `Xenova/bge-reranker-base` q8                         |
 | Interop      | MCP — context7, grep.app, searxng, filesystem, sequential-thinking  |
-| Testing      | Vitest (1,086) + `node --test` (64)                                |
+| Testing      | Vitest (2,801) + `node --test` (64)                                |
 
 Local-first by design: the retrieval hot path touches no network, and the only external
 dependencies are optional and individually degradable. Model weights are fetched once by

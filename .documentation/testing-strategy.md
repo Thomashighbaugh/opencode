@@ -1,6 +1,6 @@
 # Testing Strategy
 
-**1,086 tests. Not one of them asserts that source text contains a substring.**
+**2,801 tests across 27 files. Not one of them asserts that source text contains a substring.**
 
 That is the whole strategy. Most defects in an agent harness are silent no-ops, and a source-text
 assertion passes happily against code that never runs:
@@ -18,23 +18,28 @@ Every test here observes an effect.
 
 ## The suites
 
-| Suite                            | Tests | Protects |
-| -------------------------------- | ----: | -------- |
-| `agent-format.test.ts`           |   280 | Agent definition structure, frontmatter, delegation targets |
-| `file-integrity.test.ts`         |   243 | Referenced files exist; no orphan assets                     |
-| `delegation.test.ts`             |   184 | Every skill/agent/command/rule reference resolves           |
-| `command-hooks.test.ts`          |   106 | The full declarative-hook surface, driven end to end        |
-| `feature-package.test.ts`        |    86 | Config schema, hub specs, labels, descriptions, rules       |
-| `knowledge-plane.test.ts`        |    26 | Graph and vector invariants, live SQL                       |
-| `efficiency-token.test.ts`       |    23 | Prompt budgets, reminder size, retrieval ordering           |
-| `efficiency-request.test.ts`     |    14 | Cache substitution, invalidation, child reuse, injection    |
-| `schema.test.ts`                 |    10 | `opencode.jsonc` conforms to the live schema                |
+| Suite                            | Protects |
+| -------------------------------- | -------- |
+| `agent-format.test.ts`           | Agent definition structure, frontmatter, delegation targets |
+| `file-integrity.test.ts`         | Referenced files exist; no orphan assets                     |
+| `delegation.test.ts`             | Every skill/agent/command/rule reference resolves; scaffold-hub split; legacy routes |
+| `command-hooks.test.ts`          | The full declarative-hook surface, driven end to end        |
+| `feature-package.test.ts`        | Config schema, hub specs, labels, descriptions, rules       |
+| `knowledge-plane.test.ts`        | Graph and vector invariants, live SQL                       |
+| `efficiency-token.test.ts`       | Prompt budgets, reminder size, retrieval ordering           |
+| `efficiency-request.test.ts`     | Cache substitution, invalidation, child reuse, injection    |
+| `schema.test.ts`                 | `opencode.jsonc` conforms to the live schema; no model pin  |
+| `provider-config.test.ts`        | `provider.profundo.models` catalog — structure, limits, modality/attachment consistency, no secrets |
+| `mcp-config.test.ts`             | context7/searxng/gh_grep transport shape, env-ref secrets, endpoint URLs |
+| `skill-frontmatter.test.ts`      | Every `skills/*/SKILL.md` — YAML parses, name matches dir, no model pin, script refs resolve |
+| `tools-export.test.ts`           | `tools/*.ts` import `tool()`, default export, description, execute; hub manifests excluded |
+| `agents-md-sync.test.ts`         | AGENTS.md hub table ↔ spec files on disk, roster ↔ `agents/`, plugin paths, numeric claims |
+| `helpers/helpers.test.ts`        | Unit tests for the test helpers themselves (`parseJsonc`, `resolveRef`, `scanEntities`) |
 
-Plus two `node --test` suites against the vector kernel: `veclib.test.ts` (30) and `cli.test.ts`
-(34).
+Plus two `node --test` suites against the vector kernel: `veclib.test.ts` and `cli.test.ts`.
 
 ```bash
-bun run test:run                              # 1086
+bun run test:run                              # 2801
 npx tsc --noEmit -p tsconfig.json             # config + plugins
 npx tsc --noEmit -p skills/tsconfig.json      # skills
 ```
@@ -97,6 +102,12 @@ Not theoretical. These were real, in this repository.
 | `generateCommandHooks` hand-escaped JSON | Emitted **invalid JSON** into every provisioned project |
 | Root-level files had no `part_of` | 5 nodes one edge short of an invariant, reachable only by accident |
 | 88 + 26 dangling graph edges | SQLite enforces no foreign keys; the graph reported 18k edges and lied |
+| 5 skills had unquoted `:` in frontmatter description | `pair`, `pipeline`, `tdd`, `hive-methodology`, `web-to-markdown` — YAML "bad indentation of a mapping entry", skill never loads |
+| `configure-notifications` duplicate `level: 2` key | js-yaml rejects duplicated mapping keys — skill never loads |
+| `types/` directory with no `SKILL.md` | A stray `bun-runtime.d.ts`, not a skill — sat uncounted until the no-SKILL.md test failed |
+| `agents/hubs.md` listed `@frontend-design` twice | 31 roster entries for 30 subagents — AGENTS.md said 30, hubs.md said 31 |
+| `xiaomi-mimo-2.5` claimed `attachment: true` | Text-only model — OpenCode would offer attachments the model rejects |
+| AGENTS.md skill count drifted to 123 | Disk had 129 — the doc lied by 6 |
 
 ### Scanner defects — text that was not what it looked like
 
@@ -135,6 +146,11 @@ These are not tests that were written once; they are properties the system canno
 | Invariant | Enforced by |
 | --------- | ----------- |
 | No model is pinned in config, agent frontmatter, or a profile | `schema.test.ts`, `agent-format.test.ts` |
+| Every provider model entry is internally consistent — limits, modalities, no secrets | `provider-config.test.ts` |
+| Every MCP server has a valid transport and no hardcoded secret | `mcp-config.test.ts` |
+| Every skill's frontmatter parses and its name matches its directory | `skill-frontmatter.test.ts` |
+| Every `tools/*.ts` exports a real `tool()` definition | `tools-export.test.ts` |
+| AGENTS.md hub table, roster, and counts match the disk | `agents-md-sync.test.ts` |
 | Every skill/agent/rule/command reference resolves to a real file | `delegation.test.ts` |
 | No on-demand rule lacks a referrer | `feature-package.test.ts` |
 | No subcommand description exceeds 80 chars or names its hub | `feature-package.test.ts` |
@@ -164,6 +180,6 @@ These are not tests that were written once; they are properties the system canno
 
 An agent harness fails quietly. It returns plausible output from a broken cache, a dangling edge,
 and an unreachable skill. The only defence is a suite that observes effects and fails when they
-stop — which is what the 1,086 tests are for.
+stop — which is what the 2,801 tests are for.
 
 → [Architecture](architecture.md) · [Back to README](../README.md)
