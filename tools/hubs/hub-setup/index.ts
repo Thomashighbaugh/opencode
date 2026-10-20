@@ -7,6 +7,7 @@ import provision from "./provision"
 import recommend from "./recommend"
 import refresh from "./refresh"
 import reset from "./reset"
+import scaffold from "./scaffold"
 import setup from "./setup"
 import status from "./status"
 import tag from "./tag"
@@ -14,7 +15,7 @@ import verify from "./verify"
 
 export const specs = [
   config, detect, doctor, mapCodebase, provision, recommend, refresh, reset,
-  setup, status, tag, verify
+  scaffold, setup, status, tag, verify
 ]
 
 export const subcommands: HubSubcommand[] = specs.map(s => ({

@@ -203,6 +203,9 @@ export function loadHub(name: string): HubDefinition | null {
   const file = HUB_FILE_MAP[name]
   if (!file) return null
   try {
+    // Bust require cache so post-scaffold reloads see updated index.ts
+    const resolved = require.resolve(file)
+    delete require.cache[resolved]
     return require(file).default as HubDefinition
   } catch {
     return null
