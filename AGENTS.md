@@ -8,7 +8,7 @@
 - **30 subagents** — all `mode: subagent`, dispatched by `hubs` or by an explicit user request. See `agents/hubs.md`
 - **123 workflow skills** for development tasks
 - **38 TypeScript tools** for session management and file editing
-- **173 hub subcommand specs** across 13 hub directories
+- **174 hub subcommand specs** across 14 hub directories
 - **Hook system plugin** for mode detection, state persistence, and context injection
 - **Multi-tier cache system** — tool, file, session, vector search caching
 - **Durable context storage** — knowledge compounds across sessions
@@ -131,11 +131,12 @@ slash command (`/git`, `/plan`, `/build`, ...). Three exceptions, all deliberate
 | `/todo` | TUI-only project todo list; reachable as a slash command **and** from the ctrl+p palette. |
 
 Superseded names still resolve via `LEGACY_ROUTE_MAP` in `tools/hub-data.ts`, so old invocations
-keep working: `/init-project <sub>` and `/scaffold-hub <sub>` both route to `/hub-setup <sub>`.
+keep working: `/init-project <sub>` routes to `/hub-setup <sub>`, and the eleven original `/scaffold-hub <sub>` names (config, detect, …, verify) also route to `/hub-setup <sub>` — `/scaffold-hub` itself now holds only the `scaffold` subcommand.
 
 | Command | # | Subcommands |
 |--------|--:|-------------|
 | `/hub-setup` | 12 | config, detect, doctor, map-codebase, provision, recommend, refresh, reset, setup, status, tag, verify |
+| `/scaffold-hub` | 1 | scaffold |
 | `/resource-hub` | 18 | add, config-orchestrator, create, edit, find, graph, info, knowledge-graph, list, package, prompt-simplifier, remove, scan, search, setup, sync, update, validate |
 | `/memory-hub` | 13 | capture, compress, consolidate-telemetry, consume, context, diff, export, memory, prune, search, secondbrain, session, vectorize |
 | `/research-hub` | 14 | analyst, analyze-patterns, compare, competitive-analysis, convention-extractor, deep-research, document-specialist, explore, extract-standards, library-docs, scientist, sciomc, tech-eval, web-research |
@@ -151,7 +152,7 @@ keep working: `/init-project <sub>` and `/scaffold-hub <sub>` both route to `/hu
 
 ### Two-Tier Subcommand Routing
 
-Each of the 173 hub subcommands has a dedicated spec file in `tools/hubs/<hub>/<subcommand>.ts` containing the full `HubSubcommandSpec` — `detailedDescription`, `tools`, `rules`, `relatedSkills`, `examples`, `warnings`.
+Each of the 174 hub subcommands has a dedicated spec file in `tools/hubs/<hub>/<subcommand>.ts` containing the full `HubSubcommandSpec` — `detailedDescription`, `tools`, `rules`, `relatedSkills`, `examples`, `warnings`.
 
 **Direct selection** (`/orchestrate-hub ralph`): `hubMenu route` returns the full spec in one response (detailedDescription + inlined rules + related skill pointers + examples). No follow-up `loadSkill` or rule-read calls needed.
 
@@ -260,5 +261,4 @@ Retrieved snippets are expensive to re-fetch and are the kind of knowledge worth
 ## ax Directive (curl Replacement)
 
 [`ax`](https://github.com/yusukebe/ax) is installed on this system (Nix profile: `nix profile install github:yusukebe/ax`) and is the preferred tool for any web/API fetch, page-to-markdown conversion, or HTML extraction — anywhere `curl` would otherwise be used. See `rules/ax-first.md` for the decision order and curl-to-ax flag mapping. Full playbook: `ax agent-context` or `skills/ax/SKILL.md`.
-
 

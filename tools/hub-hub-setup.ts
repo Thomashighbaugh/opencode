@@ -3,15 +3,11 @@ import { subcommands } from "./hubs/hub-setup"
 
 // `/hub-setup` — set up and refresh a project's OpenCode configuration.
 //
-// Restores the `/init-project` front door, and absorbs `scaffold-hub`, which named
-// one phase of the job ("scaffold") and so obscured the other eleven: a user
-// looking for "refresh my project config" had no reason to open a menu called
-// scaffold. Nothing was added or dropped in the merge — the subcommand set is
-// exactly scaffold-hub's twelve.
+// Restores the `/init-project` front door. `/scaffold-hub` (the one-subcommand
+// hub for scaffolding new hub subcommands) was briefly absorbed and then restored
+// as its own hub — its name describes what it does.
 //
-// Both older names still resolve, via LEGACY_ROUTE_MAP:
-//   /init-project <sub>  →  hub-setup/<sub>   (the pre-2026-09-28 name)
-//   /scaffold-hub <sub>  →  hub-setup/<sub>   (the immediately-previous name)
+// `/init-project <sub>` still resolves via LEGACY_ROUTE_MAP.
 const hub: HubDefinition = {
   name: "hub-setup",
   description: "Set up and refresh a project's OpenCode configuration",

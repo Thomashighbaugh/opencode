@@ -41,9 +41,10 @@ The full `detailedDescription`, `tools`, `rules`, `relatedSkills`, `examples`, a
 tools/
 ├── hubMenu.ts              # Hub menu router tool
 ├── hub-data.ts             # Types, loaders, HUB_FILE_MAP, SUBCOMMAND_DIR_MAP, LEGACY_ROUTE_MAP
-├── hub-<name>-hub.ts       # Thin manifest (13 files) — identity slice only
+├── hub-<name>-hub.ts       # Thin manifest (14 files) — identity slice only
 └── hubs/
     ├── hub-setup/      # 12 files + index.ts
+    ├── scaffold-hub/    #  1 file + index.ts
     ├── resource-hub/      # 18
     ├── memory-hub/        # 13
     ├── research-hub/      # 14
@@ -219,6 +220,7 @@ prompt still resolves.
 | `hub-setup` | `status` | inline |
 | `hub-setup` | `tag` | tag-resources |
 | `hub-setup` | `verify` | verify |
+| `scaffold-hub` | `scaffold` | hubScaffold |
 | `swarm-hub` | `cc10x` | inline |
 | `swarm-hub` | `delegate` | opencode-delegate |
 | `swarm-hub` | `devin` | inline |

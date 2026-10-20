@@ -156,38 +156,42 @@ describe('validateTarget: other delegation types', () => {
   })
 })
 
-// ─── scaffold-hub was erased into hub-setup ─────────────────────────────
-// `/scaffold-hub` named one phase of a job with twelve phases, so a user
-// looking for "refresh my project config" had no reason to open it. It was
-// merged into `/hub-setup` wholesale. These tests pin the merge: the full
-// subcommand set carried across, the old menu is really gone, and both
-// superseded names still resolve.
-
-describe('scaffold-hub merged into hub-setup', () => {
-  const SCAFFOLD_LABELS = [
+// ─── scaffold-hub is its own hub ────────────────────────────────────────
+// `/scaffold-hub` holds exactly one subcommand: scaffold. It was briefly
+// merged into `/hub-setup` and then restored because the name is the right
+// description of what it does. These tests pin the separation.
+describe('scaffold-hub is its own hub', () => {
+  const HUB_SETUP_LABELS = [
     'config', 'detect', 'doctor', 'map-codebase', 'provision', 'recommend',
-    'refresh', 'reset', 'scaffold', 'setup', 'status', 'tag', 'verify',
+    'refresh', 'reset', 'setup', 'status', 'tag', 'verify',
   ]
 
-  it('hub-setup carries all thirteen scaffold-hub subcommands', () => {
-    expect(hubSetupHub.subcommands.map(s => s.label).sort()).toEqual([...SCAFFOLD_LABELS].sort())
+  it('hub-setup carries its twelve subcommands (scaffold not included)', () => {
+    expect(hubSetupHub.subcommands.map(s => s.label).sort()).toEqual([...HUB_SETUP_LABELS].sort())
   })
 
-  it('the erased menu has no manifest, no route entry, and no spec directory', () => {
-    expect(Object.keys(HUB_FILE_MAP)).not.toContain('scaffold-hub')
-    expect(fs.existsSync(path.join(GLOBAL_DIR, 'tools', 'hub-scaffold-hub.ts'))).toBe(false)
-    expect(fs.existsSync(path.join(GLOBAL_DIR, 'tools', 'hubs', 'scaffold-hub'))).toBe(false)
+  it('scaffold-hub has a manifest, a route entry, and a spec directory', () => {
+    expect(Object.keys(HUB_FILE_MAP)).toContain('scaffold-hub')
+    expect(fs.existsSync(path.join(GLOBAL_DIR, 'tools', 'hub-scaffold-hub.ts'))).toBe(true)
+    expect(fs.existsSync(path.join(GLOBAL_DIR, 'tools', 'hubs', 'scaffold-hub'))).toBe(true)
   })
 
-  it.each(SCAFFOLD_LABELS)('hub-setup %s loads a real spec', (label) => {
+  it.each(HUB_SETUP_LABELS)('hub-setup %s loads a real spec', (label) => {
     const spec = loadSubcommandSpec('hub-setup', label)
     expect(spec, `hub-setup/${label} has no spec`).not.toBeNull()
     expect(spec!.label).toBe(label)
   })
 
-  it.each(SCAFFOLD_LABELS)('the old /scaffold-hub %s still routes to hub-setup', (label) => {
-    expect(loadSubcommandSpec('scaffold-hub', label)).toEqual(loadSubcommandSpec('hub-setup', label))
+  it('scaffold-hub/scaffold loads a real spec', () => {
+    const spec = loadSubcommandSpec('scaffold-hub', 'scaffold')
+    expect(spec).not.toBeNull()
+    expect(spec!.label).toBe('scaffold')
   })
+
+  it.each(['config', 'detect', 'doctor', 'map-codebase', 'provision', 'recommend', 'refresh', 'reset', 'setup', 'status', 'tag', 'verify'])(
+    'legacy /scaffold-hub %s redirects to hub-setup', (label) => {
+      expect(loadSubcommandSpec('scaffold-hub', label)).toEqual(loadSubcommandSpec('hub-setup', label))
+    })
 
   it.each(['setup', 'refresh', 'provision', 'status', 'verify'])(
     'the original /init-project %s still resolves', (label) => {

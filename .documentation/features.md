@@ -177,14 +177,15 @@ SDK. Each tool replaces a multi-step LLM-driven pattern with one deterministic c
 
 ## Hub Command System
 
-13 hubs, 174 subcommands. Two-tier routing: bare hub + NL task → `hubMenu menu` returns the
+14 hubs, 175 subcommands. Two-tier routing: bare hub + NL task → `hubMenu menu` returns the
 slim identity slice for the model to pick from; explicit `/hub subcommand` → `hubMenu route`
 returns the full spec (detailedDescription, inlined rules, related skill pointers, examples) in
 one response.
 
 | Hub | # | Subcommands |
 |-----|--:|-------------|
-| `/hub-setup` | 13 | config, detect, doctor, map-codebase, provision, recommend, refresh, reset, scaffold, setup, status, tag, verify |
+| `/hub-setup` | 12 | config, detect, doctor, map-codebase, provision, recommend, refresh, reset, setup, status, tag, verify |
+| `/scaffold-hub` | 1 | scaffold |
 | `/resource-hub` | 18 | add, config-orchestrator, create, edit, find, graph, info, knowledge-graph, list, package, prompt-simplifier, remove, scan, search, setup, sync, update, validate |
 | `/memory-hub` | 13 | capture, compress, consolidate-telemetry, consume, context, diff, export, memory, prune, search, secondbrain, session, vectorize |
 | `/research-hub` | 14 | analyst, analyze-patterns, compare, competitive-analysis, convention-extractor, deep-research, document-specialist, explore, extract-standards, library-docs, scientist, sciomc, tech-eval, web-research |
@@ -198,7 +199,7 @@ one response.
 | `/git-hub` | 10 | archive, changelog, commit, commit-drafter, gh, git-cleanup, git-master, git-stage-thread, pr, release |
 | `/maintain-hub` | 9 | converge, insights, organize, purge, retrospect, sandbox, self-improve, sweep, workspace |
 
-Legacy route names (`/init-project`, `/scaffold-hub`, `/ideation`, etc.) resolve via
+Legacy route names (`/init-project`, `/ideation`, etc.) resolve via
 `LEGACY_ROUTE_MAP` in `tools/hub-data.ts`.
 
 ---
@@ -337,4 +338,4 @@ These are features that activate only when working inside a project with `.openc
 
 ---
 
-*Generated 2026-10-19. Counts: 31 agents · 128 skills · 25 rules · 54 tools · 13 hubs · 174 subcommands · 5 plugins · 3 MCP servers · 1,326 tests.*
+*Generated 2026-10-19. Counts: 31 agents · 128 skills · 25 rules · 54 tools · 14 hubs · 175 subcommands · 5 plugins · 3 MCP servers · 1,327 tests.*

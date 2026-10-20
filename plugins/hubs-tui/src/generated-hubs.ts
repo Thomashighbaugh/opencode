@@ -44,10 +44,6 @@ export const HUBS: Hub[] = [
         "description": "Archive state and context, then start from a clean slate"
       },
       {
-        "label": "scaffold",
-        "description": "Add a new hub subcommand — writes spec, updates index, rebuilds registry"
-      },
-      {
         "label": "setup",
         "description": "Full 9-phase project setup — detect, provision, document, verify"
       },
@@ -62,6 +58,17 @@ export const HUBS: Hub[] = [
       {
         "label": "verify",
         "description": "Validate configuration completeness, file existence, and reference integrity"
+      }
+    ]
+  },
+  {
+    "name": "scaffold-hub",
+    "title": "Scaffold",
+    "description": "Scaffold new hub subcommands",
+    "subs": [
+      {
+        "label": "scaffold",
+        "description": "Add a new hub subcommand — writes spec, updates index, rebuilds registry"
       }
     ]
   },

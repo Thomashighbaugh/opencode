@@ -7,6 +7,7 @@ import { join, dirname } from "path"
 import { fileURLToPath } from "url"
 
 import hubSetupHub from "../../tools/hub-hub-setup"
+import scaffoldHub from "../../tools/hub-scaffold-hub"
 import resourceHub from "../../tools/hub-resource-hub"
 import memoryHub from "../../tools/hub-memory-hub"
 import researchHub from "../../tools/hub-research-hub"
@@ -41,6 +42,7 @@ function titleFromName(name: string): string {
 const hubs: Hub[] = [
   // First: where a new project starts.
   hubSetupHub,
+  scaffoldHub,
   resourceHub,
   memoryHub,
   researchHub,

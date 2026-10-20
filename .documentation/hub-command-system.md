@@ -1,6 +1,6 @@
 # Hub Command System
 
-13 topical hubs, 173 subcommands, two-tier routing. `/hub-setup` is the project-config front door; it absorbed `/scaffold-hub`, and `/init-project` before that, without changing a single subcommand. A command system built to spend **one LLM
+14 topical hubs, 174 subcommands, two-tier routing. `/hub-setup` is the project-config front door (12 subcommands); `/scaffold-hub` is its own hub with one subcommand (`scaffold`); `/init-project` is a legacy alias that still resolves to `/hub-setup`. A command system built to spend **one LLM
 round-trip instead of two**, and to stay unambiguous in a flat dialog.
 
 ---
@@ -9,7 +9,8 @@ round-trip instead of two**, and to stay unambiguous in a flat dialog.
 
 | Hub | Subcommands | Purpose |
 | --- | ----------: | ------- |
-| `scaffold-hub`   | 12 | Detect the stack, provision project config, health checks |
+| `hub-setup`       | 12 | Detect the stack, provision project config, health checks |
+| `scaffold-hub`     |  1 | Add new hub subcommands |
 | `resource-hub`   | 18 | Find, create, and manage agents, skills, rules, tools, commands |
 | `memory-hub`     | 18 | Durable context — capture, retrieve, curate, compound |
 | `research-hub`   | 13 | Research, analysis, pattern extraction, tracing |

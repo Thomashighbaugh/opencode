@@ -1,6 +1,6 @@
 # Hub State Conventions
 
-OpenCode Hubs has 14 menus — 13 named `<topic>-hub` plus `/hub-setup`, which keeps the same 12 subcommands and the same `stateDir` that `/scaffold-hub` used. Five track state (`/hub-setup`, `/ideate-hub` +
+OpenCode Hubs has 14 menus — 13 named `<topic>-hub` plus `/hub-setup`, which keeps 12 subcommands and the `stateDir` that `/scaffold-hub` used. `/scaffold-hub` is its own hub with one subcommand (`scaffold`). Five track state (`/hub-setup`, `/ideate-hub` +
 `/plan-hub`, `/orchestrate-hub` + `/swarm-hub`, `/memory-hub`); the rest are stateless. All state lives in `.opencode/state/` and is gitignored. Durable context lives in `.opencode/context/` and is committed. See `rules/context-strategy.md` for the full context model.
 
 ## State vs Context Separation

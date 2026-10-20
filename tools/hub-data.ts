@@ -185,6 +185,7 @@ export const HUB_FILE_MAP: Record<string, string> = {
   // First, because it is where a new project starts. Renamed from `scaffold-hub`
   // — "scaffold" named one phase of the job and hid the other eleven.
   "hub-setup": "./hub-hub-setup",
+  "scaffold-hub": "./hub-scaffold-hub",
   "resource-hub": "./hub-resource-hub",
   "memory-hub": "./hub-memory-hub",
   "research-hub": "./hub-research-hub",
@@ -231,6 +232,7 @@ export function loadAllHubs(): HubDefinition[] {
 
 const SUBCOMMAND_DIR_MAP: Record<string, string> = {
   "hub-setup": "hub-setup",
+  "scaffold-hub": "scaffold-hub",
   "resource-hub": "resource-hub",
   "memory-hub": "memory-hub",
   "research-hub": "research-hub",
@@ -270,15 +272,15 @@ export const LEGACY_ROUTE_MAP: Record<string, string> = {
   "init-project/find-rules": "resource-hub/find-rules",  "init-project/find-skills": "resource-hub/find-skills",
   "init-project/find-tools": "resource-hub/find-tools",  "init-project/context": "memory-hub/capture",
   "init-project/convention-extractor": "research-hub/convention-extractor",  "init-project/docs": "design-hub/docs",
-  // scaffold-hub was erased into hub-setup. Its subcommands were identical, so
-  // every one of them routes straight across — no dropped entries.
+  // scaffold-hub was briefly erased into hub-setup (one subcommand only: scaffold).
+  // It was restored as its own hub — the redirect below covers only that one subcommand.
   "scaffold-hub/config": "hub-setup/config",  "scaffold-hub/detect": "hub-setup/detect",
   "scaffold-hub/doctor": "hub-setup/doctor",  "scaffold-hub/map-codebase": "hub-setup/map-codebase",
   "scaffold-hub/provision": "hub-setup/provision",  "scaffold-hub/recommend": "hub-setup/recommend",
   "scaffold-hub/refresh": "hub-setup/refresh",  "scaffold-hub/reset": "hub-setup/reset",
   "scaffold-hub/setup": "hub-setup/setup",  "scaffold-hub/tag": "hub-setup/tag",
   "scaffold-hub/verify": "hub-setup/verify",  "scaffold-hub/status": "hub-setup/status",
-  "scaffold-hub/scaffold": "hub-setup/scaffold",
+  "scaffold-hub/scaffold": "scaffold-hub/scaffold",
   "ideation/adversarial-debate": "ideate-hub/adversarial-debate",  "ideation/brainstorm": "ideate-hub/brainstorm",
   "ideation/cleanroom": "ideate-hub/cleanroom",  "ideation/ddd": "ideate-hub/ddd",
   "ideation/deep": "ideate-hub/interview",  "ideation/deep-dive": "ideate-hub/deep-dive",
