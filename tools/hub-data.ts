@@ -278,6 +278,7 @@ export const LEGACY_ROUTE_MAP: Record<string, string> = {
   "scaffold-hub/refresh": "hub-setup/refresh",  "scaffold-hub/reset": "hub-setup/reset",
   "scaffold-hub/setup": "hub-setup/setup",  "scaffold-hub/tag": "hub-setup/tag",
   "scaffold-hub/verify": "hub-setup/verify",  "scaffold-hub/status": "hub-setup/status",
+  "scaffold-hub/scaffold": "hub-setup/scaffold",
   "ideation/adversarial-debate": "ideate-hub/adversarial-debate",  "ideation/brainstorm": "ideate-hub/brainstorm",
   "ideation/cleanroom": "ideate-hub/cleanroom",  "ideation/ddd": "ideate-hub/ddd",
   "ideation/deep": "ideate-hub/interview",  "ideation/deep-dive": "ideate-hub/deep-dive",

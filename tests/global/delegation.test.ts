@@ -166,10 +166,10 @@ describe('validateTarget: other delegation types', () => {
 describe('scaffold-hub merged into hub-setup', () => {
   const SCAFFOLD_LABELS = [
     'config', 'detect', 'doctor', 'map-codebase', 'provision', 'recommend',
-    'refresh', 'reset', 'setup', 'status', 'tag', 'verify',
+    'refresh', 'reset', 'scaffold', 'setup', 'status', 'tag', 'verify',
   ]
 
-  it('hub-setup carries all twelve scaffold-hub subcommands', () => {
+  it('hub-setup carries all thirteen scaffold-hub subcommands', () => {
     expect(hubSetupHub.subcommands.map(s => s.label).sort()).toEqual([...SCAFFOLD_LABELS].sort())
   })
 

@@ -1,8 +1,8 @@
 # OpenCode Agent Harness
 
 A production-grade agentic AI configuration for [OpenCode](https://opencode.ai) — 31 specialised
-subagents, a hybrid retrieval plane, declarative event hooks, a 14-hub command system, and a
-1,086-test suite that asserts on *behaviour* rather than on source text.
+subagents, a hybrid retrieval plane, declarative event hooks, a 13-hub command system, and a
+1,326-test suite that asserts on *behaviour* rather than on source text.
 
 This repository is the agent's entire operating system. It is not a prompt collection: it is a
 runtime with policy enforcement, an incremental knowledge graph, a token budget, and an
@@ -43,8 +43,8 @@ is the standing constraint that shapes the whole design.
               └───────────────┬───────────┘     └────────────┬─────────────┘
                               │                              │
                       ┌───────▼──────────────────────────────▼─────────┐
-                      │  31 subagents · 125 skills · 46 tools        │
-                      │  13 hubs / 173 subcommands · 20 rules         │
+                      │  31 subagents · 128 skills · 54 tools         │
+                      │  13 hubs / 174 subcommands · 25 rules        │
                       └──────────────────────────────────────────────┘
 ```
 
@@ -55,8 +55,8 @@ is the standing constraint that shapes the whole design.
 | TUI                  | `plugins/hubs-tui/`                           | 899 LOC                  |
 | Graph retrieval      | `skills/graph-context/scripts/graphlib.ts`     | 2,708 LOC                |
 | Vector retrieval     | `skills/vectorize-context/scripts/veclib.ts`   | 1,484 LOC                |
-| Tooling              | `tools/`                                      | 46 tools, 11,785 LOC     |
-| Evals                | `tests/`                                       | 1,086 tests, 13 suites   |
+| Tooling              | `tools/`                                      | 54 tools, 13,900 LOC    |
+| Evals                | `tests/`                                       | 1,326 tests, 21 suites   |
 | Knowledge store      | SQLite                                        | 3,744 nodes / 22,551 edges |
 
 ---
@@ -108,7 +108,7 @@ Two design decisions carry this:
 
 ### 3. A command system, not a slash-command pile
 
-13 topical hubs, 173 subcommands, two-tier routing. Bare hub → slim identity slice; explicit
+13 topical hubs, 174 subcommands, two-tier routing. Bare hub → slim identity slice; explicit
 `/hub subcommand` → full spec in one response. **One LLM round-trip instead of two.**
 
 Every subcommand description is ≤ 80 characters and self-contained, because the TUI dialog shows
@@ -118,7 +118,7 @@ a flat list with no hub name. Descriptions that name their hub are rejected by a
 
 ### 4. Evals that drive real code
 
-No test in this repository asserts that source text contains a substring. 1,086 tests drive the
+No test in this repository asserts that source text contains a substring. 1,326 tests drive the
 actual runtime:
 
 - **Behavioural** — hooks are invoked and their side effects observed.
@@ -183,10 +183,11 @@ Every model is then local: embeddings, reranking, and the prompt-queue classifie
 | [Memory System](.documentation/memory-system.md) | Durable context, state vs context, the wiki layer |
 | [Knowledge Plane](.documentation/knowledge-plane.md) | Graph + vector retrieval, invariants, incremental rebuilds |
 | [Orchestration](.documentation/subagent-orchestration.md) | 31 subagents, delegation, the `task` tool |
-| [Hub Command System](.documentation/hub-command-system.md) | 13 hubs, 173 subcommands, two-tier routing |
-| [Rules & Skills](.documentation/rules-and-skills.md) | Rule loading, 125 skills, 46 tools |
+| [Hub Command System](.documentation/hub-command-system.md) | 13 hubs, 174 subcommands, two-tier routing |
+| [Rules & Skills](.documentation/rules-and-skills.md) | Rule loading, 128 skills, 54 tools |
 | [Efficiency](.documentation/request-token-efficiency.md) | Request and token budgets |
-| [Testing Strategy](.documentation/testing-strategy.md) | 1,086 behavioural tests and what they protect |
+| [Testing Strategy](.documentation/testing-strategy.md) | 1,326 behavioural tests and what they protect |
+| [Complete Feature Reference](.documentation/features.md) | Every feature and project-scoped optimization, with implementation notes |
 
 ---
 
@@ -194,11 +195,11 @@ Every model is then local: embeddings, reranking, and the prompt-queue classifie
 
 ```
 ├── agents/                 31 subagent definitions
-├── skills/                 125 skills (+ vectorize-context, graph-context)
-├── rules/                  20 rules — 11 preloaded, 9 on demand
-├── tools/                  46 TypeScript tools
+├── skills/                 128 skills (+ 5 project-level overrides)
+├── rules/                  25 rules — 15 preloaded, 10 on demand
+├── tools/                  54 TypeScript tools
 ├── plugins/                hooks · command-hooks · prompt-queue · hubs-tui
-├── tests/                  1,086 tests across 13 suites
+├── tests/                  1,326 tests across 13 suites
 ├── command-hooks.jsonc     global declarative hooks
 ├── .documentation/         14 pages — architecture, plugins, memory, evals
 ├── opencode.jsonc          plugin, MCP, instructions, references
