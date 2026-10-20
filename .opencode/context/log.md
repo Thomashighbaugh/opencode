@@ -290,3 +290,11 @@ Chronological record of all wiki operations. Append-only.
 - **Key findings**: the skill's 8 types cover the blog-post core but miss postmortems (the most conventionalized genre in the industry), internals series, "X from scratch" build-alongs, release notes/launch posts, concept histories, and X-vs-Y conceptual comparisons; series/annotated-diff/live-narrative are cross-cutting modes, not types
 - **Privacy**: no secrets/PII in source (MIT-licensed public skill)
 - **Cross-references**: [[context/research/technical-article-writer/2026-10-19]] ↔ [[context/research/avoid-ai-writing/2026-10-18]] ↔ [[context/research/claude-style-patch/2026-10-18]]
+
+## [2026-10-19] skill-creator | technical-writing-taxonomy (promoted from consume digest)
+
+- **Operation**: Promoted the expanded technical-writing taxonomy from `research/technical-article-writer/2026-10-19.md` into a globally available skill, per user request
+- **Files created**:
+  - `skills/technical-writing-taxonomy/SKILL.md` — workflow (identify grouping → name dominant type → apply conventions → attach modes), routing rule to drafting skills, quick recognition table
+  - `skills/technical-writing-taxonomy/references/taxonomy.md` — full form map: 8 groupings, ~45 types, each with shape + signature failure mode; cross-cutting modes; type-selection heuristics
+- **Cross-references**: [[context/research/technical-article-writer/2026-10-19]] (source digest; back-reference added pointing at the skill)
