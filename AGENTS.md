@@ -6,7 +6,7 @@
 
 - **1 primary agent** (`hubs`) — the only primary. It handles tasks directly and is the sole entry point.
 - **30 subagents** — all `mode: subagent`, dispatched by `hubs` or by an explicit user request. See `agents/hubs.md`
-- **123 workflow skills** for development tasks
+- **129 workflow skills** for development tasks
 - **38 TypeScript tools** for session management and file editing
 - **174 hub subcommand specs** across 14 hub directories
 - **Hook system plugin** for mode detection, state persistence, and context injection
@@ -177,7 +177,7 @@ See `rules/hub-routing.md` for the complete delegation table and architecture de
 ├── opencode.jsonc       # Main configuration
 ├── AGENTS.md            # This file (core instructions)
 ├── agents/              # hubs.md (primary) + 30 subagents
-├── skills/              # 123 workflow skills
+├── skills/              # 129 workflow skills
 ├── commands/            # (empty — all subcommands live in hub menus)
 ├── templates/
 │   ├── projects/         # Project archetype templates (bare-bones, cli-tool, docker, go, nextjs, etc.)

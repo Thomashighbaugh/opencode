@@ -4,7 +4,7 @@
 # skills
 
 ## Purpose
-123 workflow skills organized into functional hubs. Each skill provides domain-specific instructions, workflows, and bundled resources (scripts, references, templates) that agents load at runtime.
+129 workflow skills organized into functional hubs. Each skill provides domain-specific instructions, workflows, and bundled resources (scripts, references, templates) that agents load at runtime.
 
 ## For AI Agents
 

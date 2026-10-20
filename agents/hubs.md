@@ -35,7 +35,6 @@ mode: primary
     - `@executor` - Code implementation, focused execution
     - `@refactoring` - Code restructuring
     - `@code-simplifier` - Code cleanup
-    - `@frontend-design` - UI/UX implementation
 
     **Quality & Review:**
     - `@code-reviewer` - Code quality review

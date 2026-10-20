@@ -15,7 +15,6 @@ triggers:
   - "configure slack"
   - "setup slack"
   - "slack webhook"
-level: 2
 ---
 
 # Configure Notifications

@@ -1,6 +1,6 @@
 ---
 name: pair
-description: Pair programming — two agents on one task: Driver writes code, Navigator reviews in real-time, catching mistakes early
+description: "Pair programming — two agents on one task: Driver writes code, Navigator reviews in real-time, catching mistakes early"
 level: 2
 license: MIT
 ---
