@@ -22,7 +22,7 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 import * as os from 'node:os'
 
-const CONFIG_DIR = path.resolve(__dirname, '..', '..')
+const CONFIG_DIR = path.resolve(import.meta.dirname, '..', '..')
 const RUNTIME_MOD = path.join(CONFIG_DIR, 'skills', 'vectorize-context', 'scripts', 'onnx-runtime.ts')
 const EMBEDDER_MOD = path.join(CONFIG_DIR, 'skills', 'vectorize-context', 'scripts', 'embedder.ts')
 const CLASSIFIER_MOD = path.join(CONFIG_DIR, 'plugins', 'prompt-queue', 'classifier.ts')
