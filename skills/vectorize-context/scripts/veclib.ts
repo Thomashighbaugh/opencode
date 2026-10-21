@@ -31,11 +31,21 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
-// Local ONNX embedding + the shared model runtime. `.js` specifiers resolve to the
-// sibling `.ts` under both tsx and the Bun host; the import must sit here at the
-// top because EMBEDDING_DIM is read at module scope.
-import * as onnxEmbedder from './embedder.ts';
+// Local ONNX embedding + the shared model runtime. onnx-runtime.ts is pure
+// (path/fs only) and safe to import statically. embedder.ts is NOT — it pulls
+// in @huggingface/transformers, whose native runtime registers cleanup hooks
+// that on Node 24 race better-sqlite3's teardown (RemoveEnvironmentCleanupHook
+// assertion → SIGABRT, exit 134) whenever a sqlite-vec database was open in the
+// same process. So embedder.ts is imported LAZILY, only when the onnx backend
+// actually embeds — processes that only embed via Ollama, or only query, never
+// load the native module.
 import * as onnxRuntime from './onnx-runtime.ts';
+const EMBEDDING_DIM = 384; // bge-small-en-v1.5 — a fixed model property, not runtime state
+let _onnxEmbedder: any = null;
+async function loadOnnxEmbedder() {
+  if (!_onnxEmbedder) _onnxEmbedder = await import('./embedder.ts');
+  return _onnxEmbedder;
+}
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const require = createRequire(import.meta.url);
@@ -48,7 +58,6 @@ const OLLAMA_URL = process.env.OLLAMA_URL || 'http://127.0.0.1:11434';
 const EMBED_MODEL = process.env.EMBED_MODEL || 'pedrohml/mxbai-embed-large:latest';
 const RERANK_MODEL = process.env.RERANK_MODEL || 'Xenova/bge-reranker-base';
 const RERANK_DISABLED = process.env.RERANK_DISABLED === '1'; // force distance-only path (CI)
-const EMBEDDING_DIM = onnxEmbedder.EMBED_DIM; // 384 for bge-small-en-v1.5
 const MODEL_LOAD_TIMEOUT_MS = 30_000;
 const MIN_CHUNK_LENGTH = 50;
 const TOP_K_DEFAULT = 10;
@@ -197,7 +206,10 @@ function ensureSchema(db) {
   // Embedding schema is versioned: if the model/dim changes, rebuild.
   const storedModel = getMeta(db, 'embedding_model');
   const storedDim = getMeta(db, 'embedding_dim');
-  const currentModel = EMBED_BACKEND === 'ollama' ? EMBED_MODEL : onnxEmbedder.EMBED_MODEL_KEY;
+  // Embedder model key. The onnx value mirrors embedder.ts's EMBED_MODEL_KEY
+  // ('onnx:' + EMBED_MODEL_ID + ':q8'); kept as a literal here because
+  // ensureSchema is synchronous and can't await the lazy embedder import.
+  const currentModel = EMBED_BACKEND === 'ollama' ? EMBED_MODEL : `onnx:${process.env.EMBED_ONNX_MODEL || 'Xenova/bge-small-en-v1.5'}:q8`;
   const currentDim = String(EMBEDDING_DIM);
 
   if (storedModel !== currentModel || storedDim !== currentDim) {
@@ -549,6 +561,7 @@ async function embedViaOllama(texts) {
 async function embedTexts(texts) {
   if (!Array.isArray(texts) || texts.length === 0) return [];
   if (EMBED_BACKEND === 'ollama') return embedViaOllama(texts);
+  const onnxEmbedder = await loadOnnxEmbedder();
   return onnxEmbedder.embed(texts);
 }
 
@@ -564,7 +577,11 @@ function embedderStatus() {
     backend: EMBED_BACKEND,
     ...(EMBED_BACKEND === 'ollama'
       ? { model: EMBED_MODEL, dim: 1024 }
-      : onnxEmbedder.embedderInfo()),
+      // embedderInfo() needs the embedder module, which we must not import
+      // statically. The fields it returns (dim, cached) are derivable without
+      // loading the native runtime: dim is the fixed EMBEDDING_DIM, and
+      // "cached" is a filesystem check onnxRuntime already exposes.
+      : { model: process.env.EMBED_ONNX_MODEL || 'Xenova/bge-small-en-v1.5', dim: EMBEDDING_DIM, cached: onnxRuntime.isCached(onnxRuntime.REQUIRED_MODELS.embedder) }),
     rerankerCached: onnxRuntime.isCached(onnxRuntime.REQUIRED_MODELS.reranker),
     classifierCached: onnxRuntime.isCached(onnxRuntime.REQUIRED_MODELS.classifier),
   };
