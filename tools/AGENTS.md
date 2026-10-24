@@ -35,6 +35,7 @@ TypeScript tool implementations (19 tools) that extend the OpenCode runtime. Too
 | `multi-edit.ts` | Batch operations across files by glob — find, replace. No find+xargs+sed. |
 | `document-convert.ts` | Convert PDF, EPUB, DOC, DOCX, ODT, RTF, HTML, or text to markdown/JSON — local unpdf + mammoth + Turndown, no model calls. |
 | `codeSearch.ts` | Semantic code search — the grep+read replacement. Hybrid dense (bge-small) + BM25 with RRF, Semble-style symbol/definition boosts, and a bge-reranker cross-encoder. Index persisted under `.opencode/state/vector/codesearch/`, mtime-invalidated. |
+| `webSearch.ts` | Multi-query web search against local SearXNG — page-depth fan-out, URL dedupe, RRF merge, engine validation via `/config`, degraded-engine reporting, and coverage stats (raw/unique/moreAvailable). Bypasses the searxng MCP schema's 20-result cap; use it for breadth-first research, the MCP tool for quick single lookups. |
 
 ## For AI Agents
 

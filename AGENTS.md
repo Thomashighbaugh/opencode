@@ -226,6 +226,12 @@ it over any hosted search backend.
 - **Use SearXNG** for: factual/current lookups, docs pages, error messages and their upstream
   issues, library behaviour, release notes, "what does X do", anything where a fresh web result
   is the point.
+- **Use the `webSearch` tool** (`tools/webSearch.ts`) when breadth is the point: multiple queries
+  at once, deep result pages, or "find everything about X". It talks to the same SearXNG instance
+  directly, bypassing the MCP schema's 20-result cap, dedupes by URL, merges rankings across
+  queries (RRF), and returns coverage stats (raw/unique/returned, degraded engines, whether more
+  results are available) so you can judge when the result set is broad enough. Engine names are
+  validated against the instance's `/config` — SearXNG silently ignores unknown ones.
 - **Fall back to `websearch`** only when SearXNG is unreachable, returns nothing usable, or the
   user explicitly asks for a different engine. Say which one you used and why.
 - **Scope queries narrowly.** Prefer site-scoped queries (`site:github.com ...`) over broad ones.
