@@ -34,7 +34,7 @@
     "brace-expansion": "2.1.7",
     "@babel/core": "7.29.6",
     "seroval": "1.6.11",
-    "toml": "4.2.0"
+    "toml": "5.0.1"
   },
   "license": "MIT"
 }
