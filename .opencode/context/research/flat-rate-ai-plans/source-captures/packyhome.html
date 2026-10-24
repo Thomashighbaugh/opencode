@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+
+    <!-- Favicon & Icons -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    <link rel="apple-touch-icon" href="/logo.svg" />
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- Basic Meta Tags -->
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="author" content="PackyAPI" />
+    <meta name="robots" content="index, follow" />
+    <meta name="googlebot" content="index, follow" />
+
+    <!-- Canonical URL：主域名是 .ai。router/page_meta.go 从这里取站点根地址，
+         所有页面的 canonical / og:url / twitter:url 都跟着它走。 -->
+    <link rel="canonical" href="https://www.packyapi.ai/" />
+
+    <!-- Language & Locale：全站英文优先，标题和描述都写成「English | 中文」。
+         根元素上的 lang 只是首屏 HTML 的默认值，React 挂载后 useHeaderBar 会把它改成当前界面语言。 -->
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale:alternate" content="zh_CN" />
+    <meta http-equiv="content-language" content="en,zh-CN" />
+
+    <!-- SEO Meta Tags：英文在前。搜索结果的摘要只显示前 150 字符左右，排在后面的那种语言
+         通常会被截掉，所以主推哪种语言就把哪种放前面。 -->
+    <meta
+      name="description"
+      content="PackyAPI is a global AI API gateway: one-stop access to Claude, Claude Code, GPT, Codex, Gemini, Azure OpenAI and other mainstream AI models, with stable and efficient API service for developers worldwide. | 全球领先的 AI API 聚合平台，一站式接入 Claude、Claude Code、GPT、Codex、Gemini、Azure OpenAI 等主流 AI 服务，为全球开发者提供稳定高效的 API 服务"
+    />
+    <meta name="keywords" content="PackyAPI,AI API,AI API Gateway,API Aggregation,API Management,Global AI API,Claude,Claude Code,GPT,Codex,Gemini,OpenAI,Azure OpenAI,API聚合,API网关,AI接口,人工智能API,API代理,API管理平台" />
+    <title>PackyAPI - Global AI API Aggregation Platform | 全球领先的 AI API 聚合平台</title>
+
+    <!-- Open Graph / Facebook / WeChat / QQ -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.packyapi.ai/" />
+    <meta property="og:site_name" content="PackyAPI" />
+    <meta property="og:title" content="PackyAPI - Global AI API Platform | 全球领先的 AI API 聚合平台" />
+    <meta property="og:description" content="PackyAPI is a global AI API gateway: one-stop access to Claude, Claude Code, GPT, Codex, Gemini, Azure OpenAI and other mainstream AI models, with stable and efficient API service for developers worldwide. | 全球领先的 AI API 聚合平台，一站式接入 Claude、Claude Code、GPT、Codex、Gemini、Azure OpenAI 等主流 AI 服务，为全球开发者提供稳定高效的 API 服务" />
+    <meta property="og:image" content="https://www.packyapi.ai/packy-1.png" />
+    <meta property="og:image:width" content="1080" />
+    <meta property="og:image:height" content="720" />
+    <meta property="og:image:alt" content="PackyAPI - Global AI API Aggregation Platform" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://www.packyapi.ai/" />
+    <meta name="twitter:site" content="@PackyAPI" />
+    <meta name="twitter:creator" content="@PackyAPI" />
+    <meta name="twitter:title" content="PackyAPI - Global AI API Aggregation Platform" />
+    <meta name="twitter:description" content="Global AI API aggregation platform. One-stop access to Claude, Claude Code, GPT, Codex, Gemini, Azure OpenAI and other mainstream AI services. Providing stable and efficient API services for developers worldwide." />
+    <meta name="twitter:image" content="https://www.packyapi.ai/packy-1.png" />
+    <meta name="twitter:image:alt" content="PackyAPI - Global AI API Aggregation Platform" />
+
+    <!-- JSON-LD Structured Data
+         这份 head 是全站共用的壳子，所以这里只放站点级实体，不放带具体 URL 的 WebPage。
+         name 全部统一成 PackyAPI，和 <title>、og:site_name 一致；PackyCode 是旧品牌名
+         （packycode.com 301 到本站），作为 alternateName 挂在组织上，让两个名字归到同一个实体。
+         dateModified 由 web/plugins/seoFallback.js 在构建时填成构建日期。 -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://www.packyapi.ai/#organization",
+          "name": "PackyAPI",
+          "alternateName": "PackyCode",
+          "url": "https://www.packyapi.ai/",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://www.packyapi.ai/logo.svg"
+          },
+          "email": "support@packyme.com",
+          "sameAs": ["https://t.me/Packycode"],
+          "parentOrganization": {
+            "@type": "Organization",
+            "name": "PackyMe",
+            "url": "https://www.packyme.com"
+          }
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://www.packyapi.ai/#website",
+          "name": "PackyAPI",
+          "url": "https://www.packyapi.ai/",
+          "inLanguage": ["en-US", "zh-CN"],
+          "publisher": { "@id": "https://www.packyapi.ai/#organization" }
+        },
+        {
+          "@type": "WebApplication",
+          "@id": "https://www.packyapi.ai/#webapp",
+          "name": "PackyAPI",
+          "applicationCategory": "DeveloperApplication",
+          "operatingSystem": "Web",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD",
+            "availability": "https://schema.org/InStock"
+          },
+          "description": "Global AI API aggregation platform. One-stop access to Claude, Claude Code, GPT, Codex, Gemini, Azure OpenAI and other mainstream AI services. Providing stable and efficient API services for developers worldwide.",
+          "url": "https://www.packyapi.ai/",
+          "image": "https://www.packyapi.ai/cover-4.webp",
+          "isPartOf": { "@id": "https://www.packyapi.ai/#website" },
+          "provider": { "@id": "https://www.packyapi.ai/#organization" },
+          "author": { "@id": "https://www.packyapi.ai/#organization" },
+          "publisher": { "@id": "https://www.packyapi.ai/#organization" },
+          "dateModified": "2026-10-24",
+          "audience": {
+            "@type": "Audience",
+            "audienceType": "Developers, Enterprises, AI Enthusiasts"
+          },
+          "inLanguage": ["en-US", "zh-CN"]
+        }
+      ]
+    }
+    </script>
+
+    <!-- DNS Prefetch & Preconnect -->
+    <link rel="dns-prefetch" href="//www.packyapi.ai" />
+    <link rel="preconnect" href="https://www.packyapi.ai" crossorigin />
+
+    <!-- body 里 #root 的 seo-fallback 是给不执行 JS 的爬虫（GPTBot、ClaudeBot、
+         PerplexityBot、微信预览这类）读的正文。会跑 JS 的浏览器默认把它藏起来，等 React
+         挂载时整块被替换掉，所以用户看到的还是原来的页面，不会先闪一屏纯文本；
+         关掉 JS 的浏览器由 noscript 里的样式放出来。 -->
+    <style>
+      .seo-fallback {
+        display: none;
+      }
+    </style>
+    <noscript>
+      <style>
+        .seo-fallback {
+          display: block;
+          max-width: 1152px;
+          margin: 0 auto;
+          padding: 48px 20px;
+          font-family: 'PingFang SC', 'Microsoft YaHei', 'Helvetica Neue', Arial, sans-serif;
+          line-height: 1.625;
+          color: #1c1f23;
+        }
+      </style>
+    </noscript>
+
+    <!--umami-->
+    <!--Google Analytics-->
+    <script type="module" crossorigin src="/assets/index-CEWPG_1T.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/react-core-DLcwGYZ7.js">
+    <link rel="modulepreload" crossorigin href="/assets/i18n-BdFcuhGx.js">
+    <link rel="modulepreload" crossorigin href="/assets/semi-ui-CzSTYGeY.js">
+    <link rel="modulepreload" crossorigin href="/assets/tools-DJeQKa7z.js">
+    <link rel="modulepreload" crossorigin href="/assets/react-components-DpP296kK.js">
+    <link rel="stylesheet" crossorigin href="/assets/semi-ui-DelylTvz.css">
+    <link rel="stylesheet" crossorigin href="/assets/index-CzP9PiUV.css">
+  </head>
+
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <!-- seo-fallback 的三对标记由别处改写，不要删：
+         - seo-fallback:home 在构建时由 web/plugins/seoFallback.js 换成首页文案（取自 i18n，跟页面同源）；
+         - seo-page:start/end 之间在服务器端按路径换成该页的标题和简介（router/page_meta.go）；
+         - seo-fallback:start/end 整块在没登记的路径（登录页、控制台）上被删掉，避免全站重复首页正文。 -->
+    <div id="root">
+      <!--seo-fallback:start-->
+      <div class="seo-fallback">
+        <!--seo-page:start--><article lang="en">
+<p>Enterprise AI control plane</p>
+<h1>The unified LLM API<br />gateway<br />Connecting global AI capacity</h1>
+<p>Connect to global foundation models with a unified domain, key, and risk controls to stay observable, scalable, and governed.</p>
+<p>Swap the base URL to start integrating: <code>https://www.packyapi.ai</code></p>
+<section><h2>Make large models reliable for your teams</h2><p>From access control and cost transparency to global routing, Packy API delivers end-to-end AI infrastructure.</p><ul><li><h3>Unified entry, instant connectivity</h3><p>Connect every model provider with a single domain and key, while failover keeps your workloads running.</p></li><li><h3>Full-stack observability &amp; risk controls</h3><p>Track usage, errors, and spend in real time, and configure throttles, alerts, and guardrails with one click.</p></li><li><h3>Elastic scaling and cost control</h3><p>Balance quotas across providers, route intelligently, and orchestrate batch jobs to optimize cost and concurrency.</p></li><li><h3>Built for developers</h3><p>Compatible with the OpenAI API, with SDKs, examples, and a web playground to accelerate iteration.</p></li></ul></section>
+<section><h2>Build your AI control plane in three steps</h2><ol><li><h3>Configure access</h3><p>Create channels, set keys and quotas, and import model catalogs from the console.</p></li><li><h3>Smart dispatch</h3><p>Pick the best channel automatically using health, latency, and price signals with seamless failover.</p></li><li><h3>Continuous insight</h3><p>Monitor trends, spend, and failure rates from dashboards, and trigger alerts to keep SLOs safe.</p></li></ol></section>
+<section><h2>Deep integration with leading model providers</h2><p>Stay on a unified protocol, switch or extend models quickly, and plug into the newest ecosystem anytime.</p></section>
+<section><h2>Operationalize frontier models across your business</h2><p>Connect Packy API now to unify access policies, manage spend, and deliver reliable, scalable intelligence in your products.</p></section>
+</article>
+<article lang="zh-CN">
+<p>面向企业的 AI 生产力基座</p>
+<h2>统一的大模型接口<br />网关<br />链接全球 AI 能力</h2>
+<p>以一套域名、密钥与风控策略连接全球大模型资源，保障可观测、可拓展、可控。</p>
+<p>替换基础 URL 即可接入：<code>https://www.packyapi.ai</code></p>
+<section><h3>让团队稳定使用大模型，更快落地 AI 创新</h3><p>从访问控制、成本可视化到全局调度，Packy API 为企业提供端到端的 AI 基础设施能力。</p><ul><li><h4>统一入口，极速连通</h4><p>以单一域名和密钥连接全部大模型供应商，智能容灾切换确保业务不中断。</p></li><li><h4>全栈可观测与风控</h4><p>实时监控调用量、错误率与费用，一键配置限流、告警与安全策略。</p></li><li><h4>按需扩容与成本优化</h4><p>多渠道配额、智能路由与批量任务调度，灵活控制成本与并发能力。</p></li><li><h4>开发者友好体验</h4><p>兼容 OpenAI 接口协议，提供 SDK、示例与 Web Playground，轻松迭代上线。</p></li></ul></section>
+<section><h3>用 3 个步骤构建你的 AI 控制平面</h3><ol><li><h4>接入配置</h4><p>在控制台创建渠道、设置密钥与限额，导入模型列表。</p></li><li><h4>智能调度</h4><p>根据健康度、延迟与价格自动选择最优模型通道，内置故障切换。</p></li><li><h4>持续洞察</h4><p>通过仪表盘追踪调用趋势、消耗与失败率，实时告警确保 SLO。</p></li></ol></section>
+<section><h3>与主流模型供应商深度对接</h3><p>保持统一协议，快速切换与扩展模型能力，随时接入最新生态。</p></section>
+<section><h3>将大模型能力真正落地到业务流程</h3><p>立即接入 Packy API，统一控制访问策略与调用成本，为产品带来稳定、可扩展的智能体验。</p></section>
+</article><!--seo-page:end-->
+        <nav aria-label="PackyAPI">
+          <ul>
+            <li><a href="/">PackyAPI</a></li>
+            <li><a href="/pricing">Model Pricing | 模型广场</a></li>
+            <li><a href="https://docs.packyapi.ai">Documentation | 文档</a></li>
+            <li><a href="/partners">Developer Ecosystem Partnership | 开发者生态合作计划</a></li>
+            <li><a href="/about">About | 关于</a></li>
+            <li><a href="/terms">Terms of Service | 服务条款</a></li>
+            <li><a href="/usage-policy">Usage Policy | 使用政策</a></li>
+            <li><a href="/cdn-cgi/l/email-protection#4635333636293432063627252d3f2b236825292b">Contact | 联系我们: <span class="__cf_email__" data-cfemail="cfbcbabfbfa0bdbb8fbfaeaca4b6a2aae1aca0a2">[email&#160;protected]</span></a></li>
+          </ul>
+        </nav>
+      </div>
+      <!--seo-fallback:end-->
+    </div>
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a4f6ef93dbd28b9e',t:'MTc5MjgyMzQ1Nw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

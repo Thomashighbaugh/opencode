@@ -4,7 +4,7 @@ import { TOOLS_LOADSKILL_BASH, RULES_KARPAHTY_GUIDELINES } from "../shared-spec-
 
 const spec: HubSubcommandSpec = {
   label: "knowledge-graph",
-  description: "Per-project entity graph with vector-then-graph retrieval",
+  description: "Build and query the project knowledge graph — vector + graph search",
   reminder: "Build/query the project knowledge graph.",
   skill: "graph-context",
 

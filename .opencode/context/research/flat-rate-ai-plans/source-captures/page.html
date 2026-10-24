@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude 中转站 - Claude / GPT API 中转服务</title>
+<meta name="description" content="稳定、快速、零封号的 Claude Code / Codex CLI 中转服务">
+<link rel="preconnect" href="https://fonts.loli.net" crossorigin>
+<link href="https://fonts.loli.net/css2?family=IBM+Plex+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+[id]{scroll-margin-top:88px}
+body{font-family:'IBM Plex Sans',ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
+.mono{font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
+a{text-decoration:none;color:inherit}
+ul{list-style:none}
+img{max-width:100%;display:block}
+
+/* CSS Variables — Light (default) */
+.landing-page{
+  --lp-bg:#faf9f6;--lp-fg:#1a1915;--lp-muted:#7a766d;
+  --lp-border:rgba(0,0,0,.08);--lp-panel:rgba(255,255,255,.7);
+  --lp-card-bg:rgba(255,255,255,.7);--lp-nav-bg:rgba(250,249,246,.85);
+  --lp-footer-bg:rgba(245,240,232,.9);
+  --hl-green:#5a9a6b;--hl-cyan:#c96442;--hl-purple:#b5532f;--hl-orange:#d4943b;
+  background:var(--lp-bg);color:var(--lp-fg);min-height:100vh;
+}
+/* CSS Variables — Dark */
+.dark .landing-page{
+  --lp-bg:#0f0e0c;--lp-fg:#f5f0e8;--lp-muted:#9b9689;
+  --lp-border:rgba(155,150,137,.16);--lp-panel:rgba(26,25,21,.6);
+  --lp-card-bg:rgba(15,14,12,.5);--lp-nav-bg:rgba(26,25,21,.8);
+  --lp-footer-bg:rgba(15,14,12,.85);
+  --hl-green:#6aaa7b;--hl-cyan:#d4895e;--hl-purple:#c96442;--hl-orange:#e0a882;
+}
+.muted{color:var(--lp-muted)}
+.accent-green{color:var(--hl-green)}.accent-cyan{color:var(--hl-cyan)}
+.accent-purple{color:var(--hl-purple)}.accent-orange{color:var(--hl-orange)}
+
+/* Navbar */
+.lp-nav{position:fixed;top:0;left:0;right:0;z-index:100;backdrop-filter:blur(16px);background:var(--lp-nav-bg);border-bottom:1px solid var(--lp-border)}
+.nav-inner{max-width:1200px;margin:0 auto;padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:72px}
+.nav-brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px}
+.nav-brand-icon{width:32px;height:32px;border-radius:10px;display:block}
+.nav-links{display:flex;gap:36px}
+.nav-links a{color:var(--lp-muted);font-size:14px;font-weight:500;transition:color .2s}
+.nav-links a:hover{color:var(--lp-fg)}
+.nav-actions{display:flex;gap:16px;align-items:center}
+.nav-login{padding:10px 24px;border-radius:999px;border:1px solid var(--lp-border);color:var(--lp-fg);font-size:14px;font-weight:500;transition:all .2s;background:transparent;cursor:pointer}
+.nav-login:hover{border-color:var(--hl-cyan);color:var(--hl-cyan)}
+.nav-register{padding:10px 24px;border-radius:999px;background:linear-gradient(135deg,var(--hl-cyan),var(--hl-purple));color:#3d1b0f;font-size:14px;font-weight:600;border:none;cursor:pointer;transition:all .2s}
+.nav-register:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(201,100,66,.3)}
+.nav-hamburger{display:none;background:none;border:none;color:var(--lp-fg);cursor:pointer;padding:4px}
+.nav-mobile{display:none;position:absolute;top:72px;left:0;right:0;background:var(--lp-nav-bg);backdrop-filter:blur(16px);border-bottom:1px solid var(--lp-border);padding:20px 32px;flex-direction:column;gap:16px}
+.nav-mobile.active{display:flex}
+.nav-mobile a{color:var(--lp-muted);font-size:15px;padding:8px 0;border-bottom:1px solid var(--lp-border)}
+.nav-mobile a:last-child{border-bottom:none}
+
+/* Hero */
+.lp-hero{position:relative;overflow:hidden;padding:136px 0 80px}
+.lp-hero::before{content:"";position:absolute;inset:0;background:radial-gradient(800px 400px at 20% 10%,rgba(201,100,66,.12),transparent 60%),radial-gradient(700px 380px at 80% 20%,rgba(181,83,47,.1),transparent 58%),radial-gradient(900px 500px at 55% 80%,rgba(90,154,107,.08),transparent 62%);pointer-events:none}
+.hero-container{max-width:1200px;margin:0 auto;padding:0 32px;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
+.hero-kicker{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:12px;border:1px solid var(--lp-border);background:var(--lp-card-bg);color:var(--lp-muted);font-size:13px}
+.hero-title{margin-top:20px;font-size:clamp(36px,6vw,52px);line-height:1.1;font-weight:800;letter-spacing:-.03em}
+.hero-title-accent{display:block;background:linear-gradient(90deg,var(--hl-cyan),var(--hl-purple));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero-subtitle{margin-top:20px;max-width:48ch;color:var(--lp-muted);font-size:18px;line-height:1.7}
+.hero-actions{margin-top:28px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.hero-links{margin-top:20px;display:flex;gap:20px;flex-wrap:wrap}
+.lp-link{display:inline-flex;align-items:center;color:var(--lp-muted);font-size:14px;border-bottom:1px dashed rgba(155,150,137,.35);transition:color .2s,border-color .2s}
+.lp-link:hover{color:var(--lp-fg);border-color:rgba(245,240,232,.6)}
+
+/* Buttons */
+.lp-btn{border-radius:999px;transition:all .2s;cursor:pointer;display:inline-flex;align-items:center;gap:8px;font-size:15px;padding:14px 32px;border:1px solid var(--lp-border);background:transparent;color:var(--lp-fg)}
+.lp-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.lp-btn-primary{background:linear-gradient(135deg,var(--hl-cyan),var(--hl-purple));border:1px solid rgba(201,100,66,.35);color:#3d1b0f;font-weight:600}
+.lp-btn-primary:hover{background:linear-gradient(135deg,rgba(201,100,66,.9),rgba(181,83,47,.9))}
+
+/* Metrics */
+.hero-metrics{margin-top:36px;display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.metric{padding:20px 24px;border:1px solid var(--lp-border);border-radius:16px;background:var(--lp-card-bg)}
+.metric-value{font-size:24px;font-weight:800;letter-spacing:-.02em}
+.metric-label{margin-top:6px;font-size:12px;color:var(--lp-muted)}
+
+/* Code Card */
+.code-card{border:1px solid var(--lp-border);border-radius:16px;background:var(--lp-card-bg);box-shadow:0 24px 64px rgba(0,0,0,.4);overflow:hidden}
+.code-topbar{display:flex;align-items:center;gap:8px;padding:14px 20px;border-bottom:1px solid var(--lp-border);background:var(--lp-panel)}
+.dot{width:10px;height:10px;border-radius:999px;opacity:.85}
+.dot-red{background:#ef4444}.dot-yellow{background:#f59e0b}.dot-green{background:#22c55e}
+.code-title{margin-left:10px;font-size:12px;color:var(--lp-muted)}
+.code-block{padding:24px 24px;font-size:13px;line-height:1.8;color:var(--lp-fg);overflow-x:auto;white-space:pre}
+.code-foot{padding:14px 24px 16px;border-top:1px solid var(--lp-border);color:var(--lp-muted);font-size:12px}
+.tok-prompt{color:var(--hl-green)}.tok-cmd{color:var(--hl-cyan)}.tok-arg{color:var(--lp-fg)}
+.tok-flag,.tok-pkg{color:var(--hl-purple)}.tok-url{color:var(--hl-orange)}
+.tok-comment{color:rgba(155,150,137,.85)}.tok-key{color:var(--hl-cyan)}.tok-str{color:var(--hl-orange)}
+
+/* Logos Section */
+.lp-logos{padding:40px 0 16px}
+.logos-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.section-title-sm{font-size:16px;font-weight:600;color:var(--lp-muted)}
+.logo-row{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.logo-badge{display:flex;align-items:center;gap:16px;padding:20px 24px;border-radius:16px;border:1px solid var(--lp-border);background:var(--lp-card-bg);transition:all .2s}
+.logo-badge:hover{background:var(--lp-panel);transform:translateY(-2px)}
+.logo-mark{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-weight:800;font-size:18px;border:1px solid var(--lp-border);color:var(--lp-fg)}
+.logo-name{font-weight:700;letter-spacing:-.01em}
+.logo-vendor{font-size:12px;color:var(--lp-muted)}
+.accent-bg-cyan{background:rgba(201,100,66,.15);border-color:rgba(201,100,66,.3)}
+.accent-bg-purple{background:rgba(181,83,47,.15);border-color:rgba(181,83,47,.3)}
+.accent-bg-orange{background:rgba(212,148,59,.15);border-color:rgba(212,148,59,.3)}
+.accent-border-cyan:hover{border-color:rgba(201,100,66,.4)}
+.accent-border-purple:hover{border-color:rgba(181,83,47,.4)}
+.accent-border-orange:hover{border-color:rgba(212,148,59,.4)}
+
+/* Sections */
+.lp-section{padding:96px 0}
+.section-inner{max-width:1200px;margin:0 auto;padding:0 32px}
+.section-head{text-align:center;margin-bottom:48px}
+.section-kicker{color:rgba(155,150,137,.85);letter-spacing:.12em;font-size:12px;text-transform:uppercase}
+.section-title{margin-top:12px;font-size:clamp(26px,4vw,34px);font-weight:800;letter-spacing:-.02em}
+.section-desc{margin:16px auto 0;max-width:64ch;color:var(--lp-muted);line-height:1.7}
+
+/* Feature Grid */
+.feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.feature-card{border:1px solid var(--lp-border);border-radius:20px;background:var(--lp-card-bg);padding:28px;transition:all .2s;cursor:pointer}
+.feature-card:hover{transform:translateY(-3px);background:var(--lp-panel);border-color:rgba(245,240,232,.18)}
+.feature-icon{width:48px;height:48px;border-radius:12px;display:grid;place-items:center;border:1px solid var(--lp-border);background:rgba(155,150,137,.06);font-size:20px}
+.feature-card.fc-cyan .feature-icon{border-color:rgba(201,100,66,.3)}
+.feature-card.fc-green .feature-icon{border-color:rgba(90,154,107,.3)}
+.feature-card.fc-purple .feature-icon{border-color:rgba(181,83,47,.3)}
+.feature-card.fc-orange .feature-icon{border-color:rgba(212,148,59,.3)}
+.feature-title{margin-top:18px;font-weight:700;font-size:16px;letter-spacing:-.01em}
+.feature-desc{margin-top:10px;color:var(--lp-muted);font-size:14px;line-height:1.65}
+
+/* Compare Table */
+.compare-panel{border:1px solid var(--lp-border);border-radius:16px;background:var(--lp-card-bg);overflow:hidden}
+.compare-table-wrapper{overflow-x:auto}
+.lp-compare-table{width:100%;min-width:600px;border-collapse:collapse}
+.lp-compare-table thead th{text-align:left;font-weight:700;padding:16px;color:var(--lp-fg);background:rgba(155,150,137,.06);border-bottom:1px solid var(--lp-border);font-size:14px}
+.lp-compare-table tbody th,.lp-compare-table tbody td{padding:16px;border-bottom:1px solid var(--lp-border);vertical-align:top;color:var(--lp-muted);font-size:14px}
+.lp-compare-table tbody th{width:140px;color:var(--lp-fg);font-weight:600}
+.lp-compare-table tbody tr:last-child th,.lp-compare-table tbody tr:last-child td{border-bottom:none}
+
+/* Pricing */
+.pricing-panel{border:1px solid var(--lp-border);border-radius:20px;background:rgba(245,240,232,.02);padding:36px;text-align:center}
+.pricing-panel p{color:var(--lp-muted);margin-bottom:24px;font-size:16px;line-height:1.7}
+
+/* Steps */
+.step-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;max-width:980px;margin:0 auto}
+.step-card{border:1px solid var(--lp-border);border-radius:20px;background:var(--lp-card-bg);padding:28px;transition:all .2s;cursor:pointer}
+.step-card:hover{transform:translateY(-2px);background:var(--lp-panel)}
+.step-num{font-size:14px;font-weight:800;letter-spacing:.08em}
+.step-title{margin-top:16px;font-weight:700;font-size:16px}
+.step-desc{margin-top:10px;color:var(--lp-muted);font-size:14px;line-height:1.65}
+
+/* CTA Panel */
+.cta-panel{margin-top:36px;border:1px solid var(--lp-border);border-radius:20px;background:var(--lp-card-bg);padding:40px;text-align:center}
+.cta-title{font-size:20px;font-weight:700;letter-spacing:-.01em}
+.cta-note{margin-top:16px;color:var(--lp-muted);font-size:14px}
+
+/* CTA Section */
+.lp-cta{padding:96px 0;border-top:1px solid var(--lp-border);border-bottom:1px solid var(--lp-border);background:radial-gradient(900px 420px at 50% 10%,rgba(201,100,66,.1),transparent 62%),radial-gradient(900px 420px at 50% 90%,rgba(181,83,47,.1),transparent 62%),var(--lp-card-bg)}
+.cta-hero-title{font-size:clamp(24px,4vw,34px);font-weight:800;letter-spacing:-.02em}
+.cta-hero-desc{margin:16px auto 28px;max-width:60ch;color:var(--lp-muted)}
+
+/* FAQ */
+.faq-item{border:1px solid var(--lp-border);border-radius:16px;margin-bottom:12px;background:var(--lp-card-bg);overflow:hidden}
+.faq-header{width:100%;padding:20px 24px;display:flex;justify-content:space-between;align-items:center;background:transparent;border:none;color:var(--lp-fg);font-size:16px;font-weight:700;cursor:pointer;text-align:left}
+.faq-header:hover{background:rgba(155,150,137,.04)}
+.faq-arrow{transition:transform .2s;color:var(--lp-muted);font-size:14px}
+.faq-item.active .faq-arrow{transform:rotate(180deg)}
+.faq-body{display:none;padding:0 24px 24px;color:var(--lp-muted);line-height:1.75}
+.faq-item.active .faq-body{display:block}
+
+/* Footer */
+.lp-footer{background:var(--lp-footer-bg);color:var(--lp-muted);border-top:1px solid var(--lp-border);padding:64px 0}
+.footer-inner{max-width:1200px;margin:0 auto;padding:0 32px}
+.footer-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:48px}
+.footer-title{color:var(--lp-fg);font-weight:800;font-size:18px;margin-bottom:16px}
+.footer-subtitle{color:var(--lp-fg);font-weight:700;margin-bottom:16px}
+.footer-text{font-size:13px;color:var(--lp-muted)}
+.footer-links{display:flex;flex-direction:column;gap:12px}
+.footer-links a{color:var(--lp-muted);font-size:14px;transition:color .2s}
+.footer-links a:hover{color:var(--lp-fg)}
+.footer-bottom{border-top:1px solid var(--lp-border);margin-top:40px;padding-top:40px;text-align:center;font-size:13px;color:var(--lp-muted)}
+
+/* Theme Toggle */
+.theme-toggle{background:none;border:1px solid var(--lp-border);border-radius:999px;width:36px;height:36px;display:grid;place-items:center;cursor:pointer;color:var(--lp-muted);transition:all .2s}
+.theme-toggle:hover{color:var(--lp-fg);border-color:var(--hl-cyan)}
+.theme-toggle .icon-sun,.theme-toggle .icon-moon{width:18px;height:18px}
+.theme-toggle .icon-sun{display:block}
+.theme-toggle .icon-moon{display:none}
+.dark .theme-toggle .icon-sun{display:none}
+.dark .theme-toggle .icon-moon{display:block}
+
+/* Login Modal */
+.lp-modal-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);align-items:center;justify-content:center}
+.lp-modal-overlay.active{display:flex}
+.lp-modal{background:var(--lp-bg);border:1px solid var(--lp-border);border-radius:20px;padding:40px;max-width:400px;width:90%;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.3)}
+.lp-modal h3{font-size:18px;font-weight:700;margin-bottom:8px}
+.lp-modal p{color:var(--lp-muted);font-size:14px;margin-bottom:24px;line-height:1.6}
+.lp-modal-actions{display:flex;gap:16px;justify-content:center}
+.lp-modal-close{position:absolute;top:12px;right:16px;background:none;border:none;color:var(--lp-muted);font-size:20px;cursor:pointer}
+.lp-modal-close:hover{color:var(--lp-fg)}
+
+/* Expandable Pricing */
+.pricing-expand{display:none;margin-top:24px;border:1px solid var(--lp-border);border-radius:16px;background:var(--lp-card-bg);padding:32px;text-align:left}
+.pricing-expand.active{display:block}
+.pricing-expand h4{font-size:16px;font-weight:700;margin-bottom:12px}
+.pricing-expand table{width:100%;border-collapse:collapse;font-size:14px;margin-bottom:20px}
+.pricing-expand th,.pricing-expand td{padding:14px 16px;border-bottom:1px solid var(--lp-border);text-align:left}
+.pricing-expand th{color:var(--lp-fg);font-weight:600}
+.pricing-expand td{color:var(--lp-muted)}
+.pricing-expand tr:last-child th,.pricing-expand tr:last-child td{border-bottom:none}
+
+/* Hero Pricing Grid */
+.hero-pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.hero-price-card{border:1px solid var(--lp-border);border-radius:12px;background:var(--lp-card-bg);padding:14px 10px;text-align:center;transition:all .2s}
+.hero-price-card:hover{transform:translateY(-2px);background:var(--lp-panel)}
+.hero-price-card.recommended{border-color:rgba(201,100,66,.4);box-shadow:0 4px 20px rgba(201,100,66,.1)}
+.hero-price-tag{font-size:10px;color:var(--lp-muted);margin-bottom:2px}
+.hero-price-tag.accent{color:var(--hl-cyan);font-weight:600}
+.hero-price-name{font-weight:700;font-size:13px;letter-spacing:-.01em}
+.hero-price-amount{margin:6px 0 4px}
+.hero-price-amount span{font-size:20px;font-weight:800}
+.hero-price-detail{font-size:11px;color:var(--lp-muted);line-height:1.5}
+.hero-price-rate{font-size:11px;color:var(--hl-green);font-weight:600;margin-top:3px}
+.hero-topup{margin-bottom:16px;border:1px solid var(--lp-border);border-radius:14px;background:var(--lp-card-bg);padding:20px 24px}
+.hero-topup-title{font-size:16px;font-weight:800;margin-bottom:14px;text-align:center;letter-spacing:-.01em}
+.hero-topup-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.hero-topup-item{text-align:center;padding:14px 8px;border:1px solid var(--lp-border);border-radius:12px;background:rgba(148,163,184,.04);transition:all .2s}
+.hero-topup-item:hover{transform:translateY(-2px);background:var(--lp-panel);border-color:rgba(201,100,66,.3)}
+.hero-topup-item .topup-cny{font-size:20px;font-weight:800;color:var(--lp-fg)}
+.hero-topup-item .topup-arrow{font-size:13px;color:var(--lp-muted);margin:4px 0}
+.hero-topup-item .topup-usd{font-size:18px;font-weight:700;color:var(--hl-cyan)}
+.hero-topup-item .topup-rate{font-size:12px;color:var(--hl-green);font-weight:600;margin-top:4px}
+.hero-pricing-link{display:block;text-align:center;margin-top:12px;font-size:13px;color:var(--lp-muted);transition:color .2s}
+.hero-pricing-link:hover{color:var(--hl-cyan)}
+
+/* Responsive */
+@media(max-width:1024px){
+  .hero-container{grid-template-columns:1fr}
+  .hero-pricing-grid{grid-template-columns:repeat(3,1fr);max-width:480px;margin:0 auto}
+  .feature-grid{grid-template-columns:repeat(2,1fr)}
+  .logo-row,.step-grid{grid-template-columns:1fr}
+  .footer-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:768px){
+  .hero-metrics,.feature-grid{grid-template-columns:1fr}
+  .hero-topup-grid{grid-template-columns:repeat(3,1fr)}
+  .nav-links{display:none}
+  .nav-hamburger{display:block}
+  .lp-section,.lp-cta{padding:56px 0}
+  .footer-grid{grid-template-columns:1fr}
+}
+@media(max-width:640px){
+  .hero-title{font-size:32px}
+  .hero-kicker{font-size:11px;padding:6px 10px;gap:6px;flex-wrap:wrap}
+  .code-block{font-size:11px;padding:16px 18px}
+  .section-title{font-size:24px}
+  .cta-hero-title{font-size:22px}
+  .lp-compare-table{font-size:12px}
+  .lp-compare-table thead th,.lp-compare-table tbody th,.lp-compare-table tbody td{padding:12px 10px}
+}
+</style>
+<script>
+(function(){
+  var t = localStorage.getItem('theme');
+  if (t === 'dark' || (!t && matchMedia('(prefers-color-scheme:dark)').matches))
+    document.documentElement.classList.add('dark');
+})();
+</script>
+</head>
+<body>
+<div class="landing-page">
+
+<!-- Navbar -->
+<nav class="lp-nav">
+  <div class="nav-inner">
+    <a href="/" class="nav-brand">
+      <img src="/logo.png" alt="Logo" class="nav-brand-icon">
+      <span>Claude 中转站</span>
+    </a>
+    <div class="nav-links">
+      <a href="#features">功能特性</a>
+      <a href="#compare">产品对比</a>
+      <a href="#pricing">定价方案</a>
+      <a href="#quickstart">快速开始</a>
+    </div>
+    <div class="nav-actions">
+      <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+      </button>
+      <a href="/login" class="nav-login">登录</a>
+      <a href="/register" class="nav-register">注册</a>
+    </div>
+    <button class="nav-hamburger" onclick="document.querySelector('.nav-mobile').classList.toggle('active')" aria-label="菜单">
+      <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+  </div>
+  <div class="nav-mobile">
+    <a href="#features" onclick="this.parentElement.classList.remove('active')">功能特性</a>
+    <a href="#compare" onclick="this.parentElement.classList.remove('active')">产品对比</a>
+    <a href="#pricing" onclick="this.parentElement.classList.remove('active')">定价方案</a>
+    <a href="#quickstart" onclick="this.parentElement.classList.remove('active')">快速开始</a>
+    <a href="/login">登录</a>
+    <a href="/register">注册</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="lp-hero">
+  <div class="hero-container">
+    <div>
+      <h1 class="hero-title">
+        Claude Code / Codex
+        <span class="hero-title-accent">国内直连中转服务</span>
+      </h1>
+      <p class="hero-subtitle">官方最新版 Claude Code / Codex CLI 国内直连中转，号池代理技术隔离封号风险。支持 Claude / GPT 全系模型。新用户可领 $1 体验额度。</p>
+      <div class="hero-actions">
+        <a href="/register" class="lp-btn lp-btn-primary">注册领 $1 体验额度</a>
+        <a href="#pricing" class="lp-btn">查看套餐</a>
+      </div>
+      <div class="hero-links">
+        <a href="https://code.claude.com/docs/zh-CN/overview" target="_blank" class="lp-link">官方文档</a>
+        <a href="/dashboard" class="lp-link auth-link">控制面板</a>
+        <a href="/usage" class="lp-link auth-link">使用记录</a>
+      </div>
+      <div class="hero-metrics">
+        <div class="metric">
+          <div class="metric-value accent-cyan">20+</div>
+          <div class="metric-label">支持模型</div>
+        </div>
+        <div class="metric">
+          <div class="metric-value accent-green">99.9%</div>
+          <div class="metric-label">在线率</div>
+        </div>
+      </div>
+    </div>
+    <div id="pricing">
+      <div style="font-size:24px;font-weight:800;margin-bottom:16px;letter-spacing:-.03em"><span style="background:linear-gradient(90deg,var(--hl-cyan),var(--hl-purple));-webkit-background-clip:text;background-clip:text;color:transparent">套餐一览</span> <span class="muted" style="font-size:15px;font-weight:500;letter-spacing:0"></span></div>
+      <div class="hero-topup">
+        <div class="hero-topup-title">按量充值 · 阶梯汇率</div>
+        <div class="hero-topup-grid">
+          <div class="hero-topup-item"><div class="topup-cny">¥1</div><div class="topup-arrow">→</div><div class="topup-usd">$1</div><div class="topup-rate">1:1</div></div>
+          <div class="hero-topup-item"><div class="topup-cny">¥10</div><div class="topup-arrow">→</div><div class="topup-usd">$11</div><div class="topup-rate">1:1.1</div></div>
+          <div class="hero-topup-item"><div class="topup-cny">¥50</div><div class="topup-arrow">→</div><div class="topup-usd">$55</div><div class="topup-rate">1:1.1</div></div><div class="hero-topup-item"><div class="topup-cny">¥100</div><div class="topup-arrow">→</div><div class="topup-usd">$115</div><div class="topup-rate">1:1.15</div></div>
+          <div class="hero-topup-item"><div class="topup-cny">¥200</div><div class="topup-arrow">→</div><div class="topup-usd">$230</div><div class="topup-rate">1:1.15</div></div>
+          <div class="hero-topup-item"><div class="topup-cny">¥500</div><div class="topup-arrow">→</div><div class="topup-usd">$600</div><div class="topup-rate">1:1.2</div></div>
+        </div>
+      </div>
+      <div class="hero-pricing-grid">
+        <div class="hero-price-card">
+          <div class="hero-price-tag">轻度使用</div>
+          <div class="hero-price-name">日卡·轻量</div>
+          <div class="hero-price-amount"><span>¥16</span><span class="muted"> /天</span></div>
+          <div class="hero-price-detail">日限额 $17.60</div>
+          <div class="hero-price-rate">充值比率 1:1.1</div>
+        </div>
+        <div class="hero-price-card">
+          <div class="hero-price-tag">日度标准</div>
+          <div class="hero-price-name">日卡·标准</div>
+          <div class="hero-price-amount"><span>¥30</span><span class="muted"> /天</span></div>
+          <div class="hero-price-detail">日限额 $33.00</div>
+          <div class="hero-price-rate">充值比率 1:1.1</div>
+        </div>
+        <div class="hero-price-card">
+          <div class="hero-price-tag">日度专业</div>
+          <div class="hero-price-name">日卡·专业</div>
+          <div class="hero-price-amount"><span>¥45</span><span class="muted"> /天</span></div>
+          <div class="hero-price-detail">日限额 $49.50</div>
+          <div class="hero-price-rate">充值比率 1:1.1</div>
+        </div>
+        <div class="hero-price-card">
+          <div class="hero-price-tag">高强度</div>
+          <div class="hero-price-name">日卡·超量</div>
+          <div class="hero-price-amount"><span>¥90</span><span class="muted"> /天</span></div>
+          <div class="hero-price-detail">日限额 $99.00</div>
+          <div class="hero-price-rate">充值比率 1:1.1</div>
+        </div>
+        <div class="hero-price-card">
+          <div class="hero-price-tag">周度轻量</div>
+          <div class="hero-price-name">周卡·轻量</div>
+          <div class="hero-price-amount"><span>¥95</span><span class="muted"> /周</span></div>
+          <div class="hero-price-detail">日限额 $16.29</div>
+          <div class="hero-price-rate">充值比率 1:1.2</div>
+        </div>
+        <div class="hero-price-card">
+          <div class="hero-price-tag">热门</div>
+          <div class="hero-price-name">周卡·标准</div>
+          <div class="hero-price-amount"><span>¥175</span><span class="muted"> /周</span></div>
+          <div class="hero-price-detail">日限额 $30.00</div>
+          <div class="hero-price-rate">充值比率 1:1.2</div>
+        </div>
+        <div class="hero-price-card">
+          <div class="hero-price-tag">周度专业</div>
+          <div class="hero-price-name">周卡·专业</div>
+          <div class="hero-price-amount"><span>¥265</span><span class="muted"> /周</span></div>
+          <div class="hero-price-detail">日限额 $45.43</div>
+          <div class="hero-price-rate">充值比率 1:1.2</div>
+        </div>
+        <div class="hero-price-card">
+          <div class="hero-price-tag">高强度</div>
+          <div class="hero-price-name">周卡·超量</div>
+          <div class="hero-price-amount"><span>¥530</span><span class="muted"> /周</span></div>
+          <div class="hero-price-detail">日限额 $90.86</div>
+          <div class="hero-price-rate">充值比率 1:1.2</div>
+        </div>
+        <div class="hero-price-card">
+          <div class="hero-price-tag">月度轻量</div>
+          <div class="hero-price-name">月卡·轻量</div>
+          <div class="hero-price-amount"><span>¥370</span><span class="muted"> /月</span></div>
+          <div class="hero-price-detail">日限额 $16.03</div>
+          <div class="hero-price-rate">充值比率 1:1.3</div>
+        </div>
+        <div class="hero-price-card">
+          <div class="hero-price-tag">推荐</div>
+          <div class="hero-price-name">月卡·标准</div>
+          <div class="hero-price-amount"><span>¥690</span><span class="muted"> /月</span></div>
+          <div class="hero-price-detail">日限额 $29.90</div>
+          <div class="hero-price-rate">充值比率 1:1.3</div>
+        </div>
+        <div class="hero-price-card">
+          <div class="hero-price-tag">高频开发</div>
+          <div class="hero-price-name">月卡·专业</div>
+          <div class="hero-price-amount"><span>¥1040</span><span class="muted"> /月</span></div>
+          <div class="hero-price-detail">日限额 $45.07</div>
+          <div class="hero-price-rate">充值比率 1:1.3</div>
+        </div>
+        <div class="hero-price-card">
+          <div class="hero-price-tag">超量最划算</div>
+          <div class="hero-price-name">月卡·超量</div>
+          <div class="hero-price-amount"><span>¥2080</span><span class="muted"> /月</span></div>
+          <div class="hero-price-detail">日限额 $90.13</div>
+          <div class="hero-price-rate">充值比率 1:1.3</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Integrations -->
+<section class="lp-logos">
+  <div class="section-inner">
+    <div class="logos-head">
+      <div class="section-kicker mono">INTEGRATIONS</div>
+      <div class="section-title-sm">完美支持主流 AI 编程工具</div>
+    </div>
+    <div class="logo-row">
+      <div class="logo-badge accent-border-cyan">
+        <span class="logo-mark mono accent-bg-cyan">C</span>
+        <div><div class="logo-name">Claude Code</div><div class="logo-vendor mono">Anthropic</div></div>
+      </div>
+      <div class="logo-badge accent-border-green">
+        <span class="logo-mark mono accent-bg-green">O</span>
+        <div><div class="logo-name">Codex CLI</div><div class="logo-vendor mono">OpenAI</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section id="features" class="lp-section">
+  <div class="section-inner">
+    <div class="section-head">
+      <div class="section-kicker mono">FEATURES</div>
+      <h2 class="section-title">为什么选择我们</h2>
+      <p class="section-desc">专为中国开发者打造的 AI 编程中转服务，安全稳定，功能丰富</p>
+    </div>
+    <div class="feature-grid">
+      <div class="feature-card fc-cyan">
+        <div class="feature-icon">🛡️</div>
+        <h3 class="feature-title">号池隔离</h3>
+        <p class="feature-desc">每个请求经由独立账号池路由，你的 API Key 与上游账号完全解耦，不会因为他人操作导致你的服务中断。</p>
+      </div>
+      <div class="feature-card fc-green">
+        <div class="feature-icon">🔧</div>
+        <h3 class="feature-title">两行配置</h3>
+        <p class="feature-desc">设置 ANTHROPIC_BASE_URL 和 API Key 两个环境变量即可，其余用法和官方完全一致，无需改动任何代码。</p>
+      </div>
+      <div class="feature-card fc-cyan">
+        <div class="feature-icon">💰</div>
+        <h3 class="feature-title">按需付费</h3>
+        <p class="feature-desc">日卡、周卡、月卡灵活切换，也可按量充值。支付宝/微信扫码即充，余额实时到账。</p>
+      </div>
+      <div class="feature-card fc-green">
+        <div class="feature-icon">📈</div>
+        <h3 class="feature-title">用量透明</h3>
+        <p class="feature-desc">每笔请求的 Token 消耗、实际扣费全部可查，成本清晰可控。</p>
+      </div>
+      <div class="feature-card fc-cyan">
+        <div class="feature-icon">🔌</div>
+        <h3 class="feature-title">多平台智能调度</h3>
+        <p class="feature-desc">Claude、GPT 等主流模型通过同一个 API 端点调用，智能负载均衡，自动切换账号。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Quickstart -->
+<section id="quickstart" class="lp-section">
+  <div class="section-inner">
+    <div class="section-head">
+      <div class="section-kicker mono">QUICKSTART</div>
+      <h2 class="section-title">三步开始使用</h2>
+      <p class="section-desc">简单几步，即可享受流畅的 AI 编程体验</p>
+    </div>
+    <div class="step-grid">
+      <div class="step-card" onclick="showLoginModal()">
+        <div class="step-num mono accent-cyan">01</div>
+        <h3 class="step-title">注册账号</h3>
+        <p class="step-desc">注册后可领取 $1 免费体验额度（私聊 QQ 2573101189 领取，每人限一次），无需充值即可试用。如需更多额度，可随时按量充值或购买订阅卡。</p>
+      </div>
+      <div class="step-card" onclick="showLoginModal()">
+        <div class="step-num mono accent-green">02</div>
+        <h3 class="step-title">获取 API 密钥</h3>
+        <p class="step-desc">在「API 密钥」页面创建密钥，按照官方文档配置环境变量。支持 macOS / Linux / WSL / Windows。</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num mono accent-purple">03</div>
+        <h3 class="step-title">开始使用</h3>
+        <p class="step-desc">启动 Claude Code 或 Codex CLI，即刻开始 AI 编程。在「使用记录」页面实时查看用量和费用。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="lp-section">
+  <div style="max-width:800px;margin:0 auto;padding:0 24px">
+    <div class="section-head">
+      <div class="section-kicker mono">FAQ</div>
+      <h2 class="section-title">常见问题</h2>
+    </div>
+    <div class="faq-item">
+      <button class="faq-header" onclick="this.parentElement.classList.toggle('active')">
+        <span>什么是 Claude 中转服务？</span><span class="faq-arrow">▼</span>
+      </button>
+      <div class="faq-body">Claude 中转服务通过号池代理技术，为国内开发者提供稳定的 Claude Code / Codex 访问通道。请求自动分发到多个账号池，降低封号风险，国内直连无需翻墙。</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-header" onclick="this.parentElement.classList.toggle('active')">
+        <span>如何安装和配置？</span><span class="faq-arrow">▼</span>
+      </button>
+      <div class="faq-body">注册账号后，在「API 密钥」页面创建密钥，然后设置环境变量 ANTHROPIC_BASE_URL 和 ANTHROPIC_API_KEY 即可。支持 Claude Code、Codex CLI 等客户端，兼容 macOS / Linux / WSL / Windows 原生。</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-header" onclick="this.parentElement.classList.toggle('active')">
+        <span>支持哪些模型？</span><span class="faq-arrow">▼</span>
+      </button>
+      <div class="faq-body">支持 Anthropic（Claude Opus 4.7、Opus 4.6、Sonnet 4.6、Sonnet 4.5、Haiku 4.5 等）和 OpenAI Codex 系列（gpt-5.5、gpt-5.4、gpt-5.3-codex 等）。支持 Prompt Caching，可在「使用记录」页面查看调用详情。</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-header" onclick="this.parentElement.classList.toggle('active')">
+        <span>包月套餐和按量充值有什么区别？</span><span class="faq-arrow">▼</span>
+      </button>
+      <div class="faq-body">订阅卡按日限额计费，每日 0 点重置，适合稳定使用。按量充值阶梯汇率充越多越划算（最高 1:1.2），余额不过期。所有套餐均可叠加，支持支付宝/微信支付。</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-header" onclick="this.parentElement.classList.toggle('active')">
+        <span>有哪些管理功能？</span><span class="faq-arrow">▼</span>
+      </button>
+      <div class="faq-body">提供完整的管理面板：API 密钥管理、使用记录与统计、订阅管理、兑换码系统、分组与套餐配置等。支持按模型/客户端/日期维度查看用量，实时监控 Token 消耗，所有操作均可在控制面板中完成。</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="lp-cta">
+  <div class="section-inner" style="text-align:center">
+    <h2 class="cta-hero-title">准备好开始 AI 编程了吗？</h2>
+    <p class="cta-hero-desc">即刻体验 Claude Code / Codex 国内直连中转，多模型智能调度</p>
+    <div style="display:flex;gap:20px;justify-content:center;flex-wrap:wrap">
+      <a href="/register" class="lp-btn lp-btn-primary">免费注册</a>
+      <a href="#pricing" class="lp-btn">查看套餐</a>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="lp-footer">
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div>
+        <h4 class="footer-title">Claude 中转站</h4>
+        <p class="footer-text">专业的 Claude API 中转服务，为开发者提供稳定、快速、安全的 AI 编程体验。</p>
+      </div>
+      <div>
+        <h5 class="footer-subtitle">产品</h5>
+        <div class="footer-links">
+          <a href="#features">功能特性</a>
+          <a href="#compare">产品对比</a>
+          <a href="#pricing">定价方案</a>
+          <a href="#quickstart">快速开始</a>
+        </div>
+      </div>
+      <div>
+        <h5 class="footer-subtitle">支持</h5>
+        <div class="footer-links">
+          <a href="https://code.claude.com/docs" target="_blank">官方文档</a>
+          <a href="/dashboard" class="auth-link">控制面板</a>
+          <a href="/keys" class="auth-link">API 密钥</a>
+          <a href="/usage" class="auth-link">使用记录</a>
+        </div>
+      </div>
+      <div>
+        <h5 class="footer-subtitle">关于</h5>
+        <div class="footer-links">
+          <a href="/subscriptions" class="auth-link">我的订阅</a>
+          <a href="/redeem" class="auth-link">兑换码</a>
+          <a href="/profile" class="auth-link">个人资料</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2025-2026 Claude 中转站. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<!-- Login Modal -->
+<div class="lp-modal-overlay" id="loginModal">
+  <div class="lp-modal" style="position:relative">
+    <button class="lp-modal-close" onclick="hideLoginModal()">&times;</button>
+    <h3>请先登录</h3>
+    <p>请先注册并登录后购买套餐</p>
+    <div class="lp-modal-actions">
+      <a href="/register" class="lp-btn lp-btn-primary" style="padding:10px 28px">去注册</a>
+      <a href="/login" class="lp-btn" style="padding:10px 28px">去登录</a>
+    </div>
+  </div>
+</div>
+
+<script>
+// Theme toggle
+var toggle = document.getElementById('themeToggle');
+if (toggle) {
+  toggle.addEventListener('click', function() {
+    var html = document.documentElement;
+    var isDark = html.classList.toggle('dark');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  });
+}
+
+// Login modal
+function showLoginModal() {
+  document.getElementById('loginModal').classList.add('active');
+}
+function hideLoginModal() {
+  document.getElementById('loginModal').classList.remove('active');
+}
+document.getElementById('loginModal').addEventListener('click', function(e) {
+  if (e.target === this) hideLoginModal();
+});
+
+// Expandable pricing
+function togglePricing() {
+  var panel = document.getElementById('pricingExpand');
+  var btn = document.getElementById('pricingToggleBtn');
+  var isOpen = panel.classList.toggle('active');
+  btn.textContent = isOpen ? '收起套餐详情' : '查看全部套餐';
+}
+
+// Auth-required link interception
+document.addEventListener('click', function(e) {
+  var link = e.target.closest('.auth-link');
+  if (link) {
+    e.preventDefault();
+    showLoginModal();
+  }
+});
+</script>
+
+</div>
+</body>
+</html>

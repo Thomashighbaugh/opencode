@@ -1,0 +1,1638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flat-Rate AI API Providers</title>
+<style>
+/* Reset */
+*, *::before, *::after { box-sizing: border-box; }
+body, h1, h2, h3, p, table { margin: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  color: #1a1a1a;
+  background: #fff;
+  padding: 2rem 1.5rem 4rem;
+}
+h1 { font-size: 1.5rem; margin-bottom: 1.25rem; }
+/* Table spacing rules */
+.table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.875rem;
+  min-width: 72rem;
+}
+thead th {
+  position: sticky;
+  top: 0;
+  background: #f4f4f5;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 2px solid #d4d4d8;
+  padding: 0.5rem 0.75rem;
+  white-space: nowrap;
+}
+tbody td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid #e4e4e7;
+  vertical-align: top;
+}
+tbody tr:nth-child(even) { background: #fafafa; }
+tbody tr:hover { background: #f0f9ff; }
+/* No-wrap on Price (col 3) and Request/Concurrency (col 5) */
+td:nth-child(3), td:nth-child(5), th:nth-child(3), th:nth-child(5) { white-space: nowrap; }
+/* Notes column gets a min width */
+td:nth-child(9) { min-width: 22rem; white-space: normal; }
+</style>
+</head>
+<body>
+<h1
+id="comprehensive-index-of-flat-rate-subscription-and-windowed-ai-api-providers">Comprehensive
+Index of Flat-Rate, Subscription, and Windowed AI API Providers</h1>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Provider / Service</th>
+<th style="text-align: left;">Plan / Tier</th>
+<th style="text-align: left;">Price</th>
+<th style="text-align: left;">Category / Status</th>
+<th style="text-align: left;">Request / Concurrency Limit</th>
+<th style="text-align: left;">Token / Metering Cap</th>
+<th style="text-align: left;">Reset Window</th>
+<th style="text-align: left;">Models Included</th>
+<th style="text-align: left;">Key Constraints / Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>FEIHOA</strong></td>
+<td style="text-align: left;">Core</td>
+<td style="text-align: left;">$6.48/mo</td>
+<td style="text-align: left;">Uncapped (No Window)</td>
+<td style="text-align: left;">1 active generation</td>
+<td style="text-align: left;">None (Unmetered)</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">Qwen3.8-27B FP8 Uncensored</td>
+<td style="text-align: left;">32K context ceiling; shared queue on 4×
+RTX PRO 6000; high latency reported.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>FEIHOA</strong></td>
+<td style="text-align: left;">Pro</td>
+<td style="text-align: left;">$10.8/mo</td>
+<td style="text-align: left;">Uncapped (No Window)</td>
+<td style="text-align: left;">1 active generation</td>
+<td style="text-align: left;">None (Unmetered)</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">Qwen3.8-27B FP8 Uncensored</td>
+<td style="text-align: left;">64K context, 8K max output; priority
+queue.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>FEIHOA</strong></td>
+<td style="text-align: left;">One Million</td>
+<td style="text-align: left;">$27/mo</td>
+<td style="text-align: left;">Uncapped (No Window)</td>
+<td style="text-align: left;">1 active generation</td>
+<td style="text-align: left;">None (Unmetered)</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">Qwen3.8-27B FP8 Uncensored</td>
+<td style="text-align: left;">Max queue priority; advertised 1M context
+currently clamped to 200K.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>ArliAI</strong></td>
+<td style="text-align: left;">Starter</td>
+<td style="text-align: left;">$10/mo</td>
+<td style="text-align: left;">Uncapped (No Window)</td>
+<td style="text-align: left;">1 concurrent request</td>
+<td style="text-align: left;">None (Unlimited)</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">132 open models (≤31B)</td>
+<td style="text-align: left;">Max 16K context; zero-log; custom GPU
+hardware.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>ArliAI</strong></td>
+<td style="text-align: left;">Core</td>
+<td style="text-align: left;">$15/mo</td>
+<td style="text-align: left;">Uncapped (No Window)</td>
+<td style="text-align: left;">1 concurrent request</td>
+<td style="text-align: left;">None (Unlimited)</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">Open models up to 355B</td>
+<td style="text-align: left;">Max 32K context; zero-log.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>ArliAI</strong></td>
+<td style="text-align: left;">Plus</td>
+<td style="text-align: left;">$20/mo</td>
+<td style="text-align: left;">Uncapped (No Window)</td>
+<td style="text-align: left;">1 concurrent request</td>
+<td style="text-align: left;">None (Unlimited)</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">DeepSeek-V4-Flash, MiMo-V2.5, GLM-4.6,
+models ≤355B</td>
+<td style="text-align: left;">Max 128K context; unrestricted
+generation.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>ArliAI</strong></td>
+<td style="text-align: left;">Pro</td>
+<td style="text-align: left;">$30/mo</td>
+<td style="text-align: left;">Uncapped (No Window)</td>
+<td style="text-align: left;">2 concurrent requests</td>
+<td style="text-align: left;">None (Unlimited)</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">DeepSeek-V4-Flash, MiMo-V2.5, GLM-4.6,
+models ≤355B</td>
+<td style="text-align: left;">Max 256K context; high priority.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>ArliAI</strong></td>
+<td style="text-align: left;">Max</td>
+<td style="text-align: left;">$160/mo</td>
+<td style="text-align: left;">Uncapped (No Window)</td>
+<td style="text-align: left;">6 concurrent requests</td>
+<td style="text-align: left;">None (Unlimited)</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">DeepSeek-V4-Flash, MiMo-V2.5, GLM-4.6,
+models ≤355B</td>
+<td style="text-align: left;">Max 512K context.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Overclock</strong></td>
+<td style="text-align: left;">Single</td>
+<td style="text-align: left;">$15/mo</td>
+<td style="text-align: left;">Uncapped (No Window)</td>
+<td style="text-align: left;">1 runner (1 in flight)</td>
+<td style="text-align: left;">None (Unlimited)</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;"><code>redline</code> dynamic pool
+(DeepSeek, Gemini, GLM, GPT)</td>
+<td style="text-align: left;">Visible queue; 260K min context; target
+40+ tok/s.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Overclock</strong></td>
+<td style="text-align: left;">Stack</td>
+<td style="text-align: left;">$29/mo</td>
+<td style="text-align: left;">Uncapped (No Window)</td>
+<td style="text-align: left;">2 runners</td>
+<td style="text-align: left;">None (Unlimited)</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;"><code>redline</code> dynamic pool
+(DeepSeek, Gemini, GLM, GPT)</td>
+<td style="text-align: left;">Visible queue; 260K min context.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Overclock</strong></td>
+<td style="text-align: left;">Workshop</td>
+<td style="text-align: left;">$49/mo</td>
+<td style="text-align: left;">Uncapped (No Window)</td>
+<td style="text-align: left;">4 runners</td>
+<td style="text-align: left;">None (Unlimited)</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;"><code>redline</code> dynamic pool
+(DeepSeek, Gemini, GLM, GPT)</td>
+<td style="text-align: left;">Visible queue; 260K min context.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>NeverMetered</strong></td>
+<td style="text-align: left;">Solo</td>
+<td style="text-align: left;">$19/mo</td>
+<td style="text-align: left;">Uncapped (No Window)</td>
+<td style="text-align: left;">1 parallel stream</td>
+<td style="text-align: left;">None (No token quota)</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">Qwen3.8-27B only</td>
+<td style="text-align: left;">256K context; up to 248K output; dedicated
+dual-GPU hardware.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>NeverMetered</strong></td>
+<td style="text-align: left;">Pro</td>
+<td style="text-align: left;">$49/mo</td>
+<td style="text-align: left;">Uncapped (No Window)</td>
+<td style="text-align: left;">3 parallel streams</td>
+<td style="text-align: left;">None (No token quota)</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">Qwen3.8-27B only</td>
+<td style="text-align: left;">256K context; up to 248K output; written
+12-month price lock; 14-day refund.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>FlatCompute</strong></td>
+<td style="text-align: left;">Starter</td>
+<td style="text-align: left;"><span
+class="math inline">21.49/<em>m</em><em>o</em>(</span>43.09/mo
+regular)</td>
+<td style="text-align: left;">Uncapped (No Window)</td>
+<td style="text-align: left;">1 active worker, 3 queued tasks</td>
+<td style="text-align: left;">None
+(<code>unlimited_tokens: true</code>)</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">Workhorse EU-1 (Qwen3.8-27B, Qwen3.6-35B,
+Gemma4 26B)</td>
+<td style="text-align: left;">64K context; 1 API key; EU data
+residency.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>FlatCompute</strong></td>
+<td style="text-align: left;">Builder</td>
+<td style="text-align: left;"><span
+class="math inline">43.09/<em>m</em><em>o</em>(</span>86.29/mo
+regular)</td>
+<td style="text-align: left;">Uncapped (No Window)</td>
+<td style="text-align: left;">2 active workers, 8 queued tasks</td>
+<td style="text-align: left;">None
+(<code>unlimited_tokens: true</code>)</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">Workhorse EU-1 (Qwen3.8-27B, Qwen3.6-35B,
+Gemma4 26B)</td>
+<td style="text-align: left;">128K context; 5 API keys; EU data
+residency.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>FlatCompute</strong></td>
+<td style="text-align: left;">Pro</td>
+<td style="text-align: left;"><span
+class="math inline">64.69/<em>m</em><em>o</em>(</span>129.49/mo
+regular)</td>
+<td style="text-align: left;">Uncapped (No Window)</td>
+<td style="text-align: left;">4 active workers, 16 queued tasks</td>
+<td style="text-align: left;">None
+(<code>unlimited_tokens: true</code>)</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">Workhorse EU-1 (Qwen3.8-27B, Qwen3.6-35B,
+Gemma4 26B)</td>
+<td style="text-align: left;">262K context; 10 API keys; EU data
+residency.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>FlatCompute</strong></td>
+<td style="text-align: left;">Enterprise</td>
+<td style="text-align: left;"><span
+class="math inline">129.49/<em>m</em><em>o</em>(</span>259.09/mo
+regular)</td>
+<td style="text-align: left;">Uncapped (No Window)</td>
+<td style="text-align: left;">Custom workers/queues</td>
+<td style="text-align: left;">None
+(<code>unlimited_tokens: true</code>)</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">Custom Zones / Quality Worker EU-1</td>
+<td style="text-align: left;">Sized to requirements.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Plugsky</strong></td>
+<td style="text-align: left;">Hobby</td>
+<td style="text-align: left;">$5.60/mo</td>
+<td style="text-align: left;">Uncapped (RPM only)</td>
+<td style="text-align: left;">30 RPM</td>
+<td style="text-align: left;">None (Unmetered)</td>
+<td style="text-align: left;">Per-minute</td>
+<td style="text-align: left;">38 generic aliases
+(<code>plugsky-micro</code>, <code>plugsky-lite</code>)</td>
+<td style="text-align: left;">Models disclosed as 20B–30B with ~3B
+active; 256K max context; silent failover.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Plugsky</strong></td>
+<td style="text-align: left;">Starter</td>
+<td style="text-align: left;"><span
+class="math inline">14/<em>m</em><em>o</em>(</span>20 list)</td>
+<td style="text-align: left;">Uncapped (RPM only)</td>
+<td style="text-align: left;">60 RPM</td>
+<td style="text-align: left;">None (Unmetered)</td>
+<td style="text-align: left;">Per-minute</td>
+<td style="text-align: left;">Aliases up to
+<code>plugsky-pro</code></td>
+<td style="text-align: left;">Automatic failover to matching class; DIFC
+(Dubai) jurisdiction.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Plugsky</strong></td>
+<td style="text-align: left;">Builder</td>
+<td style="text-align: left;"><span
+class="math inline">42/<em>m</em><em>o</em>(</span>60 list)</td>
+<td style="text-align: left;">Uncapped (RPM only)</td>
+<td style="text-align: left;">300 RPM</td>
+<td style="text-align: left;">None (Unmetered)</td>
+<td style="text-align: left;">Per-minute</td>
+<td style="text-align: left;">Adds vision and max-class aliases</td>
+<td style="text-align: left;">256K max context ceiling.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Plugsky</strong></td>
+<td style="text-align: left;">Scale</td>
+<td style="text-align: left;"><span
+class="math inline">84/<em>m</em><em>o</em>(</span>120 list)</td>
+<td style="text-align: left;">Uncapped (RPM only)</td>
+<td style="text-align: left;">1,000 RPM</td>
+<td style="text-align: left;">None (Unmetered)</td>
+<td style="text-align: left;">Per-minute</td>
+<td style="text-align: left;">Adds frontier and reasoning aliases</td>
+<td style="text-align: left;">Aliases are 550B/55B active; zero
+independent user reviews.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>llmax.ai</strong></td>
+<td style="text-align: left;">Essential</td>
+<td style="text-align: left;">$64.8/mo</td>
+<td style="text-align: left;">Uncapped (RPM only)</td>
+<td style="text-align: left;">40 RPM, 1 in flight</td>
+<td style="text-align: left;">None (Unmetered)</td>
+<td style="text-align: left;">Per-minute</td>
+<td style="text-align: left;">Qwen 3.6 (35B-A3B, 262K context)</td>
+<td style="text-align: left;">EU-only processing; no logs; automatic
+model upgrades.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>llmax.ai</strong></td>
+<td style="text-align: left;">Pro</td>
+<td style="text-align: left;">$172.8/mo</td>
+<td style="text-align: left;">Uncapped (RPM only)</td>
+<td style="text-align: left;">40 RPM, 1 in flight</td>
+<td style="text-align: left;">None (Unmetered)</td>
+<td style="text-align: left;">Per-minute</td>
+<td style="text-align: left;">DeepSeek V4-Flash (1M context, 284B
+MoE)</td>
+<td style="text-align: left;">True 1M context; zero logs; EU
+servers.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Completions.me</strong></td>
+<td style="text-align: left;">Free</td>
+<td style="text-align: left;">Free</td>
+<td style="text-align: left;">Uncapped (Free Tier)</td>
+<td style="text-align: left;">Unstated concurrency</td>
+<td style="text-align: left;">None (Unlimited requests)</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">Claude Opus 4.6, GPT-5.2, Gemini 3.1 Pro +
+15 models</td>
+<td style="text-align: left;">Anonymous free tier; unverified relay
+backend.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Inferly</strong></td>
+<td style="text-align: left;">Flat</td>
+<td style="text-align: left;">$29/mo</td>
+<td style="text-align: left;">Uncapped (No Window)</td>
+<td style="text-align: left;">Unstated</td>
+<td style="text-align: left;">None (Unlimited tokens)</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">Unspecified open models</td>
+<td style="text-align: left;">Targeted at OpenClaw; $0 overage; no
+published limits documentation.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Zenith-AI</strong></td>
+<td style="text-align: left;">Enthusiast</td>
+<td style="text-align: left;">Free</td>
+<td style="text-align: left;">Uncapped (Concurrency)</td>
+<td style="text-align: left;">1 concurrent request</td>
+<td style="text-align: left;">None (Unlimited tokens)</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">Qwen2.5-3B, Tiny base models</td>
+<td style="text-align: left;">Strict 1-in-flight concurrency.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Zenith-AI</strong></td>
+<td style="text-align: left;">Amateur / Hobbyist</td>
+<td style="text-align: left;">Paid tiers (unpublished)</td>
+<td style="text-align: left;">Uncapped (Concurrency)</td>
+<td style="text-align: left;">1 to 2 concurrent requests</td>
+<td style="text-align: left;">None (Unlimited tokens)</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">Tiny, Small, and Medium open models</td>
+<td style="text-align: left;">Relay infrastructure; unverified
+provenance.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>AI2You</strong></td>
+<td style="text-align: left;">Per Model</td>
+<td style="text-align: left;">$50/mo per model</td>
+<td style="text-align: left;">Uncapped (No Window)</td>
+<td style="text-align: left;">Unstated</td>
+<td style="text-align: left;">None (Unlimited tokens)</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">Qwen3.8-27B-FP8 (DeepSeek, GLM, Kimi
+upcoming)</td>
+<td style="text-align: left;">Billed per individual model; priority warm
+GPU capacity.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>OpenLimits</strong></td>
+<td style="text-align: left;">Max</td>
+<td style="text-align: left;">$129.6/mo</td>
+<td style="text-align: left;">Monthly Capped</td>
+<td style="text-align: left;">Unstated</td>
+<td style="text-align: left;"><span
+class="math inline">2, 000/<em>d</em><em>a</em><em>y</em><em>l</em><em>i</em><em>s</em><em>t</em><em>p</em><em>r</em><em>i</em><em>c</em><em>e</em><em>c</em><em>a</em><em>p</em>( </span>60K/mo)</td>
+<td style="text-align: left;">24 hours rolling</td>
+<td style="text-align: left;">Full catalog</td>
+<td style="text-align: left;">Daily dollar-equivalent fair-use
+ceiling.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>OpenLimits</strong></td>
+<td style="text-align: left;">Ultimate</td>
+<td style="text-align: left;">$322.92/mo</td>
+<td style="text-align: left;">Uncapped (No Window)</td>
+<td style="text-align: left;">Unstated</td>
+<td style="text-align: left;">None (No daily ceiling)</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">Full frontier + open catalog (Claude Opus
+5.5, GPT-6)</td>
+<td style="text-align: left;">Completely uncapped access across all
+models; no cooldowns.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Standard Thinking</strong></td>
+<td style="text-align: left;">Coding Plan (Weekly)</td>
+<td style="text-align: left;">$596/mo (4 × $149/wk)</td>
+<td style="text-align: left;">Uncapped (No Window)</td>
+<td style="text-align: left;">3 concurrent @ 80 tok/s (up to 8)</td>
+<td style="text-align: left;">None (No token cap)</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">Kimi K3, GLM-5.3, DeepSeek V4.1 Flash</td>
+<td style="text-align: left;">1 developer seat; peak-hour slowdown
+baseline; ZDR policy.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Standard Thinking</strong></td>
+<td style="text-align: left;">Coding Plan (Monthly)</td>
+<td style="text-align: left;">$549/mo</td>
+<td style="text-align: left;">Uncapped (No Window)</td>
+<td style="text-align: left;">3 concurrent @ 80 tok/s (up to 8)</td>
+<td style="text-align: left;">None (No token cap)</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">Kimi K3, GLM-5.3, DeepSeek V4.1 Flash</td>
+<td style="text-align: left;">1 developer seat; request-access gated;
+ZDR policy.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Giotto.ai</strong></td>
+<td style="text-align: left;">Giotto 1</td>
+<td style="text-align: left;">$56.39/mo</td>
+<td style="text-align: left;">Uncapped (Mono-concurrency)</td>
+<td style="text-align: left;">1 concurrent request</td>
+<td style="text-align: left;">None (Unlimited usage)</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">Giotto 1 reasoning model only</td>
+<td style="text-align: left;">EU-hosted in Switzerland; not publicly
+purchasable (contact sales only).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>NoTokenLimit</strong></td>
+<td style="text-align: left;">API Starter</td>
+<td style="text-align: left;">$25.91/mo</td>
+<td style="text-align: left;">Rolling Request Windows</td>
+<td style="text-align: left;">10 req/min, 200 req/day, 4,000 req/mo</td>
+<td style="text-align: left;">None (Counts requests, not tokens)</td>
+<td style="text-align: left;">1m / 24h / 30d rolling</td>
+<td style="text-align: left;">Selected open models + Gemini 2.5 Pro</td>
+<td style="text-align: left;">429 returns
+<code>rate_limit_minute</code>, <code>quota_day</code>, or
+<code>quota_month</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>NoTokenLimit</strong></td>
+<td style="text-align: left;">API Pro</td>
+<td style="text-align: left;">$64.79/mo</td>
+<td style="text-align: left;">Rolling Request Windows</td>
+<td style="text-align: left;">60 req/min, 3,000 req/day, 60,000
+req/mo</td>
+<td style="text-align: left;">None (Counts requests, not tokens)</td>
+<td style="text-align: left;">1m / 24h / 30d rolling</td>
+<td style="text-align: left;">Full catalog (Claude, GPT, Gemini,
+DeepSeek)</td>
+<td style="text-align: left;">OpenAI &amp; Anthropic compatible
+endpoints.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>NoTokenLimit</strong></td>
+<td style="text-align: left;">API Ultra</td>
+<td style="text-align: left;">High tier (unpublished)</td>
+<td style="text-align: left;">Rolling Request Windows</td>
+<td style="text-align: left;">100 req/min, 8,000 req/day, 160,000
+req/mo</td>
+<td style="text-align: left;">None (Counts requests, not tokens)</td>
+<td style="text-align: left;">1m / 24h / 30d rolling</td>
+<td style="text-align: left;">Full catalog (500+ models)</td>
+<td style="text-align: left;">Direct requests 403 on curl; thin external
+reviews.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Profundo AI</strong></td>
+<td style="text-align: left;">Founder</td>
+<td style="text-align: left;">$20/mo</td>
+<td style="text-align: left;">Daily Request Window</td>
+<td style="text-align: left;">100 req/min, unlimited req/day</td>
+<td style="text-align: left;">None (No token meter)</td>
+<td style="text-align: left;">Daily / Per-minute</td>
+<td style="text-align: left;">All 21 models (GPT 6 Astra, Claude Fable
+5.1, etc.)</td>
+<td style="text-align: left;">Locked-in founding cohort rate; fair-use
+controls apply.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Profundo AI</strong></td>
+<td style="text-align: left;">Plus</td>
+<td style="text-align: left;"><span
+class="math inline">10/<em>m</em><em>o</em>(</span>5 first mo)</td>
+<td style="text-align: left;">Daily Request Window</td>
+<td style="text-align: left;">50 req/min, 250 req/day</td>
+<td style="text-align: left;">None (No token meter)</td>
+<td style="text-align: left;">Daily (00:00 UTC)</td>
+<td style="text-align: left;">All 21 frontier models</td>
+<td style="text-align: left;">Hard daily ceiling; Chat Completions +
+Responses API.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Profundo AI</strong></td>
+<td style="text-align: left;">Priority</td>
+<td style="text-align: left;"><span
+class="math inline">40/<em>m</em><em>o</em>(</span>20 first mo)</td>
+<td style="text-align: left;">Daily Request Window</td>
+<td style="text-align: left;">100 req/min, 2,000 req/day</td>
+<td style="text-align: left;">None (No token meter)</td>
+<td style="text-align: left;">Daily (00:00 UTC)</td>
+<td style="text-align: left;">All 21 frontier models</td>
+<td style="text-align: left;">Enhanced peak-ramp tolerance for agent
+loops.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Profundo AI</strong></td>
+<td style="text-align: left;">Performance</td>
+<td style="text-align: left;"><span
+class="math inline">100/<em>m</em><em>o</em>(</span>50 first mo)</td>
+<td style="text-align: left;">Daily Request Window</td>
+<td style="text-align: left;">100 req/min, unlimited req/day</td>
+<td style="text-align: left;">None (No token meter)</td>
+<td style="text-align: left;">Daily / Per-minute</td>
+<td style="text-align: left;">All 21 frontier models</td>
+<td style="text-align: left;">Service-protection controls apply.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>APIClaw</strong></td>
+<td style="text-align: left;">Plus</td>
+<td style="text-align: left;">$19/mo</td>
+<td style="text-align: left;">Daily Request Window</td>
+<td style="text-align: left;">500 requests / day</td>
+<td style="text-align: left;">None (Unlimited tokens per request)</td>
+<td style="text-align: left;">Daily (00:00 UTC)</td>
+<td style="text-align: left;">100+ models (Claude, GPT, Gemini,
+DeepSeek)</td>
+<td style="text-align: left;">Crypto-only checkout (NOWPayments);
+Telegram support.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>APIClaw</strong></td>
+<td style="text-align: left;">Pro</td>
+<td style="text-align: left;">$39/mo</td>
+<td style="text-align: left;">Daily Request Window</td>
+<td style="text-align: left;">1,000 requests / day</td>
+<td style="text-align: left;">None (Unlimited tokens per request)</td>
+<td style="text-align: left;">Daily (00:00 UTC)</td>
+<td style="text-align: left;">100+ models</td>
+<td style="text-align: left;">Unmetered tokens within context
+limits.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>APIClaw</strong></td>
+<td style="text-align: left;">Max</td>
+<td style="text-align: left;">$59/mo</td>
+<td style="text-align: left;">Daily Request Window</td>
+<td style="text-align: left;">1,500 requests / day</td>
+<td style="text-align: left;">None (Unlimited tokens per request)</td>
+<td style="text-align: left;">Daily (00:00 UTC)</td>
+<td style="text-align: left;">100+ models</td>
+<td style="text-align: left;">Quota resets midnight UTC.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>APIClaw</strong></td>
+<td style="text-align: left;">Ultimate</td>
+<td style="text-align: left;">$69/mo</td>
+<td style="text-align: left;">Daily Request Window</td>
+<td style="text-align: left;">3,000 requests / day</td>
+<td style="text-align: left;">None (Unlimited tokens per request)</td>
+<td style="text-align: left;">Daily (00:00 UTC)</td>
+<td style="text-align: left;">100+ models</td>
+<td style="text-align: left;">Designed for multi-agent workflows.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>APIClaw</strong></td>
+<td style="text-align: left;">Ultimate Plus</td>
+<td style="text-align: left;">$89/mo</td>
+<td style="text-align: left;">Daily Request Window</td>
+<td style="text-align: left;">4,000 requests / day</td>
+<td style="text-align: left;">None (Unlimited tokens per request)</td>
+<td style="text-align: left;">Daily (00:00 UTC)</td>
+<td style="text-align: left;">100+ models</td>
+<td style="text-align: left;">Team sharing allowed under key
+management.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>APIClaw</strong></td>
+<td style="text-align: left;">Ultimate Pro</td>
+<td style="text-align: left;">$99/mo</td>
+<td style="text-align: left;">Daily Request Window</td>
+<td style="text-align: left;">6,000 requests / day</td>
+<td style="text-align: left;">None (Unlimited tokens per request)</td>
+<td style="text-align: left;">Daily (00:00 UTC)</td>
+<td style="text-align: left;">100+ models</td>
+<td style="text-align: left;">High throughput.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>APIClaw</strong></td>
+<td style="text-align: left;">Ultimate Max</td>
+<td style="text-align: left;">$129/mo</td>
+<td style="text-align: left;">Daily Request Window</td>
+<td style="text-align: left;">8,000 requests / day</td>
+<td style="text-align: left;">None (Unlimited tokens per request)</td>
+<td style="text-align: left;">Daily (00:00 UTC)</td>
+<td style="text-align: left;">100+ models</td>
+<td style="text-align: left;">Independent relay; disclaims lab
+affiliation.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Yolo-Auto</strong></td>
+<td style="text-align: left;">Builder</td>
+<td style="text-align: left;">$19/mo</td>
+<td style="text-align: left;">Uncapped Concurrency</td>
+<td style="text-align: left;">Up to 5× concurrency</td>
+<td style="text-align: left;">None (~200M tokens/day fair use)</td>
+<td style="text-align: left;">Per-minute</td>
+<td style="text-align: left;">Qwen3.8 Flash, text, images, tools</td>
+<td style="text-align: left;">Assumes 87% cache hit rate; 128K context;
+no per-token overages.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Yolo-Auto</strong></td>
+<td style="text-align: left;">Pro</td>
+<td style="text-align: left;">$39/mo</td>
+<td style="text-align: left;">Uncapped Concurrency</td>
+<td style="text-align: left;">Up to 10× concurrency</td>
+<td style="text-align: left;">None (~750M tokens/day fair use)</td>
+<td style="text-align: left;">Per-minute</td>
+<td style="text-align: left;">Qwen3.8 Flash, text, images, tools</td>
+<td style="text-align: left;">256K context; no token credits.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Yolo-Auto</strong></td>
+<td style="text-align: left;">Enterprise</td>
+<td style="text-align: left;">$99/mo</td>
+<td style="text-align: left;">Uncapped Concurrency</td>
+<td style="text-align: left;">Higher concurrency</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">Per-minute</td>
+<td style="text-align: left;">Qwen3.8 Flash</td>
+<td style="text-align: left;">Delisted from free aggregators on
+2026-10-15 (now 100% paid).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Awan LLM</strong></td>
+<td style="text-align: left;">Core</td>
+<td style="text-align: left;">$5/mo</td>
+<td style="text-align: left;">Daily Request Window</td>
+<td style="text-align: left;">20 req/min; 5K small, 3K med, 10 large
+req/day</td>
+<td style="text-align: left;">None (Unlimited tokens)</td>
+<td style="text-align: left;">Daily (00:00 UTC)</td>
+<td style="text-align: left;">Llama 3 / 3.1 (8B, 70B) &amp;
+fine-tunes</td>
+<td style="text-align: left;">Outdated model catalog; PayPal only.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Awan LLM</strong></td>
+<td style="text-align: left;">Plus</td>
+<td style="text-align: left;">$10/mo</td>
+<td style="text-align: left;">Daily Request Window</td>
+<td style="text-align: left;">50 req/min; 10K small, 6K med, 2K large
+req/day</td>
+<td style="text-align: left;">None (Unlimited tokens)</td>
+<td style="text-align: left;">Daily (00:00 UTC)</td>
+<td style="text-align: left;">Llama 3 / 3.1 (8B, 70B)</td>
+<td style="text-align: left;">Daily caps vary by parameter size
+class.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Awan LLM</strong></td>
+<td style="text-align: left;">Pro</td>
+<td style="text-align: left;">$20/mo</td>
+<td style="text-align: left;">Daily Request Window</td>
+<td style="text-align: left;">100 req/min; 80K small, 40K med, 30K large
+req/day</td>
+<td style="text-align: left;">None (Unlimited tokens)</td>
+<td style="text-align: left;">Daily (00:00 UTC)</td>
+<td style="text-align: left;">Llama 3 / 3.1 (8B, 70B)</td>
+<td style="text-align: left;">Parallel requests enabled.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Awan LLM</strong></td>
+<td style="text-align: left;">Max</td>
+<td style="text-align: left;">$80/mo</td>
+<td style="text-align: left;">Daily Request Window</td>
+<td style="text-align: left;">200 req/min; unlimited req/day all
+sizes</td>
+<td style="text-align: left;">None (Unlimited tokens)</td>
+<td style="text-align: left;">Per-minute</td>
+<td style="text-align: left;">Llama 3 / 3.1 (8B, 70B)</td>
+<td style="text-align: left;">No daily request caps on Max.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Umans AI</strong></td>
+<td style="text-align: left;">Code Pro</td>
+<td style="text-align: left;">$20/mo</td>
+<td style="text-align: left;">5-Hour Rolling Window</td>
+<td style="text-align: left;">200 req / 5h, 5 concurrent</td>
+<td style="text-align: left;">None (No token limits)</td>
+<td style="text-align: left;">5 hours rolling</td>
+<td style="text-align: left;">GLM 5.2, Kimi K2.7-Code</td>
+<td style="text-align: left;">Promoted in community threads with
+referral links.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Umans AI</strong></td>
+<td style="text-align: left;">Max</td>
+<td style="text-align: left;">$50/mo</td>
+<td style="text-align: left;">Uncapped (No Window)</td>
+<td style="text-align: left;">5 concurrent requests</td>
+<td style="text-align: left;">None (No request window)</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">GLM 5.2, Kimi K2.7-Code</td>
+<td style="text-align: left;">Unverified third-party relay.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Unli.dev</strong></td>
+<td style="text-align: left;">Free / Hobby</td>
+<td style="text-align: left;">Free</td>
+<td style="text-align: left;">Monthly Request Window</td>
+<td style="text-align: left;">20 req/min, 100 req/mo</td>
+<td style="text-align: left;">None (Unlimited tokens per req)</td>
+<td style="text-align: left;">Monthly</td>
+<td style="text-align: left;">GPT, Gemini, DeepSeek, Qwen, GLM,
+Kimi</td>
+<td style="text-align: left;">Auto-routes to best model; Base64 image
+support.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Unli.dev</strong></td>
+<td style="text-align: left;">Small</td>
+<td style="text-align: left;">Tiered (unpublished)</td>
+<td style="text-align: left;">Monthly Request Window</td>
+<td style="text-align: left;">30 req/min, 5,000 req/mo</td>
+<td style="text-align: left;">None (Unlimited tokens per req)</td>
+<td style="text-align: left;">Monthly</td>
+<td style="text-align: left;">Routed multi-model pool</td>
+<td style="text-align: left;">Capped by monthly request count.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Unli.dev</strong></td>
+<td style="text-align: left;">Growing</td>
+<td style="text-align: left;">Tiered (unpublished)</td>
+<td style="text-align: left;">Monthly Request Window</td>
+<td style="text-align: left;">100 req/min, 20,000 req/mo</td>
+<td style="text-align: left;">None (Unlimited tokens per req)</td>
+<td style="text-align: left;">Monthly</td>
+<td style="text-align: left;">Routed multi-model pool</td>
+<td style="text-align: left;">Capped by monthly request count.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Unli.dev</strong></td>
+<td style="text-align: left;">Large</td>
+<td style="text-align: left;">$125/mo</td>
+<td style="text-align: left;">Monthly Request Window</td>
+<td style="text-align: left;">200 req/min, 200,000 req/mo</td>
+<td style="text-align: left;">None (Unlimited tokens per req)</td>
+<td style="text-align: left;">Monthly</td>
+<td style="text-align: left;">Routed multi-model pool</td>
+<td style="text-align: left;">Single request can use full context.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Apertis</strong></td>
+<td style="text-align: left;">Lite</td>
+<td style="text-align: left;">$12/mo</td>
+<td style="text-align: left;">Request Window / Tiered</td>
+<td style="text-align: left;">Concurrency limits</td>
+<td style="text-align: left;">None on designated free models</td>
+<td style="text-align: left;">Per-minute</td>
+<td style="text-align: left;">Free tier: Nemotron 3 Nano, MiniMax M2.1,
+GPT-OSS, DeepSeek V3</td>
+<td style="text-align: left;">Designated models consume zero quota
+balance.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>SingularityAPI</strong></td>
+<td style="text-align: left;">Hourly Rate</td>
+<td style="text-align: left;"><span
+class="math inline">144/<em>m</em><em>o</em>(</span>0.20/hr × 24/7)</td>
+<td style="text-align: left;">Pure Hourly Meter</td>
+<td style="text-align: left;">Standard RPM</td>
+<td style="text-align: left;">None (No token caps)</td>
+<td style="text-align: left;">Hourly billing</td>
+<td style="text-align: left;">DeepSeek V4.1 Flash</td>
+<td style="text-align: left;">Billed strictly per hour of
+connection/use.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>OpenAdapter</strong></td>
+<td style="text-align: left;">Go</td>
+<td style="text-align: left;">$6.99/mo</td>
+<td style="text-align: left;">5h + Weekly + Monthly</td>
+<td style="text-align: left;">500 credits / 5h, 2,400 / wk, 5,000 / mo;
+<strong>no per-minute limit</strong></td>
+<td style="text-align: left;">None (Request credits, not tokens)</td>
+<td style="text-align: left;">5h rolling + weekly + monthly</td>
+<td style="text-align: left;">11 efficient models on 0G (reaches all 4
+tiers)</td>
+<td style="text-align: left;">One call costs 0.05–5 credits by model
+weight; includes per-key vector DB.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>OpenAdapter</strong></td>
+<td style="text-align: left;">Lite</td>
+<td style="text-align: left;">$14.99/mo</td>
+<td style="text-align: left;">5h + Weekly + Monthly</td>
+<td style="text-align: left;">700 credits / 5h, 2,800 / wk, 10,000 / mo;
+metered RPM</td>
+<td style="text-align: left;">None (Request credits, not tokens)</td>
+<td style="text-align: left;">5h rolling + weekly + monthly</td>
+<td style="text-align: left;">Full catalog of 102 open models</td>
+<td style="text-align: left;">Tool-call round trips cost ⅓ of model
+weight; first 50 small requests per 5h are free.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>OpenAdapter</strong></td>
+<td style="text-align: left;">Pro</td>
+<td style="text-align: left;">$29/mo</td>
+<td style="text-align: left;">5h + Weekly + Monthly</td>
+<td style="text-align: left;">1,500 credits / 5h, 6,500 / wk, 18,400 /
+mo; 3× burst RPM</td>
+<td style="text-align: left;">None (Request credits, not tokens)</td>
+<td style="text-align: left;">5h rolling + weekly + monthly</td>
+<td style="text-align: left;">Full catalog of 102 open models</td>
+<td style="text-align: left;">BYOK passthrough (Anthropic, OpenAI, Z.AI,
+OpenCode) uses no plan quota.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>OpenAdapter</strong></td>
+<td style="text-align: left;">Max</td>
+<td style="text-align: left;">$79/mo</td>
+<td style="text-align: left;">5h + Weekly + Monthly</td>
+<td style="text-align: left;">3,000 credits / 5h, 15,000 / wk, 45,000 /
+mo; 3× burst RPM</td>
+<td style="text-align: left;">None (Request credits, not tokens)</td>
+<td style="text-align: left;">5h rolling + weekly + monthly</td>
+<td style="text-align: left;">Full catalog incl. Max-tier flagships</td>
+<td style="text-align: left;">Max tier: 40 RPM with 3× burst bucket;
+Koda terminal agent included.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Alibaba Qwen Coding
+Plan</strong></td>
+<td style="text-align: left;">Pro</td>
+<td style="text-align: left;">$50/mo</td>
+<td style="text-align: left;">5h + Weekly + Monthly</td>
+<td style="text-align: left;">6,000 req / 5h, 45,000 / wk, 90,000 /
+mo</td>
+<td style="text-align: left;">None (Counts requests, not tokens)</td>
+<td style="text-align: left;">5h rolling (min-by-min) / Weekly /
+Monthly</td>
+<td style="text-align: left;">qwen3.7-plus, qwen3.6-plus, kimi-k2.5,
+glm-5, MiniMax-M2.5</td>
+<td style="text-align: left;">Interactive coding tools only; direct
+API/scripts prohibited; non-refundable.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>BytePlus ModelArk</strong></td>
+<td style="text-align: left;">Lite</td>
+<td style="text-align: left;">$10/mo</td>
+<td style="text-align: left;">5h + Weekly + Monthly</td>
+<td style="text-align: left;">1,900 req / 5h, 12,000 / wk, 24,000 /
+mo</td>
+<td style="text-align: left;">None (Counts requests, not tokens)</td>
+<td style="text-align: left;">5h rolling / Weekly / Monthly</td>
+<td style="text-align: left;">Seed-2.0, Seed-Code, GLM, Kimi, DeepSeek,
+GPT-OSS</td>
+<td style="text-align: left;">Restock slots limited; permanently trains
+on anonymized coding inputs.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>BytePlus ModelArk</strong></td>
+<td style="text-align: left;">Pro</td>
+<td style="text-align: left;">$50/mo</td>
+<td style="text-align: left;">5h + Weekly + Monthly</td>
+<td style="text-align: left;">9,500 req / 5h, 60,000 / wk, 120,000 /
+mo</td>
+<td style="text-align: left;">None (Counts requests, not tokens)</td>
+<td style="text-align: left;">5h rolling / Weekly / Monthly</td>
+<td style="text-align: left;">Mainline coding and vision models</td>
+<td style="text-align: left;">Max 6 consecutive months subscription;
+Singapore region.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Standard Code</strong></td>
+<td style="text-align: left;">Line of Service</td>
+<td style="text-align: left;"><span
+class="math inline">49/<em>l</em><em>i</em><em>n</em><em>e</em>/<em>m</em><em>o</em>(</span>5
+first wk)</td>
+<td style="text-align: left;">Concurrency per Line</td>
+<td style="text-align: left;">1 session per line</td>
+<td style="text-align: left;">None (Unlimited usage)</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">Unlimited One (open-weights), Sama One
+(OpenAI)</td>
+<td style="text-align: left;">Cloud agent sessions;
+waitlist/early-access gated; programmable API.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Synthetic.new</strong></td>
+<td style="text-align: left;">Subscription Pack</td>
+<td style="text-align: left;">$30/mo per pack</td>
+<td style="text-align: left;">Mixed (5h Window + Weekly Bar)</td>
+<td style="text-align: left;">500 request-units / 5h (+5% every 15 min);
+1 concurrent/model</td>
+<td style="text-align: left;">Capped: $24/week credit bar (scales by
+token costs)</td>
+<td style="text-align: left;">5h rolling + weekly regen (2%/202m)</td>
+<td style="text-align: left;">Kimi K3, GLM-5.3, DeepSeek V4.1 Flash,
+Qwen3.8 27B</td>
+<td style="text-align: left;">Request count is hours-based; weekly
+credit bar is token-dollar metered.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Chutes</strong></td>
+<td style="text-align: left;">Plus</td>
+<td style="text-align: left;">$10/mo</td>
+<td style="text-align: left;">Daily Request + Dollar Cap</td>
+<td style="text-align: left;">2,000 req/day, $4.17 rolling 4h burst
+spend cap</td>
+<td style="text-align: left;">Capped: 5× PAYG value ($50/mo
+maximum)</td>
+<td style="text-align: left;">4h rolling + daily</td>
+<td style="text-align: left;">Open-weights on TEE compute</td>
+<td style="text-align: left;">Token-derived spend cap; overages bill at
+PAYG rates minus 6%.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Chutes</strong></td>
+<td style="text-align: left;">Pro</td>
+<td style="text-align: left;">$20/mo</td>
+<td style="text-align: left;">Daily Request + Dollar Cap</td>
+<td style="text-align: left;">5,000 req/day, $8.33 rolling 4h burst
+spend cap</td>
+<td style="text-align: left;">Capped: 5× PAYG value ($100/mo
+maximum)</td>
+<td style="text-align: left;">4h rolling + daily</td>
+<td style="text-align: left;">Open-weights on TEE compute</td>
+<td style="text-align: left;">Token-derived spend cap; overages bill at
+PAYG rates minus 10%.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Standard Compute</strong></td>
+<td style="text-align: left;">Starter / Pro</td>
+<td style="text-align: left;">$19 / $39 / $89 / $249 /mo</td>
+<td style="text-align: left;">Monthly Compute Budget</td>
+<td style="text-align: left;">High anti-abuse RPM ceiling</td>
+<td style="text-align: left;">Capped: $20, $41, $95, $269 compute
+budgets</td>
+<td style="text-align: left;">Monthly (no 5h or weekly window)</td>
+<td style="text-align: left;">Frontier + open models via smart
+routing</td>
+<td style="text-align: left;">Not unlimited; requests return HTTP 402
+once budget exhausted.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>OpenCode Go</strong></td>
+<td style="text-align: left;">Go / Go Plus</td>
+<td style="text-align: left;">$10 / $40 /mo</td>
+<td style="text-align: left;">Monthly Dollar Allowance</td>
+<td style="text-align: left;">20% per 5 hours, 50% per week, 100% per
+month</td>
+<td style="text-align: left;">Capped: $15 to $80 monthly dollar budget
+per model</td>
+<td style="text-align: left;">5h rolling / weekly / monthly</td>
+<td style="text-align: left;">29 models (DeepSeek V4.1 Flash, GLM-5.3,
+Kimi K3, etc.)</td>
+<td style="text-align: left;">Known aggregation bug sums percentages
+across different denominators.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Ollama Cloud</strong></td>
+<td style="text-align: left;">Pro / Max</td>
+<td style="text-align: left;">$20 / $100 /mo</td>
+<td style="text-align: left;">Monthly Credit Pool</td>
+<td style="text-align: left;">3 (Pro) or 10 (Max) concurrent
+requests</td>
+<td style="text-align: left;">Capped: $60 / $300 monthly credit
+allowances</td>
+<td style="text-align: left;">5h session + 7d weekly windows</td>
+<td style="text-align: left;">18 cloud open models</td>
+<td style="text-align: left;">Switched to metered token credits;
+off-peak discounts.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Kimi Code (Moonshot)</strong></td>
+<td style="text-align: left;">Membership Tiers</td>
+<td style="text-align: left;">$19 / $39 / $99 / $199 /mo</td>
+<td style="text-align: left;">Rolling 5-Hour + Weekly</td>
+<td style="text-align: left;">2 to 8 concurrent agent tasks</td>
+<td style="text-align: left;">Capped: Agent credit pool shared across
+Kimi membership</td>
+<td style="text-align: left;">5h rolling + weekly</td>
+<td style="text-align: left;">Kimi K3, K2.7 Code, K2.6</td>
+<td style="text-align: left;">Capped by monthly membership quota;
+training on user inputs permitted.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>MiniMax M Plan</strong></td>
+<td style="text-align: left;">Go / Explore / Build</td>
+<td style="text-align: left;">$22 / $55 / $132 /mo</td>
+<td style="text-align: left;">5-Hour + Weekly Window</td>
+<td style="text-align: left;">Concurrency unpublished; priority at peak
+(Build)</td>
+<td style="text-align: left;">Capped: 1× / 3× / 7.5× base usage
+credits</td>
+<td style="text-align: left;">5h rolling + 7-day weekly</td>
+<td style="text-align: left;">MiniMax M3.1 Flash Preview, image,
+audio</td>
+<td style="text-align: left;">Replaced Token Plan; individual
+interactive use only, not for production API.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Z.ai GLM Coding Plan</strong></td>
+<td style="text-align: left;">Lite / Pro / Max</td>
+<td style="text-align: left;">$18 / $80 / $168 /mo (CN: ¥118 / ¥538 /
+¥1,078)</td>
+<td style="text-align: left;">5-Hour + Weekly Credits</td>
+<td style="text-align: left;">1 to 2+ concurrent projects</td>
+<td style="text-align: left;">Capped: 2K/12K/28K (5h) &amp; 10K/60K/140K
+(weekly) credits</td>
+<td style="text-align: left;">5h dynamic + 7-day cycle</td>
+<td style="text-align: left;">GLM-5.3, GLM-5.3-Flash</td>
+<td style="text-align: left;">Credits calculated via token multipliers;
+peak hours cost 2× off-peak.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>NanoGPT</strong></td>
+<td style="text-align: left;">Pro</td>
+<td style="text-align: left;">$12/mo</td>
+<td style="text-align: left;">Weekly Input Token Cap</td>
+<td style="text-align: left;">10 concurrent; 10 req/10s burst; 60
+RPM</td>
+<td style="text-align: left;">Capped: 60 million input tokens per
+week</td>
+<td style="text-align: left;">Weekly (resets Monday 00:00 UTC)</td>
+<td style="text-align: left;">300+ open-weights text models, 100
+images/day</td>
+<td style="text-align: left;">Input tokens strictly counted and capped
+weekly; daily image limit.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Cerebras Code</strong></td>
+<td style="text-align: left;">Pro / Max</td>
+<td style="text-align: left;">$50 / $200 /mo</td>
+<td style="text-align: left;">Daily Token Cap</td>
+<td style="text-align: left;">50 RPM (Pro) / 120 RPM (Max)</td>
+<td style="text-align: left;">Capped: 24M (Pro) / 120M (Max) tokens per
+day</td>
+<td style="text-align: left;">Daily</td>
+<td style="text-align: left;">GLM-4.7 on Cerebras CS-3 hardware</td>
+<td style="text-align: left;">300K/400K TPM throttles; both tiers
+currently marked sold out.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Canopy Wave</strong></td>
+<td style="text-align: left;">Unlimited Plans</td>
+<td style="text-align: left;">$15.99 / $59.99 / $159.99 /mo</td>
+<td style="text-align: left;">Soft Token Threshold</td>
+<td style="text-align: left;">Up to 256 concurrent requests</td>
+<td style="text-align: left;">Capped: 50M / 200M / 500M high-speed
+tokens</td>
+<td style="text-align: left;">Monthly</td>
+<td style="text-align: left;">Kimi K2.6, MiniMax M3</td>
+<td style="text-align: left;">Drops to Basic Assurance Mode (10–100 RPH
+/ 50–500 RPD) after token limit.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Featherless</strong></td>
+<td style="text-align: left;">Chat</td>
+<td style="text-align: left;">$25/mo</td>
+<td style="text-align: left;">Concurrency Unit Bound</td>
+<td style="text-align: left;">4 concurrent units (1 large 70B+ or 4
+small)</td>
+<td style="text-align: left;">None (Unmetered tokens)</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">40,000+ open-weight models</td>
+<td style="text-align: left;"><strong>ToS explicitly prohibits API
+traffic, coding agents, and automation.</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Command Code</strong></td>
+<td style="text-align: left;">Go / GOAT / Pro / Max</td>
+<td style="text-align: left;">$1 / $10 / $20 / $100 / $200 /mo</td>
+<td style="text-align: left;">Rolling Window Credits</td>
+<td style="text-align: left;">1 prompt ≈ 15–20 model calls</td>
+<td style="text-align: left;">Capped: $10, $70, $80, $150, $300 monthly
+credits</td>
+<td style="text-align: left;">5h rolling + weekly caps</td>
+<td style="text-align: left;">84 models</td>
+<td style="text-align: left;">Credits paced over 5h and weekly windows;
+overage requires top-ups.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Router One</strong></td>
+<td style="text-align: left;">Claude Max Alt</td>
+<td style="text-align: left;">From $20.19/mo</td>
+<td style="text-align: left;">Monthly Tier Quotas</td>
+<td style="text-align: left;">Standard RPM</td>
+<td style="text-align: left;">Capped: Monthly quotas by model tier</td>
+<td style="text-align: left;">Monthly</td>
+<td style="text-align: left;">Claude, GPT, Gemini</td>
+<td style="text-align: left;">Overages bill to wallet balance; disclaims
+unmetered claims.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>LibertyAI</strong></td>
+<td style="text-align: left;">Go / Plus / Max</td>
+<td style="text-align: left;">$8.64 / $21.6 / $108 /mo</td>
+<td style="text-align: left;">Weekly Usage Quotas</td>
+<td style="text-align: left;">Standard RPM</td>
+<td style="text-align: left;">Capped: Weekly limits (Plus 3× Go, Max 10×
+Plus)</td>
+<td style="text-align: left;">Weekly + session cooldowns</td>
+<td style="text-align: left;">Qwen, GLM, DeepSeek, Hermes 3</td>
+<td style="text-align: left;">Usage beyond plan requires paying per
+token via crypto.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Xiaomi MiMo</strong></td>
+<td style="text-align: left;">Token Plan</td>
+<td style="text-align: left;">$6 / $16 / $50 / $100 /mo</td>
+<td style="text-align: left;">Credit Pool</td>
+<td style="text-align: left;">Unstated</td>
+<td style="text-align: left;">Capped: 4.1B, 11B, 38B, 82B credits</td>
+<td style="text-align: left;">Monthly (no 5h or weekly caps)</td>
+<td style="text-align: left;">MiMo V2.6 Pro, V2.6 Flash</td>
+<td style="text-align: left;">V2.5/V2.5 Pro retired 2026-10-21; 0.8×
+discount off-peak (00:00–08:00 UTC+8).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Muse Code</strong></td>
+<td style="text-align: left;">Everyday Usage</td>
+<td style="text-align: left;">$5/mo</td>
+<td style="text-align: left;">5-Hour Prompt Window</td>
+<td style="text-align: left;">Unstated</td>
+<td style="text-align: left;">Capped: 10–50 prompts per 5 hours</td>
+<td style="text-align: left;">5 hours rolling</td>
+<td style="text-align: left;">Muse Wonder, Muse Spark 1.3, Spark
+1.2</td>
+<td style="text-align: left;">First-party Meta product; includes
+multimodal inputs.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Entrim</strong></td>
+<td style="text-align: left;">Model Plan</td>
+<td style="text-align: left;">$29/mo</td>
+<td style="text-align: left;">Daily Token Allowance</td>
+<td style="text-align: left;">Up to 8 dedicated concurrency</td>
+<td style="text-align: left;">Capped: 17.28M tokens per day
+(~500M+/mo)</td>
+<td style="text-align: left;">Daily</td>
+<td style="text-align: left;">DeepSeek V4 Flash, Qwen 3.8, GLM 5.3
+Flash</td>
+<td style="text-align: left;">Slovenian entity (E3M d.o.o.); EU
+infrastructure; daily token ceiling.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>DevPass / Kilo Pass /
+ClinePass</strong></td>
+<td style="text-align: left;">Gateway Subscriptions</td>
+<td style="text-align: left;"><span
+class="math inline">9.99–</span>199/mo</td>
+<td style="text-align: left;">Multiplier / Dollar Quotas</td>
+<td style="text-align: left;">Variable</td>
+<td style="text-align: left;">Capped: 2× to 5× plan price in usage at
+list rates</td>
+<td style="text-align: left;">24h rolling, weekly, and monthly</td>
+<td style="text-align: left;">Multi-provider catalogs</td>
+<td style="text-align: left;">Strict whitelisted coding tools only;
+automation bans apply.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Novita AI</strong></td>
+<td style="text-align: left;">Coding Plan</td>
+<td style="text-align: left;">$50/mo</td>
+<td style="text-align: left;">Base-Rate Equivalent Tokens</td>
+<td style="text-align: left;">Standard RPM</td>
+<td style="text-align: left;">Capped: 150M tokens per month</td>
+<td style="text-align: left;">Monthly</td>
+<td style="text-align: left;">GLM-5, Kimi K2.5, MiniMax, DeepSeek V4
+Pro</td>
+<td style="text-align: left;">Different models carry different token
+weights; charges balance after cap.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>ModelsLab</strong></td>
+<td style="text-align: left;">Open Source Unlimited</td>
+<td style="text-align: left;">$149/mo</td>
+<td style="text-align: left;">Concurrency Bound</td>
+<td style="text-align: left;">15 parallel generations</td>
+<td style="text-align: left;">Capped: Unlimited on image models;
+<strong>LLMs bill per token from wallet</strong></td>
+<td style="text-align: left;">None on image / Per-token on LLM</td>
+<td style="text-align: left;">Open-source image models hosted
+locally</td>
+<td style="text-align: left;">LLM catalogue runs via third-party
+partners and is metered.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Eden AI / Requesty</strong></td>
+<td style="text-align: left;">AI Gateway</td>
+<td style="text-align: left;">Free / PAYG (5–5.5% fee)</td>
+<td style="text-align: left;">Metered Platform Fee</td>
+<td style="text-align: left;">60 to 1,000 req/min</td>
+<td style="text-align: left;">Metered: 100% pay-as-you-go per token</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">500+ models across 80 providers</td>
+<td style="text-align: left;">No flat-rate unmetered plans; pure markup
+on upstream token prices.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Claudin.io
+(Claudinio)</strong></td>
+<td style="text-align: left;">Essential / Pro / Ultra</td>
+<td style="text-align: left;">$19 / $29 / $49 /mo</td>
+<td style="text-align: left;">Hourly Dollar Anti-Runaway</td>
+<td style="text-align: left;">Standard RPM</td>
+<td style="text-align: left;">Capped: $2.00/h, $4.00/h, $10.00/h spend
+ceiling</td>
+<td style="text-align: left;">Hourly auto-reset</td>
+<td style="text-align: left;"><code>claudinio</code> (256K ctx),
+<code>claudius</code></td>
+<td style="text-align: left;">Hourly anti-runaway ceiling is
+dollar-denominated based on internal rates.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>CheapestInference</strong></td>
+<td style="text-align: left;">Core Pool</td>
+<td style="text-align: left;"><span class="math inline">22–</span>26 per
+8h block /mo</td>
+<td style="text-align: left;">Daily 8-Hour Time Block</td>
+<td style="text-align: left;">1 concurrent request per subscription</td>
+<td style="text-align: left;">None during reserved block</td>
+<td style="text-align: left;">Daily 8-hour block (declined outside)</td>
+<td style="text-align: left;">DeepSeek V4.1 Flash, MiMo V2.6 Flash</td>
+<td style="text-align: left;">Single-request concurrency; 3 blocks
+required for 24/7 coverage.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>CheapestInference</strong></td>
+<td style="text-align: left;">Frontier Pool</td>
+<td style="text-align: left;"><span class="math inline">71–</span>77 per
+8h block /mo</td>
+<td style="text-align: left;">Daily 8-Hour Time Block</td>
+<td style="text-align: left;">1 concurrent request per subscription</td>
+<td style="text-align: left;">None during reserved block</td>
+<td style="text-align: left;">Daily 8-hour block (declined outside)</td>
+<td style="text-align: left;">GLM 5.3, MiniMax M3 (1M context)</td>
+<td style="text-align: left;">OpenAI &amp; Anthropic SDK compatible;
+stackable keys.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>CheapestInference</strong></td>
+<td style="text-align: left;">Flagship Pool</td>
+<td style="text-align: left;">$199 per 8h block /mo</td>
+<td style="text-align: left;">Daily 8-Hour Time Block</td>
+<td style="text-align: left;">1 concurrent request per subscription</td>
+<td style="text-align: left;">None during reserved block</td>
+<td style="text-align: left;">Daily 8-hour block (declined outside)</td>
+<td style="text-align: left;">Kimi K3, Qwen3.8 Max</td>
+<td style="text-align: left;">Model substitution complaint logged on
+r/DeepSeek.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Fireworks Fire Pass</strong></td>
+<td style="text-align: left;">Fire Pass v2</td>
+<td style="text-align: left;">$49/mo</td>
+<td style="text-align: left;"><strong>CLOSED / SUNSET</strong></td>
+<td style="text-align: left;">Closed to new signups</td>
+<td style="text-align: left;">Previously unmetered with soft 100M/day
+cap</td>
+<td style="text-align: left;">Weekly / Monthly</td>
+<td style="text-align: left;">Kimi K2.6 Turbo, GLM-5.2 Fast</td>
+<td style="text-align: left;">Deprecated and discontinued in July 2026;
+v3 unreleased.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>camelAI Stream</strong></td>
+<td style="text-align: left;">Stream</td>
+<td style="text-align: left;">$5/stream/mo</td>
+<td style="text-align: left;"><strong>SHUTTING DOWN</strong></td>
+<td style="text-align: left;">1 generation per stream</td>
+<td style="text-align: left;">Previously unmetered</td>
+<td style="text-align: left;">Queue-based</td>
+<td style="text-align: left;">DeepSeek V4 Flash</td>
+<td style="text-align: left;">New subscriptions closed; active
+subscribers running out billing period.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>UnlimitedClaude</strong></td>
+<td style="text-align: left;">Starter / Pro</td>
+<td style="text-align: left;">$10 / $20 /mo</td>
+<td style="text-align: left;"><strong>DEAD (HTTP 410)</strong></td>
+<td style="text-align: left;">Previously 20K–50K req/day</td>
+<td style="text-align: left;">Previously unmetered</td>
+<td style="text-align: left;">Daily</td>
+<td style="text-align: left;">Claude Opus, Sonnet, Haiku</td>
+<td style="text-align: left;">Domain offline / 410 Gone.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Xiaomi MiMo Code</strong></td>
+<td style="text-align: left;">Free / Integrated</td>
+<td style="text-align: left;">Free (discontinued)</td>
+<td style="text-align: left;"><strong>DISCONTINUED</strong></td>
+<td style="text-align: left;">Discontinued</td>
+<td style="text-align: left;">N/A</td>
+<td style="text-align: left;">N/A</td>
+<td style="text-align: left;">MiMo coding models</td>
+<td style="text-align: left;">Discontinued July 26, 2026; distinct from
+live MiMo Token Plan.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Novita AI</strong></td>
+<td style="text-align: left;">Free Tier Models</td>
+<td style="text-align: left;">Free (discontinued)</td>
+<td style="text-align: left;"><strong>DISCONTINUED</strong></td>
+<td style="text-align: left;">Discontinued</td>
+<td style="text-align: left;">N/A</td>
+<td style="text-align: left;">N/A</td>
+<td style="text-align: left;">Ling 3.1 Flash, Apodex 1.1 Mini</td>
+<td style="text-align: left;">Free model routes silently removed; all
+calls now draw prepaid credits.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>LongCat API</strong></td>
+<td style="text-align: left;">Free Plan</td>
+<td style="text-align: left;">Free (discontinued)</td>
+<td style="text-align: left;"><strong>DISCONTINUED</strong></td>
+<td style="text-align: left;">Discontinued</td>
+<td style="text-align: left;">N/A</td>
+<td style="text-align: left;">N/A</td>
+<td style="text-align: left;">LongCat Flash</td>
+<td style="text-align: left;">Discontinued on 2026-05-29.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Puter.js</strong></td>
+<td style="text-align: left;">Free API</td>
+<td style="text-align: left;">Free</td>
+<td style="text-align: left;"><strong>INVALID ARCHITECTURE</strong></td>
+<td style="text-align: left;">Client-side only</td>
+<td style="text-align: left;">N/A</td>
+<td style="text-align: left;">N/A</td>
+<td style="text-align: left;">Open-source chat wrappers</td>
+<td style="text-align: left;">Browser-only JavaScript SDK; no direct
+HTTP endpoint for backend agents.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Volcengine Ark Coding Plan
+(火山方舟)</strong></td>
+<td style="text-align: left;">Lite</td>
+<td style="text-align: left;">$5.60/mo (¥40; $1.39 first-mo promo)</td>
+<td style="text-align: left;">5h + Weekly + Monthly</td>
+<td style="text-align: left;">~1,200 req / 5h, ~9,000 / wk, ~18,000 /
+mo</td>
+<td style="text-align: left;">None (Counts requests, not tokens)</td>
+<td style="text-align: left;">5h rolling (from first request) + Mon
+00:00 weekly + 1st-of-sub-month monthly</td>
+<td style="text-align: left;">Doubao-Seed-Code, Doubao-Seed-2.1-Turbo,
+GLM-5.2/5.1, Kimi-K2.7-Code/K2.6, MiniMax-M3/M2.7,
+DeepSeek-V4-Pro/V4-Flash/V3.2</td>
+<td style="text-align: left;">Requires plan-specific Base URL (OpenAI-
+or Anthropic-compatible); quota valid in coding tools only, not for
+direct API use; daily 00:00 stock release, sells out.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Volcengine Ark Coding Plan
+(火山方舟)</strong></td>
+<td style="text-align: left;">Pro</td>
+<td style="text-align: left;">$28/mo (¥200; $6.99/mo first 2 mo
+promo)</td>
+<td style="text-align: left;">5h + Weekly + Monthly</td>
+<td style="text-align: left;">~6,000 req / 5h, ~45,000 / wk, ~90,000 /
+mo</td>
+<td style="text-align: left;">None (Counts requests, not tokens)</td>
+<td style="text-align: left;">5h rolling + Mon 00:00 weekly +
+monthly</td>
+<td style="text-align: left;">Same multi-model catalog as Lite</td>
+<td style="text-align: left;">5× Lite quota; higher TPM; quota shared
+across Claude Code, Cursor, TRAE, OpenCode, OpenClaw, Hermes Agent.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Volcengine Ark Agent Plan
+(火山方舟)</strong></td>
+<td style="text-align: left;">Agent Plan</td>
+<td style="text-align: left;">From $5.60/mo (¥40 Small; promo
+$1.39)</td>
+<td style="text-align: left;">Multimodal Agent Plan</td>
+<td style="text-align: left;">Unstated</td>
+<td style="text-align: left;">Metered quota (unpublished)</td>
+<td style="text-align: left;">Monthly</td>
+<td style="text-align: left;">DeepSeek-V4.1-Flash, GLM-5.3 series,
+Doubao-Seedream-5.0-pro, Kimi-K3 (partial)</td>
+<td style="text-align: left;">Includes ArkClaw harness; broader modality
+mix than Coding Plan; promo pricing tier-gated.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>YesChat.ai</strong></td>
+<td style="text-align: left;">Pro</td>
+<td style="text-align: left;">$8/mo (annual billing)</td>
+<td style="text-align: left;">Credit Pool</td>
+<td style="text-align: left;">1,000 Advanced Credits / mo</td>
+<td style="text-align: left;">Capped: 8,000 weighted tokens = 1 credit;
+max 10 credits/message</td>
+<td style="text-align: left;">Monthly</td>
+<td style="text-align: left;">GPT-5.6 Luna/Terra, Claude Sonnet
+5/4.6/Haiku 4.5, Gemini 3.1 Pro, Grok 4.7, DeepSeek</td>
+<td style="text-align: left;">Consumer chat/agent platform with
+API-style receipts; 1 device; commercial license.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>YesChat.ai</strong></td>
+<td style="text-align: left;">Ultra</td>
+<td style="text-align: left;">$16/mo (annual billing)</td>
+<td style="text-align: left;">Credit Pool</td>
+<td style="text-align: left;">3,000 Advanced Credits / mo</td>
+<td style="text-align: left;">Capped: flagship models (Sol, Opus 5)
+count 2×; 10-credit per-message cap</td>
+<td style="text-align: left;">Monthly</td>
+<td style="text-align: left;">Everything in Pro + GPT-5.6 Sol, Claude
+Opus 5/4.8; <strong>GPT-5.6 Terra unlimited</strong></td>
+<td style="text-align: left;">Terra chat unmetered and credit-free;
+priority at peak; 2 devices.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>YesChat.ai</strong></td>
+<td style="text-align: left;">Max</td>
+<td style="text-align: left;">$40/mo (annual billing)</td>
+<td style="text-align: left;">Credit Pool</td>
+<td style="text-align: left;">10,000 Advanced Credits / mo</td>
+<td style="text-align: left;">Capped: weighted-token credits; 10-credit
+per-message cap</td>
+<td style="text-align: left;">Monthly</td>
+<td style="text-align: left;">Everything in Ultra + GPT-6 Astra
+(2×)</td>
+<td style="text-align: left;">Unlimited Terra; Music v5 Studio; highest
+peak priority; 2 devices.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Alibaba Cloud Coding Plan
+(阿里云)</strong></td>
+<td style="text-align: left;">Lite 基础套餐</td>
+<td style="text-align: left;">$5.60/mo (¥40)</td>
+<td style="text-align: left;"><strong>DISCONTINUED</strong></td>
+<td style="text-align: left;">1,200 req / 5h, 9,000 / wk, 18,000 /
+mo</td>
+<td style="text-align: left;">None (Counted requests, not tokens)</td>
+<td style="text-align: left;">5h + weekly + monthly</td>
+<td style="text-align: left;">qwen-3.5-plus (at time of delisting)</td>
+<td style="text-align: left;">Delisted per community trackers; succeeded
+by Alibaba Qwen Coding Plan tiers.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Tencent Cloud Token Plan 通用版
+(腾讯云)</strong></td>
+<td style="text-align: left;">Lite / Standard / Pro / Max</td>
+<td style="text-align: left;">$5.46 / $13.86 / $41.86 / $83.86 /mo
+(¥39–599)</td>
+<td style="text-align: left;">Monthly Credit Pool</td>
+<td style="text-align: left;">Standard RPM</td>
+<td style="text-align: left;">Capped: 780 / 1,980 / 5,980 / 11,980
+credits per month</td>
+<td style="text-align: left;">Monthly (per subscription month)</td>
+<td style="text-align: left;">DeepSeek-V4.1 (Flash/Pro), GLM-5.2/5.3,
+Kimi K2.7-Code/K3, MiniMax M2.7/M3, MiMo-V2.6-Flash, Hy4 preview (12
+models; manual pick or Auto routing)</td>
+<td style="text-align: left;">Personal interactive AI-tool use only (no
+backend/scripts/batch); per-model credit burn rates differ; no refunds;
+works in Claude Code, Cursor, OpenCode, Cline/Roo, Codex, OpenClaw.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Tencent Cloud Token Plan Hy 版
+(腾讯云)</strong></td>
+<td style="text-align: left;">Lite / Standard / Pro / Max</td>
+<td style="text-align: left;">$3.92 / $10.92 / $33.32 / $65.52 /mo
+(¥28–468)</td>
+<td style="text-align: left;">Monthly Credit Pool</td>
+<td style="text-align: left;">Standard RPM</td>
+<td style="text-align: left;">Capped: 560 / 1,560 / 4,760 / 9,360
+credits per month</td>
+<td style="text-align: left;">Monthly</td>
+<td style="text-align: left;">Hunyuan Hy3, Hy4 preview only</td>
+<td style="text-align: left;">Same interactive-only restrictions as
+通用版; shares Token Plan API key with 通用版; no multimodal.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Tencent Cloud Coding Plan
+(腾讯云)</strong></td>
+<td style="text-align: left;">Lite / Pro</td>
+<td style="text-align: left;">$5.60 / $28 /mo (¥40 / ¥200)</td>
+<td style="text-align: left;">5h + Weekly + Monthly</td>
+<td style="text-align: left;">~1,200 / ~6,000 model calls per 5h; 9,000
+/ 45,000 per week; 18,000 / 90,000 per month</td>
+<td style="text-align: left;">None (Counts requests, not tokens)</td>
+<td style="text-align: left;">5h rolling + Monday 00:00 weekly +
+subscription month</td>
+<td style="text-align: left;">Smart routing only — model selection NOT
+user-controllable (tc-code-latest); GLM-5 delisted 2026-10-09</td>
+<td style="text-align: left;">Interactive coding tools only; Lite/Pro
+not cross-upgradable; stock via console; no refunds.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Alibaba Bailian Token Plan
+(阿里云百炼) 个人版</strong></td>
+<td style="text-align: left;">Lite / Essential / Standard / Pro</td>
+<td style="text-align: left;">$5.46 / $11.06 / $19.46 / $69.86 /mo
+(¥39–499)</td>
+<td style="text-align: left;">Monthly Credit Pool</td>
+<td style="text-align: left;">Standard RPM</td>
+<td style="text-align: left;">Capped: 11,500 / 25,500 / 45,000 / 180,000
+credits per month; no weekly window</td>
+<td style="text-align: left;">Monthly (30-day subscription month)</td>
+<td style="text-align: left;">Qwen3.8-Max/Flash, Qwen3.7-Max/Plus,
+DeepSeek-V4.1-Flash/V4-Pro, GLM-5.3/5.2 + Qwen-Image/Audio/Wan video
+multimodal (22 series)</td>
+<td style="text-align: left;">Beijing region only; off-peak 22:00–08:00
+CST burns 0.4×–0.5× credits; top-up packs ¥100/20K credits (max 5/mo);
+credits do NOT auto-charge balance on exhaustion; personal interactive
+use only; inputs used for training on personal tier.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Volcengine Ark Agent Plan
+(火山方舟)</strong></td>
+<td style="text-align: left;">Small / Medium / Large / Max</td>
+<td style="text-align: left;">$5.60 / $28 / $70 / $140 /mo
+(¥40–1,000)</td>
+<td style="text-align: left;">5h + Weekly + Monthly (AFP credits)</td>
+<td style="text-align: left;">2K / 10K / 25K / 50K AFP per 5h; 7K / 35K
+/ 87.5K / 175K per week; 20K / 100K / 250K / 500K per month</td>
+<td style="text-align: left;">Capped: AFP credit pools;
+multimodal/Harness capped separately at 10K–250K AFP/day</td>
+<td style="text-align: left;">5h rolling + weekly + monthly; multimodal
+daily+monthly</td>
+<td style="text-align: left;">All 13 Coding Plan text models + Seedream
+5.0 Pro image, Seedance 2.0/2.5 video, Doubao TTS/ASR, Embedding-Vision;
+Kimi K3 + Computer Use from Medium; video generation from Large</td>
+<td style="text-align: left;">Text models keep 5h/weekly caps; optional
+postpaid overage toggle for text/embedding; promo ¥9.9 Small / ¥49.9
+Medium for first 2 months through 2026-11-08.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>ZenMux</strong></td>
+<td style="text-align: left;">Builder Plan Starter / Max / Ultra</td>
+<td style="text-align: left;">$20 / $100 / $200 /mo</td>
+<td style="text-align: left;">5-Hour Flow Window</td>
+<td style="text-align: left;">50 / 300 / 800 Flows per 5h; 4 / 3 / 2
+bonus window resets per month</td>
+<td style="text-align: left;">None (Flow-count windows, not tokens)</td>
+<td style="text-align: left;">5h rolling + monthly bonus resets</td>
+<td style="text-align: left;">200+ models via one key (OpenAI /
+Anthropic / Google / DeepSeek / xAI / Meta); premium models rotate on
+Starter</td>
+<td style="text-align: left;">LLM gateway with "insurance" credit
+compensation for latency/hallucination; API access from Starter up; Free
+tier is Studio-Chat-only; limited-batch spots; OpenAI/Anthropic/Vertex
+SDK-compatible.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Clicknow</strong></td>
+<td style="text-align: left;">Lifetime License</td>
+<td style="text-align: left;">One-time &lt;$20 (no monthly)</td>
+<td style="text-align: left;">Lifetime Flat Purchase</td>
+<td style="text-align: left;">Unlimited usage (built-in API key)</td>
+<td style="text-align: left;">None claimed; upstream ~Gemini Flash class
+models</td>
+<td style="text-align: left;">None (one-time purchase)</td>
+<td style="text-align: left;">Gemini-class models via embedded key (not
+user-selectable)</td>
+<td style="text-align: left;">macOS-only desktop translation/explanation
+tool, NOT a general API; pay-once lifetime license covers 2
+devices.</td>
+</tr>
+</tbody>
+</table>
+<script>
+// Wrap every table in a .table-wrap div for horizontal scrolling
+document.querySelectorAll('table').forEach(function (t) {
+  var w = document.createElement('div');
+  w.className = "table-wrap";
+  t.parentNode.insertBefore(w, t);
+  w.appendChild(t);
+});
+</script>
+</body>
+</html>

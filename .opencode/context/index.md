@@ -43,6 +43,7 @@ check that stops this file drifting again.
 | [[context/research/caveman]] | source-summary | opencode, claude-code, codex, gemini, skill, compression, tokens, caveman, prompt-engineering | active |
 | [[context/research/claude-style-patch/2026-10-18]] | source-summary | ai-writing, prose, style, claude, claudish, line-editing, docs, voice, clarity | active |
 | [[context/research/ecc-agent-harness-guides]] | — | — | — |
+| [[context/research/flat-rate-ai-plans/2026-10-24]] | source-summary | ai-plans, flat-rate, subscriptions, pricing, coding-agents, api-providers, modelslab, warp, factory, zed, amazon-q, gemini-code-assist, jetbrains-ai, amp, trae, qodo | active |
 | [[context/research/karpathy-guidelines/20260711_karpathy-guidelines]] | research | coding-standards, ai-coding | — |
 | [[context/research/lit-search-cite]] | source-summary | opencode, claude-code, skill, academic, literature-search, cnki, pubmed, arxiv, citation | active |
 | [[context/research/llm-wiki/karpathy-llm-wiki]] | — | — | — |

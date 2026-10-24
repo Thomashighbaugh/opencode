@@ -11,6 +11,32 @@ status: active
 
 Chronological record of all wiki operations. Append-only.
 
+## [2026-10-24] promote | Flat-Rate AI Plans Research Archive
+
+- **Operation**: Promoted the dedicated flat-rate AI pricing research artifacts from temporary storage into durable context.
+- **Destination**: `research/flat-rate-ai-plans/`
+- **Files created**:
+  - `research/flat-rate-ai-plans/2026-10-24.md` — source summary, archive map, ModelsLab correction, current provider checks, and integrity instructions.
+  - `research/flat-rate-ai-plans/source-captures/` — 30 provider pricing, relay, official-reference, and generated-table captures.
+  - `research/flat-rate-ai-plans/backups/` — four pre-edit HTML backups.
+  - `research/flat-rate-ai-plans/verification/` — four rendered-table QA screenshots.
+  - `research/flat-rate-ai-plans/SHA256SUMS` — 36 recorded checksums.
+- **Canonical deliverables**: `/home/tlh/Documents/flat_rate_ai_plans.md` and `/home/tlh/Documents/flat_rate_ai_plans.html`
+- **Cross-references**: Indexed the research page and linked it to existing OpenCode research pages.
+- **Notes**: Unrelated temporary character, boot, test, and browsing files were excluded.
+
+## [2026-10-24] update | Flat-Rate AI Plans second provider expansion
+
+- **Operation**: Added nine official-source-backed coding subscription families to the flat-rate comparison.
+- **Canonical deliverables**:
+  - `/home/tlh/Documents/flat_rate_ai_plans.md` — expanded from 145 to 154 data rows.
+  - `/home/tlh/Documents/flat_rate_ai_plans.html` — regenerated with the existing wide, horizontally scrollable styling.
+- **Providers added**: Warp, Factory, Zed, Amazon Q Developer, Gemini Code Assist, JetBrains AI, Amp, Trae, and Qodo.
+- **Research archive**: Promoted nine official pricing-page JSON captures and recorded published prices, quotas, reset windows, concurrency, and model-plan constraints in the dated digest.
+- **Limits handling**: Unpublished absolute request limits are labeled as unpublished; Qodo’s “unlimited credits” marketing claim is preserved alongside its published finite credit-pack prices.
+- **Validation**: Markdown and HTML both contain 154 data rows with nine cells per row; HTML has 155 total table rows including the header, the expected title, and closing document tags.
+- **Cross-references**: Updated `context/index.md` tags for the expanded evidence set.
+
 ## [2026-07-04] consume | OpenLoops (@hasna/loops)
 
 - **Operation**: Ingested npm package documentation for `@hasna/loops` (OpenLoops)

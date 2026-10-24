@@ -143,7 +143,7 @@ export const HUBS: Hub[] = [
       },
       {
         "label": "knowledge-graph",
-        "description": "Per-project entity graph with vector-then-graph retrieval"
+        "description": "Build and query the project knowledge graph — vector + graph search"
       },
       {
         "label": "graph",
