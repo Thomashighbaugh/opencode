@@ -14,7 +14,7 @@
   "dependencies": {
     "@franlol/opencode-md-table-formatter": "0.0.3",
     "@huggingface/transformers": "^4.2.0",
-    "@modelcontextprotocol/sdk": "^1.31.0",
+    "@modelcontextprotocol/sdk": "^1.32.2",
     "@opencode-ai/plugin": "1.18.35",
     "@opencode-ai/sdk": "^1.18.15",
     "@opencode-plugins/env-protection": "^1.0.4",
@@ -52,6 +52,8 @@
     "toml": "4.2.0",
     "seroval": "1.6.11",
     "global-agent": "4.1.3",
-    "argparse": "2.0.1"
+    "argparse": "2.0.1",
+    "hono": "4.13.13",
+    "vite": "8.3.5"
   }
 }
