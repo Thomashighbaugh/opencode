@@ -37,7 +37,7 @@
     "unpdf": "^1.9.1",
     "vscode-langservers-extracted": "^4.10.0",
     "word-extractor": "^1.0.4",
-    "zod": "^3.25.76"
+    "zod": "^4.6.6"
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
