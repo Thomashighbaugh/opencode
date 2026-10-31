@@ -1,10 +1,10 @@
 # General Web Module
 
-> 从 web-search-agent.md 提取的通用网页搜索策略
+> General web search strategy
 
-**触发场景**: 通用信息、新闻、产品对比、最佳实践
+**Trigger scenarios**: General information, news, product comparisons, best practices
 
-## 搜索源
+## Search sources
 - **Reddit** (r/programming, r/webdev, r/javascript, and topic-specific subreddits) - real-world experiences
 - **Official documentation** and changelogs - authoritative information
 - **Blog posts** and tutorials - detailed explanations
@@ -14,7 +14,7 @@
 - **Discord** - official discussion channels for many open source projects
 - **X/Twitter** - technical announcements and discussions from developers and maintainers
 
-## 查询策略 (1.2 Best Practices & Comparative Research)
+## Query strategy (Best Practices & Comparative Research)
 - Look for official recommendations first
 - Cross-reference with community consensus
 - Find examples from production codebases
