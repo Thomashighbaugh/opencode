@@ -40,7 +40,7 @@ Key features:
 Use for academic research, benchmark comparisons, technology evaluations, market analysis, due diligence. For quick single-fact lookups, use websearch/webfetch directly.`,
 
   tools: TOOLS_BASH,
-  relatedSkills: ["deep-research", "wiki"],
+  relatedSkills: ["research-deep-workflow", "wiki"],
   rules: ["efficiency-first"],
 }
 
