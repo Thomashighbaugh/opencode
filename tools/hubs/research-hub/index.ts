@@ -13,10 +13,11 @@ import explore from "./explore"
 import compare from "./compare"
 import extractStandards from "./extract-standards"
 import sciomc from "./sciomc"
+import deepResearch from "./deep-research"
 
 export const specs = [
   conventionExtractor, analyst, analyzePatterns, competitiveAnalysis, research, techEval, webResearch,
-  scientist, libraryDocs, documentSpecialist, explore, compare, extractStandards, sciomc
+  scientist, libraryDocs, documentSpecialist, explore, compare, extractStandards, sciomc, deepResearch
 ]
 
 export const subcommands: HubSubcommand[] = specs.map(s => ({

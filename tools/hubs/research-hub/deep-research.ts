@@ -3,23 +3,41 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "deep-research",
-  description: "Serial subagent research — multi-source, cited report on any topic",
-  reminder: "Deep research with serial subagent dispatch, citations, and a synthesized report.",
+  description: "Two-phase deep research — outline + parallel item research with structured report",
+  reminder: "Generate outline → deep-research items in parallel → compile structured report.",
   inline: true,
 
-  detailedDescription: `Deep research pipeline that dispatches research subagents serially — one at a time, in sequence — so the primary agent retains full awareness of the overall goal and adapts the plan as findings come in.
+  detailedDescription: `Deep research workflow inspired by Weizhena/Deep-Research-skills (OpenCode variant). Two-phase approach with human-in-the-loop control:
 
-1. Scope and classify — interview the user (if vague) or auto-scope (if specific), classify the research type using the expanded taxonomy (18 core types + 5 catch-all fallbacks), and plan the axis breakdown.
-2. Serial dispatch — for each axis, dispatch one subagent, wait for its findings, review for gaps/contradictions/new angles, adapt the remaining plan, then dispatch the next. Never dispatch multiple simultaneously.
-3. Landscape and deep dive — serial dispatch for cross-cutting and deep-dive axes.
-4. Synthesis — the primary agent reads all findings, reconciles conflicts, and writes the synthesis section.
-5. Report writer — dispatch a final subagent to produce the polished report from all notes.
+Phase 1 - Outline Generation (/research equivalent):
+1. Analyze topic and generate initial research items + field framework using model knowledge
+2. Web search supplement via web-search-agent to find missing items/fields
+3. Ask if user has existing field definitions to merge
+4. Generate outline.yaml and fields.yaml in ./{topic_slug}/ directory
+5. User confirms or iterates (add items/fields)
 
-Every claim must cite a source URL with confidence level and tier. Conflicting sources are surfaced, not silently resolved. Findings are written to the output file immediately after each subagent returns.
+Phase 2 - Deep Research (/research-deep equivalent):
+1. Locate outline.yaml and read items + execution config (batch_size, items_per_agent)
+2. Check for completed results to support resume
+3. For each item, dispatch web-search-agent (can run in parallel batches) with strict prompt enforcing JSON output per fields.yaml schema
+4. Each agent validates output with validation script (validate_json.py)
+5. Track progress, handle retries
 
-The type router auto-classifies the topic into one or more types and merges their axis lists. Types: market, domain, technical, competitive, product, academic, person-org, financial, legal, trend, community, geopolitical, scientific, cultural, operational, historical, ethical, environmental. Catch-all fallbacks: exploratory, comparative, synthesis, investigative, meta.
+Phase 3 - Report Generation (/research-report equivalent):
+1. Collect all JSON results from output_dir
+2. Compile into comprehensive markdown report with TOC, tables, sources
+3. Save as report.md in topic directory
 
-Use when the deliverable is a thorough sourced report rather than a quick answer. For single-fact lookups, use websearch or web-fetch directly.`,
+Key features:
+- Structured JSON output per item following custom field schema
+- Parallel agent execution with batch control
+- Resume capability (skip completed items)
+- Uncertain field tracking with [uncertain] markers
+- Validation ensures complete field coverage
+- Uses web-search-agent with module-based search strategies (GitHub issues, academic papers, Chinese tech, StackOverflow, general web)
+- All sources cited in final report
+
+Use for academic research, benchmark comparisons, technology evaluations, market analysis, due diligence. For quick single-fact lookups, use websearch/webfetch directly.`,
 
   tools: TOOLS_BASH,
   relatedSkills: ["deep-research", "wiki"],
