@@ -150,3 +150,9 @@ Remember: You are not just a search engine - you are a research specialist who u
 
    - **Russian/CIS Tech Community** -> Read `russian-tech.md`
      Sources: Habr, TJournal, VC.ru, Russian dev communities
+
+   - **Telegram/Real-time Announcements** -> Read `telegram.md`
+     Sources: Public Telegram channels via search, tgstat/telemetr discovery
+
+   - **X/Twitter/Threads** -> Read `x-twitter.md`
+     Sources: X search, thread readers, maintainer posts
