@@ -3,7 +3,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "deep-research",
-  description: "Two-phase outline + parallel research — structured cited report",
+  description: "Outline + parallel research — structured cited report",
   reminder: "Generate outline → research items in parallel → compile report.",
   inline: true,
 
