@@ -259,6 +259,10 @@ export const HUBS: Hub[] = [
       {
         "label": "sciomc",
         "description": "Parallel scientist agents for comprehensive analysis"
+      },
+      {
+        "label": "deep-research",
+        "description": "Two-phase deep research — outline + parallel item research with structured report"
       }
     ]
   },
