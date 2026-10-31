@@ -3,8 +3,8 @@ import { HubSubcommandSpec } from "../../hub-data"
 import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
   label: "deep-research",
-  description: "Two-phase deep research — outline + parallel item research with structured report",
-  reminder: "Generate outline → deep-research items in parallel → compile structured report.",
+  description: "Two-phase outline + parallel research — structured cited report",
+  reminder: "Generate outline → research items in parallel → compile report.",
   inline: true,
 
   detailedDescription: `Deep research workflow inspired by Weizhena/Deep-Research-skills (OpenCode variant). Two-phase approach with human-in-the-loop control:
