@@ -10,6 +10,9 @@ allowed-tools: Bash, Read, Write, Glob, WebSearch, Task
 ## Trigger
 `/research-deep`
 
+## Web fetching (ax-first)
+When fetching pages directly (not via WebSearch results), prefer `ax` over `curl`. Use `ax URL --md` for readable content, `ax URL --outline` to probe structure, `ax URL '.sel' --row ...` for structured extraction, `ax URL --body` to pipe. Use `curl` only if ax cannot do it. See `rules/ax-first.md`.
+
 ## Workflow
 
 ### Step 1: Auto-locate Outline

@@ -10,6 +10,9 @@ description: Conduct preliminary research on a topic and generate research outli
 ## Trigger
 `/research <topic>`
 
+## Web fetching (ax-first)
+When fetching pages directly (not via WebSearch results), prefer `ax` over `curl`. Use `ax URL --md` for readable content, `ax URL --outline` to probe structure, `ax URL '.sel' --row ...` for structured extraction, `ax URL --body` to pipe. Use `curl` only if ax cannot do it (custom TLS certs, FTP/SFTP, `--resolve`, HTTP/1.0, multipart forms, resumable ranges, proxy auth). See `rules/ax-first.md`.
+
 ## Workflow
 
 ### Step 1: Generate Initial Framework from Model Knowledge

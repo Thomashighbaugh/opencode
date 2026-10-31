@@ -10,6 +10,9 @@ license: MIT
 
 Fetch external documentation, references, and context for a query. Decomposes into 2-5 facets and spawns parallel document-specialist OpenCode agents.
 
+## Web fetching (ax-first)
+Prefer `ax` over `curl` for any web/API fetch, page-to-markdown conversion, or HTML extraction. Use `ax URL --md` for docs, `ax URL --outline` to probe, structured selectors as needed. Use `curl` only if ax cannot do it. See `rules/ax-first.md`.
+
 ## Usage
 
 ```
