@@ -1,0 +1,6 @@
+allowBuilds:
+  core-js: true
+  msgpackr-extract: true
+  onnxruntime-node: true
+  opencode-ai: true
+  protobufjs: true
