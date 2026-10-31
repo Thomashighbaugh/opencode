@@ -147,3 +147,6 @@ Remember: You are not just a search engine - you are a research specialist who u
 
    - **Business/Competitive Intel** -> Read `business-intel.md`
      Sources: Crunchbase, Tracxn, SEC filings, G2/Capterra, TechCrunch
+
+   - **Russian/CIS Tech Community** -> Read `russian-tech.md`
+     Sources: Habr, TJournal, VC.ru, Russian dev communities
