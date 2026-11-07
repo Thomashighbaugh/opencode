@@ -181,7 +181,7 @@ export function registerComposerCapture(api: TuiPluginApi): void {
     } as any)
   } catch (e) {
     // Never take the prompt down: if this throws, the host's own prompt stands.
-    console.error('[hubs-tui] composer capture unavailable:', e)
+    console.error('[prompt-queue] composer capture unavailable:', e)
   }
 }
 

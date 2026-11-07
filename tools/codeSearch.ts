@@ -130,7 +130,7 @@ const ALPHA_NL = 0.5
 
 const SKIP_DIRS = new Set([
   // `dist` is deliberately absent: this config's TUI plugin keeps source under
-  // plugins/hubs-tui/dist/. .gitignore handles repos that generate dist/.
+  // plugins/*/dist/. .gitignore handles repos that generate dist/.
   ".git", ".hg", ".svn", "node_modules", "__pycache__", ".venv", "venv", ".tox",
   ".mypy_cache", ".pytest_cache", ".ruff_cache", ".cache", ".semble", ".next",
   "coverage", ".turbo", ".parcel-cache", "out", "target", "vendor",

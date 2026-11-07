@@ -19,7 +19,7 @@ export interface HubSubcommand {
 
 /** Full per-subcommand spec — loaded only when this subcommand is selected.
  *  Contains the exhaustive pattern/action description + tool/rule references.
- *  Lives in tools/hubs/<hub>/<subcommand>.ts */
+ *  Lives in plugins/hubs/data/hubs/<hub>/<subcommand>.ts */
 export interface HubSubcommandSpec extends HubSubcommand {
   /** Full pattern/action explanation (1-3 paragraphs): when to use, step-by-step, outputs, state location */
   detailedDescription: string
