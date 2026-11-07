@@ -280,5 +280,5 @@ For complex plugins, use a modular directory structure:
 
 - Existing plugins in `~/.config/opencode/plugins/` for reference
 - `plugins/hubs-plugin.ts` — Full-featured hook plugin example
-- `plugins/hubs-tui/` — Full TUI plugin example
+- `plugins/hubs/` — Full V2 plugin example (server + TUI entrypoints)
 - `opencode.jsonc` — Plugin registration config

@@ -20,7 +20,6 @@ Technical documentation for this OpenCode agent harness. Start at
 | ---- | --------- | ---: | ------------ |
 | [Event Interception](plugins-hooks.md) | `plugins/hooks/` | 3,987 | 8 hook points, caching, modes, focus, telemetry, knowledge sync |
 | [Command Hooks](plugins-command-hooks.md) | `plugins/command-hooks/` | 1,726 | Declarative shell hooks on tool and session events, output injected into context |
-| [TUI Plugin](plugins-hubs-tui.md) | `plugins/hubs-tui/` | 899 | Native dialogs for the hub command system |
 
 ### Supporting systems
 
@@ -29,7 +28,6 @@ Technical documentation for this OpenCode agent harness. Start at
 | [Memory System](memory-system.md) | `.opencode/context/`, `/memory-hub` | Durable context, state vs context, the self-maintaining wiki |
 | [Knowledge Plane](knowledge-plane.md) | `skills/graph-context/`, `skills/vectorize-context/` | Graph + vector hybrid retrieval, structural invariants, incremental rebuilds |
 | [Orchestration](subagent-orchestration.md) | `agents/`, `modes.ts` | 31 subagents, the dispatch policy, mode detection |
-| [Hub Command System](hub-command-system.md) | `tools/hub-*.ts`, `tools/hubs/` | 13 hubs, 173 subcommands, two-tier routing |
 | [Rules & Skills](rules-and-skills.md) | `rules/`, `skills/`, `tools/` | 20 rules, 125 skills, 46 tools, MCP servers |
 | [Efficiency](request-token-efficiency.md) | `cache-utils`, `runtime`, `child-registry` | Request and token budgets, and how they are measured |
 | [Testing Strategy](testing-strategy.md) | `tests/global/`, `skills/*/tests/` | 1,086 behavioural tests, and the defects they caught |

@@ -74,7 +74,6 @@ Every turn, every subagent invocation, every verification round costs an API req
 | `output-compression.md` | Mandatory TUI output shape — table > bullets > prose, preservation list, anti-sycophancy floor |
 | `writing-style.md` | Prose you author — say it, don't announce it; plain words over inflated ones; end when the content ends. Distilled from avoid-ai-writing + claude-style-patch |
 | `efficiency-first.md` | **Standing constraint, every cycle** — fewest requests to inference hosts, smallest sufficient prompts. Never caps output code or requested text. Yields to explicit user instruction |
-| `hub-menu-rebuild.md` | Rebuild TUI menus after hub subcommand changes (`bun run generate-menus`) |
 | `ax-first.md` | Use `ax` instead of `curl` for web/API fetches and HTML extraction |
 
 **On-demand rules** (load via tool when needed): `hub-routing.md`, `resource-tags.md`, `global-reference.md`, `hub-state.md`
@@ -151,7 +150,7 @@ keep working: `/init-project <sub>` and `/scaffold-hub <sub>` both route to `/hu
 
 ### Two-Tier Subcommand Routing
 
-Each of the 173 hub subcommands has a dedicated spec file in `tools/hubs/<hub>/<subcommand>.ts` containing the full `HubSubcommandSpec` — `detailedDescription`, `tools`, `rules`, `relatedSkills`, `examples`, `warnings`.
+Each of the 173 hub subcommands has a dedicated spec file in `plugins/hubs/data/hubs/<hub>/<subcommand>.ts` containing the full `HubSubcommandSpec` — `detailedDescription`, `tools`, `rules`, `relatedSkills`, `examples`, `warnings`. The V2 plugin in `plugins/hubs/` serves them; `tools/hubs/**` no longer exists.
 
 **Direct selection** (`/orchestrate-hub ralph`): `hubMenu route` returns the full spec in one response (detailedDescription + inlined rules + related skill pointers + examples). No follow-up `loadSkill` or rule-read calls needed.
 
@@ -191,8 +190,6 @@ See `rules/hub-routing.md` for the complete delegation table and architecture de
 ├── tools/               # TypeScript tools
 │   ├── hubMenu.ts       # Hub menu router (route returns full spec, menu returns slim slice)
 │   ├── hub-data.ts      # Hub types, subcommand spec loader, state helpers
-│   ├── hub-<name>.ts    # Thin hub manifests (10 lines each, identity slice only)
-│   ├── hubs/            # Per-subcommand spec files (173 files across 13 directories)
 │   └── ...              # File editing, cache, session, skill tools
 ├── plugins/             # Hook system + TUI plugin
 ├── rules/               # Shared rules (loaded as instructions)

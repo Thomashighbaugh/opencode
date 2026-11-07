@@ -509,7 +509,7 @@ describe('wiring', () => {
   })
 
   it('the ctrl+p palette entry exists and is not a slash command', () => {
-    const src = fs.readFileSync(path.join(CONFIG_DIR, 'plugins', 'hubs-tui', 'src', 'queue-commands.ts'), 'utf-8')
+    const src = fs.readFileSync(path.join(CONFIG_DIR, 'plugins', 'prompt-queue', 'queue-commands.ts'), 'utf-8')
     expect(src).toContain("title: 'Prompt Queue'")
     expect(src).toContain('Add to Prompt Queue')
     // Registered through the command palette, not `slash:`.
@@ -521,17 +521,16 @@ describe('wiring', () => {
     // The prompt publishes its ref only to whoever renders it, so capture is a
     // slot renderer, not an API read. Locks in the mechanism and the host-ref
     // forward that keeps the host's own prompt working.
-    const src = fs.readFileSync(path.join(CONFIG_DIR, 'plugins', 'hubs-tui', 'src', 'queue-commands.ts'), 'utf-8')
+    const src = fs.readFileSync(path.join(CONFIG_DIR, 'plugins', 'prompt-queue', 'queue-commands.ts'), 'utf-8')
     expect(src).toContain('registerComposerCapture')
     expect(src).toContain('session_prompt:')
     expect(src).toContain('api.ui.Prompt')
     expect(src).toContain('props.ref?.(r)')
-    const tui = fs.readFileSync(path.join(CONFIG_DIR, 'plugins', 'hubs-tui', 'src', 'tui.tsx'), 'utf-8')
-    expect(tui).toContain('registerComposerCapture(api)')
+    expect(src).toContain('export function registerComposerCapture')
   })
 
   it('the TUI half reads the same state file the hooks half drains', () => {
-    const src = fs.readFileSync(path.join(CONFIG_DIR, 'plugins', 'hubs-tui', 'src', 'queue-commands.ts'), 'utf-8')
+    const src = fs.readFileSync(path.join(CONFIG_DIR, 'plugins', 'prompt-queue', 'queue-commands.ts'), 'utf-8')
     const d = tmp()
     expect(src).toContain("'.opencode', 'state', 'prompt-queue', 'queue.json'")
     // Same path the queue module uses, verified by writing through one and
@@ -543,19 +542,13 @@ describe('wiring', () => {
     expect(written.items[0].text).toBe('shared item')
   })
 
-  it('the TUI plugin registers the queue commands and wires the build entry', () => {
-    const src = fs.readFileSync(path.join(CONFIG_DIR, 'plugins', 'hubs-tui', 'src', 'tui.tsx'), 'utf-8')
+  it('the queue commands live with the prompt-queue plugin', () => {
+    // The V1 hubs-tui package was removed with the hub tooling; the queue TUI
+    // half was extracted with it and now sits beside the plugin it serves.
+    const src = fs.readFileSync(path.join(CONFIG_DIR, 'plugins', 'prompt-queue', 'queue-commands.ts'), 'utf-8')
     expect(src).toContain('registerQueueCommands')
-    // A palette entry that throws must not take the hub menu down with it.
-    expect(src).toContain('catch')
-
-    // dist/tui.js is gitignored and rebuilt locally (rules/hub-menu-rebuild.md),
-    // so it is absent on a fresh clone — assert the wiring, not the artifact.
-    const pkg = JSON.parse(
-      fs.readFileSync(path.join(CONFIG_DIR, 'plugins', 'hubs-tui', 'package.json'), 'utf-8'),
-    )
-    expect(pkg.scripts?.build).toContain('src/tui.tsx')
-    expect(pkg.scripts?.build).toContain('dist')
+    const entry = fs.readFileSync(path.join(CONFIG_DIR, 'plugins', 'prompt-queue', 'index.ts'), 'utf-8')
+    expect(entry.length).toBeGreaterThan(0)
   })
 
   // Bun is the build tool for the TUI half and is not installed in every
@@ -568,16 +561,6 @@ describe('wiring', () => {
     }
   })()
 
-  it.skipIf(!hasBun)('the TUI plugin still builds', () => {
-    const dir = path.join(CONFIG_DIR, 'plugins', 'hubs-tui')
-    const built = spawnSync('bun', ['build', 'src/tui.tsx', '--outdir', 'dist', '--target', 'bun', '--minify'], {
-      cwd: dir,
-      encoding: 'utf-8',
-    })
-    expect(built.stderr || built.stdout).toBeTruthy()
-    expect(built.status).toBe(0)
-    expect(fs.existsSync(path.join(dir, 'dist', 'tui.js'))).toBe(true)
-  })
 
   it('queue state is gitignored session data, not durable config', () => {
     const ignore = fs.readFileSync(path.join(CONFIG_DIR, '.gitignore'), 'utf-8')

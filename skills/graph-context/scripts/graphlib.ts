@@ -140,7 +140,7 @@ export function resolvePaths(inputDir) {
     // Added for backfillFromCode: the code store is the only place that knows
     // which declarations exist per file, so it is the source of the code layer.
     codeDbPath: path.join(opencodeDir, 'state', 'vector', 'code.db'),
-    registryPath: path.join(projectRoot, 'tools', 'hubs', 'spec-registry.json'),
+    registryPath: path.join(projectRoot, 'plugins', 'hubs', 'data', 'hubs', 'spec-registry.json'),
   };
 }
 
@@ -1276,7 +1276,7 @@ export function backfillFromCode(inputDir: string | undefined): CodeBackfillResu
 // ─── Frontmatter parsing ───────────────────────────────────────────────────
 
 /**
- * One hub subcommand entry as it appears in tools/hubs/spec-registry.json.
+ * One hub subcommand entry as it appears in plugins/hubs/data/hubs/spec-registry.json.
  * Only the fields the graph builder reads are typed; the registry carries many
  * more (detailedDescription, examples, warnings) that are irrelevant here.
  */
@@ -2015,7 +2015,7 @@ function upsertNodeInner(db, node) {
 
 /**
  * Backfill from the hub spec-registry (config-hub projects only):
- *   tools/hubs/spec-registry.json → hub-subcommand nodes + used_by edges to skills
+ *   plugins/hubs/data/hubs/spec-registry.json → hub-subcommand nodes + used_by edges to skills
  */
 /**
  * Delete edges whose endpoints no longer exist, and report how many.

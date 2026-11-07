@@ -25,10 +25,10 @@ const root = loadConfig(CONFIG_DIR)!
 const { config } = root
 
 const readJson = <T = any>(p: string): T => JSON.parse(fs.readFileSync(p, 'utf-8'))
-const registry = readJson(path.join(CONFIG_DIR, 'tools', 'hubs', 'spec-registry.json'))
+const registry = readJson(path.join(CONFIG_DIR, 'plugins', 'hubs', 'data', 'hubs', 'spec-registry.json'))
 
 const HUB_DIRS = fs
-  .readdirSync(path.join(CONFIG_DIR, 'tools', 'hubs'), { withFileTypes: true })
+  .readdirSync(path.join(CONFIG_DIR, 'plugins', 'hubs', 'data', 'hubs'), { withFileTypes: true })
   .filter((d) => d.isDirectory() && d.name !== 'spec-registry.json')
   .map((d) => d.name)
   .sort()
@@ -36,7 +36,7 @@ const HUB_DIRS = fs
 /**
  * Skills with no SKILL.md frontmatter, and therefore invisible to the skill
  * loader. Each is a legacy directory that the *-hub menus replaced (see
- * LEGACY_ROUTE_MAP in tools/hub-data.ts); nothing routes to them.
+ * LEGACY_ROUTE_MAP in plugins/hubs/data/hub-data.ts); nothing routes to them.
  *
  * They are deliberately NOT given frontmatter. Doing so would advertise them in
  * the system prompt on every session — roughly 60 tokens each, permanently —
@@ -53,14 +53,14 @@ describe('feature package: hubs', () => {
   })
 
   it.each(HUB_DIRS)('%s has an index.ts exporting an identity slice', (hub) => {
-    const idx = path.join(CONFIG_DIR, 'tools', 'hubs', hub, 'index.ts')
+    const idx = path.join(CONFIG_DIR, 'plugins', 'hubs', 'data', 'hubs', hub, 'index.ts')
     expect(fs.existsSync(idx), `missing ${idx}`).toBe(true)
     const src = fs.readFileSync(idx, 'utf-8')
     expect(src).toMatch(/export\s+(const|default)/)
   })
 
-  it.each(HUB_DIRS)('%s thin manifest exists in tools/hub-<name>.ts', (hub) => {
-    const manifest = path.join(CONFIG_DIR, 'tools', `hub-${hub}.ts`)
+  it.each(HUB_DIRS)('%s thin manifest exists in plugins/hubs/data/hub-<name>.ts', (hub) => {
+    const manifest = path.join(CONFIG_DIR, 'plugins', 'hubs', 'data', `hub-${hub}.ts`)
     expect(fs.existsSync(manifest), `missing ${manifest} for hub dir ${hub}`).toBe(true)
   })
 
@@ -123,7 +123,7 @@ describe('feature package: hubs', () => {
       ...glob.sync(path.join(CONFIG_DIR, 'skills', '*', 'references', '*.md')),
       ...glob.sync(path.join(CONFIG_DIR, 'agents', '*.md')),
       ...glob.sync(path.join(CONFIG_DIR, 'rules', '*.md')),
-      ...glob.sync(path.join(CONFIG_DIR, 'tools', 'hubs', '*', '*.ts')),
+      ...glob.sync(path.join(CONFIG_DIR, 'plugins', 'hubs', 'data', 'hubs', '*', '*.ts')),
     ]
     const orphans = onDemand.filter((rule) => {
       const self = path.join(CONFIG_DIR, 'rules', rule)
@@ -181,7 +181,7 @@ describe('feature package: hubs', () => {
     const missing: string[] = []
     for (const key of Object.keys(registry)) {
       const [hubDir, file] = key.split('/')
-      const specFile = path.join(CONFIG_DIR, 'tools', 'hubs', hubDir, `${file}.ts`)
+      const specFile = path.join(CONFIG_DIR, 'plugins', 'hubs', 'data', 'hubs', hubDir, `${file}.ts`)
       if (!fs.existsSync(specFile)) { missing.push(`${key} (no spec file)`); continue }
       const specSrc = fs.readFileSync(specFile, 'utf-8')
       const label = specSrc.match(/label:\s*["']([^"']+)["']/)?.[1]
@@ -199,7 +199,7 @@ describe('feature package: hubs', () => {
     const byHub = new Map<string, Map<string, string[]>>()
     for (const key of Object.keys(registry)) {
       const [hub, file] = key.split('/')
-      const specFile = path.join(CONFIG_DIR, 'tools', 'hubs', hub, `${file}.ts`)
+      const specFile = path.join(CONFIG_DIR, 'plugins', 'hubs', 'data', 'hubs', hub, `${file}.ts`)
       if (!fs.existsSync(specFile)) continue
       const label = fs.readFileSync(specFile, 'utf-8').match(/label:\s*["']([^"']+)["']/)?.[1]
       if (!label) continue
@@ -262,7 +262,7 @@ describe('feature package: skills', () => {
     )
     const dead: string[] = []
     for (const hub of HUB_DIRS) {
-      const dir = path.join(CONFIG_DIR, 'tools', 'hubs', hub)
+      const dir = path.join(CONFIG_DIR, 'plugins', 'hubs', 'data', 'hubs', hub)
       for (const f of fs.readdirSync(dir).filter((x) => x.endsWith('.ts') && x !== 'index.ts')) {
         const src = fs.readFileSync(path.join(dir, f), 'utf-8')
         for (const m of src.matchAll(/skill:\s*["']([\w.-]+)["']/g)) {

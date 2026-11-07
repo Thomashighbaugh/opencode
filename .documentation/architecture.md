@@ -21,7 +21,7 @@ How the pieces fit, and why the boundaries are where they are.
 │  │   goal · telemetry │                        │  └── tools/    (46)      │
 │  ├── command-hooks/   │                        └─────────────┬────────────┘
 │  │   declarative shell│                                      │
-│  └── hubs-tui/        │                        ┌─────────────▼────────────┐
+│  └── hubs/        │                        ┌─────────────▼────────────┐
 └───────────────────────┘                        │  knowledge plane         │
                                                 │  graph.db  vectors  rerank│
                                                 └──────────────────────────┘
@@ -127,12 +127,12 @@ Every arrow is observable and, where it costs something, measured.
 | A subagent                    | `agents/<name>.md`; the format is validated by 280 tests           |
 | A skill                       | `skills/<name>/SKILL.md` with valid frontmatter                    |
 | A tool                        | `tools/<name>.ts`; auto-discovered                                 |
-| A hub subcommand              | `tools/hubs/<hub>/<sub>.ts`, then **regenerate the registry and the TUI bundle** |
+| A hub subcommand              | `plugins/hubs/data/hubs/<hub>/<sub>.ts`, then **rebuild the spec registry (the TUI reads at runtime)** |
 | Durable knowledge             | `/memory-hub consume` — never written automatically                |
 | A rule                        | Add to `instructions` if it applies every turn, or give it a named referrer |
 
 The two-step regeneration is the most-skipped step in the repository; see
-[TUI Plugin](plugins-hubs-tui.md).
+[Hub Plugin](plugins/hubs/AGENTS.md).
 
 ---
 

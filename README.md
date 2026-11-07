@@ -52,7 +52,7 @@ is the standing constraint that shapes the whole design.
 | -------------------- | --------------------------------------------- | ------------------------ |
 | Event interception   | `plugins/hooks/`                              | 3,987 LOC, 8 hook points |
 | Declarative hooks    | `plugins/command-hooks/`                      | 1,726 LOC, 7 modules     |
-| TUI                  | `plugins/hubs-tui/`                           | 899 LOC                  |
+| TUI (V2)             | `plugins/hubs/tui.tsx`                        | —                        |
 | Graph retrieval      | `skills/graph-context/scripts/graphlib.ts`     | 2,708 LOC                |
 | Vector retrieval     | `skills/vectorize-context/scripts/veclib.ts`   | 1,484 LOC                |
 | Tooling              | `tools/`                                      | 46 tools, 11,785 LOC     |
@@ -177,7 +177,7 @@ Every model is then local: embeddings, reranking, and the prompt-queue classifie
 | [Architecture](.documentation/architecture.md) | Layer-by-layer design, data flow, extension points |
 | [Event Interception](.documentation/plugins-hooks.md) | `plugins/hooks/` — modes, goal, telemetry, caching, vectorize |
 | [Command Hooks](.documentation/plugins-command-hooks.md) | `plugins/command-hooks/` — declarative shell hooks on events |
-| [TUI Plugin](.documentation/plugins-hubs-tui.md) | `plugins/hubs-tui/` — native dialogs, generated menu bundle |
+| [Hub Plugin](plugins/hubs/AGENTS.md) | `plugins/hubs/` — V2 picker, vendored corpus, sidebar |
 | [Prompt Queue](.documentation/prompt-queue.md) | `plugins/prompt-queue/` — FIFO follow-ups, released only when a turn ends without a question |
 | [ONNX Runtime](.documentation/onnx-runtime.md) | Local embedder, reranker, and gate classifier — no daemon, pooling, measured thresholds |
 | [Memory System](.documentation/memory-system.md) | Durable context, state vs context, the wiki layer |
@@ -197,7 +197,7 @@ Every model is then local: embeddings, reranking, and the prompt-queue classifie
 ├── skills/                 125 skills (+ vectorize-context, graph-context)
 ├── rules/                  20 rules — 11 preloaded, 9 on demand
 ├── tools/                  46 TypeScript tools
-├── plugins/                hooks · command-hooks · prompt-queue · hubs-tui
+├── plugins/                hooks · command-hooks · prompt-queue · hubs · todo
 ├── tests/                  1,086 tests across 13 suites
 ├── command-hooks.jsonc     global declarative hooks
 ├── .documentation/         14 pages — architecture, plugins, memory, evals
