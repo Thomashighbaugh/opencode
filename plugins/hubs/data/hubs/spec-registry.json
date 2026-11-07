@@ -1290,6 +1290,35 @@
       "vectorize-context"
     ]
   },
+  "memory-hub/yt-transcript": {
+    "label": "yt-transcript",
+    "description": "Fetch a YouTube transcript with tgrab and file it in context",
+    "reminder": "Fetch the YouTube transcript with tgrab, file it under .opencode/context/research/youtube/, and regenerate the wiki index.",
+    "skill": "wiki",
+    "detailedDescription": "Fetches the transcript of a YouTube video and files it as durable context.\n\n1. Take the video URL from the user. If none was given, ask for one — do not guess.\n2. Run `tgrab [--lang <code>] <url>` through bash. Output format is `# <title>` followed by `[M:SS] text` caption lines. Add `--lang` only when the user asked for a specific language or the default came back empty.\n3. Do not read the whole transcript back into context. Capture the title line and the line count, then write the output to a file with bash redirection.\n4. Slug: lowercase the title, collapse non-alphanumerics to hyphens, append the video id (the `v=` parameter or the youtu.be path segment). Keep it under 80 characters.\n5. Write `.opencode/context/research/youtube/<slug>.md` with frontmatter:\n\n```\n---\ntitle: \"<video title>\"\ntype: source-summary\ntags: [youtube, transcript, <topic tags>]\ncreated: <YYYY-MM-DD>\nupdated: <YYYY-MM-DD>\nsources: [\"<url>\"]\nstatus: active\n---\n```\n\n   Body: the URL, the channel/video id if visible, then the transcript verbatim under a `## Transcript` heading. Never summarise in place of the transcript — this file is the source of record; summaries belong in a separate page.\n6. Add it to the wiki: run `npx tsx skills/graph-context/scripts/regen-index.ts`. If the script is unavailable, append the row to `.opencode/context/index.md` by hand under Research.\n7. Report the file path and the line count. Mention the language chosen if `--lang` was used.\n\nIf tgrab fails (age-restricted, region-locked, no captions), say which failure it reported. Do not fabricate a transcript and do not substitute a summary for one.",
+    "tools": [
+      "bash",
+      "read",
+      "edit",
+      "write"
+    ],
+    "rules": [
+      "context-strategy"
+    ],
+    "relatedSkills": [
+      "wiki"
+    ],
+    "examples": [
+      {
+        "input": "/memory-hub yt-transcript https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "approach": "tgrab → 212 caption lines. Slug rick-astley-never-gonna-give-you-up-dQw4w9WgXcQ. Write .opencode/context/research/youtube/<slug>.md with frontmatter + verbatim transcript, run regen-index.ts, report path and 212 lines."
+      }
+    ],
+    "warnings": [
+      "Transcripts are long. Redirect tgrab output to the target file; do not echo it into the conversation.",
+      "A summary is not a transcript. Keep the verbatim text in the source page."
+    ]
+  },
   "orchestrate-hub/autopilot": {
     "label": "autopilot",
     "description": "Full autonomous execution from idea to working code",

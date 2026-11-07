@@ -12,10 +12,11 @@ import secondbrain from "./secondbrain"
 import session from "./session"
 import consolidateTelemetry from "./consolidate-telemetry"
 import vectorize from "./vectorize"
+import ytTranscript from "./yt-transcript"
 
 export const specs = [
   capture, compress, consume, context, diff, exportSpec, memory, prune, search, secondbrain,
-  session, consolidateTelemetry, vectorize
+  session, consolidateTelemetry, vectorize, ytTranscript
 ]
 
 export const subcommands: HubSubcommand[] = specs.map(s => ({

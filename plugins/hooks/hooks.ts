@@ -181,7 +181,7 @@ import { cacheCompactionOutput } from "./compaction-hook"
 // Plugin Entry Point
 // ============================================================================
 
-export const JocPlugin: Plugin = async ({ project, client, directory, worktree }) => {
+export async function createHooksRuntime({ directory }: { directory: string }) {
   initializeJocState(directory)
   
   // Initialize hooks
@@ -1501,6 +1501,10 @@ Original task: ${ultraworkState.original_prompt}
 
   return hooks
 }
+
+/** V1 plugin entry (frozen branch). V2 registers the same runtime's hook map. */
+export const JocPlugin: Plugin = async ({ directory }) =>
+  createHooksRuntime({ directory: directory || process.cwd() })
 
 // ─── Diagnostics ────────────────────────────────────────────────────────────
 // Module-level handles to the plugin's background machinery. The vectorize

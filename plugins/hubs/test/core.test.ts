@@ -38,6 +38,16 @@ describe("route", () => {
     expect(rules?.some((rule) => rule.name === "security")).toBe(true)
   })
 
+  test("exposes the yt-transcript memory subcommand", () => {
+    const result = route("memory-hub", "yt-transcript")
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    expect(result.payload.reminder).toContain("tgrab")
+    const description = String(result.payload.detailedDescription)
+    expect(description).toContain("tgrab")
+    expect(description).toContain(".opencode/context/research/youtube/")
+  })
+
   test("resolves legacy hub/subcommand pairs", () => {
     const result = route("skills-hub", "add")
     expect(result.ok).toBe(true)

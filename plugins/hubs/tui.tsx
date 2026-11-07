@@ -278,7 +278,9 @@ export default definePlugin({
               <For each={menus()}>
                 {(menu) => (
                   <box flexDirection="column">
-                    <text fg={ctx.theme.text.base}>{`▸ /${menu.name} (${menu.subs.length})`}</text>
+                    <text fg={ctx.theme.text.base} onMouseUp={() => void openHub(menu.name)}>
+                      {`▸ /${menu.name} (${menu.subs.length})`}
+                    </text>
                     <text fg={ctx.theme.text.muted}>
                       {`   ${menu.subs.slice(0, 6).join(" · ")}${menu.subs.length > 6 ? " · …" : ""}`}
                     </text>

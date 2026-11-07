@@ -17,7 +17,7 @@
  * telemetry all live inside the V1 modules and keep running through this map.
  */
 
-import legacy from "./hooks.ts"
+import { createHooksRuntime } from "./hooks.ts"
 import { queueContextMessage } from "./session.ts"
 
 
@@ -71,12 +71,7 @@ export default {
     const directory: string = ctx.location?.directory ?? process.cwd()
     let hooks: any
     try {
-      hooks = await (legacy as any)({
-        project: ctx.location?.project,
-        client: {},
-        directory,
-        worktree: undefined,
-      })
+      hooks = await createHooksRuntime({ directory })
     } catch {
       return
     }

@@ -14,10 +14,12 @@
 
 import * as fs from "fs"
 import * as path from "path"
+import { fileURLToPath } from "node:url"
 
 // ─── Config ───────────────────────────────────────────────────────────
 
-const HUBS_DIR = path.join(__dirname, "..", "data", "hubs")
+const HERE = typeof __dirname !== "undefined" ? __dirname : path.dirname(fileURLToPath(import.meta.url))
+const HUBS_DIR = path.join(HERE, "..", "data", "hubs")
 const OUTPUT_PATH = path.join(HUBS_DIR, "spec-registry.json")
 
 // Fields from HubSubcommandSpec that are JSON-serializable

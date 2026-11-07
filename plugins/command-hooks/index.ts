@@ -1,16 +1,18 @@
 /**
  * command-hooks — server entrypoint (OpenCode 2).
  *
- * The matcher, config loader, executor and template logic are host-agnostic and
- * stay as they were; only the registration surface moved. This adapter boots the
- * V1 factory with the V2 context and re-registers its two tool hooks and its
- * event listener on the V2 domains.
+ * Registers the plugin's runtime directly on the V2 domains. No V1 plugin
+ * factory is booted and no hook map is translated: the runtime exposes the same
+ * three behaviours the V1 entry returned, and each is bound to the V2 hook that
+ * now owns it.
+ *
+ * V2 event payloads carry fields under `data`; `legacyEvent` re-shapes them for
+ * the matcher, which is the one translation that remains (the matcher reads
+ * `event.properties`).
  */
 
-import v1 from "./v1.ts"
+import { createCommandHooksRuntime } from "./v1.ts"
 
-
-/** V2 events carry fields under `data`; the V1 modules read `properties`. */
 function legacyEvent(event: any): any {
   if (!event || event.properties) return event
   const data = event.data ?? {}
@@ -43,50 +45,46 @@ export default {
   id: "command-hooks",
   async setup(ctx: any) {
     const directory: string = ctx.location?.directory ?? process.cwd()
-    let hooks: any
-    try {
-      hooks = await (v1 as any)({
-        project: ctx.location?.project,
-        client: ctx.client ?? ctx,
-        directory,
-        $: undefined,
-      })
-    } catch {
-      return
+
+    const client = {
+      session: {
+        get: async ({ path }: { path: { id: string } }) => {
+          try {
+            return { data: await ctx.session.get(path.id) }
+          } catch {
+            return undefined
+          }
+        },
+      },
     }
 
+    const runtime = await createCommandHooksRuntime({ client, directory })
     const controller = new AbortController()
 
-    if (typeof hooks?.event === "function") {
-      void (async () => {
-        try {
-          for await (const event of ctx.event.subscribe({ signal: controller.signal })) {
-            try {
-              await hooks.event({ event: legacyEvent(event) })
-            } catch {}
-          }
-        } catch {}
-      })()
-    }
-
-    if (typeof hooks?.["tool.execute.before"] === "function") {
-      await ctx.tool.hook("execute.before", (event: any) => {
-        const input = { tool: event.tool, sessionID: event.sessionID, callID: event.id, args: event.input }
-        const output = { args: event.input }
-        return hooks["tool.execute.before"](input, output)
-      })
-    }
-
-    if (typeof hooks?.["tool.execute.after"] === "function") {
-      await ctx.tool.hook("execute.after", (event: any) => {
-        const input = { tool: event.tool, sessionID: event.sessionID, callID: event.id, args: event.input }
-        const output = {
-          output: event.status === "completed" ? textOf(event.result) : "",
-          metadata: event.status === "completed" ? (event.result?.metadata ?? event.result?.output ?? {}) : {},
+    void (async () => {
+      try {
+        for await (const event of ctx.event.subscribe({ signal: controller.signal })) {
+          try {
+            await runtime.event({ event: legacyEvent(event) })
+          } catch {}
         }
-        return hooks["tool.execute.after"](input, output)
-      })
-    }
+      } catch {}
+    })()
+
+    await ctx.tool.hook("execute.before", (event: any) => {
+      const input = { tool: event.tool, sessionID: event.sessionID, callID: event.id, args: event.input }
+      return runtime.before(input, { args: event.input })
+    })
+
+    await ctx.tool.hook("execute.after", (event: any) => {
+      if (event.status !== "completed") return
+      const input = { tool: event.tool, sessionID: event.sessionID, callID: event.id, args: event.input }
+      const output = {
+        output: textOf(event.result),
+        metadata: event.result?.metadata ?? {},
+      }
+      return runtime.after(input, output)
+    })
 
     return () => controller.abort()
   },

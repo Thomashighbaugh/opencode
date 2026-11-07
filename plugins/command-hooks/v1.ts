@@ -397,7 +397,7 @@ function subagentOf(input: any, output: any): string | undefined {
   return typeof raw === 'string' && raw ? raw.replace(/^@/, '') : undefined
 }
 
-export const CommandHooksPlugin: Plugin = async ({ project, client, directory, $ }) => {
+export async function createCommandHooksRuntime({ client, directory }: { client?: any; directory: string }) {
   stats = emptyStats()
   const projectDir = directory || process.cwd()
 
@@ -546,8 +546,18 @@ export const CommandHooksPlugin: Plugin = async ({ project, client, directory, $
         root,
       )
     },
-    'tool.execute.before': (input: any, output: any) => dispatch('before', input, output),
-    'tool.execute.after': (input: any, output: any) => dispatch('after', input, output),
+    before: (input: any, output: any) => dispatch('before', input, output),
+    after: (input: any, output: any) => dispatch('after', input, output),
+  }
+}
+
+/** V1 plugin entry (frozen branch). V2 registers the runtime directly. */
+export const CommandHooksPlugin: Plugin = async ({ client, directory }) => {
+  const runtime = await createCommandHooksRuntime({ client, directory: directory || process.cwd() })
+  return {
+    event: runtime.event,
+    'tool.execute.before': runtime.before,
+    'tool.execute.after': runtime.after,
   } as any
 }
 
