@@ -12,6 +12,8 @@ OpenCode plugin system components — hook system plugin for lifecycle events, s
 |------|-------------|
 | `hooks/hooks.ts` | Hook system plugin entry point — session lifecycle, tool lifecycle, chat messages, permission auto-approval, context preservation, context injection |
 | `hooks/goal.ts` | Session goal management — set, clear, pause, resume goal; state persistence; progress tracking with turn/token budgets; auto-continue message generation |
+| `toon/index.ts` | TOON compaction plugin — rewrites large JSON from `bash` output as TOON in context and restores the JSON before a later `bash` command consumes it (v1 `tool.execute.before`/`after` hooks) |
+| `toon/toon.ts` | Self-contained TOON encoder/decoder — tabular arrays, inline primitive arrays, indented objects; `encode` returns null rather than emit anything it cannot decode |
 
 ## Subdirectories
 
@@ -19,6 +21,7 @@ OpenCode plugin system components — hook system plugin for lifecycle events, s
 |-----------|---------|
 | `hooks/` | Hook system modules — session.ts, modes.ts, keywords.ts, telemetry.ts, cache-hook.ts, vectorize-hook.ts (imported by hooks.ts) |
 | `hubs-tui/` | TUI plugin with hub dialogs and visual interface components (see `hubs-tui/AGENTS.md`) |
+| `toon/` | Home-rolled TOON compaction plugin (no npm dependency) |
 
 ## For AI Agents
 
@@ -40,6 +43,13 @@ OpenCode plugin system components — hook system plugin for lifecycle events, s
 - Menus: add / list / complete / delete / inject into input box / copy to clipboard / view archive
 - Store: `.opencode/todo/todos.json` (active) + `.opencode/todo/archive.jsonl` (completed, append-only) — committed, per project
 - The **human's** list; distinct from the agent's in-session `taskTodos` (`.opencode/state/todos.json`). No agent tool, no system-prompt injection by design.
+
+### The TOON Compaction Plugin
+- `toon/index.ts` mirrors `opencode-toon-plugin` without its `@toon-format/toon` dependency
+- Conversion is gated: eligible tool (default `bash`, override with `OPENCODE_TOON_TOOLS`), valid JSON, ≥256 chars, TOON strictly shorter, and `decode(encode(x))` deep-equals `x`
+- Encoded payloads are remembered in-process (100 entries) and restored inside quoted strings and heredocs before a later `bash` run; debug with `OPENCODE_TOON_DEBUG=1`
+- Uses the v1 plugin API — the V2 port needs `Plugin.define` + `tool.hook("execute.before"/"execute.after")`
+- Tests: `bunx vitest run tests/plugins`
 
 ### Testing Requirements
 - Use `btw_status` tool to report plugin status

@@ -513,6 +513,7 @@
         "./plugins/command-hooks/plugin.ts",
         "./plugins/prompt-queue/plugin.ts",
         "./plugins/hubs-tui",
+        "./plugins/toon",
         "@opencode-plugins/env-protection",
         "@franlol/opencode-md-table-formatter@0.0.3"
     ],
