@@ -13,10 +13,11 @@ required at runtime.
 | Path | Role |
 | --- | --- |
 | `index.ts` | Server part. Plain `{ id, setup }` object (no `@opencode/plugin` import). Registers skills via `ctx.skill.transform`, the `hubMenu` tool via `ctx.tool.transform`, and `/hubs` via `ctx.command.transform`. |
-| `tui.tsx` | TUI part. Per-hub slash commands + `ui.dialog.select` picker, `/hubs`, `/hubs-skills`, `/hubs-settings`, and the `sidebar.content` skill panel. |
+| `tui.tsx` | TUI part. Per-hub slash commands + `ui.dialog.select` picker, `/hubs` (hub picker), `/hubs-skills`, `/hubs-settings`, and a `sidebar.content` panel with one block per hub menu. |
 | `src/core.ts` | Registry + router. `route()` payloads match the V1 `hubMenu` tool; legacy `hub/sub` pairs resolve through `LEGACY_ROUTE_MAP`. |
 | `src/skills.ts` | Vendored skill corpus, hub→skill mapping, token estimates, load-state extraction. |
-| `data/` | Vendored: `hubs/**` (174 specs + registry), `hub-data.ts`, `state-utils.ts`, 13 `hub-*.ts` manifests, `rules/` (3 inlined rule files), `skills/` (47 cited skills). |
+| `src/agents.ts` | Vendored agents the subcommands delegate to, plus write-if-changed installation into the host `agents/` dir (`ctx.agent.transform` has no `add` in V2). |
+| `data/` | Vendored: `hubs/**` (174 specs + registry), `hub-data.ts`, `state-utils.ts`, 13 `hub-*.ts` manifests, `rules/` (3 inlined rule files), `skills/` (47 cited skills), `agents/` (25 coupled agents). |
 | `test/` | `bun test plugins/hubs` — registry, routing, legacy aliases, skill corpus, load parsing. |
 
 ## Invariants
@@ -31,6 +32,7 @@ required at runtime.
 - Entrypoints resolve `<dir>/index` (server) and `<dir>/tui` (TUI) — `packages/plugin/src/host.ts`.
 - Picker = `ui.dialog.select` with `search` + `actions`; MCP cannot render a chooser.
 - Prompt submission from the TUI uses `ctx.client.session.prompt({ sessionID, text })`.
+- Agents cannot be registered by a plugin: `AgentEditor` exposes list/get/update/remove/default only. `installAgents()` writes the vendored files instead.
 - Native skill mention insertion reuses the host `/skills` picker: dispatch `prompt.skills`, then `dialog.select.*`.
 
 ## Testing

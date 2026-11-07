@@ -12,6 +12,7 @@
 
 import { hubNames, hubSummaries, render, renderIndex, resume, route, status } from "./src/core"
 import { loadVendoredSkills } from "./src/skills"
+import { installAgents } from "./src/agents"
 
 const HUBMENU_INPUT = {
   type: "object",
@@ -43,6 +44,10 @@ export default {
         })
       }
     })
+
+    // Agents are files in V2 (the agent transform has no `add`), so the
+    // package installs its coupled agent definitions beside the config.
+    installAgents()
 
     await ctx.tool.transform((editor: any) => {
       editor.add({
