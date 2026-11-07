@@ -19,7 +19,7 @@ OpenCode plugin system components — hook system plugin for lifecycle events, s
 
 | Directory | Purpose |
 |-----------|---------|
-| `hooks/` | Hook system modules — session.ts, modes.ts, keywords.ts, telemetry.ts, cache-hook.ts, vectorize-hook.ts (imported by hooks.ts) |
+| `hooks/` | Hook system — V2 adapter (`index.ts`) over the V1 modules: session, modes, keywords, telemetry, cache, vectorize, goal |
 | `hubs/` | OpenCode 2 hub plugin package — router, vendored corpus, TUI picker (see `hubs/AGENTS.md`) |
 | `todo/` | V2 human todo list — `/todo` menu, store, and pure operations |
 | `toon/` | Home-rolled TOON compaction plugin (no npm dependency) |

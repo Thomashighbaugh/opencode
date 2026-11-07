@@ -29,21 +29,18 @@ export const DEFAULT_MAX_HOLD_TURNS = 3
 
 type Messages = any[]
 
-/** Best-effort message history across V2 context shapes. */
+/**
+ * The V2 plugin context has no `session.messages`; `session.context({ sessionID })`
+ * is the documented call and returns the model-visible message list
+ * (packages/client/src/promise/generated/types.ts: `SessionContextOutput =
+ * Array<SessionMessageInfo>`).
+ */
 async function readMessages(ctx: any, sessionID: string): Promise<Messages> {
-  const attempts = [
-    () => ctx.session?.messages?.({ sessionID }),
-    () => ctx.session?.messages?.({ path: { id: sessionID } }),
-    () => ctx.session?.get?.(sessionID),
-  ]
-  for (const attempt of attempts) {
-    try {
-      const response = await attempt()
-      const value = response?.data ?? response
-      if (Array.isArray(value?.messages)) return value.messages
-      if (Array.isArray(value)) return value
-    } catch {}
-  }
+  try {
+    const value = await ctx.session.context({ sessionID })
+    if (Array.isArray(value)) return value
+    if (Array.isArray(value?.data)) return value.data
+  } catch {}
   return []
 }
 

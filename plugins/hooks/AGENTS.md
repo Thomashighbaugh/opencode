@@ -1,17 +1,24 @@
 <!-- Parent: ../AGENTS.md -->
 
-# hooks (V1)
+# hooks (V2 adapter over the V1 modules)
 
-Session/tool lifecycle hooks for OpenCode 1.19.x. Not loadable by OpenCode 2 — the V2 port replaces string-keyed hooks with `ctx.<domain>.hook()`.
+`index.ts` boots the V1 factory in `hooks.ts` and re-registers its hook map on the
+V2 domains — a port by mapping, not a rewrite:
 
-| File | Role |
+| V1 hook | V2 registration |
 | --- | --- |
-| `hooks.ts` | Entry: registers session, tool, chat, permission, compaction and system-prompt hooks |
-| `session.ts` | Session state, context injection, hub-route prefetch/cache |
-| `modes.ts`, `keywords.ts` | Mode detection and magic-keyword context injection |
-| `telemetry.ts` | SRCL event classification, `hubMenu` telemetry |
-| `cache-hook.ts`, `vectorize-hook.ts` | Tool cache substitution, vector index maintenance |
-| `goal.ts` | Session goal state and budget tracking |
-| `runtime.ts`, `child-registry.ts` | Runtime helpers and child-session registry |
+| `event` | `ctx.event.subscribe` |
+| `tool.execute.before` / `.after` | `ctx.tool.hook` (after writes changed output back to `event.result.content`) |
+| `chat.message` | `ctx.session.hook("prompt")` |
+| `experimental.chat.system.transform` | `ctx.session.hook("context")` — strings converted to `{type:"text"}` parts |
+| `experimental.session.compacting` | `ctx.session.hook("compaction")` — appends to `result.summary`, else queues context for the next turn |
+| `permission.ask` | `ctx.permission.hook("evaluate")` — maps `shell` → legacy `bash` |
+| `command.execute.before` | `ctx.command.transform` for `ralph-loop`, `ulw-loop`, `ultrawork`, `cancel-ralph`, `stop-continuation` |
 
-Depends on tools (`hubMenu` was removed from V1 scope in the V2 cleanup; the references remain inert until this plugin is ported or retired).
+Everything the modules carry keeps running through the map: the vectorize indexer
+(`vectorize-hook.ts`, fed by `file.edited`), the tool cache (`cache-hook.ts`),
+mode state and keyword detection (`modes.ts`, `keywords.ts`), telemetry, goal
+state, and context queueing (`session.ts`).
+
+Known gap: V2 has no global command-execute hook, so the five mode commands are
+re-registered as commands rather than intercepting arbitrary command text.
