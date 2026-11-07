@@ -1,0 +1,18 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    # These packages only offer fixes in a major that their consumers pin away
+    # from (@opencode-ai/plugin needs zod 3 and minimatch 8). Dependabot cannot
+    # build an update path, so each attempt fails the update job; the compatible
+    # line still updates within its major.
+    ignore:
+      - dependency-name: zod
+        update-types: ["version-update:semver-major"]
+      - dependency-name: seroval
+        update-types: ["version-update:semver-major"]
+      - dependency-name: toml
+        update-types: ["version-update:semver-major"]
