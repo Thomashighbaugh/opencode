@@ -1,0 +1,27 @@
+import { HubSubcommandSpec } from "../../hub-data"
+
+import { TOOLS_BASH, SKILLS_PRIVACY_SCAN } from "../shared-spec-fragments"
+const spec: HubSubcommandSpec = {
+  label: "sweep",
+  description: "Find files in .opencode/ that should be gitignored",
+  reminder: "Sweep .opencode/ for gitignore violations.",
+  inline: true,
+
+  detailedDescription: `Scans .opencode/ for files that should be gitignored but aren't. Checks:
+
+- State files (.opencode/state/) — should be gitignored (ephemeral, may contain secrets).
+- Cache files (.opencode/cache/) — should be gitignored.
+- Session files — should be gitignored (may contain PII).
+- Large files that would bloat the repo.
+- Files matching secret patterns (API keys, tokens).
+
+For each violation, the agent recommends adding a .gitignore entry. The user confirms before modifying .gitignore.
+
+Use periodically to prevent .opencode/ bloat from breaking git push — a common issue when state files accumulate and exceed GitHub's file size limits.`,
+
+  tools: TOOLS_BASH,
+  rules: ["security", "context-strategy"],
+  relatedSkills: SKILLS_PRIVACY_SCAN,
+}
+
+export default spec
