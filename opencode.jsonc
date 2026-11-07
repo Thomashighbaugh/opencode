@@ -512,7 +512,6 @@
         "./plugins/hooks/hooks.ts",
         "./plugins/command-hooks/plugin.ts",
         "./plugins/prompt-queue/plugin.ts",
-        "./plugins/hubs-tui",
         "./plugins/toon",
         "@opencode-plugins/env-protection",
         "@franlol/opencode-md-table-formatter@0.0.3"
@@ -530,7 +529,6 @@
         "./rules/anti-sycophancy.md",
         "./rules/anti-refusal.md",
         "./rules/efficiency-first.md",
-        "./rules/hub-menu-rebuild.md",
         "./rules/session-artifact-promotion.md",
         "./rules/auto-commit.md",
         "./rules/code-search-first.md",

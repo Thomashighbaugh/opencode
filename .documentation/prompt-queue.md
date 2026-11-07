@@ -11,7 +11,7 @@ A to-do list for a conversation, written in the order the thoughts arrive rather
 | Ordering        | FIFO, with explicitly-deferred items appended at the end |
 | Release trigger | A turn completes — `session.idle`, or `session.status` with an idle status — and did **not** end on a question |
 | Rollover        | Work deferred in a held turn rides along with the next drain |
-| Code            | `plugins/prompt-queue/` (gate + drain) · `plugins/hubs-tui/src/queue-commands.ts` (UI) |
+| Code            | `plugins/prompt-queue/` (gate + drain) · `plugins/prompt-queue/queue-commands.ts` (UI) |
 | Tests           | 50 |
 
 ---
@@ -188,7 +188,7 @@ prompt stash does. The prompt publishes its state through a `TuiPromptRef` (`cur
 `reset()`), but only to whoever **renders** it: the host mounts the prompt inside the `session_prompt`
 slot (`mode="replace"`) and hands out the ref through that slot's `ref` prop.
 
-`registerComposerCapture` (`plugins/hubs-tui/src/queue-commands.ts`) registers a renderer for that
+`registerComposerCapture` (`plugins/prompt-queue/queue-commands.ts`) registers a renderer for that
 slot. It renders the standard `api.ui.Prompt` with every host prop forwarded — including calling
 `props.ref` with our ref, so the host keeps its own reference — and stores the handle.
 `composerText()` reads it; `clearComposer()` calls `reset()` on it, which is what the stash does.
@@ -235,7 +235,7 @@ will be.
 | This system uses | From |
 | ---------------- | ---- |
 | `session.idle` / `session.status`, `session.messages`, `session.promptAsync` | [Event Interception](plugins-hooks.md) |
-| `api.command.register`, `DialogSelect`, `DialogPrompt`, `clearPrompt({ directory })` | [TUI Plugin](plugins-hubs-tui.md) |
+| `api.command.register`, `DialogSelect`, `DialogPrompt`, `clearPrompt({ directory })` | [Hub Plugin](plugins/hubs/AGENTS.md) |
 | `.opencode/state/` for session state | [Memory System](memory-system.md) |
 | Existing plugin's non-blocking discipline | [Command Hooks](plugins-command-hooks.md) |
 

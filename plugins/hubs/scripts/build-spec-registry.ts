@@ -1,12 +1,12 @@
 /**
  * Build Script: Pre-compile hub subcommand specs into a single JSON registry.
  *
- * Scans all tools/hubs/<hub>/<subcommand>.ts files, extracts the
+ * Scans all plugins/hubs/data/hubs/<hub>/<subcommand>.ts files, extracts the
  * HubSubcommandSpec fields, and writes a single JSON file at
- * tools/hubs/spec-registry.json.
+ * plugins/hubs/data/hubs/spec-registry.json.
  *
- * Usage: npx tsx tools/build-spec-registry.ts
- *        npx tsx tools/build-spec-registry.ts --watch
+ * Usage: npx tsx plugins/hubs/scripts/build-spec-registry.ts
+ *        npx tsx plugins/hubs/scripts/build-spec-registry.ts --watch
  *
  * The registry is a cache, not a replacement. loadSubcommandSpec() in
  * hub-data.ts checks the registry first, then falls back to require().
@@ -17,7 +17,7 @@ import * as path from "path"
 
 // ─── Config ───────────────────────────────────────────────────────────
 
-const HUBS_DIR = path.join(__dirname, "hubs")
+const HUBS_DIR = path.join(__dirname, "..", "data", "hubs")
 const OUTPUT_PATH = path.join(HUBS_DIR, "spec-registry.json")
 
 // Fields from HubSubcommandSpec that are JSON-serializable

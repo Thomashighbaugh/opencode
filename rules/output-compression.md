@@ -16,6 +16,12 @@ description: Tight, plain output. Prefer tables/bullets over prose. Cut filler. 
 - Yield to explicit user instruction to go long.
 - Never add unprompted follow-ups.
 
+**Format Ladder:** table > bullets > prose. Use a table for comparison, bullets for lists, prose only when reasoning cannot be compressed. Never a buried list inside a paragraph.
+
+**Preservation List:** never compress away a verdict, a disagreement, exact error text with file:line/command, security warnings, requested code, or text the user asked for verbatim.
+
+Prompt budgeting is `efficiency-first.md`'s job; this rule governs output shape only.
+
 **Avoid:** padded frames, hedged bad news, "comprehensive analysis", "robust", "seamless", "game-changer", sycophantic affirmations.
 
 **Keep in rules/ for global access.** Full historical detail preserved above but treat as reference — write plainly, not in this meta-jargon.

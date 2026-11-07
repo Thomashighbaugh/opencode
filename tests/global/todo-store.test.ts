@@ -12,7 +12,7 @@ import {
   renderItem,
   renderOpen,
   todoFile,
-} from '../../plugins/hubs-tui/src/todo-store'
+} from '../../plugins/todo/todo-store'
 
 /**
  * The `/todo` store is pure fs + strings, so it is tested directly — the TUI

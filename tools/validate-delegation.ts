@@ -2,7 +2,7 @@ import { tool } from "@opencode-ai/plugin"
 import * as fs from "fs"
 import * as path from "path"
 import { homedir } from "os"
-import { loadAllHubs } from './hub-data'
+import { loadAllHubs } from '../plugins/hubs/data/hub-data'
 import { withToolCache } from "./cache-utils"
 
 const USER_CONFIG_DIR = process.env.OPENCODE_CONFIG_DIR || path.join(homedir(), '.config', 'opencode')

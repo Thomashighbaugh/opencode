@@ -29,7 +29,6 @@ Listed in `opencode.jsonc` → `instructions`, so they are in context on every t
 | `writing-style.md` | Prose style — say it, don't announce it; plain words; end when the content ends |
 | `anti-sycophancy.md` | No reflexive agreement |
 | `efficiency-first.md` | **The standing constraint** — request and token budgets |
-| `hub-menu-rebuild.md` | Regenerate the TUI after hub changes |
 
 These are not advice. They encode the failure modes this configuration has actually had:
 non-interactive shells that hang on a prompt, scripts written to the project root, a model that
@@ -130,7 +129,7 @@ See [Knowledge Plane](knowledge-plane.md).
 
 ### Hubs
 
-`hubMenu` plus one manifest per hub (`tools/hub-<name>.ts`).
+`hubMenu` plus one manifest per hub (`plugins/hubs/data/hub-<name>.ts`).
 See [Hub Command System](hub-command-system.md).
 
 ### Caching

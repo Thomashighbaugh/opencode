@@ -20,7 +20,8 @@ OpenCode plugin system components — hook system plugin for lifecycle events, s
 | Directory | Purpose |
 |-----------|---------|
 | `hooks/` | Hook system modules — session.ts, modes.ts, keywords.ts, telemetry.ts, cache-hook.ts, vectorize-hook.ts (imported by hooks.ts) |
-| `hubs-tui/` | TUI plugin with hub dialogs and visual interface components (see `hubs-tui/AGENTS.md`) |
+| `hubs/` | OpenCode 2 hub plugin package — router, vendored corpus, TUI picker (see `hubs/AGENTS.md`) |
+| `todo/` | Human todo store and `/todo` command module (extracted from the removed hubs-tui package) |
 | `toon/` | Home-rolled TOON compaction plugin (no npm dependency) |
 
 ## For AI Agents
@@ -32,14 +33,14 @@ OpenCode plugin system components — hook system plugin for lifecycle events, s
 - Plugins are registered via `opencode.jsonc` npm plugin entries
 
 ### The `/goal` Command
-- Registered as a TUI slash command in `plugins/hubs-tui/src/tui.tsx` (rebuild dist with `bun build`)
+- Registered as a TUI slash command by the V2 hub package (`plugins/hubs/tui.tsx`)
 - Command template at `commands/goal.md` handles agent-side logic
 - Subcommands: `set`, `show`, `clear`, `pause`, `resume`
 - Bare `/goal` (no subcommand) presents an interactive hub-style menu via `question` tool
 - Goal state file: `.opencode/state/goal/state.json` (created automatically on first use)
 
 ### The `/todo` Command
-- Registered as a TUI slash command **and** ctrl+p palette entry in `plugins/hubs-tui/src/todo-commands.ts`
+- Registered as a TUI slash command **and** ctrl+p palette entry in `plugins/todo/todo-commands.ts`
 - Menus: add / list / complete / delete / inject into input box / copy to clipboard / view archive
 - Store: `.opencode/todo/todos.json` (active) + `.opencode/todo/archive.jsonl` (completed, append-only) — committed, per project
 - The **human's** list; distinct from the agent's in-session `taskTodos` (`.opencode/state/todos.json`). No agent tool, no system-prompt injection by design.
@@ -68,6 +69,6 @@ OpenCode plugin system components — hook system plugin for lifecycle events, s
 
 ### External
 - OpenCode plugin API — Hook registration and lifecycle
-- NPM plugin system — `hubs-tui-hubs@0.1.0` and other plugins
+- NPM plugin system
 
 <!-- MANUAL: -->

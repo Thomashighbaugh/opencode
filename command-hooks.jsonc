@@ -86,45 +86,6 @@
             "injectOn": "failure",
             "inject": "<graph-integrity exit=\"{exitCode}\">\nA file under skills/graph-context/scripts no longer typechecks. The graph invariants in graph-context/SKILL.md are documented as holding; that is now in doubt:\n\n```\n{stdout}{stderr}\n```\n</graph-integrity>"
         },
-        {
-            // Rebuild the TUI hub menu bundle when a hub spec or a hub SKILL.md
-            // changes. This is the mechanical half of rules/hub-menu-rebuild.md.
-            //
-            // The rule existed because the step was manual and got skipped: the
-            // dialog rendered from a generated bundle, so a committed spec with a
-            // stale bundle made a working subcommand invisible with no error
-            // anywhere. It shipped that way twice (79280b0 — graph, self-improve,
-            // delegate and insights all missing; 5ae6d27).
-            //
-            // Silent on success (`injectOn: "failure"`) and debounced by the hook
-            // runner's own dedupe, because regenerating on every keystroke-level
-            // edit would cost more than the staleness it prevents. `dist/tui.js`
-            // is gitignored and rebuilt locally; `src/generated-hubs.ts` is
-            // committed, so the pair is what actually has to stay in step.
-            "id": "hub-menu-rebuild-after-write",
-            "when": {
-                "phase": "after",
-                "tool": ["write", "edit", "patch", "regex-edit", "json-edit", "yaml-edit", "conf-edit", "multi-edit"],
-                "toolArgs": {
-                    // One glob, not an array: the matcher takes a single pattern
-                    // (`{glob: string}`) and an array here invalidates the whole
-                    // file — every hook below silently stops firing. picomatch
-                    // expands the braces, so all three sources fit in one string.
-                    "filePath": {
-                        "glob": "{tools/hubs/**/*.ts,tools/hub-*.ts,skills/*/SKILL.md}"
-                    }
-                }
-            },
-            "run": "cd plugins/hubs-tui && bun run generate-menus >/dev/null 2>&1 && bun build src/tui.tsx --outdir dist --target bun --minify >/dev/null 2>&1",
-            "injectOn": "failure",
-            "inject": "<hub-menu-rebuild exit=\"{exitCode}\">\nThe hub menu bundle failed to regenerate after a spec change. Until this succeeds, /maintain-hub and its siblings render from a stale bundle and any new or renamed subcommand is INVISIBLE in the dialog. Run: cd plugins/hubs-tui && bun run generate-menus && bun build src/tui.tsx --outdir dist --target bun --minify\n\n```\n{stdout}{stderr}\n```\n</hub-menu-rebuild>",
-            "toast": {
-                "title": "hub menu bundle",
-                "message": "regeneration failed (exit {exitCode})",
-                "variant": "error",
-                "duration": 8000
-            }
-        }
     ],
 
     "session": [
