@@ -5,8 +5,8 @@
  * HubSubcommandSpec fields, and writes a single JSON file at
  * plugins/hubs/data/hubs/spec-registry.json.
  *
- * Usage: npx tsx plugins/hubs/scripts/build-spec-registry.ts
- *        npx tsx plugins/hubs/scripts/build-spec-registry.ts --watch
+ * Usage: bun plugins/hubs/scripts/build-spec-registry.ts
+ *        bun plugins/hubs/scripts/build-spec-registry.ts --watch
  *
  * The registry is a cache, not a replacement. loadSubcommandSpec() in
  * hub-data.ts checks the registry first, then falls back to require().
@@ -15,6 +15,13 @@
 import * as fs from "fs"
 import * as path from "path"
 import { fileURLToPath } from "node:url"
+
+// The registry is built by requiring the TS spec modules; Node's ESM loader
+// cannot do that and would silently write an empty registry. Fail loudly.
+if (typeof (globalThis as any).Bun === "undefined") {
+  console.error("build-spec-registry must run under Bun: bun plugins/hubs/scripts/build-spec-registry.ts")
+  process.exit(1)
+}
 
 // ─── Config ───────────────────────────────────────────────────────────
 
