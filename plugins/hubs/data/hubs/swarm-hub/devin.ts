@@ -1,0 +1,43 @@
+import { HubSubcommandSpec } from "../../hub-data"
+
+import { TOOLS_BASH_LISTAGENTS_MODESTATE_TASKTODOS } from "../shared-spec-fragments"
+const spec: HubSubcommandSpec = {
+  label: "devin",
+  description: "Autonomous plan → code → debug → deploy with root-cause loops",
+  reminder: "Plan→Code→Debug→Deploy pipeline. Asks: deploy command.",
+  inline: true,
+
+  detailedDescription: `Four-phase autonomous pipeline inspired by Devin-style agentic coding:
+
+1. Plan: produce a complete implementation plan from the task description. The plan is explicit and saved.
+2. Code: implement the plan step by step. Each step produces concrete code.
+3. Debug: if any step's output fails verification, enter a debugging sub-loop. The debugger investigates root cause (using systematic debugging), fixes it, and re-verifies. The sub-loop is bounded — if root cause can't be found in N attempts, escalate.
+4. Deploy: once all steps pass verification, deploy (if a deploy target is configured).
+
+The distinguishing feature is the Debug sub-loop: rather than just "try again", it does root-cause analysis first. This prevents fix-attempt cycles that treat symptoms rather than causes.
+
+Use for end-to-end feature delivery where you expect bugs during implementation and want autonomous root-cause debugging rather than blind retries.
+
+## Gatekeeping Question
+
+Before starting, ask (passing the flag skips the question — non-interactive path):
+
+> **Question — deploy command?**
+> 1. Skip deploy — stop after verification
+> 2. Pick a package.json script (e.g. "npm run deploy")
+> (or type your own command)
+
+Resolved answer maps to \`--deploy="..."\`.`,
+
+  tools: TOOLS_BASH_LISTAGENTS_MODESTATE_TASKTODOS,
+  relatedSkills: ["systematic-debugging", "verify"],
+
+  examples: [
+    {
+      input: "/swarm-hub devin 'add WebSocket support to the chat server'",
+      approach: "Asks deploy command (npm run deploy). Plan: add WS server, client adapter, message handler, reconnection logic. Code: implement each. Debug: tests fail on reconnection — root cause is race condition in close handler. Fix. Re-verify: pass. Deploy."
+    }
+  ]
+}
+
+export default spec

@@ -1,0 +1,23 @@
+import { HubSubcommandSpec } from "../../hub-data"
+
+import { TOOLS_LOADSKILL_BASH } from "../shared-spec-fragments"
+const spec: HubSubcommandSpec = {
+  label: "redesign",
+  description: "Audit and upgrade existing UI to premium design standards",
+  reminder: "Audit and upgrade to premium design standards.",
+  skill: "redesign-existing-projects",
+
+  detailedDescription: `Audits and upgrades existing UI to premium design standards. Process:
+
+1. Scan the codebase for generic AI-generated design patterns: overused gradients, default Lucide icons everywhere, centered card columns, generic Tailwind defaults, "AI slop" visual signatures.
+2. Diagnose each instance and propose a targeted upgrade: distinctive visual elements, considered iconography, asymmetric layouts, custom design tokens.
+3. Apply upgrades WITHOUT breaking functionality — the audit is visual, the fixes are surgical. Existing behavior is preserved.
+4. Works with any CSS framework (Tailwind, CSS modules, styled-components, MUI).
+
+Use for existing apps that look "AI-generated" and need to look designed. The skill knows the specific patterns that signal generic AI output and how to replace them with premium alternatives.`,
+
+  tools: TOOLS_LOADSKILL_BASH,
+  relatedSkills: [],
+}
+
+export default spec
