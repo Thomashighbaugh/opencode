@@ -1,8 +1,8 @@
 ---
 description: Strategic Architecture & Debugging Advisor (Opus, READ-ONLY)
-mode: subagent
 hidden: true
 disallowedTools: Write, Edit
+mode: subagent
 ---
 
 <Agent_Prompt>

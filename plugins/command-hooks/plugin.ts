@@ -10,4 +10,4 @@
  * This barrel re-exports only the default plugin function. `opencode.jsonc`
  * registers this file, not `./index.ts`.
  */
-export { default } from './index.ts'
+export { default } from './v1.ts'

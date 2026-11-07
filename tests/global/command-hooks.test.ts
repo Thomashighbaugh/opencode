@@ -15,12 +15,12 @@ import * as os from 'node:os'
 import * as path from 'node:path'
 
 const CONFIG_DIR = path.resolve(__dirname, '..', '..')
-const MOD = path.join(CONFIG_DIR, 'plugins', 'command-hooks', 'index.ts')
+const MOD = path.join(CONFIG_DIR, 'plugins', 'command-hooks', 'v1.ts')
 
 // Loaded once at module scope, not in beforeEach: a `describe` body runs during
 // collection, before any beforeEach, so a module assigned in beforeEach is
 // still undefined where a describe-level `loadConfig` needs it.
-type Mod = typeof import('../../plugins/command-hooks/index')
+type Mod = typeof import('../../plugins/command-hooks/v1')
 const m: Mod = await import(MOD)
 
 beforeEach(() => {
@@ -989,7 +989,7 @@ describe('end-to-end: the plugin as OpenCode loads it', () => {
 
   it('the plugin is registered in opencode.jsonc', () => {
     const cfg = fs.readFileSync(path.join(CONFIG_DIR, 'opencode.jsonc'), 'utf-8')
-    expect(cfg).toContain('./plugins/command-hooks/plugin.ts')
+    expect(cfg).toContain('./plugins/command-hooks')
   })
 
   it('the loader-facing entry exports only functions', async () => {

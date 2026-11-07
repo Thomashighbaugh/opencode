@@ -1,9 +1,9 @@
 ---
 description: Verification strategy, evidence-based completion checks, test adequacy
-mode: subagent
 hidden: true
 permission:
   runSkillScript: allow
+mode: subagent
 ---
 
 <Agent_Prompt>

@@ -22,11 +22,11 @@ import { spawnSync } from 'node:child_process'
 const CONFIG_DIR = path.resolve(__dirname, '..', '..')
 const GATE_MOD = path.join(CONFIG_DIR, 'plugins', 'prompt-queue', 'gate.ts')
 const QUEUE_MOD = path.join(CONFIG_DIR, 'plugins', 'prompt-queue', 'queue.ts')
-const IDX_MOD = path.join(CONFIG_DIR, 'plugins', 'prompt-queue', 'index.ts')
+const IDX_MOD = path.join(CONFIG_DIR, 'plugins', 'prompt-queue', 'v1-hooks.ts')
 
 type Gate = typeof import('../../plugins/prompt-queue/gate')
 type Queue = typeof import('../../plugins/prompt-queue/queue')
-type Idx = typeof import('../../plugins/prompt-queue/index')
+type Idx = typeof import('../../plugins/prompt-queue/v1-hooks')
 let gate: Gate
 let q: Queue
 let idx: Idx
@@ -498,7 +498,7 @@ describe('plugin: end to end', () => {
 describe('wiring', () => {
   it('the hooks plugin is registered in opencode.jsonc', () => {
     const cfg = fs.readFileSync(path.join(CONFIG_DIR, 'opencode.jsonc'), 'utf-8')
-    expect(cfg).toContain('./plugins/prompt-queue/plugin.ts')
+    expect(cfg).toContain('./plugins/prompt-queue')
   })
 
   it('the loader-facing entry exports only functions', async () => {
@@ -547,7 +547,7 @@ describe('wiring', () => {
     // half was extracted with it and now sits beside the plugin it serves.
     const src = fs.readFileSync(path.join(CONFIG_DIR, 'plugins', 'prompt-queue', 'queue-commands.ts'), 'utf-8')
     expect(src).toContain('registerQueueCommands')
-    const entry = fs.readFileSync(path.join(CONFIG_DIR, 'plugins', 'prompt-queue', 'index.ts'), 'utf-8')
+    const entry = fs.readFileSync(path.join(CONFIG_DIR, 'plugins', 'prompt-queue', 'v1-hooks.ts'), 'utf-8')
     expect(entry.length).toBeGreaterThan(0)
   })
 

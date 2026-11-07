@@ -1,21 +1,15 @@
 /**
- * toon plugin — compacts large JSON tool output into TOON for the model's
- * context, and restores the JSON before a later `bash` command consumes it.
+ * toon — server entrypoint (OpenCode 2).
  *
- * Home-rolled counterpart of `opencode-toon-plugin`: same two hooks, same
- * size-gated behaviour, but the codec lives in `./toon.ts` (no dependency) and
- * every conversion is verified by a round trip before it is used. A payload the
- * codec cannot reproduce exactly is left as JSON — there is no lossy path.
- *
- * Hooks (v1 plugin API):
- *   tool.execute.after  — eligible tool output, JSON, ≥256 chars → TOON if shorter
- *   tool.execute.before — bash command, quoted payloads/heredocs → original JSON
+ * `execute.before` restores JSON from a remembered TOON payload before bash sees
+ * it; `execute.after` compacts large JSON results to TOON. V2 hooks expose
+ * `event.input` (mutable) and `event.result` (mutable) instead of the V1
+ * `(input, output)` pair — the codec and the guards are unchanged.
  */
 
 import { createHash } from "node:crypto"
-import type { Plugin } from "@opencode-ai/plugin"
 
-import { decode, toonify } from "./toon"
+import { decode, toonify } from "./toon.ts"
 
 const DEFAULT_ELIGIBLE_TOOLS = [
   "bash",
@@ -28,29 +22,22 @@ const DEFAULT_ELIGIBLE_TOOLS = [
   "conf-edit",
   "multi-edit",
 ]
+
 const MAX_CACHED_OUTPUTS = 100
 const MIN_JSON_LENGTH = 256
 const MAX_INPUT_LENGTH = 4 * 1024 * 1024
 
-type Cached = { json: string; toon: string }
+const converted = new Map<string, { json: string; toon: string }>()
 
-const converted = new Map<string, Cached>()
-
-function debug(...args: unknown[]) {
-  if (process.env.OPENCODE_TOON_DEBUG) console.error("[toon]", ...args)
+function hash(text: string) {
+  return createHash("sha256").update(text).digest("hex")
 }
 
 function eligibleTools(): Set<string> {
   const raw = process.env.OPENCODE_TOON_TOOLS ?? process.env.OPENCODE_TOON_PLUGIN_TOOLS
   return new Set(
-    (raw ? raw.split(",") : DEFAULT_ELIGIBLE_TOOLS)
-      .map((tool) => tool.trim().toLowerCase())
-      .filter(Boolean),
+    (raw ? raw.split(",") : DEFAULT_ELIGIBLE_TOOLS).map((tool) => tool.trim().toLowerCase()).filter(Boolean),
   )
-}
-
-function hash(text: string) {
-  return createHash("sha256").update(text).digest("hex")
 }
 
 function remember(toon: string, json: string) {
@@ -62,13 +49,7 @@ function remember(toon: string, json: string) {
   }
 }
 
-function recall(toon: string): string | undefined {
-  return converted.get(hash(toon))?.json
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null
-}
+const recall = (toon: string) => converted.get(hash(toon))?.json
 
 function looksLikeJson(text: string) {
   if (text.length < 2) return false
@@ -85,11 +66,8 @@ function looksLikeToon(text: string) {
   return /(^|\n)\s*(?:[^\s:[\]{}]+)?\[\d+\](?:\{[^}\n]*\})?:/.test(trimmed)
 }
 
-function shellSingleQuote(text: string) {
-  return `'${text.replaceAll("'", "'\\''")}'`
-}
+const shellSingleQuote = (text: string) => `'${text.replaceAll("'", "'\\''")}'`
 
-/** JSON to put in place of a forwarded payload, or undefined to leave it alone. */
 function forwardedJson(text: string): string | undefined {
   const trimmed = text.trim()
   const cached = recall(trimmed)
@@ -97,7 +75,7 @@ function forwardedJson(text: string): string | undefined {
   if (!looksLikeToon(trimmed)) return undefined
   try {
     const decoded = decode(trimmed)
-    if (!isRecord(decoded) && !Array.isArray(decoded)) return undefined
+    if (typeof decoded !== "object" || decoded === null) return undefined
     return JSON.stringify(decoded)
   } catch {
     return undefined
@@ -114,7 +92,7 @@ function replaceHeredocs(command: string): string {
   )
 }
 
-function replaceQuotedPayloads(command: string): string {
+function replaceQuoted(command: string): string {
   const single = command.replace(/'([^']*)'/g, (match, body: string) => {
     const json = forwardedJson(body)
     return json === undefined ? match : shellSingleQuote(json)
@@ -135,44 +113,53 @@ function replaceCached(command: string): string {
 }
 
 function restore(command: string): string {
-  return replaceCached(replaceQuotedPayloads(replaceHeredocs(command)))
+  return replaceCached(replaceQuoted(replaceHeredocs(command)))
 }
 
-function commandOf(args: unknown): string | undefined {
-  if (!isRecord(args)) return undefined
-  return typeof args.command === "string" ? args.command : undefined
+function compact(text: string): string | null {
+  if (typeof text !== "string") return null
+  const trimmed = text.trim()
+  if (trimmed.length < MIN_JSON_LENGTH || trimmed.length > MAX_INPUT_LENGTH) return null
+  if (!looksLikeJson(trimmed)) return null
+  const toon = toonify(trimmed)
+  if (toon === null) return null
+  remember(toon, trimmed)
+  return toon
 }
 
-const ToonPlugin: Plugin = async () => {
-  const eligible = eligibleTools()
+export default {
+  id: "toon",
+  async setup(ctx: any) {
+    const eligible = eligibleTools()
 
-  return {
-    "tool.execute.before": async (input, output) => {
-      if (input.tool.toLowerCase() !== "bash") return
-      const command = commandOf(output.args)
-      if (command === undefined) return
-      const replaced = restore(command)
-      if (replaced !== command) output.args.command = replaced
-    },
+    await ctx.tool.hook("execute.before", (event: any) => {
+      if (String(event.tool).toLowerCase() !== "bash") return
+      const input = event.input as { command?: unknown } | undefined
+      if (!input || typeof input.command !== "string") return
+      const restored = restore(input.command)
+      if (restored !== input.command) input.command = restored
+    })
 
-    "tool.execute.after": async (input, output) => {
-      if (!eligible.has(input.tool.toLowerCase())) return
-      if (typeof output.output !== "string") return
+    await ctx.tool.hook("execute.after", (event: any) => {
+      if (event.status !== "completed") return
+      if (!eligible.has(String(event.tool).toLowerCase())) return
+      const result = event.result as { content?: unknown } | undefined
+      if (!result) return
 
-      const original = output.output
-      const trimmed = original.trim()
-      if (trimmed.length < MIN_JSON_LENGTH) return
-      if (trimmed.length > MAX_INPUT_LENGTH) return
-      if (!looksLikeJson(trimmed)) return
+      if (typeof result.content === "string") {
+        const toon = compact(result.content)
+        if (toon !== null) result.content = toon
+        return
+      }
 
-      const toon = toonify(trimmed)
-      if (toon === null) return
-
-      remember(toon, trimmed)
-      output.output = toon
-      debug(`compact ${input.tool}: ${trimmed.length} → ${toon.length} chars`)
-    },
-  }
+      if (Array.isArray(result.content)) {
+        for (const part of result.content) {
+          if (part && typeof part === "object" && part.type === "text" && typeof part.text === "string") {
+            const toon = compact(part.text)
+            if (toon !== null) part.text = toon
+          }
+        }
+      }
+    })
+  },
 }
-
-export default ToonPlugin

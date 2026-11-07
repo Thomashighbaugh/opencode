@@ -7,8 +7,8 @@
 - **1 primary agent** (`hubs`) — the only primary. It handles tasks directly and is the sole entry point.
 - **30 subagents** — all `mode: subagent`, dispatched by `hubs` or by an explicit user request. See `agents/hubs.md`
 - **123 workflow skills** for development tasks
-- **38 TypeScript tools** for session management and file editing
-- **173 hub subcommand specs** across 13 hub directories
+- **31 TypeScript tools** for session management and file editing
+- **174 hub subcommand specs** across 13 hub directories, served by the `plugins/hubs/` V2 package
 - **Hook system plugin** for mode detection, state persistence, and context injection
 - **Multi-tier cache system** — tool, file, session, vector search caching
 - **Durable context storage** — knowledge compounds across sessions
@@ -91,6 +91,16 @@ Every turn, every subagent invocation, every verification round costs an API req
 ## Critical: No Auto-Mode Activation
 
 Magic keywords (`ralph`, `autopilot`, `ultrawork`, `build me`, `create me`, etc.) do **NOT** auto-activate modes. The plugin detects them and injects a context message, but the agent must **propose** the mode to the user and get explicit confirmation before activating.
+
+## Agents
+
+`agents/` holds 31 files: `hubs` (the only `mode: primary`) and 30 subagents. Agents named by a hub subcommand's `agent:` field are bundled in `plugins/hubs/data/agents/` and installed beside that directory by the plugin; they assume the hub payload and skills they were written for, so edit the plugin copy, not a stale duplicate.
+
+- Planning: `planner`, `analyst`, `architect`, `deep-thinker`, `requirements-analyzer`, `effort-estimator`
+- Implementation: `executor`, `refactoring`, `code-simplifier`, `frontend-design`, `designer`, `skill-creator`
+- Quality: `code-reviewer`, `security-reviewer`, `test-engineer`, `qa-tester`, `verifier`, `tracer`, `critic`
+- Research: `explore`, `scientist`, `writer`, `document-specialist`, `convention-extractor`, `web-search`, `stack-detector`
+- Workflow: `git-master`, `commit-drafter`, `config-orchestrator`, `prompt-simplifier`
 
 ## Subagent Dispatch
 
@@ -187,11 +197,13 @@ See `rules/hub-routing.md` for the complete delegation table and architecture de
 │   ├── rules/            # Rule generation templates
 │   ├── tools/            # Tool creation templates
 │   └── reasoning/        # CoT reasoning templates
-├── tools/               # TypeScript tools
-│   ├── hubMenu.ts       # Hub menu router (route returns full spec, menu returns slim slice)
-│   ├── hub-data.ts      # Hub types, subcommand spec loader, state helpers
-│   └── ...              # File editing, cache, session, skill tools
-├── plugins/             # Hook system + TUI plugin
+├── tools/               # TypeScript tools (edit, cache, session, skill, retrieval)
+├── plugins/             # V2 plugin packages + V1 hook plugins
+│   ├── hubs/            # Hub router, vendored specs/rules/skills/agents, TUI picker
+│   ├── todo/            # Human todo list (V2 TUI + store)
+│   ├── prompt-queue/    # Deferred prompt queue (V2 server + TUI, V1 hooks)
+│   ├── hooks/           # V1 hook system (session, modes, telemetry, cache)
+│   └── command-hooks/   # V1 file-write hook runner
 ├── rules/               # Shared rules (loaded as instructions)
 ├── templates/           # File templates (agents, context, rules, tools, reasoning)
 └── .opencode/           # Project state, context, docs, cache

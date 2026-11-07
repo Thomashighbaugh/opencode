@@ -44,6 +44,20 @@ export function configAgentsDir(): string {
   return path.join(config, "agents")
 }
 
+/**
+ * Enforce the single-primary invariant: `hubs` is the only primary agent.
+ * Every other bundled agent is a subagent, whether or not its source said so.
+ */
+export function normalizeAgent(id: string, content: string): string {
+  const match = /^---\r?\n([\s\S]*?)\r?\n---/.exec(content)
+  if (!match) return content
+  const frontmatter = match[1]!
+  const body = content.slice(match[0].length)
+  const lines = frontmatter.split(/\r?\n/).filter((line) => !/^mode:\s*/.test(line))
+  lines.push(id === "hubs" ? "mode: primary" : "mode: subagent")
+  return `---\n${lines.join("\n")}\n---${body}`
+}
+
 export interface InstallResult {
   written: string[]
   unchanged: string[]
@@ -57,11 +71,12 @@ export function installAgents(destination = configAgentsDir()): InstallResult {
     fs.mkdirSync(destination, { recursive: true })
     for (const agent of loadVendoredAgents()) {
       const target = path.join(destination, `${agent.id}.md`)
-      if (fs.existsSync(target) && fs.readFileSync(target, "utf-8") === agent.content) {
+      const content = normalizeAgent(agent.id, agent.content)
+      if (fs.existsSync(target) && fs.readFileSync(target, "utf-8") === content) {
         unchanged.push(agent.id)
         continue
       }
-      fs.writeFileSync(target, agent.content)
+      fs.writeFileSync(target, content)
       written.push(agent.id)
     }
   } catch {
