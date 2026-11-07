@@ -13,7 +13,7 @@ required at runtime.
 | Path | Role |
 | --- | --- |
 | `index.ts` | Server part. Plain `{ id, setup }` object (no `@opencode/plugin` import). Registers skills via `ctx.skill.transform`, the `hubMenu` tool via `ctx.tool.transform`, and `/hubs` via `ctx.command.transform`. |
-| `tui.tsx` | TUI part. Per-hub slash commands + `ui.dialog.select` picker, `/hubs` (hub picker), `/hubs-skills`, `/hubs-settings`, and a `sidebar.content` panel with one block per hub menu. |
+| `tui.tsx` | TUI part. Per-hub slash commands + `ui.dialog.select` picker, `/hubs` (hub picker), `/hubs-skills`, `/hubs-settings`, and a `sidebar.content` panel with one block per hub menu. Left-click a hub row expands its subcommands inline; right-click opens the same picker dialog the MCP list uses. |
 | `src/core.ts` | Registry + router. `route()` payloads match the V1 `hubMenu` tool; legacy `hub/sub` pairs resolve through `LEGACY_ROUTE_MAP`. |
 | `src/skills.ts` | Vendored skill corpus, hub→skill mapping, token estimates, load-state extraction. |
 | `src/agents.ts` | Vendored agents the subcommands delegate to, plus write-if-changed installation into the host `agents/` dir (`ctx.agent.transform` has no `add` in V2). |

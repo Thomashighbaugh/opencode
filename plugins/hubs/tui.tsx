@@ -40,6 +40,16 @@ export default definePlugin({
       initial: { collapsed: false, scope: "hubs", tokens: true },
     })
     const [loaded, setLoaded] = createSignal<ReadonlySet<string>>(new Set<string>())
+    // Which hub menus are expanded in the sidebar. Left click toggles; right click
+    // opens the picker (the same dialog the MCP list opens).
+    const [expanded, setExpanded] = createSignal<ReadonlySet<string>>(new Set<string>())
+    const toggleMenu = (name: string) =>
+      setExpanded((previous) => {
+        const next = new Set(previous)
+        if (next.has(name)) next.delete(name)
+        else next.add(name)
+        return next
+      })
 
     const toast = (message: string, variant: "info" | "warning" | "error" = "info") =>
       ctx.ui.toast.show({ title: "Hubs", message, variant })
@@ -278,12 +288,25 @@ export default definePlugin({
               <For each={menus()}>
                 {(menu) => (
                   <box flexDirection="column">
-                    <text fg={ctx.theme.text.base} onMouseUp={() => void openHub(menu.name)}>
-                      {`▸ /${menu.name} (${menu.subs.length})`}
+                    <text
+                      fg={ctx.theme.text.base}
+                      onMouseUp={(event: any) => {
+                        if (event?.button === 2) void openHub(menu.name)
+                        else toggleMenu(menu.name)
+                      }}
+                    >
+                      {`${expanded().has(menu.name) ? "▾" : "▸"} /${menu.name} (${menu.subs.length})`}
                     </text>
-                    <text fg={ctx.theme.text.muted}>
-                      {`   ${menu.subs.slice(0, 6).join(" · ")}${menu.subs.length > 6 ? " · …" : ""}`}
-                    </text>
+                    <Show when={expanded().has(menu.name)}>
+                      <For each={menu.subs}>
+                        {(sub) => <text fg={ctx.theme.text.muted}>{`    ${sub}`}</text>}
+                      </For>
+                    </Show>
+                    <Show when={!expanded().has(menu.name)}>
+                      <text fg={ctx.theme.text.muted}>
+                        {`   ${menu.subs.slice(0, 6).join(" · ")}${menu.subs.length > 6 ? " · …" : ""}`}
+                      </text>
+                    </Show>
                   </box>
                 )}
               </For>
