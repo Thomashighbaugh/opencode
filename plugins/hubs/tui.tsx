@@ -201,7 +201,11 @@ export default definePlugin({
           group: "Hubs",
           palette: true,
           slash: { name: "hubs", arguments: true },
-          run: () => void submit(renderIndex()),
+          run: (input) => {
+            const target = input?.trim()
+            if (target && hubNames().includes(target)) void openHub(target)
+            else void openHubPicker()
+          },
         },
         {
           id: "hubs.skills",
@@ -222,33 +226,65 @@ export default definePlugin({
       ],
     }))
 
+    async function openHubPicker() {
+      const choice = await ctx.ui.dialog.select<string>({
+        title: `Hubs — ${hubNames().length} menus`,
+        placeholder: "Filter hubs",
+        options: hubNames().map((name) => {
+          const definition = hub(name)
+          return {
+            title: `/${name}`,
+            value: name,
+            description: definition?.description ?? "",
+            category: `${definition?.subcommands.length ?? 0} subcommands`,
+          }
+        }),
+        search: (query, options) => {
+          const needle = query.trim().toLowerCase()
+          if (!needle) return options
+          return options.filter((option) =>
+            `${option.title} ${option.description ?? ""}`.toLowerCase().includes(needle),
+          )
+        },
+        actions: [
+          {
+            bind: "ctrl+l",
+            title: "Index",
+            side: "right",
+            selection: "none",
+            onTrigger: () => void submit(renderIndex()),
+          },
+        ],
+      })
+      if (choice) await openHub(choice)
+    }
+
     ctx.ui.slot({
       append: "sidebar.content",
       render: (input) => {
-        createEffect(() => {
-          const messages = ctx.data.session.message.list(input.sessionID)
-          setLoaded(extractLoadedSkills(messages))
-        })
+        createEffect(() => setLoaded(extractLoadedSkills(ctx.data.session.message.list(input.sessionID))))
 
-        const rows = createMemo(() => visibleSkills(prefs.scope, loaded()))
-        const groupCount = createMemo(() => rows().filter((skill) => skill.hubs.length > 0).length)
+        const menus = createMemo(() =>
+          hubNames().map((name) => {
+            const definition = hub(name)
+            return { name, subs: definition?.subcommands.map((sub) => sub.label) ?? [] }
+          }),
+        )
 
         return (
           <Show when={!prefs.collapsed}>
             <box flexDirection="column" gap={0}>
-              <text fg={ctx.theme.text.base}>
-                Hubs · {groupCount()}/{loadVendoredSkills().length} skills
-              </text>
-              <For each={rows().slice(0, 24)}>
-                {(skill) => (
-                  <text fg={loaded().has(skill.id) ? ctx.theme.text.base : ctx.theme.text.muted}>
-                    {`${loaded().has(skill.id) ? "●" : "○"} ${skill.id}${prefs.tokens ? `  ${formatTokenCount(skill.loadTokens)}` : ""}`}
-                  </text>
+              <text fg={ctx.theme.text.base}>{`Hubs · ${menus().length} menus · /hubs`}</text>
+              <For each={menus()}>
+                {(menu) => (
+                  <box flexDirection="column">
+                    <text fg={ctx.theme.text.base}>{`▸ /${menu.name} (${menu.subs.length})`}</text>
+                    <text fg={ctx.theme.text.muted}>
+                      {`   ${menu.subs.slice(0, 6).join(" · ")}${menu.subs.length > 6 ? " · …" : ""}`}
+                    </text>
+                  </box>
                 )}
               </For>
-              <Show when={rows().length > 24}>
-                <text fg={ctx.theme.text.muted}>{`+${rows().length - 24} more · /hubs-skills`}</text>
-              </Show>
             </box>
           </Show>
         )
