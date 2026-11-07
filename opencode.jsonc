@@ -509,12 +509,13 @@
         }
     },
     "plugin": [
-        "./plugins/hooks/hooks.ts",
-        "./plugins/command-hooks/plugin.ts",
-        "./plugins/prompt-queue/plugin.ts",
+        "./plugins/hooks",
+        "./plugins/command-hooks",
+        "./plugins/prompt-queue",
+        "./plugins/hubs",
+        "./plugins/todo",
         "./plugins/toon",
-        "@opencode-plugins/env-protection",
-        "@franlol/opencode-md-table-formatter@0.0.3"
+        "./plugins/env-protection"
     ],
     "instructions": [
         "AGENTS.md",

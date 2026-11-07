@@ -1,0 +1,13 @@
+{
+  "name": "opencode-todo",
+  "version": "2.0.0",
+  "description": "Human-owned project todo list for OpenCode 2 (TUI menu over .opencode/todo)",
+  "type": "module",
+  "license": "MIT",
+  "exports": { ".": "./index.ts", "./tui": "./tui.tsx" },
+  "peerDependencies": {
+    "@opentui/core": ">=0.7.0",
+    "@opentui/solid": ">=0.7.0",
+    "solid-js": ">=1.9.0"
+  }
+}

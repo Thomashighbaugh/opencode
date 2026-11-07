@@ -1,11 +1,11 @@
 ---
 description: Orchestrate OpenCode configurations. Use when setting up, modifying, or validating opencode.json(c), skills, agents, commands, tools, plugins, or AGENTS.md files.
-mode: subagent
 hidden: true
 permission:
   bash: ask
   write: allow
   edit: allow
+mode: subagent
 ---
 
 <Agent_Prompt>

@@ -1,7 +1,7 @@
 ---
 description: Evidence-driven causal tracing with competing hypotheses, evidence for/against, uncertainty tracking, and next-probe recommendations
-mode: subagent
 hidden: true
+mode: subagent
 ---
 
 <Agent_Prompt>

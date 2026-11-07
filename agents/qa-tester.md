@@ -1,7 +1,7 @@
 ---
 description: Interactive CLI testing specialist using tmux for session management
-mode: subagent
 hidden: true
+mode: subagent
 ---
 
 <Agent_Prompt>

@@ -1,7 +1,7 @@
 ---
 description: UI/UX Designer-Developer for stunning interfaces (Sonnet)
-mode: subagent
 hidden: true
+mode: subagent
 ---
 
 <Agent_Prompt>

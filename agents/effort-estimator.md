@@ -1,7 +1,7 @@
 ---
 description: Estimate development effort for tasks and features. Use when sizing work, planning sprints, breaking down large tasks, or comparing implementation approaches.
-mode: subagent
 hidden: true
+mode: subagent
 ---
 
 <Agent_Prompt>

@@ -1,8 +1,8 @@
 ---
 description: Deep codebase stack analysis — detect languages, frameworks, build tools, testing frameworks, ORMs, CSS approaches, and produce a structured stack fingerprint JSON
-mode: subagent
 hidden: true
 disallowedTools: Write, Edit
+mode: subagent
 ---
 
 <Agent_Prompt>

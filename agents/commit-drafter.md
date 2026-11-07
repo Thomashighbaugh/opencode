@@ -1,6 +1,5 @@
 ---
 description: Structures conventional commit messages based on user intent before coding starts.
-mode: subagent
 hidden: true
 permission:
   saveCommitMessage: allow
@@ -10,6 +9,7 @@ permission:
   task: ask
   todoread: ask
   todowrite: ask
+mode: subagent
 ---
 
 <Agent_Prompt>

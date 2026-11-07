@@ -1,8 +1,8 @@
 ---
 description: Codebase search specialist for finding files and code patterns
-mode: subagent
 hidden: true
 disallowedTools: Write, Edit
+mode: subagent
 ---
 
 <Agent_Prompt>

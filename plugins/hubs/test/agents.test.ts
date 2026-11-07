@@ -3,19 +3,28 @@ import fs from "node:fs"
 import os from "node:os"
 import path from "node:path"
 
-import { agentsRoot, installAgents, loadVendoredAgents } from "../src/agents"
+import { agentsRoot, installAgents, loadVendoredAgents, normalizeAgent } from "../src/agents"
 
 describe("vendored agents", () => {
   test("ships the agents the hub specs delegate to", () => {
     const agents = loadVendoredAgents()
-    expect(agents.length).toBeGreaterThanOrEqual(20)
+    expect(agents.length).toBeGreaterThanOrEqual(30)
     for (const agent of agents) {
       expect(agent.content.length).toBeGreaterThan(0)
       expect(fs.existsSync(agent.path)).toBe(true)
     }
     expect(agents.map((agent) => agent.id)).toContain("executor")
+    expect(agents.map((agent) => agent.id)).toContain("hubs")
     expect(agents.map((agent) => agent.id)).toContain("critic")
     expect(agentsRoot()).toContain("data/agents")
+  })
+
+  test("hubs is the only primary agent after normalization", () => {
+    for (const agent of loadVendoredAgents()) {
+      const normalized = normalizeAgent(agent.id, agent.content)
+      const mode = /^mode:\s*(\w+)/m.exec(normalized.split("---")[1] ?? "")?.[1]
+      expect(mode, agent.id).toBe(agent.id === "hubs" ? "primary" : "subagent")
+    }
   })
 
   test("installs into a config dir idempotently", () => {

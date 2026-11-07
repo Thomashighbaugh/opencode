@@ -1,7 +1,7 @@
 ---
 description: Technical documentation writer for README, API docs, and comments (Haiku)
-mode: subagent
 hidden: true
+mode: subagent
 ---
 
 <Agent_Prompt>
