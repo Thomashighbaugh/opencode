@@ -1,0 +1,41 @@
+import { HubSubcommandSpec } from "../../hub-data"
+
+import { TOOLS_BASH_LISTAGENTS_MODESTATE_TASKTODOS } from "../shared-spec-fragments"
+const spec: HubSubcommandSpec = {
+  label: "gastown",
+  description: "If the work is on your hook, you run it — git-backed work units",
+  reminder: "Git-backed work units with GUPP principle. Asks: backlog source.",
+  inline: true,
+
+  detailedDescription: `Implements the GUPP (Git Unit Pull Principle): "If work is on your hook, YOU MUST RUN IT." Work units are git-backed — each unit is a branch/commit that represents a discrete piece of work. An agent that picks up a unit owns it until it's done.
+
+Key mechanisms:
+- Git-backed work units: each task is a git branch. Picking up a task = checking out the branch. Completing = merging.
+- NDI (Non-Deterministic Invocation): accepts that LLM calls are non-deterministic, so each work unit is designed to be re-runnable safely. If an agent's attempt fails, another can pick up the branch and continue.
+- "On your hook" accountability: once an agent claims a unit, it must run it to completion. No dropping work silently.
+
+Use when you want strong accountability for work units and the ability to recover from agent failures by re-assigning the git-backed unit to a new agent.
+
+## Gatekeeping Question
+
+Before starting, ask (passing the flag skips the question — non-interactive path):
+
+> **Question — backlog source?**
+> 1. issues/*.md
+> 2. docs/*.md
+> (or type a glob/path)
+
+Resolved answer maps to \`--backlog="<glob>"\`.`,
+
+  tools: TOOLS_BASH_LISTAGENTS_MODESTATE_TASKTODOS,
+  relatedSkills: [],
+
+  examples: [
+    {
+      input: "/swarm-hub gastown 'process the backlog'",
+      approach: "Asks backlog source (selects issues/*.md). Each issue becomes a git branch. Agent claims issue-42 branch, implements, commits, merges. If it fails mid-way, the branch retains progress; a new agent claims and continues."
+    }
+  ]
+}
+
+export default spec

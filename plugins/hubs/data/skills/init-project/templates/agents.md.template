@@ -1,0 +1,66 @@
+<!-- Generated: {timestamp} | Updated: {timestamp} -->
+
+# {project_name} - Project Instructions
+
+## Overview
+
+TODO: Add project overview
+
+## Technology Stack
+
+- **Language**: {language}
+- **Framework**: {framework}
+- **Package Manager**: {package_manager}
+
+## Build Commands
+
+| Command | Description |
+|---------|-------------|
+| `{install_cmd}` | Install dependencies |
+| `{build_cmd}` | Build for production |
+| `{test_cmd}` | Run tests |
+| `{lint_cmd}` | Lint code |
+
+## Code Style
+
+TODO: Add code style guidelines
+
+## Testing Requirements
+
+TODO: Add testing requirements
+
+## Git Workflow
+
+- Feature branches: `feature/...`
+- Fix branches: `fix/...`
+- Conventional commits required
+
+## Key Directories
+
+| Directory | Purpose |
+|-----------|---------|
+| `src/` | Source code |
+| `tests/` | Test suites |
+| `docs/` | Documentation |
+
+## For AI Agents
+
+### Working In This Directory
+
+TODO: Add instructions for AI agents
+
+### Common Patterns
+
+TODO: Add common code patterns
+
+## Dependencies
+
+### Internal
+
+TODO: Add internal dependencies
+
+### External
+
+TODO: Add external dependencies
+
+<!-- MANUAL: Add custom instructions below this line -->
