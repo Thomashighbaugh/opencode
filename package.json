@@ -12,12 +12,10 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "@franlol/opencode-md-table-formatter": "0.0.3",
     "@huggingface/transformers": "^4.3.2",
     "@modelcontextprotocol/sdk": "^1.32.2",
     "@opencode-ai/plugin": "1.18.35",
     "@opencode-ai/sdk": "^1.19.5",
-    "@opencode-plugins/env-protection": "^1.0.4",
     "@opentui/react": "^0.5.17",
     "@opentui/solid": "^0.5.17",
     "better-sqlite3": "^13.0.3",
