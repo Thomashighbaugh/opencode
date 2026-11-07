@@ -268,6 +268,6 @@ Retrieved snippets are expensive to re-fetch and are the kind of knowledge worth
 
 ## ax Directive (curl Replacement)
 
-[`ax`](https://github.com/yusukebe/ax) is installed on this system (Nix profile: `nix profile install github:yusukebe/ax`) and is the preferred tool for any web/API fetch, page-to-markdown conversion, or HTML extraction — anywhere `curl` would otherwise be used. See `rules/ax-first.md` for the decision order and curl-to-ax flag mapping. Full playbook: `ax agent-context` or `skills/ax/SKILL.md`.
+[`ax`](https://github.com/yusukebe/ax) is installed on this system (Nix profile: `nix profile install github:yusukebe/ax`, 0.1.25) and is the preferred tool for any HTTP fetch, page-to-markdown conversion, or structured extraction — anywhere `curl` or a throwaway `python3 -c`/`node -e` parser would otherwise be used. ax returns a JSON envelope (`--body` for the payload alone), and because it runs through the `bash` tool its output is compacted by the TOON plugin automatically. See `rules/ax-first.md` for the decision order and curl-to-ax mapping. Full playbook: `ax agent-context` or `skills/ax/SKILL.md`.
 
 

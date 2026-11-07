@@ -99,3 +99,29 @@ describe("toon execute.before", () => {
     expect(await before(command)).toBe(command)
   })
 })
+
+describe("ax integration", () => {
+  test("compacts an ax JSON envelope from a bash call", async () => {
+    const envelope = JSON.stringify({
+      status: 200,
+      ok: true,
+      url: "https://api.example/v1/items",
+      redirected: false,
+      ms: 142,
+      headers: { "content-type": "application/json" },
+      body: Array.from({ length: 40 }, (_, index) => ({ id: index, name: `row-${index}`, state: index % 2 ? "open" : "closed" })),
+    })
+    const output = await after("bash", envelope)
+    expect(output).toContain("[40]")
+    expect(output.length).toBeLessThan(envelope.length)
+  })
+
+  test("compacts an ax --body JSON payload", async () => {
+    const body = JSON.stringify(
+      Array.from({ length: 30 }, (_, index) => ({ id: index, label: `entry-${index}`, value: index * 3 })),
+    )
+    const output = await after("bash", body)
+    expect(output).toContain("[30]")
+    expect(output.length).toBeLessThan(body.length)
+  })
+})
