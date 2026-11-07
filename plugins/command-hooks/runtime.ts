@@ -23,7 +23,6 @@
  * (alias `session.start`), `session.idle`.
  */
 
-import type { Plugin } from '@opencode-ai/plugin'
 import { loadAgentHooks, loadConfig } from './config.js'
 import { chainFailed, runCommands } from './execute.js'
 import {
@@ -551,15 +550,7 @@ export async function createCommandHooksRuntime({ client, directory }: { client?
   }
 }
 
-/** V1 plugin entry (frozen branch). V2 registers the runtime directly. */
-export const CommandHooksPlugin: Plugin = async ({ client, directory }) => {
-  const runtime = await createCommandHooksRuntime({ client, directory: directory || process.cwd() })
-  return {
-    event: runtime.event,
-    'tool.execute.before': runtime.before,
-    'tool.execute.after': runtime.after,
-  } as any
-}
+
 
 /**
  * Merge agent-frontmatter hooks into the global list.
@@ -577,4 +568,3 @@ export function mergeAgentHooks(global: ToolHook[], agentHooks: ToolHook[], agen
   return [...global.filter((h) => !ids.has(h.id)), ...scoped]
 }
 
-export default CommandHooksPlugin

@@ -2,7 +2,8 @@
  * todo/ops.ts — pure operations over the human todo store.
  *
  * Shared by the V2 tool (`index.ts`), the V2 TUI (`tui.tsx`), and the V1 command
- * module (`todo-commands.ts`). No host imports, so it is drivable from tests.
+ * TUI (`tui.tsx`) and the V1 branch's command module. No host imports, so it
+ * is drivable from tests.
  */
 
 import { addTodo, completeTodo, deleteTodo, readArchive, readTodos, renderOpen } from "./todo-store"

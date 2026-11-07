@@ -459,7 +459,7 @@ describe('wiring', () => {
   })
 
   it('the classifier can be switched off entirely', () => {
-    const src = fs.readFileSync(path.join(CONFIG_DIR, 'plugins', 'prompt-queue', 'index.ts'), 'utf-8')
+    const src = fs.readFileSync(path.join(CONFIG_DIR, 'plugins', 'prompt-queue', 'runtime.ts'), 'utf-8')
     expect(src).toContain('PROMPT_QUEUE_DISABLE_MODEL')
   })
 })

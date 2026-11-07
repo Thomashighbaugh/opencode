@@ -386,7 +386,7 @@ describe('send-failure restore', () => {
     //
     // Comments are stripped first: the fix is *documented* by naming the old
     // call, so a naive substring scan fails on its own explanation.
-    const raw = fs.readFileSync(path.join(CONFIG_DIR, 'plugins', 'prompt-queue', 'v1-hooks.ts'), 'utf-8')
+    const raw = fs.readFileSync(path.join(CONFIG_DIR, 'plugins', 'prompt-queue', 'runtime.ts'), 'utf-8')
     const code = raw.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '')
     expect(code).not.toMatch(/\brequire\(/)
     // And it must go through the atomic saver, not a hand-rolled write.
@@ -488,7 +488,7 @@ describe('fire trigger: belt and braces', () => {
     // observes, and a request written by a tool or another process may not
     // produce one. Without the poll, "fire" would silently do nothing in exactly
     // the case it exists for.
-    const src = fs.readFileSync(path.join(CONFIG_DIR, 'plugins', 'prompt-queue', 'v1-hooks.ts'), 'utf-8')
+    const src = fs.readFileSync(path.join(CONFIG_DIR, 'plugins', 'prompt-queue', 'runtime.ts'), 'utf-8')
     expect(src).toMatch(/event\.type === 'file\.edited'/)
     expect(src).toMatch(/setInterval\(/)
     // And the timer must never keep the process alive on shutdown.
@@ -496,12 +496,12 @@ describe('fire trigger: belt and braces', () => {
   })
 
   it('the idle path is still the automatic trigger, not the only one', () => {
-    const src = fs.readFileSync(path.join(CONFIG_DIR, 'plugins', 'prompt-queue', 'v1-hooks.ts'), 'utf-8')
+    const src = fs.readFileSync(path.join(CONFIG_DIR, 'plugins', 'prompt-queue', 'runtime.ts'), 'utf-8')
     expect(src).toMatch(/session\.idle/)
   })
 
   it('the poll and the event path share one handler, so they cannot diverge', () => {
-    const src = fs.readFileSync(path.join(CONFIG_DIR, 'plugins', 'prompt-queue', 'v1-hooks.ts'), 'utf-8')
+    const src = fs.readFileSync(path.join(CONFIG_DIR, 'plugins', 'prompt-queue', 'runtime.ts'), 'utf-8')
     const calls = src.match(/handleFireRequests\(/g) ?? []
     // Definition plus both call sites (event and poll).
     expect(calls.length).toBeGreaterThanOrEqual(3)

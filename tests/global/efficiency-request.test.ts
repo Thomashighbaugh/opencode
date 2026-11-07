@@ -29,14 +29,7 @@ const cacheStats = (): Record<string, { hits: number; misses: number }> => diagn
 
 beforeAll(async () => {
   plugin = await import(path.join(CONFIG_DIR, 'plugins', 'hooks', 'hooks.ts'))
-  const init = plugin.JocPlugin || plugin.default
-  hooks = await init({
-    project: { id: 'test' },
-    client: { app: { log: () => {} } },
-    directory: CONFIG_DIR,
-    worktree: CONFIG_DIR,
-    $: () => {},
-  })
+  hooks = await plugin.createHooksRuntime({ directory: CONFIG_DIR })
   diagnostics = () => plugin.__hubsDiagnostics()
 
   // The tool cache is disk-persistent by design, so entries from a previous run

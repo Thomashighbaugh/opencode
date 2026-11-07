@@ -40,7 +40,7 @@ OpenCode plugin system components — hook system plugin for lifecycle events, s
 - Goal state file: `.opencode/state/goal/state.json` (created automatically on first use)
 
 ### The `/todo` Command
-- Registered as a TUI slash command **and** ctrl+p palette entry in `plugins/todo/todo-commands.ts`
+- Registered as a TUI slash command **and** ctrl+p palette entry in `plugins/todo/tui.tsx`
 - Menus: add / list / complete / delete / inject into input box / copy to clipboard / view archive
 - Store: `.opencode/todo/todos.json` (active) + `.opencode/todo/archive.jsonl` (completed, append-only) — committed, per project
 - The **human's** list; distinct from the agent's in-session `taskTodos` (`.opencode/state/todos.json`). No agent tool, no system-prompt injection by design.

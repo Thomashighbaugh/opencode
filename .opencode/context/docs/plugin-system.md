@@ -67,7 +67,7 @@ export function detectKeywords(prompt: string): KeywordMatch[] { ... }
 export function resolveConflicts(matches: KeywordMatch[]): KeywordMatch[] { ... }
 
 // plugins/hooks/hooks.ts — Plugin entry point (imports from the other three)
-export default JocPlugin: Plugin = async ({ project, client, directory, worktree }) => { ... }
+export async function createHooksRuntime({ directory }: { directory: string }) { ... }
 ```
 
 ### Hook Registration

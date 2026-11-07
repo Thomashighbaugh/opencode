@@ -3,7 +3,7 @@
  *
  * Holds the queue state and the gate; drains when a turn concludes without a
  * question. The **ctrl+p palette entry that enqueues** lives in
- * `plugins/prompt-queue/queue-commands.ts` — a TUI plugin and a hooks plugin are
+ * `plugins/prompt-queue/tui.tsx` — a TUI plugin and a hooks plugin are
  * different processes, and only the hooks side can observe turn completion.
  *
  * ── Why the split ───────────────────────────────────────────────────────────
@@ -146,7 +146,7 @@ async function handleFireRequests(dir: string, client: any): Promise<number> {
   // Resolved once, before any send, so a request that arrives before any idle
   // event still has a destination. An empty id would make `promptAsync` fail
   // with a path error that looks like a send failure rather than "no session".
-  const sessionId = lastSessionId ?? (await firstSessionId(client))
+  const sessionId = lastSessionId ?? (await firstSessionId(host.sessions))
   if (!sessionId) {
     // Claimed then finished rather than left pending: a request that could not be
     // delivered must not sit and be retried on every subsequent file event.
@@ -183,10 +183,7 @@ async function handleFireRequests(dir: string, client: any): Promise<number> {
 
     const text = renderPrompt(items, `manual:${req.reason || 'fire'}`)
     try {
-      await client.session.promptAsync({
-        path: { id: sessionId },
-        body: { parts: [{ type: 'text', text }] },
-      })
+      await host.release(sessionId, text)
       sent += items.length
       stats.released++
       stats.drained += items.length
@@ -207,10 +204,9 @@ async function handleFireRequests(dir: string, client: any): Promise<number> {
 }
 
 /** Best-effort session lookup for a fire request that predates any idle event. */
-async function firstSessionId(client: any): Promise<string | null> {
+async function firstSessionId(sessions?: QueueRuntimeHost["sessions"]): Promise<string | null> {
   try {
-    const res = await client.session.list()
-    const list = (res as any)?.data
+    const list = await sessions?.()
     const first = Array.isArray(list) ? list[0] : null
     return first?.id ?? null
   } catch {
@@ -220,9 +216,19 @@ async function firstSessionId(client: any): Promise<string | null> {
 
 let lastSessionId: string | null = null
 
-export const PromptQueuePlugin: Plugin = async ({ client, directory }) => {
+export interface QueueRuntimeHost {
+  readonly directory: string
+  /** Deliver one released prompt. V2 binds this to `ctx.session.prompt`. */
+  readonly release: (sessionId: string, text: string) => Promise<void> | void
+  /** Model-visible messages for a session. V2 binds this to `ctx.session.context`. */
+  readonly messages: (sessionId: string) => Promise<any[]> | any[]
+  /** Best-effort session lookup for a fire request that predates an idle event. */
+  readonly sessions?: () => Promise<Array<{ id: string }>> | Array<{ id: string }>
+}
+
+export async function createQueueRuntime(host: QueueRuntimeHost) {
   stats = blankStats()
-  const dir = directory || process.cwd()
+  const dir = host.directory
   let lastSeen: Record<string, number> = {}
 
   /**
@@ -298,10 +304,7 @@ export const PromptQueuePlugin: Plugin = async ({ client, directory }) => {
     stats.drained += items.length
 
     try {
-      await client.session.promptAsync({
-        path: { id: sessionId },
-        body: { parts: [{ type: 'text', text }] },
-      })
+      await host.release(sessionId, text)
     } catch (e) {
       // The drain already emptied the queue. Losing the text on a failed send
       // would be the worst outcome, so it is put back at the front, in order.
@@ -370,8 +373,7 @@ export const PromptQueuePlugin: Plugin = async ({ client, directory }) => {
 
       let messages: any[] = []
       try {
-        const res = await client.session.messages({ path: { id: sessionId } })
-        messages = (res as any)?.data ?? []
+        messages = (await host.messages(sessionId)) ?? []
       } catch {
         // No message history means no evidence of an ask. Releasing is the safe
         // direction only because the anti-deadlock guard bounds the damage; with
@@ -385,4 +387,3 @@ export const PromptQueuePlugin: Plugin = async ({ client, directory }) => {
   } as any
 }
 
-export default PromptQueuePlugin

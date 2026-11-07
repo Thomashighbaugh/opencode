@@ -11,7 +11,7 @@
  * `event.properties`).
  */
 
-import { createCommandHooksRuntime } from "./v1.ts"
+import { createCommandHooksRuntime } from "./runtime.ts"
 
 function legacyEvent(event: any): any {
   if (!event || event.properties) return event

@@ -22,11 +22,11 @@ import { spawnSync } from 'node:child_process'
 const CONFIG_DIR = path.resolve(__dirname, '..', '..')
 const GATE_MOD = path.join(CONFIG_DIR, 'plugins', 'prompt-queue', 'gate.ts')
 const QUEUE_MOD = path.join(CONFIG_DIR, 'plugins', 'prompt-queue', 'queue.ts')
-const IDX_MOD = path.join(CONFIG_DIR, 'plugins', 'prompt-queue', 'v1-hooks.ts')
+const IDX_MOD = path.join(CONFIG_DIR, 'plugins', 'prompt-queue', 'runtime.ts')
 
 type Gate = typeof import('../../plugins/prompt-queue/gate')
 type Queue = typeof import('../../plugins/prompt-queue/queue')
-type Idx = typeof import('../../plugins/prompt-queue/v1-hooks')
+type Idx = typeof import('../../plugins/prompt-queue/runtime')
 let gate: Gate
 let q: Queue
 let idx: Idx
@@ -379,19 +379,16 @@ describe('plugin: end to end', () => {
     // covered by tests/global/onnx.test.ts against the real model; loading it
     // here would add seconds per test for a path already asserted elsewhere.
     process.env.PROMPT_QUEUE_DISABLE_MODEL = '1'
-    // PromptQueuePlugin is an async Plugin factory: the hook object is a promise.
-    const hooks: any = await idx.PromptQueuePlugin({
-      client: {
-        session: {
-          promptAsync: async ({ body }: any) => {
-            if (failSend) throw new Error('send failed')
-            sent.push(body.parts[0].text)
-          },
-          messages: async () => ({ data: messages }),
-        },
-      },
+    // The V2 runtime is host-agnostic: release and messages are injected.
+    const runtime = await idx.createQueueRuntime({
       directory,
-    } as any) as any
+      release: async (_sessionId: string, text: string) => {
+        if (failSend) throw new Error('send failed')
+        sent.push(text)
+      },
+      messages: async () => messages,
+    })
+    const hooks: any = { event: async ({ event }: any) => runtime.event({ event }), dispose: runtime.dispose }
     return {
       hooks,
       sent,
@@ -496,60 +493,34 @@ describe('plugin: end to end', () => {
 // ─── wiring ────────────────────────────────────────────────────────────────
 
 describe('wiring', () => {
+  it('the plugin is registered as a V2 plugin directory', () => {
+    const cfg = fs.readFileSync(path.join(CONFIG_DIR, 'opencode.jsonc'), 'utf-8')
+    expect(cfg).toContain('./plugins/prompt-queue')
+  })
+
+  it('the V2 entry binds events, release and messages to ctx domains', () => {
+    const src = fs.readFileSync(path.join(CONFIG_DIR, 'plugins', 'prompt-queue', 'index.ts'), 'utf-8')
+    expect(src).toContain('ctx.event.subscribe')
+    expect(src).toContain('ctx.session.prompt')
+    expect(src).toContain('ctx.session.context')
+    expect(src).toContain('runtime.dispose()')
+  })
+
+  it('the TUI half exposes /queue and the palette entry', () => {
+    const tui = fs.readFileSync(path.join(CONFIG_DIR, 'plugins', 'prompt-queue', 'tui.tsx'), 'utf-8')
+    expect(tui).toContain('slash: { name: "queue" }')
+    expect(tui).toContain('palette: true')
+    expect(tui).toContain('title: "Prompt Queue"')
+  })
   it('the hooks plugin is registered in opencode.jsonc', () => {
     const cfg = fs.readFileSync(path.join(CONFIG_DIR, 'opencode.jsonc'), 'utf-8')
     expect(cfg).toContain('./plugins/prompt-queue')
   })
 
-  it('the loader-facing entry exports only functions', async () => {
-    // OpenCode's legacy plugin loader invokes every enumerable export as a
-    // plugin factory and drops the whole plugin if any value is not a function.
-    const entry: Record<string, unknown> = await import(path.join(CONFIG_DIR, 'plugins', 'prompt-queue', 'plugin.ts'))
-    expect(Object.entries(entry).filter(([, v]) => typeof v !== 'function')).toEqual([])
-  })
 
-  it('the ctrl+p palette entry exists and is not a slash command', () => {
-    const src = fs.readFileSync(path.join(CONFIG_DIR, 'plugins', 'prompt-queue', 'queue-commands.ts'), 'utf-8')
-    expect(src).toContain("title: 'Prompt Queue'")
-    expect(src).toContain('Add to Prompt Queue')
-    // Registered through the command palette, not `slash:`.
-    expect(src).toContain('api.command!.register')
-    expect(src).not.toMatch(/\bslash:\s*\{/)
-  })
 
-  it('captures the composer through the session_prompt slot', () => {
-    // The prompt publishes its ref only to whoever renders it, so capture is a
-    // slot renderer, not an API read. Locks in the mechanism and the host-ref
-    // forward that keeps the host's own prompt working.
-    const src = fs.readFileSync(path.join(CONFIG_DIR, 'plugins', 'prompt-queue', 'queue-commands.ts'), 'utf-8')
-    expect(src).toContain('registerComposerCapture')
-    expect(src).toContain('session_prompt:')
-    expect(src).toContain('api.ui.Prompt')
-    expect(src).toContain('props.ref?.(r)')
-    expect(src).toContain('export function registerComposerCapture')
-  })
 
-  it('the TUI half reads the same state file the hooks half drains', () => {
-    const src = fs.readFileSync(path.join(CONFIG_DIR, 'plugins', 'prompt-queue', 'queue-commands.ts'), 'utf-8')
-    const d = tmp()
-    expect(src).toContain("'.opencode', 'state', 'prompt-queue', 'queue.json'")
-    // Same path the queue module uses, verified by writing through one and
-    // reading through the other.
-    q.enqueue(d, 'shared item')
-    const written = JSON.parse(fs.readFileSync(
-      path.join(d, '.opencode', 'state', 'prompt-queue', 'queue.json'), 'utf-8',
-    ))
-    expect(written.items[0].text).toBe('shared item')
-  })
 
-  it('the queue commands live with the prompt-queue plugin', () => {
-    // The V1 hubs-tui package was removed with the hub tooling; the queue TUI
-    // half was extracted with it and now sits beside the plugin it serves.
-    const src = fs.readFileSync(path.join(CONFIG_DIR, 'plugins', 'prompt-queue', 'queue-commands.ts'), 'utf-8')
-    expect(src).toContain('registerQueueCommands')
-    const entry = fs.readFileSync(path.join(CONFIG_DIR, 'plugins', 'prompt-queue', 'v1-hooks.ts'), 'utf-8')
-    expect(entry.length).toBeGreaterThan(0)
-  })
 
   // Bun is the build tool for the TUI half and is not installed in every
   // environment (the CI job uses Node). Verify the bundle when we can.

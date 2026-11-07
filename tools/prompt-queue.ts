@@ -2,7 +2,7 @@
  * prompt-queue.ts — agent-facing control of the prompt queue.
  *
  * The queue's palette entry lives beside the plugin (`plugins/prompt-queue/
- * queue-commands.ts`), which is a *different process* from the hooks plugin that
+ * tui.tsx`), which is a *different process* from the hooks plugin that
  * drains it. That leaves a gap: when the TUI is unreachable — a headless run, a
  * remote session, or an agent that was told to work through the queue — there is
  * no way to see or fire it. This tool is that way in.

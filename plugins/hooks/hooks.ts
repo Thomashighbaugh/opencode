@@ -8,7 +8,7 @@
  *
  * This is the plugin entry point (exported as default).
  */
-import type { Plugin, Hooks } from "@opencode-ai/plugin"
+import type { Hooks } from "@opencode-ai/plugin"
 import type { Event } from "@opencode-ai/sdk"
 import { join } from "path"
 import { existsSync, readdirSync, unlinkSync, statSync } from "fs"
@@ -1502,10 +1502,6 @@ Original task: ${ultraworkState.original_prompt}
   return hooks
 }
 
-/** V1 plugin entry (frozen branch). V2 registers the same runtime's hook map. */
-export const JocPlugin: Plugin = async ({ directory }) =>
-  createHooksRuntime({ directory: directory || process.cwd() })
-
 // ─── Diagnostics ────────────────────────────────────────────────────────────
 // Module-level handles to the plugin's background machinery. The vectorize
 // handle and child registry are otherwise unreachable from outside the plugin,
@@ -1552,5 +1548,3 @@ export function __hubsDiagnostics() {
     cache: cacheStatsByNamespace(),
   }
 }
-
-export default JocPlugin

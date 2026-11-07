@@ -15,12 +15,12 @@ import * as os from 'node:os'
 import * as path from 'node:path'
 
 const CONFIG_DIR = path.resolve(__dirname, '..', '..')
-const MOD = path.join(CONFIG_DIR, 'plugins', 'command-hooks', 'v1.ts')
+const MOD = path.join(CONFIG_DIR, 'plugins', 'command-hooks', 'runtime.ts')
 
 // Loaded once at module scope, not in beforeEach: a `describe` body runs during
 // collection, before any beforeEach, so a module assigned in beforeEach is
 // still undefined where a describe-level `loadConfig` needs it.
-type Mod = typeof import('../../plugins/command-hooks/v1')
+type Mod = typeof import('../../plugins/command-hooks/runtime')
 const m: Mod = await import(MOD)
 
 beforeEach(() => {
@@ -902,14 +902,11 @@ describe('per-project provisioning', () => {
 describe('end-to-end: the plugin as OpenCode loads it', () => {
   it('initialises, and its tool hooks fire through a real event', async () => {
     const plugin = await import(MOD)
-    const factory = plugin.CommandHooksPlugin ?? plugin.default
-    expect(typeof factory).toBe('function')
 
     // A minimal stand-in for the SDK surface the plugin touches.
     let toasts = 0
     let prompts = 0
-    const hooks: any = await factory({
-      project: {},
+    const runtime = await plugin.createCommandHooksRuntime({
       directory: CONFIG_DIR,
       client: {
         tui: { showToast: async () => { toasts++ } },
@@ -918,8 +915,8 @@ describe('end-to-end: the plugin as OpenCode loads it', () => {
           get: async () => ({ data: { parentID: undefined } }),
         },
       },
-      $: () => {},
-    } as any)
+    })
+    const hooks: any = { event: runtime.event, 'tool.execute.before': runtime.before, 'tool.execute.after': runtime.after }
 
     expect(typeof hooks['tool.execute.before']).toBe('function')
     expect(typeof hooks['tool.execute.after']).toBe('function')
@@ -957,17 +954,15 @@ describe('end-to-end: the plugin as OpenCode loads it', () => {
     expect(typeof sessionMod.consumeContextMessages).toBe('function')
 
     const plugin = await import(MOD)
-    const factory = plugin.CommandHooksPlugin ?? plugin.default
     let prompts = 0
-    const hooks: any = await factory({
-      project: {},
+    const runtime = await plugin.createCommandHooksRuntime({
       directory: fixture({}),
       client: {
         tui: { showToast: async () => {} },
         session: { promptAsync: async () => { prompts++ }, get: async () => ({ data: {} }) },
       },
-      $: () => {},
-    } as any)
+    })
+    const hooks: any = { event: runtime.event, 'tool.execute.before': runtime.before, 'tool.execute.after': runtime.after }
 
     // Drive a hook that always injects, through the handlers the plugin builds.
     const handlers = m.createHandlers({
@@ -992,12 +987,6 @@ describe('end-to-end: the plugin as OpenCode loads it', () => {
     expect(cfg).toContain('./plugins/command-hooks')
   })
 
-  it('the loader-facing entry exports only functions', async () => {
-    // OpenCode's legacy plugin loader invokes every enumerable export as a
-    // plugin factory and drops the whole plugin if any value is not a function.
-    const entry: Record<string, unknown> = await import(path.join(CONFIG_DIR, 'plugins', 'command-hooks', 'plugin.ts'))
-    expect(Object.entries(entry).filter(([, v]) => typeof v !== 'function')).toEqual([])
-  })
 
   it('the skill is discoverable and documents the surface it exposes', () => {
     const skill = path.join(CONFIG_DIR, 'skills', 'command-hooks', 'SKILL.md')
