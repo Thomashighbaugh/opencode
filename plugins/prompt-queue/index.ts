@@ -3,7 +3,7 @@
  *
  * Holds the queue state and the gate; drains when a turn concludes without a
  * question. The **ctrl+p palette entry that enqueues** lives in
- * `plugins/hubs-tui/src/queue-commands.tsx` — a TUI plugin and a hooks plugin are
+ * `plugins/prompt-queue/queue-commands.ts` — a TUI plugin and a hooks plugin are
  * different processes, and only the hooks side can observe turn completion.
  *
  * ── Why the split ───────────────────────────────────────────────────────────
