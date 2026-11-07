@@ -11,7 +11,7 @@ allowed-tools: Bash, Read, Write, Glob, WebSearch, Task
 `/research-deep`
 
 ## Web fetching (ax-first)
-When fetching pages directly (not via WebSearch results), prefer `ax` over `curl`. Use `ax URL --md` for readable content, `ax URL --outline` to probe structure, `ax URL '.sel' --row ...` for structured extraction, `ax URL --body` to pipe. Use `curl` only if ax cannot do it. See `rules/ax-first.md`.
+When fetching pages directly (not via WebSearch results), prefer `ax` over `curl`. Use `ax URL --md` for readable content, `ax URL --outline` to probe structure, `ax URL '.sel' --row ...` for structured extraction, `ax URL --body` to pipe. Use `curl` only if ax cannot do it. See `rules/ax-first.md`. Banned: `curl`, `curl | python3`, `python3 -c`/`python3 - <<PY` parsing HTML or JSON, `wget`. A fetch that needs one of those is a bug in the plan, not a fallback.
 
 ## Workflow
 

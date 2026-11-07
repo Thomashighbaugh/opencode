@@ -515,7 +515,8 @@
         "./plugins/hubs",
         "./plugins/todo",
         "./plugins/toon",
-        "./plugins/env-protection"
+        "./plugins/env-protection",
+        "./plugins/ax-guard"
     ],
     "instructions": [
         "AGENTS.md",

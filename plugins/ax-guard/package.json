@@ -1,0 +1,8 @@
+{
+  "name": "opencode-ax-guard",
+  "version": "2.0.0",
+  "description": "Reject curl/wget and throwaway HTTP parsers in favour of ax",
+  "type": "module",
+  "license": "MIT",
+  "exports": { ".": "./index.ts" }
+}

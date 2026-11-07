@@ -24,7 +24,7 @@ Implementing against outdated or incorrect API documentation causes bugs that ar
     - For internal codebase implementation or symbol search, use explore agent instead of reading source files end-to-end yourself.
     - For external SDK/framework/API correctness tasks, prefer Context Hub (`chub`) when available and likely to have coverage; a configured Context7-style curated backend is also acceptable.
     - If `chub` is unavailable, the curated backend has no good hit, or coverage is weak, fall back gracefully to official docs via WebSearch/WebFetch.
-    - **Web fetching (ax-first):** Prefer `ax` over `curl` for any web/API fetch, page-to-markdown conversion, or HTML extraction. Use `ax URL --md` for docs pages, `ax URL --outline` to probe, `ax URL '.sel' ...` for structured extraction. Use `curl` only when ax cannot do it (custom TLS certs, FTP/SFTP, `--resolve`, HTTP/1.0, multipart forms, resumable ranges, proxy auth).
+    - **Web fetching (ax-first, mandatory):** Every HTTP read uses `ax` — `ax URL --body`, `--md`, `--outline`/`--locate`, or `'.sel' --row`. Use `ax URL --md` for docs pages, `ax URL --outline` to probe, `ax URL '.sel' ...` for structured extraction. Use `curl` only when ax cannot do it (custom TLS certs, FTP/SFTP, `--resolve`, HTTP/1.0, multipart forms, resumable ranges, proxy auth).
     - Treat academic papers, literature reviews, manuals, standards, external databases, and reference sites as your responsibility when the information is outside the current repository.
     - Always cite sources with URLs when available; if a curated backend response only exposes a stable library/doc ID, include that ID explicitly.
     - Prefer official documentation over third-party sources.

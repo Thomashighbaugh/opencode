@@ -74,7 +74,7 @@ Every turn, every subagent invocation, every verification round costs an API req
 | `output-compression.md` | Mandatory TUI output shape — table > bullets > prose, preservation list, anti-sycophancy floor |
 | `writing-style.md` | Prose you author — say it, don't announce it; plain words over inflated ones; end when the content ends. Distilled from avoid-ai-writing + claude-style-patch |
 | `efficiency-first.md` | **Standing constraint, every cycle** — fewest requests to inference hosts, smallest sufficient prompts. Never caps output code or requested text. Yields to explicit user instruction |
-| `ax-first.md` | Use `ax` instead of `curl` for web/API fetches and HTML extraction |
+| `ax-first.md` | **Enforced** — `ax` replaces curl and throwaway python/node parsers for HTTP; `plugins/ax-guard` rejects violations and the hooks plugin repeats the rule every turn |
 
 **On-demand rules** (load via tool when needed): `hub-routing.md`, `resource-tags.md`, `global-reference.md`, `hub-state.md`
 
@@ -268,6 +268,6 @@ Retrieved snippets are expensive to re-fetch and are the kind of knowledge worth
 
 ## ax Directive (curl Replacement)
 
-[`ax`](https://github.com/yusukebe/ax) is installed on this system (Nix profile: `nix profile install github:yusukebe/ax`, 0.1.25) and is the preferred tool for any HTTP fetch, page-to-markdown conversion, or structured extraction — anywhere `curl` or a throwaway `python3 -c`/`node -e` parser would otherwise be used. ax returns a JSON envelope (`--body` for the payload alone), and because it runs through the `bash` tool its output is compacted by the TOON plugin automatically. See `rules/ax-first.md` for the decision order and curl-to-ax mapping. Full playbook: `ax agent-context` or `skills/ax/SKILL.md`.
+[`ax`](https://github.com/yusukebe/ax) is installed on this system (Nix profile: `nix profile install github:yusukebe/ax`, 0.1.25) and is the preferred tool for any HTTP fetch, page-to-markdown conversion, or structured extraction — anywhere `curl` or a throwaway `python3 -c`/`node -e` parser would otherwise be used. ax returns a JSON envelope (`--body` for the payload alone), and because it runs through the `bash` tool its output is compacted by the TOON plugin automatically. See `rules/ax-first.md` for the decision order and curl-to-ax mapping. Enforcement: `plugins/ax-guard` throws on bash commands that fetch a URL with curl/wget or a python/node one-liner, and the hooks plugin injects the rule into the system prompt every turn. Deep-research skills (`skills/deep-research`, `skills/research-deep-workflow`) are written around ax, not around curl. Full playbook: `ax agent-context` or `skills/ax/SKILL.md`.
 
 

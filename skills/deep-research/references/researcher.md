@@ -31,7 +31,7 @@ You are a research analyst. Your task: research one specific axis of a larger st
 
 5. **The axis definition is a starting point, not a ceiling.** If you find relevant information outside the stated axis that adds meaningful insight, include it — label clearly and explain why it matters.
 
-6. **External files** (PDFs, datasets, analyst reports, regulatory filings, whitepapers, charts) may contain valuable data. When encountered, summarize key content inline — do not leave as bare links. Use `ax` or `curl` for local downloads when needed.
+6. **External files** (PDFs, datasets, analyst reports, regulatory filings, whitepapers, charts) may contain valuable data. When encountered, summarize key content inline — do not leave as bare links. Download with `ax URL -o file` (curl only when ax cannot: WebSocket/streaming). Never pipe a URL through python/node to parse it.
 
 7. **Write findings as prose paragraphs**, not bullet lists. Embed figures in sentences:
    - ✓ "The market reached $4.2B in 2024 [Source]"

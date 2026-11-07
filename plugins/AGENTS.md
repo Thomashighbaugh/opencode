@@ -23,6 +23,7 @@ OpenCode plugin system components — hook system plugin for lifecycle events, s
 | `hubs/` | OpenCode 2 hub plugin package — router, vendored corpus, TUI picker (see `hubs/AGENTS.md`) |
 | `todo/` | V2 human todo list — `/todo` menu, store, and pure operations |
 | `toon/` | Home-rolled TOON compaction plugin (no npm dependency) |
+| `ax-guard/` | Rejects curl/wget and throwaway HTTP parsers in favour of ax |
 
 ## For AI Agents
 

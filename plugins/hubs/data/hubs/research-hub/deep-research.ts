@@ -16,7 +16,7 @@ Phase 1 - Outline Generation (/research equivalent):
 4. Generate outline.yaml and fields.yaml in ./{topic_slug}/ directory
 5. User confirms or iterates (add items/fields)
 
-Phase 2 - Deep Research (/research-deep equivalent):
+Phase 2 - Deep Research (/research-deep equivalent). Fetch every source with ax (--md pages, --body JSON); curl and python/node parsers are rejected by ax-guard:
 1. Locate outline.yaml and read items + execution config (batch_size, items_per_agent)
 2. Check for completed results to support resume
 3. For each item, dispatch web-search-agent (can run in parallel batches) with strict prompt enforcing JSON output per fields.yaml schema

@@ -63,6 +63,13 @@ function promptText(prompt: any): string {
   return ""
 }
 
+const AX_REMINDER = `<ax-fetch>
+Use ax for HTTP: \`ax URL --body\` (JSON, TOON-compacted), \`ax URL --md\` (page),
+\`ax URL --outline\` then \`--locate <text>\`, \`ax URL '.sel' --row 'a=a, b=a@href'\`.
+Never curl, never a python/node one-liner to parse a URL. curl only for
+WebSocket/streaming or curl-only flags. Full rule: rules/ax-first.md.
+</ax-fetch>`
+
 const MODE_COMMANDS = ["ralph-loop", "ulw-loop", "ultrawork", "cancel-ralph", "stop-continuation"]
 
 export default {
@@ -136,6 +143,9 @@ export default {
         for (const text of output.system) {
           if (typeof text === "string" && text.length > 0) event.system.push({ type: "text", text })
         }
+        // Standing reminder: the instruction files dilute this across sixteen
+        // documents, and research runs were defaulting to curl + python probes.
+        event.system.push({ type: "text", text: AX_REMINDER })
       })
     }
 

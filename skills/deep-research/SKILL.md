@@ -36,6 +36,22 @@ Why serial over parallel: serial dispatch lets the primary agent adapt the resea
 - **Distinguish facts from synthesis:** Label sourced statements with attribution ("According to [Source]...") and analytical conclusions with hedges ("This suggests...", "The pattern across sources indicates..."). Never present inference as fact.
 - **Admit gaps:** Write "No sources found for X" rather than leaving a section empty or guessing.
 
+## Fetching (mandatory)
+
+Every HTTP read goes through `ax`, through the bash tool:
+
+| Need | Call |
+| --- | --- |
+| JSON API payload | `ax URL --body` (top-level JSON, compacted by the TOON plugin) |
+| Readable page | `ax URL --md` |
+| Where is something | `ax URL --outline` then `ax URL --locate '<text>'` |
+| Structured extraction | `ax URL '.sel' --row 'a=a, b=a@href'` or `ax URL 'table' --table` |
+
+Never `curl`, never `curl | python3`, never a `python3 -c` / `python3 - <<PY`
+HTML/JSON parser, never `wget`. Those cost a second inference round-trip to read
+the script's output and re-parse what ax already structured. curl survives only
+for WebSocket/streaming or curl-only flags, and the command must say why.
+
 ## Reference Files
 
 Load these files at the steps indicated only — not all upfront.
@@ -166,7 +182,7 @@ Instructions:
 4. Critical claims (numbers, market share, projections) need 2+ sources or get confidence: Low.
 5. Flag any conflicts between sources explicitly — do not silently pick one.
 6. The axis definition is a starting point, not a ceiling. If you find relevant information that falls outside the stated axis but adds meaningful insight for the overall topic, include it — label it clearly and explain why it matters.
-7. External files (PDFs, datasets, analyst reports, regulatory filings, whitepapers, charts) may contain valuable data. When encountered, their key content should be summarized inline — do not leave them as bare links. Use `ax` or `curl` for local downloads when needed.
+7. External files (PDFs, datasets, analyst reports, regulatory filings, whitepapers, charts) may contain valuable data. When encountered, their key content should be summarized inline — do not leave them as bare links. Download with `ax URL -o file` (curl only when ax cannot: WebSocket/streaming). Never pipe a URL through python/node to parse it.
 8. Write findings as **prose paragraphs**, not bullet lists. Embed figures in sentences: "The market reached $4.2B in 2024 [Source]" rather than "* Market: $4.2B". Bullets are acceptable only for true enumerated lists (product names, compliance items, enumerated steps).
 9. Distinguish sourced facts from your analysis: use "According to [Source]..." for direct findings and "This suggests..." or "The pattern indicates..." for your synthesis. Never present inference as fact.
 10. If a topic cannot be found, write "No sources found for X" — do not guess or leave a blank.

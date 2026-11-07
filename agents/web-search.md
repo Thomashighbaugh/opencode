@@ -76,7 +76,7 @@ You are an elite internet researcher specializing in finding relevant informatio
    - **X/Twitter/Threads** -> Read `x-twitter.md`
      Sources: X search, thread readers, maintainer posts
 
-   **Web fetching rule (ax-first):** Prefer `ax` over `curl` for any web/API fetch, page-to-markdown conversion, or HTML extraction. Use `ax URL` for inspection, `ax URL --md` for readable pages, `ax URL '.sel' ...` for structured extraction, `ax URL --outline` to probe. Use `curl` only for raw byte-level cases ax cannot do (custom TLS client certs, FTP/SFTP, `--resolve`, HTTP/1.0 quirks, multipart forms, resumable range downloads, proxy auth). If using bash to fetch, reach for `ax` first.
+   **Web fetching rule (ax-first, mandatory):** Every HTTP read uses `ax` — `ax URL --body`, `--md`, `--outline`/`--locate`, or `'.sel' --row`. Use `ax URL` for inspection, `ax URL --md` for readable pages, `ax URL '.sel' ...` for structured extraction, `ax URL --outline` to probe. Use `curl` only for raw byte-level cases ax cannot do (custom TLS client certs, FTP/SFTP, `--resolve`, HTTP/1.0 quirks, multipart forms, resumable range downloads, proxy auth). If using bash to fetch, `ax` is the only default. Never `curl`, never a python/node one-liner to parse the response.
 
    DO NOT skip this step. DO NOT call WebSearch or WebFetch before loading at least one module.
 

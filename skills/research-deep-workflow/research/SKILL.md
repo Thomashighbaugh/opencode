@@ -11,7 +11,7 @@ description: Conduct preliminary research on a topic and generate research outli
 `/research <topic>`
 
 ## Web fetching (ax-first)
-When fetching pages directly (not via WebSearch results), prefer `ax` over `curl`. Use `ax URL --md` for readable content, `ax URL --outline` to probe structure, `ax URL '.sel' --row ...` for structured extraction, `ax URL --body` to pipe. Use `curl` only if ax cannot do it (custom TLS certs, FTP/SFTP, `--resolve`, HTTP/1.0, multipart forms, resumable ranges, proxy auth). See `rules/ax-first.md`.
+When fetching pages directly (not via WebSearch results), prefer `ax` over `curl`. Use `ax URL --md` for readable content, `ax URL --outline` to probe structure, `ax URL '.sel' --row ...` for structured extraction, `ax URL --body` to pipe. Use `curl` only if ax cannot do it (custom TLS certs, FTP/SFTP, `--resolve`, HTTP/1.0, multipart forms, resumable ranges, proxy auth). See `rules/ax-first.md`. Banned: `curl`, `curl | python3`, `python3 -c`/`python3 - <<PY` parsing HTML or JSON, `wget`. A fetch that needs one of those is a bug in the plan, not a fallback.
 
 ## Workflow
 
