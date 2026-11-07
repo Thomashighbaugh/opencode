@@ -9,6 +9,23 @@
 
 import v1 from "./v1.ts"
 
+
+/** V2 events carry fields under `data`; the V1 modules read `properties`. */
+function legacyEvent(event: any): any {
+  if (!event || event.properties) return event
+  const data = event.data ?? {}
+  return {
+    type: event.type,
+    properties: {
+      ...data,
+      info: data.info ?? (data.id ? { id: data.id } : undefined),
+      sessionID: data.sessionID ?? data.sessionId ?? data.info?.id,
+      file: data.file,
+      status: data.status,
+    },
+  }
+}
+
 function textOf(result: any): string {
   if (!result) return ""
   if (typeof result.content === "string") return result.content
@@ -45,7 +62,7 @@ export default {
         try {
           for await (const event of ctx.event.subscribe({ signal: controller.signal })) {
             try {
-              await hooks.event({ event })
+              await hooks.event({ event: legacyEvent(event) })
             } catch {}
           }
         } catch {}

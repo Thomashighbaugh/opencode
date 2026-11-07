@@ -114,12 +114,11 @@ export default {
             continue
           }
 
-          const isIdle =
-            event?.type === "session.idle" ||
-            (event?.type === "session.status" && event?.properties?.status?.type === "idle")
+          const data = event?.data ?? event?.properties ?? {}
+          const isIdle = event?.type === "session.idle" || (event?.type === "session.status" && data?.status?.type === "idle")
           if (!isIdle) continue
 
-          const sessionID: string | undefined = event?.properties?.sessionID ?? event?.properties?.info?.id
+          const sessionID: string | undefined = data?.sessionID ?? data?.sessionId ?? data?.info?.id
           if (!sessionID) continue
           const seenAt = lastSeen[sessionID] ?? 0
           if (Date.now() - seenAt < 1_000) continue
