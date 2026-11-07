@@ -17,7 +17,17 @@ import type { Plugin } from "@opencode-ai/plugin"
 
 import { decode, toonify } from "./toon"
 
-const DEFAULT_ELIGIBLE_TOOLS = ["bash"]
+const DEFAULT_ELIGIBLE_TOOLS = [
+  "bash",
+  "hubmenu",
+  "codesearch",
+  "cache",
+  "regex-edit",
+  "json-edit",
+  "yaml-edit",
+  "conf-edit",
+  "multi-edit",
+]
 const MAX_CACHED_OUTPUTS = 100
 const MIN_JSON_LENGTH = 256
 const MAX_INPUT_LENGTH = 4 * 1024 * 1024
