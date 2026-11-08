@@ -32,6 +32,7 @@ paths were not, so existing checkpoints and resume state keep resolving.
 | Research | `.opencode/context/research/` | Web-extracted docs, papers, references, Context7 cache |
 | Decisions | `.opencode/context/decisions.md` | Architecture Decision Records (ADRs) |
 | Theory | `.opencode/context/theory.md` | Living documentation |
+| Library | `.opencode/context/library/<collection>/` | Captured source documents + provenance (`hubDocs` in the hubs plugin) |
 | Memory | `.opencode/state/project-memory.json` | Cross-session durable facts (conditionally committed) |
 | **Wiki index** | `.opencode/context/index.md` | LLM Wiki catalog — auto-maintained, lists all pages with links and summaries |
 | **Wiki log** | `.opencode/context/log.md` | LLM Wiki operation chronicle — append-only, parseable with unix tools |

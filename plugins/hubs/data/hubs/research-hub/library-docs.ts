@@ -12,7 +12,7 @@ const spec: HubSubcommandSpec = {
 1. resolve-library-id: takes a library name (e.g. "Next.js") and returns the Context7-compatible library ID (e.g. "/vercel/next.js").
 2. query-docs: takes the library ID + a specific query and returns relevant documentation excerpts and code examples.
 
-Before fetching: check .opencode/context/research/{library-slug}/ for cached results (7-day TTL). After fetching: save to .opencode/context/research/{library-slug}/{query-hash}.md for future reuse.
+Before fetching, call hubDocs (action "search", then action "get") — the capture store already holds what earlier runs fetched. On a miss, resolve + query Context7, then store the result with hubDocs action "ingest" (collection = library slug, source_type: official, language/version when known). The tool never fetches; Context7 is the fetcher.
 
 **Wiki compliance**: after saving, update .opencode/context/index.md (catalog), append to .opencode/context/log.md, add YAML frontmatter to the new file, scan for cross-references to existing pages.
 

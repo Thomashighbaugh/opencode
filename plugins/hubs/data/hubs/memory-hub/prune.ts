@@ -14,6 +14,8 @@ const spec: HubSubcommandSpec = {
 - Orphaned files (reference something that no longer exists).
 - Low-value files (too sparse to be useful).
 
+The capture store has its own lifecycle: hubDocs action "prune" archives pages past refresh_after_days into .opencode/context/library/archive/; run it with dry_run: true first.
+
 **Superseded detection is not guesswork.** Run \`node skills/graph-context/scripts/graph.ts propose\` first: it asks the local classifier whether each knowledge page *claims* to replace an earlier one and writes reviewable candidates to \`.opencode/state/graph/edge-candidates.json\`. Treat those candidates as the superseded-file list — review each, then either promote the edge with \`graph accept-candidates\` or archive the page. Do not infer supersession from mtime alone; a newer file on the same topic is not necessarily a replacement.
 
 For each stale file, the agent recommends: archive (move to .opencode/context/archive/), delete, or keep. The user confirms before any deletion.

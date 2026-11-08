@@ -10,9 +10,9 @@ const spec: HubSubcommandSpec = {
   detailedDescription: `Ingests external content (files, directories, URLs) and saves it as durable context. Process:
 
 1. Take the input: a file path, directory, or URL.
-2. Extract text content: for files, read directly; for directories, read all text files; for URLs, fetch via webfetch or web-to-markdown skill (handles JS-rendered pages).
+2. Extract text content: for files, read directly; for directories, read all text files; for URLs, fetch with ax URL --md (or the web-to-markdown skill for JS-rendered pages).
 3. Clean and convert to markdown.
-4. Save to .opencode/context/research/{source-slug}/{timestamp}.md.
+4. If the input is a single external source, store it with hubDocs action "ingest" (collection = source domain, source_type: community). Multi-source synthesis stays as a research page under .opencode/context/research/{source-slug}/{timestamp}.md.
 5. **Wiki compliance**: update .opencode/context/index.md (catalog), append to .opencode/context/log.md, add YAML frontmatter to the new file, scan for cross-references to existing pages.
 6. **References sync**: ensure the project's opencode.jsonc has a \`references\` key with:
    - A \`context\` entry pointing to \`./.opencode/context\` (local path reference) so the durable knowledge base is accessible to agents.
@@ -20,11 +20,11 @@ const spec: HubSubcommandSpec = {
    - Only add repos that are substantive project references (not gists, not forks, not passing mentions). Deduplicate variant names to the primary repo.
    - If \`references\` already exists, merge new entries without removing existing ones.
 
-Privacy scan runs before saving to prevent committing secrets/PII. Use when you have external documentation, papers, or reference material that should be part of the project's durable knowledge.`,
+Use when you have external documentation, papers, or reference material that should be part of the project's durable knowledge.`,
 
   tools: TOOLS_BASH,
   rules: RULES_SECURITY,
-  relatedSkills: ["document-processor", "web-to-markdown", "privacy-scan", "wiki"],
+  relatedSkills: ["document-processor", "web-to-markdown", "wiki"],
 }
 
 export default spec

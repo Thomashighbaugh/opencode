@@ -12,7 +12,8 @@ const spec: HubSubcommandSpec = {
 1. Generate multiple search queries from the research question (different phrasings to catch different results).
 2. Run websearch in parallel for all queries.
 3. Fetch the top results with ax through bash (ax URL --md for pages, ax URL --body for JSON APIs), parallel where independent. Never curl, never a python/node parser — the ax-guard plugin rejects those.
-4. Synthesize the fetched content into a structured research report with: key findings, supporting evidence (with source URLs), contradictions between sources, and a conclusion.
+4. Store each fetched source with hubDocs action "ingest" (collection from the host, source_type: community, summary). Then you can drop the raw text from context.
+5. Synthesize the fetched content into a structured research report with: key findings, supporting evidence (with source URLs), contradictions between sources, and a conclusion.
 
 The report is saved to .opencode/state/ideation/work-products/ as a markdown document. It becomes durable context for subsequent planning.
 

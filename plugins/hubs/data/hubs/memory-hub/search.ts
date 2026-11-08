@@ -10,7 +10,7 @@ const spec: HubSubcommandSpec = {
   detailedDescription: `Semantic search across all durable context files. Searches .opencode/context/ (decisions, patterns, research, frameworks, theory) for content matching the query semantically — not just keyword matching.
 
 Process:
-1. Index all context files (or use an existing vector index).
+1. Query the capture store first with hubDocs action "search" for metadata/full-text hits, then use the vector index for semantic recall across context files.
 2. Embed the query.
 3. Find semantically similar context.
 4. Return ranked results with file paths and relevance scores.

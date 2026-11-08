@@ -20,7 +20,7 @@ Phase 2 - Deep Research (/research-deep equivalent). Fetch every source with ax 
 1. Locate outline.yaml and read items + execution config (batch_size, items_per_agent)
 2. Check for completed results to support resume
 3. For each item, dispatch web-search-agent (can run in parallel batches) with strict prompt enforcing JSON output per fields.yaml schema
-4. Each agent validates output with validation script (validate_json.py)
+4. Store every source it fetched with hubDocs action "ingest" before returning; validation runs on the remaining JSON output (validate_json.py)
 5. Track progress, handle retries
 
 Phase 3 - Report Generation (/research-report equivalent):

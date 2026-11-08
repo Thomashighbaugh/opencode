@@ -168,7 +168,7 @@ function openDatabase(dbPath, readonly = false) {
  *   applies_to, supersedes, touches, related_to, part_of, used_by, derived_from
  */
 const NODE_TYPES = new Set([
-  'pattern', 'decision', 'entity', 'concept', 'learning', 'source-summary', 'synthesis',
+  'pattern', 'decision', 'entity', 'concept', 'learning', 'source-summary', 'document', 'synthesis',
   'rule', 'skill', 'agent', 'command', 'hub-subcommand', 'file', 'module',
   'symbol', 'reference',
 ]);
@@ -252,7 +252,7 @@ export function ensureGraphReady(inputDir) {
  * declarations.
  */
 const OPENCODE_PREFIXED_TYPES = new Set([
-  'concept', 'entity', 'rule', 'source-summary', 'decision', 'pattern',
+  'concept', 'entity', 'rule', 'source-summary', 'document', 'decision', 'pattern',
   'framework', 'learning', 'synthesis', 'reference', 'hub-subcommand', 'skill',
   'agent', 'command', 'research',
 ])
@@ -737,7 +737,7 @@ function adoptKnowledgeOrphansIn(db): number {
   try {
     const KNOWN = new Set([
       'concept', 'decision', 'pattern', 'learning', 'entity',
-      'source-summary', 'synthesis', 'hub-subcommand', 'command', 'agent',
+      'source-summary', 'document', 'synthesis', 'hub-subcommand', 'command', 'agent',
       'skill', 'rule',
     ]);
     // Types whose natural parent is their own directory (the directory is

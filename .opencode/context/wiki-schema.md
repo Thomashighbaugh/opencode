@@ -33,7 +33,7 @@ Every `.md` file in the wiki MUST have YAML frontmatter:
 ```yaml
 ---
 title: "Page Title"
-type: entity | concept | source-summary | decision | pattern | synthesis
+type: entity | concept | source-summary | document | decision | pattern | synthesis
 tags: [tag1, tag2]
 created: 2026-07-04
 updated: 2026-07-04
@@ -61,6 +61,7 @@ After every write to `.opencode/context/`:
 | Type | Description | Location |
 |------|-------------|----------|
 | `source-summary` | Summary of an external source (docs, paper, article) | `research/` |
+| `document` | Captured source text with provenance frontmatter (library store) | `library/<collection>/` |
 | `entity` | A concept, tool, or component | `frameworks/` or root |
 | `concept` | Abstract concept or design principle | `frameworks/` or root |
 | `decision` | Architecture Decision Record | `decisions.md` |

@@ -13,6 +13,7 @@
 import { hubNames, hubSummaries, render, renderIndex, resume, route, status } from "./src/core"
 import { loadVendoredSkills } from "./src/skills"
 import { installAgents } from "./src/agents"
+import { registerLibraryTool } from "./tools/library/index.ts"
 
 const HUBMENU_INPUT = {
   type: "object",
@@ -74,6 +75,8 @@ export default {
           return { content: JSON.stringify({ error: `Unknown action: ${action}` }) }
         },
       })
+
+      registerLibraryTool(editor, directory)
     })
 
     await ctx.command.transform((editor: any) => {
