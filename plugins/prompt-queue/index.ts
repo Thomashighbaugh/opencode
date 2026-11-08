@@ -69,3 +69,5 @@ export default {
     }
   },
 }
+
+// v2: dispose is provided by createQueueRuntime.
