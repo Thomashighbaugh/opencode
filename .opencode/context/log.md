@@ -290,3 +290,13 @@ Chronological record of all wiki operations. Append-only.
 - **Key findings**: `llm-agents` exposes `opencode2` 2.2.0 (binary `opencode2`, coexist-by-name) alongside `opencode` 1.19.5 · local plugin entrypoints resolve `<dir>/index`, `<dir>/tui`, `<dir>/rpc` — the directory requirement is `mkdir` · MCP cannot host the picker: V2 TUI context exposes only `data.location.mcp.{server,resource}`, and elicitation is ACP-only · `ui.dialog.select` (with `search` and `actions`) plus `keymap.layer` slash commands is the only interactive selection surface · `client.session.prompt` submits a durable prompt from a TUI plugin · V1 and V2 share `~/.local/share/opencode` and can target the same `opencode.db`, and both run migrations on open → `OPENCODE_DB` is the isolation lever · V2 todos are gated by `experimental.todo`, schema `{content,status}`, derived from the latest `todowrite` message, no file · OpenTUI is 0.7.0 in 2.2.0 and 0.8.1 in 2.2.6, while the docs still say `>=0.6.6`
 - **Decisions**: single self-contained plugin package with vendored specs/rules/skills (skill registration via `ctx.skill.transform`, no copy into `.opencode/skills/`); V1 remains the only daily runtime until the parity + picker matrix passes under an isolated DB; MCP is the optional external-client face, not the menu
 - **Cross-references**: [[context/research/opencode-v2-api/2026-11-06]] ↔ [[context/frameworks/opencode-v2-hub-port]]
+
+## [2026-11-08] plan | Local Token Optimizer feature-parity implementation
+
+- **Operation**: Decomposed `alexgreensh/token-optimizer`'s OpenCode edition (`opencode/`, package `token-optimizer-opencode@1.2.2`) into implementable features, mapped each to local OpenCode 2 hooks, tools, and `~/.local/share/opencode/opencode.db` data, then wrote the approval plan
+- **Files created**:
+  - `frameworks/token-optimizer-local-implementation.md` — architecture, store schema, tool surface, hook wiring, Phases 0–8 with task-level acceptance criteria, parity traceability, test commands, risks
+- **Scope**: parity with the OpenCode edition; optional bash-output compression, Context Intel Promotion, and live quality bar included; dashboard and search-result limiting excluded; MCP introspection, Memory Health, Attention Optimizer, JSONL tools, platform adapters, and packaging skipped
+- **Key finding**: the local OpenCode DB already stores exact per-message tokens/cost and every tool call/result in `message`/`part`, so scoring, mode, checkpoints, and savings can be computed by read-only SQL plus pure functions instead of hook-only reconstruction
+- **Status**: awaiting approval; no implementation started
+- **Cross-references**: [[context/frameworks/token-optimizer-local-implementation]] ↔ [[context/research/opencode-v2-api/2026-11-06]]
