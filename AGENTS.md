@@ -5,10 +5,10 @@
 ## Overview
 
 - **1 primary agent** (`hubs`) — the only primary. It handles tasks directly and is the sole entry point.
-- **30 subagents** — all `mode: subagent`, dispatched by `hubs` or by an explicit user request. See `agents/hubs.md`
-- **123 workflow skills** for development tasks
+- **31 subagents** — all `mode: subagent`, dispatched by `hubs` or by an explicit user request. See `agents/hubs.md`
+- **127 workflow skills** for development tasks
 - **31 TypeScript tools** for session management and file editing
-- **174 hub subcommand specs** across 13 hub directories, served by the `plugins/hubs/` V2 package
+- **175 hub subcommand specs** across 13 hub directories, served by the `plugins/hubs/` V2 package
 - **Hook system plugin** for mode detection, state persistence, and context injection
 - **Multi-tier cache system** — tool, file, session, vector search caching
 - **Durable context storage** — knowledge compounds across sessions
@@ -94,7 +94,7 @@ Magic keywords (`ralph`, `autopilot`, `ultrawork`, `build me`, `create me`, etc.
 
 ## Agents
 
-`agents/` holds 31 files: `hubs` (the only `mode: primary`) and 30 subagents. Agents named by a hub subcommand's `agent:` field are bundled in `plugins/hubs/data/agents/` and installed beside that directory by the plugin; they assume the hub payload and skills they were written for, so edit the plugin copy, not a stale duplicate.
+`agents/` holds 32 files: `hubs` (the only `mode: primary`) and 31 subagents. Agents named by a hub subcommand's `agent:` field are bundled in `plugins/hubs/data/agents/` and installed beside that directory by the plugin; they assume the hub payload and skills they were written for, so edit the plugin copy, not a stale duplicate.
 
 - Planning: `planner`, `analyst`, `architect`, `deep-thinker`, `requirements-analyzer`, `effort-estimator`
 - Implementation: `executor`, `refactoring`, `code-simplifier`, `frontend-design`, `designer`, `skill-creator`
@@ -104,7 +104,7 @@ Magic keywords (`ralph`, `autopilot`, `ultrawork`, `build me`, `create me`, etc.
 
 ## Subagent Dispatch
 
-There is **one primary agent** (`hubs`) and **30 subagents** — all `mode: subagent`. The subagent
+There is **one primary agent** (`hubs`) and **31 subagents** — all `mode: subagent`. The subagent
 roster is live, not retired: `agents/` holds 30 specialists spanning planning, implementation,
 review, research, design, and workflow, each with its own `<Agent_Prompt>`.
 
@@ -184,8 +184,8 @@ See `rules/hub-routing.md` for the complete delegation table and architecture de
 ~/.config/opencode/
 ├── opencode.jsonc       # Main configuration
 ├── AGENTS.md            # This file (core instructions)
-├── agents/              # hubs.md (primary) + 30 subagents
-├── skills/              # 123 workflow skills
+├── agents/              # hubs.md (primary) + 31 subagents
+├── skills/              # 127 workflow skills
 ├── commands/            # (empty — all subcommands live in hub menus)
 ├── templates/
 │   ├── projects/         # Project archetype templates (bare-bones, cli-tool, docker, go, nextjs, etc.)
