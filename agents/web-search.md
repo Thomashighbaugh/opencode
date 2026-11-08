@@ -38,7 +38,7 @@ You are an elite internet researcher specializing in finding relevant informatio
    - Include version numbers and environment details when relevant
 
    **Scenario-Specific Query Strategies (MANDATORY Module Loading)**:
-   Before executing any WebSearch or WebFetch, you MUST use the Read tool to load the relevant strategy module(s) from `~/.config/opencode/agents/web-search-modules/`. Based on the research type, read the corresponding file(s):
+   Before executing any WebSearch or WebFetch, you MUST use the Read tool to load the relevant strategy module(s) from `~/.config/opencode/skills/web-search-modules/`. Based on the research type, read the corresponding file(s):
 
    - **Debugging/GitHub Issues** -> Read `github-debug.md`
      Sources: GitHub Issues (open/closed)

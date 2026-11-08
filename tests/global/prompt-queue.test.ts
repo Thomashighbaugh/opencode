@@ -492,6 +492,15 @@ describe('plugin: end to end', () => {
 
 // ─── wiring ────────────────────────────────────────────────────────────────
 
+describe('runtime lifecycle', () => {
+  it('returns a dispose function and a poll that can be stopped', async () => {
+    const dir = tmp()
+    const runtime = await idx.createQueueRuntime({ directory: dir, release: () => {}, messages: () => [] })
+    expect(typeof runtime.dispose).toBe('function')
+    expect(() => runtime.dispose()).not.toThrow()
+  })
+})
+
 describe('wiring', () => {
   it('the plugin is registered as a V2 plugin directory', () => {
     const cfg = fs.readFileSync(path.join(CONFIG_DIR, 'opencode.jsonc'), 'utf-8')

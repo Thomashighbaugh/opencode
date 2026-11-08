@@ -139,14 +139,14 @@ function resolveClassifier(): Classifier | undefined {
  * the rest. A send failure restores exactly what was drained, through the same
  * atomic `save` the idle path uses.
  */
-async function handleFireRequests(dir: string, client: any): Promise<number> {
+async function handleFireRequests(dir: string, host: QueueRuntimeHost, sessionHint: string | null): Promise<number> {
   const pending = pendingFireRequests(dir)
   if (!pending.length) return 0
 
   // Resolved once, before any send, so a request that arrives before any idle
   // event still has a destination. An empty id would make `promptAsync` fail
   // with a path error that looks like a send failure rather than "no session".
-  const sessionId = lastSessionId ?? (await firstSessionId(host.sessions))
+  const sessionId = sessionHint ?? (await firstSessionId(host.sessions))
   if (!sessionId) {
     // Claimed then finished rather than left pending: a request that could not be
     // delivered must not sit and be retried on every subsequent file event.
@@ -214,7 +214,6 @@ async function firstSessionId(sessions?: QueueRuntimeHost["sessions"]): Promise<
   }
 }
 
-let lastSessionId: string | null = null
 
 export interface QueueRuntimeHost {
   readonly directory: string
@@ -229,6 +228,7 @@ export interface QueueRuntimeHost {
 export async function createQueueRuntime(host: QueueRuntimeHost) {
   stats = blankStats()
   const dir = host.directory
+  let lastSessionId: string | null = null
   let lastSeen: Record<string, number> = {}
 
   /**
@@ -243,7 +243,7 @@ export async function createQueueRuntime(host: QueueRuntimeHost) {
    * `unref` so the timer never holds the process open on shutdown.
    */
   const poll = setInterval(() => {
-    void handleFireRequests(dir, client).catch(() => {})
+    void handleFireRequests(dir, host, lastSessionId).catch(() => {})
   }, 1_500)
   poll.unref?.()
 
@@ -332,7 +332,7 @@ export async function createQueueRuntime(host: QueueRuntimeHost) {
       // was already idle waited for the next message — which is why "run the
       // queue now" looked like it did nothing. A fire request is its own event.
       if (event.type === 'file.edited' || event.type === 'file.watcher.updated') {
-        await handleFireRequests(dir, client)
+        await handleFireRequests(dir, host, lastSessionId)
         return
       }
 
@@ -384,6 +384,7 @@ export async function createQueueRuntime(host: QueueRuntimeHost) {
       const facts = completionFromMessages(messages)
       await onCompletion({ sessionId, tools: facts.tools, finalText: facts.finalText }, resolveClassifier())
     },
+    dispose: () => clearInterval(poll),
   } as any
 }
 

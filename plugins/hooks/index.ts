@@ -11,7 +11,6 @@
  *   experimental.chat.system.*    → ctx.session.hook("context")
  *   experimental.session.compacting → ctx.session.hook("compaction")
  *   permission.ask                → ctx.permission.hook("evaluate")
- *   command.execute.before        → ctx.command.transform (the five mode commands)
  *
  * The vectorize indexer, tool cache, mode detection, keyword injection and
  * telemetry all live inside the V1 modules and keep running through this map.
@@ -70,7 +69,6 @@ Never curl, never a python/node one-liner to parse a URL. curl only for
 WebSocket/streaming or curl-only flags. Full rule: rules/ax-first.md.
 </ax-fetch>`
 
-const MODE_COMMANDS = ["ralph-loop", "ulw-loop", "ultrawork", "cancel-ralph", "stop-continuation"]
 
 export default {
   id: "hooks",
@@ -182,21 +180,6 @@ export default {
       })
     }
 
-    if (typeof hooks?.["command.execute.before"] === "function") {
-      await ctx.command.transform((editor: any) => {
-        for (const name of MODE_COMMANDS) {
-          editor.add({
-            name,
-            description: `Legacy mode command (${name})`,
-            async execute(invocation: any) {
-              try {
-                await hooks["command.execute.before"]({ command: name, sessionID: invocation.sessionID }, {})
-              } catch {}
-            },
-          })
-        }
-      })
-    }
 
     return () => controller.abort()
   },
