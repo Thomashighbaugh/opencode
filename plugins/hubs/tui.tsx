@@ -54,19 +54,27 @@ export default definePlugin({
     const toast = (message: string, variant: "info" | "warning" | "error" = "info") =>
       ctx.ui.toast.show({ title: "Hubs", message, variant })
 
-    const currentSession = () => {
-      const route = ctx.ui.router.current()
-      return route?.type === "session" ? route.sessionID : undefined
-    }
-
     const submit = async (text: string) => {
-      const sessionID = currentSession()
+      const route = ctx.ui.router.current()
+      const sessionID = route?.type === "session" ? route.sessionID : undefined
       if (!sessionID) return toast("Open a session first", "warning")
       try {
         await ctx.client.session.prompt({ sessionID, text })
       } catch (error) {
         toast(`Could not submit: ${error instanceof Error ? error.message : String(error)}`, "error")
       }
+    }
+
+    // A subcommand is a prefix, not the whole request: ask for the task text
+    // before submitting the routed payload.
+    const askAndSubmit = async (payload: string, title: string) => {
+      const task = await ctx.ui.dialog.prompt({
+        title,
+        placeholder: "Describe the task (Enter to send, Esc to cancel)",
+      })
+      if (task === undefined) return
+      const body = task.trim() ? `${payload}\n\n${task.trim()}` : payload
+      await submit(body)
     }
 
     async function openHub(name: string) {
@@ -100,7 +108,7 @@ export default definePlugin({
         ],
       })
       if (!choice) return
-      await submit(render(route(name, choice)))
+      await askAndSubmit(render(route(name, choice)), `${definition.name} — ${choice}`)
     }
 
     function openPreview(skill: VendoredSkill) {
