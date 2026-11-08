@@ -124,4 +124,4 @@ user authorization is inherited by the whole task — read, edit, test, commit, 
 | Turn/token budgets | [Efficiency](request-token-efficiency.md) |
 | Subagent identity as graph nodes | [Knowledge Plane](knowledge-plane.md) |
 
-→ Next: [Hub Command System](hub-command-system.md)
+→ Next: [Hub Command System](../plugins/hubs/AGENTS.md)

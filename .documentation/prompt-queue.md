@@ -235,7 +235,7 @@ will be.
 | This system uses | From |
 | ---------------- | ---- |
 | `session.idle` / `session.status`, `session.messages`, `session.promptAsync` | [Event Interception](plugins-hooks.md) |
-| `api.command.register`, `DialogSelect`, `DialogPrompt`, `clearPrompt({ directory })` | [Hub Plugin](plugins/hubs/AGENTS.md) |
+| `api.command.register`, `DialogSelect`, `DialogPrompt`, `clearPrompt({ directory })` | [Hub Plugin](../plugins/hubs/AGENTS.md) |
 | `.opencode/state/` for session state | [Memory System](memory-system.md) |
 | Existing plugin's non-blocking discipline | [Command Hooks](plugins-command-hooks.md) |
 

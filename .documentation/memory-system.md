@@ -164,6 +164,6 @@ canonical — is how a knowledge base rots.
 | `queueContextMessage` for injections | [Event Interception](plugins-hooks.md) |
 | `readJsonc`, `json-edit` | [`tools/`](../tools/) |
 | State vs context discipline | `rules/context-strategy.md` |
-| Hub routing to reach it | [Hub Command System](hub-command-system.md) |
+| Hub routing to reach it | [Hub Command System](../plugins/hubs/AGENTS.md) |
 
 → Next: [Knowledge Plane](knowledge-plane.md)

@@ -11,15 +11,18 @@ Technical documentation for this OpenCode agent harness. Start at
 3. **[Memory System](memory-system.md)** — what survives a session, and what does not.
 4. **[Knowledge Plane](knowledge-plane.md)** — hybrid retrieval and its graph invariants.
 5. **[Prompt Queue](prompt-queue.md)** — the one piece of UI that changes what the model is asked next.
+6. **[Hub Library](hub-library.md)** — the captured-document store behind `hubDocs`.
 
 ## By component
 
 ### Custom plugins
 
-| Page | Component | LOC | What it does |
-| ---- | --------- | ---: | ------------ |
-| [Event Interception](plugins-hooks.md) | `plugins/hooks/` | 3,987 | 8 hook points, caching, modes, focus, telemetry, knowledge sync |
-| [Command Hooks](plugins-command-hooks.md) | `plugins/command-hooks/` | 1,726 | Declarative shell hooks on tool and session events, output injected into context |
+| Page | Component | What it does |
+| ---- | --------- | ------------ |
+| [Hub Library](hub-library.md) | `plugins/hubs/tools/library/` | `hubDocs` capture store: ingest/dedupe/split/search/prune over `.opencode/context/library/` |
+| [Hub Plugin](../plugins/hubs/AGENTS.md) | `plugins/hubs/` | Picker, 175 subcommands, vendored corpus, agents, `hubDocs` |
+| [Event Interception](plugins-hooks.md) | `plugins/hooks/` | 8 hook points, caching, modes, focus, telemetry, knowledge sync |
+| [Command Hooks](plugins-command-hooks.md) | `plugins/command-hooks/` | Declarative shell hooks on tool and session events, output injected into context |
 
 ### Supporting systems
 
@@ -28,9 +31,9 @@ Technical documentation for this OpenCode agent harness. Start at
 | [Memory System](memory-system.md) | `.opencode/context/`, `/memory-hub` | Durable context, state vs context, the self-maintaining wiki |
 | [Knowledge Plane](knowledge-plane.md) | `skills/graph-context/`, `skills/vectorize-context/` | Graph + vector hybrid retrieval, structural invariants, incremental rebuilds |
 | [Orchestration](subagent-orchestration.md) | `agents/`, `modes.ts` | 31 subagents, the dispatch policy, mode detection |
-| [Rules & Skills](rules-and-skills.md) | `rules/`, `skills/`, `tools/` | 20 rules, 125 skills, 46 tools, MCP servers |
+| [Rules & Skills](rules-and-skills.md) | `rules/`, `skills/`, `tools/` | 23 rules, 127 skills, 31 tools, MCP servers |
 | [Efficiency](request-token-efficiency.md) | `cache-utils`, `runtime`, `child-registry` | Request and token budgets, and how they are measured |
-| [Testing Strategy](testing-strategy.md) | `tests/global/`, `skills/*/tests/` | 1,086 behavioural tests, and the defects they caught |
+| [Testing Strategy](testing-strategy.md) | `tests/global/`, `skills/*/tests/` | 1,325 behavioural tests, and the defects they caught |
 
 ---
 

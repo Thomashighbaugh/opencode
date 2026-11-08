@@ -71,7 +71,7 @@ description: Test-driven development loop — red-green-refactor until covered.
 ---
 ```
 
-125 skills across functional categories — Init, Ideation, Orchestration, Harvest, UX, External,
+127 skills across functional categories — Init, Ideation, Orchestration, Harvest, UX, External,
 Meta, QA, Docs.
 
 ### Frontmatter is not cosmetic
@@ -130,7 +130,7 @@ See [Knowledge Plane](knowledge-plane.md).
 ### Hubs
 
 `hubMenu` plus one manifest per hub (`plugins/hubs/data/hub-<name>.ts`).
-See [Hub Command System](hub-command-system.md).
+See [Hub Command System](../plugins/hubs/AGENTS.md).
 
 ### Caching
 

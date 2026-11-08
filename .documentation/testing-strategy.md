@@ -1,6 +1,6 @@
 # Testing Strategy
 
-**1,086 tests. Not one of them asserts that source text contains a substring.**
+**1,325 tests. Not one of them asserts that source text contains a substring.**
 
 That is the whole strategy. Most defects in an agent harness are silent no-ops, and a source-text
 assertion passes happily against code that never runs:
@@ -164,6 +164,6 @@ These are not tests that were written once; they are properties the system canno
 
 An agent harness fails quietly. It returns plausible output from a broken cache, a dangling edge,
 and an unreachable skill. The only defence is a suite that observes effects and fails when they
-stop — which is what the 1,086 tests are for.
+stop — which is what the 1,325 tests are for.
 
 → [Architecture](architecture.md) · [Back to README](../README.md)
