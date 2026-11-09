@@ -3,11 +3,10 @@
   "default_agent": "hubs",
   "formatter": true,
   "lsp": true,
-  "permission": {
-    "edit": { ".opencode/**": "allow" }
-  },
+  "permissions": [
+    { "action": "edit", "resource": ".opencode/**", "effect": "allow" }
+  ],
   "mcp": {},
   "skills": { "paths": ["./.opencode/skills"] },
-  "plugin": ["./plugins/hubs-plugin.ts"],
   "instructions": ["AGENTS.md"]
 }
