@@ -34,10 +34,10 @@ OpenCode plugin system components — hook system plugin for lifecycle events, s
 - Plugins are registered via `opencode.jsonc` npm plugin entries
 
 ### The `/goal` Command
-- Registered as a TUI slash command by the V2 hub package (`plugins/hubs/tui.tsx`)
-- Command template at `commands/goal.md` handles agent-side logic
-- Subcommands: `set`, `show`, `clear`, `pause`, `resume`
-- Bare `/goal` (no subcommand) presents an interactive hub-style menu via `question` tool
+- Registered by `plugins/hooks/index.ts` on `ctx.command.transform`
+- Forms: `/goal <objective>`, `/goal set <objective>`, `status`, `pause`, `resume`, `clear`, `complete`, `blocked`
+- `buildGoalBlock()` injects the active goal into every system prompt through the existing hooks context transform
+- `plugins/hooks/goal-wire.ts` records the finished assistant turn on `session.idle`, checks `[goal:complete]` / `[goal:blocked]`, and submits a budgeted continuation with `resume: true`
 - Goal state file: `.opencode/state/goal/state.json` (created automatically on first use)
 
 ### The `/todo` Command

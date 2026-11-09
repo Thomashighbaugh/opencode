@@ -91,7 +91,7 @@ check that stops this file drifting again.
 | [[context/frameworks/per-repo-deployment-architecture]] | — | — | — |
 | [[context/frameworks/smart-prompt-queue]] | — | — | — |
 | [[context/frameworks/stall-detection-and-recovery]] | — | — | — |
-| [[context/frameworks/token-optimizer-local-implementation]] | decision | opencode, token-optimizer, token-efficiency, quality-scoring, compaction, continuity, savings, plugin, implementation-plan | needs-review |
+| [[context/frameworks/token-optimizer-local-implementation]] | decision | opencode, token-optimizer, token-efficiency, quality-scoring, compaction, continuity, savings, plugin, implementation-plan | active |
 
 ## Patterns & Practices
 

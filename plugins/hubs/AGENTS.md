@@ -32,7 +32,7 @@ required at runtime.
 
 - Entrypoints resolve `<dir>/index` (server) and `<dir>/tui` (TUI) — `packages/plugin/src/host.ts`.
 - Picker = `ui.dialog.select` with `search` + `actions`; MCP cannot render a chooser.
-- Prompt submission from the TUI uses `ctx.client.session.prompt({ sessionID, text })`.
+- Prompt submission from the TUI uses `ctx.client.session.prompt({ sessionID, text, resume: true, delivery: "steer" })`; `resume` is what wakes the session after admission.
 - Agents cannot be registered by a plugin: `AgentEditor` exposes list/get/update/remove/default only. `installAgents()` writes the vendored files instead.
 - Native skill mention insertion reuses the host `/skills` picker: dispatch `prompt.skills`, then `dialog.select.*`.
 

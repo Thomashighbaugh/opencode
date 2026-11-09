@@ -33,7 +33,7 @@ Technical documentation for this OpenCode agent harness. Start at
 | [Orchestration](subagent-orchestration.md) | `agents/`, `modes.ts` | 31 subagents, the dispatch policy, mode detection |
 | [Rules & Skills](rules-and-skills.md) | `rules/`, `skills/`, `tools/` | 23 rules, 127 skills, 31 tools, MCP servers |
 | [Efficiency](request-token-efficiency.md) | `cache-utils`, `runtime`, `child-registry` | Request and token budgets, and how they are measured |
-| [Testing Strategy](testing-strategy.md) | `tests/global/`, `skills/*/tests/` | 1,325 behavioural tests, and the defects they caught |
+| [Testing Strategy](testing-strategy.md) | `tests/global/`, `skills/*/tests/` | 1,332 behavioural tests, and the defects they caught |
 
 ---
 

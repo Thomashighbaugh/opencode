@@ -84,7 +84,7 @@ export default {
         name: "hubs",
         description: "Print the hub index (all hubs and their subcommands)",
         async execute(invocation: any) {
-          await ctx.session.prompt({ sessionID: invocation.sessionID, text: renderIndex() })
+          await ctx.session.prompt({ sessionID: invocation.sessionID, text: renderIndex(), resume: true, delivery: "steer" })
         },
       })
     })

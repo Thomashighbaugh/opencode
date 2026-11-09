@@ -10,6 +10,11 @@
       "id": "mw5jx98m-d1laa",
       "text": "implement decisions model (hopefully onnxruntime and local) to ease the use of larger models in cases mechanical tools are too complex or fickle",
       "createdAt": "2026-11-06T22:34:00.070Z"
+    },
+    {
+      "id": "mw9scdsj-z5ugy",
+      "text": "the /goal plugin must allow (through a user select intake questionaire) to set the goal as session goal (overall goal with no turn limits or budgets) or a task specific goal (which then allows the setting of turns and token budgets)",
+      "createdAt": "2026-11-09T21:40:47.444Z"
     }
   ]
 }

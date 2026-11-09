@@ -298,5 +298,6 @@ Chronological record of all wiki operations. Append-only.
   - `frameworks/token-optimizer-local-implementation.md` — architecture, store schema, tool surface, hook wiring, Phases 0–8 with task-level acceptance criteria, parity traceability, test commands, risks
 - **Scope**: parity with the OpenCode edition; optional bash-output compression, Context Intel Promotion, and live quality bar included; dashboard and search-result limiting excluded; MCP introspection, Memory Health, Attention Optimizer, JSONL tools, platform adapters, and packaging skipped
 - **Key finding**: the local OpenCode DB already stores exact per-message tokens/cost and every tool call/result in `message`/`part`, so scoring, mode, checkpoints, and savings can be computed by read-only SQL plus pure functions instead of hook-only reconstruction
-- **Status**: awaiting approval; no implementation started
+- **Status**: approved 2026-11-08; implementation in `plugins/token-optimizer/` (DB adapter, quality engine, checkpoints, continuity, pricing/savings, nudges, tools, optional compression/intel/TUI bar)
+- **Verification**: `bun test plugins/token-optimizer` (16 pass), `bunx vitest run` (full suite green), fresh `opencode2` config load accepted the plugin path
 - **Cross-references**: [[context/frameworks/token-optimizer-local-implementation]] ↔ [[context/research/opencode-v2-api/2026-11-06]]

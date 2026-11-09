@@ -18,6 +18,8 @@
 
 import { createHooksRuntime } from "./hooks.ts"
 import { queueContextMessage } from "./session.ts"
+import { blockGoal, clearGoal, completeGoal, formatGoalStatus, pauseGoal, resumeGoal, setGoal } from "./goal.ts"
+import { maybeContinueGoal } from "./goal-wire.ts"
 
 
 /** V2 events carry fields under `data`; the V1 modules read `properties`. */
@@ -90,9 +92,57 @@ export default {
             try {
               await hooks.event({ event: legacyEvent(event) })
             } catch {}
+            if (event?.type === "session.idle") {
+              const sid = event?.data?.sessionID ?? event?.properties?.sessionID
+              if (sid) {
+                try { await maybeContinueGoal(ctx, directory, String(sid)) } catch {}
+              }
+            }
           }
         } catch {}
       })()
+    }
+
+    if (ctx.command?.transform) {
+      await ctx.command.transform((editor: any) => {
+        editor.add({
+          name: "goal",
+          description: "Set or manage the session goal. /goal <objective>, /goal status, pause, resume, clear, complete, blocked.",
+          async execute(invocation: any) {
+            const sessionID = String(invocation?.sessionID ?? invocation?.sessionId ?? "")
+            if (!sessionID) return
+            const prompt = invocation?.prompt
+            const promptTextValue = typeof prompt?.text === "string"
+              ? prompt.text
+              : Array.isArray(prompt?.parts)
+                ? prompt.parts.filter((part: any) => part?.type === "text").map((part: any) => part.text ?? "").join(" ")
+                : ""
+            const raw = String(
+              invocation?.arguments ?? invocation?.args ?? invocation?.input ?? invocation?.text ?? promptTextValue ?? "",
+            ).trim()
+            const reply = async (message: string) => {
+              try { await ctx.session.prompt({ sessionID, text: message, resume: false }) } catch {}
+            }
+            const [head, ...rest] = raw.split(/\s+/)
+            const command = head?.toLowerCase() ?? ""
+            const body = rest.join(" ").trim()
+            try {
+              if (!raw || command === "status") return await reply(formatGoalStatus(sessionID))
+              if (command === "pause") return await reply(pauseGoal(directory, sessionID) ? "Goal paused." : "No active goal.")
+              if (command === "resume") return await reply(resumeGoal(directory, sessionID) ? "Goal resumed." : "No active goal.")
+              if (command === "clear") return await reply(clearGoal(directory, sessionID) ? "Goal cleared." : "No active goal.")
+              if (command === "complete") { completeGoal(directory, sessionID, body || "user marked complete"); return await reply("Goal marked complete.") }
+              if (command === "blocked") { blockGoal(directory, sessionID, body || "user marked blocked"); return await reply("Goal marked blocked.") }
+              const objective = command === "set" ? body : raw
+              if (!objective) return await reply("Usage: /goal <objective> | /goal status | pause | resume | clear | complete | blocked")
+              const state = setGoal(directory, sessionID, objective)
+              return await reply(`Goal set: ${state.objective}\nBudget: ${state.options.maxTurns} turns / ${state.options.maxTokens} tokens.`)
+            } catch (error) {
+              await reply(`Goal command failed: ${error instanceof Error ? error.message : String(error)}`)
+            }
+          },
+        })
+      })
     }
 
     if (typeof hooks?.["tool.execute.before"] === "function") {

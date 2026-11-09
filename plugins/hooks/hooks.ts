@@ -324,7 +324,7 @@ export async function createHooksRuntime({ directory }: { directory: string }) {
 
         // ── Goal: recover persisted goal state ───────────────────
         try {
-          initializeGoal(directory, sessionId)
+          await initializeGoal(directory, sessionId)
         } catch { /* goal plugin unavailable */ }
 
         break

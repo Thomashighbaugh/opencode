@@ -59,7 +59,7 @@ export default definePlugin({
       const sessionID = route?.type === "session" ? route.sessionID : undefined
       if (!sessionID) return toast("Open a session first", "warning")
       try {
-        await ctx.client.session.prompt({ sessionID, text })
+        await ctx.client.session.prompt({ sessionID, text, resume: true, delivery: "steer" })
       } catch (error) {
         toast(`Could not submit: ${error instanceof Error ? error.message : String(error)}`, "error")
       }

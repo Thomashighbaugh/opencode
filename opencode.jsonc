@@ -516,7 +516,9 @@
         "./plugins/todo",
         "./plugins/toon",
         "./plugins/env-protection",
-        "./plugins/ax-guard"
+        "./plugins/ax-guard",
+        "./plugins/token-optimizer",
+        "./plugins/memory-system"
     ],
     "instructions": [
         "AGENTS.md",

@@ -2,7 +2,7 @@
 
 A production-grade agentic AI configuration for [OpenCode 2](https://opencode.ai) — one primary
 agent and 31 specialised subagents, a hybrid retrieval plane, declarative event hooks, a
-13-hub/175-subcommand command system, a captured-document store, and a 1,325-test suite that
+13-hub/175-subcommand command system, a captured-document store, and a 1,332-test suite that
 asserts on *behaviour* rather than on source text.
 
 The V2 configuration is `main`. The V1 configuration is frozen on branch `v1`, mirrored to its own
@@ -60,7 +60,7 @@ is the standing constraint that shapes the whole design.
 | Graph retrieval      | `skills/graph-context/scripts/graphlib.ts`     | 2,708 LOC                |
 | Vector retrieval     | `skills/vectorize-context/scripts/veclib.ts`   | 1,484 LOC                |
 | Tooling              | `tools/`                                      | 31 tools                 |
-| Evals                | `tests/`                                       | 1,325 tests, 26 files    |
+| Evals                | `tests/`                                       | 1,332 tests, 27 files    |
 | Knowledge store      | SQLite                                        | 4,500+ nodes             |
 
 ---
@@ -132,7 +132,7 @@ exploit notes and pentest transcripts are stored and returned like any other doc
 
 ### 4. Evals that drive real code
 
-No test in this repository asserts that source text contains a substring. 1,325 tests drive the
+No test in this repository asserts that source text contains a substring. 1,332 tests drive the
 actual runtime:
 
 - **Behavioural** — hooks are invoked and their side effects observed.
@@ -165,7 +165,7 @@ actual runtime:
 
 ```bash
 # Verify the whole system
-bun run test:run                          # 1325 tests
+bun run test:run                          # 1331 tests
 npx tsc --noEmit -p tsconfig.json         # config + plugins
 npx tsc --noEmit -p skills/tsconfig.json  # skills
 
@@ -200,7 +200,7 @@ Every model is then local: embeddings, reranking, and the prompt-queue classifie
 | [Hub Library](.documentation/hub-library.md) | `hubDocs` capture store — layout, frontmatter, actions, integration |
 | [Rules & Skills](.documentation/rules-and-skills.md) | Rule loading, 127 skills, 31 tools |
 | [Efficiency](.documentation/request-token-efficiency.md) | Request and token budgets |
-| [Testing Strategy](.documentation/testing-strategy.md) | 1,325 behavioural tests and what they protect |
+| [Testing Strategy](.documentation/testing-strategy.md) | 1,332 behavioural tests and what they protect |
 
 ---
 
@@ -212,7 +212,7 @@ Every model is then local: embeddings, reranking, and the prompt-queue classifie
 ├── rules/                  23 rules — preloaded or on demand
 ├── tools/                  31 TypeScript tools
 ├── plugins/                hubs · hooks · command-hooks · prompt-queue · todo · toon · ax-guard · env-protection
-├── tests/                  1,325 tests across 26 files
+├── tests/                  1,332 tests across 27 files
 ├── command-hooks.jsonc     global declarative hooks
 ├── .documentation/         14 pages — architecture, plugins, memory, evals
 ├── opencode.jsonc          plugin, MCP, instructions, references

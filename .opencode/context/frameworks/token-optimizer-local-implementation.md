@@ -5,12 +5,28 @@ tags: [opencode, token-optimizer, token-efficiency, quality-scoring, compaction,
 created: 2026-11-08
 updated: 2026-11-08
 sources: [context/research/opencode-v2-api/2026-11-06]
-status: needs-review
+status: active
 ---
 
 # Local Token Optimizer — implementation plan
 
-Status: **submitted for approval**. No implementation work starts until this plan is approved.
+Status: **approved 2026-11-08**. Implementation started; see "Implementation status" below.
+
+## Implementation status
+
+| Area | State |
+| --- | --- |
+| Plugin registration, tools, config | Implemented: `plugins/token-optimizer/`, registered in `opencode.jsonc` |
+| DB adapter + store | Implemented: read-only `opencode.db`, WAL-safe optimizer store |
+| Quality engine | Implemented: MRCR curves, exact fill, six signals, dual composite, warnings |
+| Compaction/checkpoints | Implemented: mode instructions, checkpoint capture/prune, post-compaction reset |
+| Continuity | Implemented: keyword matcher, data fence, resume intent, lean block, restore savings |
+| Pricing/savings | Implemented: static table, exact spend, conservative baseline status, savings ledger. The full upstream cohort/counterfactual mix model remains a parity refinement; the tool never fabricates a positive saving when recent costs are unpriced. |
+| Nudges | Implemented: quality, fresh-session, verbosity, loop detection; toast/inject modes |
+| Optional | Implemented: bash compression (flag), Context Intel digest, live TUI quality bar |
+| Tests | `bun test plugins/token-optimizer` and `tests/plugins/token-optimizer-core.test.ts` pass; full vitest green |
+
+Remaining roll-out: verify in an interactive OpenCode TUI, then enable optional compression if desired.
 
 Target: behavioural parity with `alexgreensh/token-optimizer`'s OpenCode edition
 (`token-optimizer-opencode@1.2.2`), implemented as a local OpenCode 2 plugin in this
