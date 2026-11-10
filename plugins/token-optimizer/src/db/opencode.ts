@@ -82,7 +82,7 @@ function parse(data: unknown): Record<string, any> {
 
 function hasTable(db: Database, name: string): boolean {
   try {
-    return db.query("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?").get(name) !== undefined
+    return db.query("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?").get(name) != null
   } catch {
     return false
   }
@@ -164,14 +164,43 @@ export function listSessions(db: Database, days = 30, projectID?: string): Sessi
   }))
 }
 
+function isV2Session(db: Database, id: string): boolean {
+  try {
+    return db.query("SELECT 1 FROM session_v2 WHERE id = ?").get(id) != null
+  } catch {
+    return false
+  }
+}
+
+function messageTable(db: Database, sessionID: string): string {
+  return isV2Session(db, sessionID) ? "session_message" : "message"
+}
+
+function usageFromTokens(tokens: any, model?: string): Usage | undefined {
+  return {
+    input: Number(tokens.input ?? 0),
+    output: Number(tokens.output ?? 0),
+    reasoning: Number(tokens.reasoning ?? 0),
+    cacheRead: Number(tokens.cache?.read ?? 0),
+    cacheWrite: Number(tokens.cache?.write ?? 0),
+    cost: Number(tokens.cost ?? 0),
+    model,
+    time: undefined,
+  }
+}
+
 export function messageUsage(db: Database, sessionID: string): Usage[] {
-  const rows = db.query(
-    `SELECT data FROM message WHERE session_id = ? ORDER BY time_created ASC LIMIT 20000`,
-  ).all(sessionID) as Array<{ data: string }>
+  const v2 = isV2Session(db, sessionID)
+  const table = messageTable(db, sessionID)
+  const rows = (v2
+    ? db.query(`SELECT data, type FROM ${table} WHERE session_id = ? ORDER BY time_created ASC LIMIT 20000`).all(sessionID)
+    : db.query(`SELECT data FROM ${table} WHERE session_id = ? ORDER BY time_created ASC LIMIT 20000`).all(sessionID)
+  ) as Array<{ data: string; type?: string }>
   const out: Usage[] = []
   for (const row of rows) {
     const m = parse(row.data)
-    if (m.role !== "assistant" || !m.tokens) continue
+    if (v2 ? row.type !== "assistant" : m.role !== "assistant") continue
+    if (!m.tokens) continue
     out.push({
       input: Number(m.tokens.input ?? 0),
       output: Number(m.tokens.output ?? 0),
@@ -179,7 +208,7 @@ export function messageUsage(db: Database, sessionID: string): Usage[] {
       cacheRead: Number(m.tokens.cache?.read ?? 0),
       cacheWrite: Number(m.tokens.cache?.write ?? 0),
       cost: Number(m.cost ?? 0),
-      model: typeof m.modelID === "string" ? m.modelID : undefined,
+      model: typeof m.modelID === "string" ? m.modelID : typeof m.model === "object" && m.model ? String(m.model.id ?? "") : undefined,
       time: Number(m.time?.created ?? 0),
     })
   }
@@ -188,6 +217,19 @@ export function messageUsage(db: Database, sessionID: string): Usage[] {
 
 /** Last N parts joined to message role, ordered oldest → newest. */
 export function sessionParts(db: Database, sessionID: string, limit = 4000): PartEntry[] {
+  let v2 = false
+  try {
+    v2 = db.query("SELECT 1 FROM session_v2 WHERE id = ?").get(sessionID) != null
+  } catch {}
+  try {
+    if (v2) return sessionPartsV2(db, sessionID, limit)
+  } catch {
+    // fall through to V1 path
+  }
+  return sessionPartsV1(db, sessionID, limit)
+}
+
+function sessionPartsV1(db: Database, sessionID: string, limit: number): PartEntry[] {
   const rows = db.query(
     `SELECT p.id, p.data AS part_data, m.data AS message_data, p.time_created
      FROM part p JOIN message m ON m.id = p.message_id
@@ -241,13 +283,109 @@ export function sessionParts(db: Database, sessionID: string, limit = 4000): Par
   return out
 }
 
-export function latestUsage(db: Database, sessionID: string): Usage | null {
+function sessionPartsV2(db: Database, sessionID: string, limit: number): PartEntry[] {
   const rows = db.query(
-    `SELECT data FROM message WHERE session_id = ? ORDER BY time_created DESC LIMIT 50`,
-  ).all(sessionID) as Array<{ data: string }>
+    `SELECT id, type, seq, data FROM session_message WHERE session_id = ? ORDER BY seq ASC LIMIT ?`,
+  ).all(sessionID, Math.max(1, Math.min(limit, 20000))) as Array<{
+    id: string
+    type: string
+    seq: number
+    data: string
+  }>
+  const out: PartEntry[] = []
+  let seq = 0
   for (const row of rows) {
     const m = parse(row.data)
-    if (m.role !== "assistant" || !m.tokens) continue
+    const model = typeof m.model === "object" && m.model ? String(m.model.id ?? "") : undefined
+    if (row.type === "user") {
+      out.push({
+        id: String(row.id),
+        seq: seq++,
+        time: Number(m.time?.created ?? row.seq ?? 0),
+        role: "user",
+        type: "text",
+        text: typeof m.text === "string" ? m.text : "",
+        tool: undefined,
+        input: undefined,
+        output: undefined,
+        status: undefined,
+        error: undefined,
+        model,
+        usage: m.tokens ? usageFromTokens(m.tokens, model) : undefined,
+      })
+    } else if (row.type === "assistant" && Array.isArray(m.content)) {
+      for (const item of m.content) {
+        if (item.type === "text" && typeof item.text === "string") {
+          out.push({
+            id: String(row.id),
+            seq: seq++,
+            time: Number(m.time?.created ?? row.seq ?? 0),
+            role: "assistant",
+            type: "text",
+            text: item.text,
+            tool: undefined,
+            input: undefined,
+            output: undefined,
+            status: undefined,
+            error: undefined,
+            model,
+            usage: undefined,
+          })
+        } else if (item.type === "reasoning" && typeof item.text === "string") {
+          out.push({
+            id: String(row.id),
+            seq: seq++,
+            time: Number(m.time?.created ?? row.seq ?? 0),
+            role: "assistant",
+            type: "reasoning",
+            text: item.text,
+            tool: undefined,
+            input: undefined,
+            output: undefined,
+            status: undefined,
+            error: undefined,
+            model,
+            usage: undefined,
+          })
+        } else if (item.type === "tool") {
+          const state = item.state ?? {}
+          const input = state.input && typeof state.input === "object" ? state.input : undefined
+          const output = typeof state.output === "string" ? state.output :
+            typeof state.metadata?.output === "string" ? state.metadata.output :
+            typeof state.content === "string" ? state.content : ""
+          out.push({
+            id: typeof item.id === "string" ? item.id : String(row.id),
+            seq: seq++,
+            time: Number(m.time?.created ?? row.seq ?? 0),
+            role: "assistant",
+            type: "tool",
+            text: "",
+            tool: typeof item.name === "string" ? item.name : undefined,
+            input,
+            output,
+            status: typeof state.status === "string" ? state.status : undefined,
+            error: typeof state.error === "string" ? state.error : undefined,
+            model,
+            usage: undefined,
+          })
+        }
+      }
+    }
+  }
+  return out
+}
+
+export function latestUsage(db: Database, sessionID: string): Usage | null {
+  const v2 = isV2Session(db, sessionID)
+  const table = messageTable(db, sessionID)
+  const rows = (v2
+    ? db.query(`SELECT data, type FROM ${table} WHERE session_id = ? ORDER BY time_created DESC LIMIT 50`).all(sessionID)
+    : db.query(`SELECT data FROM ${table} WHERE session_id = ? ORDER BY time_created DESC LIMIT 50`).all(sessionID)
+  ) as Array<{ data: string; type?: string }>
+  for (const row of rows) {
+    const m = parse(row.data)
+    if (v2 ? row.type !== "assistant" : m.role !== "assistant") continue
+    if (!m.tokens) continue
     return {
       input: Number(m.tokens.input ?? 0),
       output: Number(m.tokens.output ?? 0),
@@ -255,7 +393,7 @@ export function latestUsage(db: Database, sessionID: string): Usage | null {
       cacheRead: Number(m.tokens.cache?.read ?? 0),
       cacheWrite: Number(m.tokens.cache?.write ?? 0),
       cost: Number(m.cost ?? 0),
-      model: typeof m.modelID === "string" ? m.modelID : undefined,
+      model: typeof m.modelID === "string" ? m.modelID : typeof m.model === "object" && m.model ? String(m.model.id ?? "") : undefined,
       time: Number(m.time?.created ?? 0),
     }
   }
