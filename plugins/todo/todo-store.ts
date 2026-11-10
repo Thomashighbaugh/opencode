@@ -106,17 +106,27 @@ export function deleteTodo(directory: string, id: string): boolean {
   return true
 }
 
-/** Remove from the active list and append to the completed archive. */
+/**
+ * Move an item out of the open list and append it to the archive.
+ *
+ * Append FIRST, remove second. The original order removed the item and then
+ * appended; when the append failed, the item was gone from the list and never
+ * reached the archive — silent data loss. With this order a failed append
+ * throws while the item is still open, so the caller can report it and nothing
+ * is lost. A failed write back after a successful append leaves a duplicate
+ * (open and archived), which is visible and fixable; losing the item is not.
+ */
 export function completeTodo(directory: string, id: string): ArchiveEntry | null {
   const store = readTodos(directory)
   const idx = store.items.findIndex((i) => i.id === id)
   if (idx === -1) return null
-  const [item] = store.items.splice(idx, 1)
-  writeTodos(directory, store)
+  const item = store.items[idx]
   const entry: ArchiveEntry = { ...item, completedAt: new Date().toISOString() }
   const file = archiveFile(directory)
   fs.mkdirSync(path.dirname(file), { recursive: true })
   fs.appendFileSync(file, JSON.stringify(entry) + '\n')
+  store.items.splice(idx, 1)
+  writeTodos(directory, store)
   return entry
 }
 

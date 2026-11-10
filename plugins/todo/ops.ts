@@ -29,10 +29,20 @@ export function add(directory: string, text: string): TodoResult {
   return { ok: true, message: `Added ${item.id}: ${item.text}` }
 }
 
-export function complete(directory: string, id: string): TodoResult {
-  const entry = completeTodo(directory, id)
-  if (!entry) return { ok: false, message: `No open item with id ${id}` }
-  return { ok: true, message: `Completed ${entry.id}: ${entry.text}` }
+export function archiveItem(directory: string, id: string): TodoResult {
+  try {
+    const entry = completeTodo(directory, id)
+    if (!entry) return { ok: false, message: `No open item with id ${id}` }
+    return { ok: true, message: `Archived ${entry.id}: ${entry.text}` }
+  } catch (error) {
+    // The store appends before it removes, so a failure here means the item is
+    // still open. Say so instead of letting the exception vanish into a toast
+    // that never renders.
+    return {
+      ok: false,
+      message: `Could not archive ${id} — the item is still on the list (${error instanceof Error ? error.message : String(error)})`,
+    }
+  }
 }
 
 export function remove(directory: string, id: string): TodoResult {
