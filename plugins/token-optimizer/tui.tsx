@@ -11,7 +11,7 @@ export default {
     const [line, setLine] = createSignal("Token Optimizer · —")
 
     ctx.ui.slot({
-      append: "sidebar.content",
+      prepend: "sidebar.content",
       render: (input: any) => {
         const sessionID = () => String(input?.sessionID ?? input?.session_id ?? ctx.ui.router.current()?.sessionID ?? "")
         const refresh = () => {

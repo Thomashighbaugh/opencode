@@ -3,15 +3,9 @@
   "default_agent": "hubs",
   "formatter": true,
   "lsp": true,
-  // V1 shape on purpose. V2 reads this key and migrates it to the native
-  // `permissions[]` ruleset (the V2 normalizer accepts both); writing the
-  // V2-only array here made OpenCode V1 refuse to start with
-  // "V2 permissions are not supported by OpenCode V1".
-  "permission": {
-    "edit": {
-      ".opencode/**": "allow"
-    }
-  },
+  "permissions": [
+    { "action": "edit", "resource": ".opencode/**", "effect": "allow" }
+  ],
   "mcp": {},
   "instructions": ["AGENTS.md"]
 }

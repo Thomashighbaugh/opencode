@@ -9,7 +9,7 @@ export default {
     const service = new MemoryService(directory)
     const [line, setLine] = createSignal("Memory · —")
     ctx.ui.slot({
-      append: "sidebar.content",
+      prepend: "sidebar.content",
       render: (input: any) => {
         const refresh = () => {
           try {
