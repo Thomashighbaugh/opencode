@@ -14,8 +14,7 @@
   "dependencies": {
     "@huggingface/transformers": "^4.3.2",
     "@modelcontextprotocol/sdk": "^1.32.2",
-    "@opencode-ai/plugin": "1.18.35",
-    "@opencode-ai/sdk": "^1.19.5",
+    "@opencode/plugin": "^2.1.0",
     "@opentui/react": "^0.5.17",
     "@opentui/solid": "^0.5.17",
     "better-sqlite3": "^13.0.3",
@@ -27,7 +26,6 @@
     "jsonpath-plus": "^10.4.0",
     "jszip": "^3.10.2",
     "mammoth": "^1.13.0",
-    "opencode-ai": "^1.19.5",
     "sqlite-vec": "^0.1.9",
     "turndown": "^7.2.4",
     "turndown-plugin-gfm": "^1.0.2",

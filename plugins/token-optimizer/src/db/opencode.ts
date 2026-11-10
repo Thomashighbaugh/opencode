@@ -80,14 +80,7 @@ function parse(data: unknown): Record<string, any> {
   }
 }
 
-export function sessionRow(db: Database, id: string): SessionRow | null {
-  const row = db.query(
-    `SELECT id, project_id, directory, title, agent, model, cost,
-            tokens_input, tokens_output, tokens_reasoning,
-            tokens_cache_read, tokens_cache_write, time_created, time_updated
-     FROM session_v2 WHERE id = ?`,
-  ).get(id) as any
-  if (!row) return null
+function mapSessionRow(row: any): SessionRow {
   return {
     id: String(row.id),
     projectID: String(row.project_id),
@@ -104,6 +97,22 @@ export function sessionRow(db: Database, id: string): SessionRow | null {
     createdAt: Number(row.time_created ?? 0),
     updatedAt: Number(row.time_updated ?? 0),
   }
+}
+
+const SESSION_COLUMNS = `id, project_id, directory, title, agent, model, cost,
+            tokens_input, tokens_output, tokens_reasoning,
+            tokens_cache_read, tokens_cache_write, time_created, time_updated`
+
+export function sessionRow(db: Database, id: string): SessionRow | null {
+  // V2 first, then V1. Sessions created by OpenCode 1 never receive a
+  // `session_v2` row — 59 of the 579 sessions in this database are exactly
+  // that — and the sidebar used to score them from a row that did not exist.
+  for (const table of ["session_v2", "session"] as const) {
+    if (!hasTable(db, table)) continue
+    const row = db.query(`SELECT ${SESSION_COLUMNS} FROM ${table} WHERE id = ?`).get(id) as any
+    if (row) return mapSessionRow(row)
+  }
+  return null
 }
 
 export function listSessions(db: Database, days = 30, projectID?: string): SessionRow[] {

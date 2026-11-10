@@ -2,24 +2,9 @@
   "version": 1,
   "items": [
     {
-      "id": "mvfs8fqs-hng7f",
-      "text": "clean up reference section of opencode.jsonc replacing it with internal references to the context wiki",
-      "createdAt": "2026-10-19T21:44:38.068Z"
-    },
-    {
       "id": "mw5jx98m-d1laa",
       "text": "implement decisions model (hopefully onnxruntime and local) to ease the use of larger models in cases mechanical tools are too complex or fickle",
       "createdAt": "2026-11-06T22:34:00.070Z"
-    },
-    {
-      "id": "mw9scdsj-z5ugy",
-      "text": "the /goal plugin must allow (through a user select intake questionaire) to set the goal as session goal (overall goal with no turn limits or budgets) or a task specific goal (which then allows the setting of turns and token budgets)",
-      "createdAt": "2026-11-09T21:40:47.444Z"
-    },
-    {
-      "id": "mwackvjq-dvzx8",
-      "text": "pressing enter with the todo plugin makes the item vanish and a popup that says its working on it its nowhere to be found and todo items are to stay in the list until it is archived by the user",
-      "createdAt": "2026-11-10T07:07:16.022Z"
     }
   ]
 }
