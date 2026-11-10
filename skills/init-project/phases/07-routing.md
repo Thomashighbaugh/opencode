@@ -112,29 +112,30 @@ validate_skills() {
 
 ### Step 3: Validate Tool Auto-Discovery
 
-Project tools in `.opencode/tools/*.ts` must export a default tool and be syntactically valid TypeScript.
+Project tools are plugin directories under `.opencode/plugins/<name>/index.ts`. OpenCode 2 auto-discovers those directories; a file under `.opencode/tools/` is inert. A tool plugin must export `{ id, setup }` and register through `ctx.tool.transform` + `editor.add`.
 
 ```bash
 validate_tools() {
-    local tools_dir=".opencode/tools"
+    local tools_dir=".opencode/plugins"
     local errors=0
 
     if [ ! -d "$tools_dir" ]; then
-        echo "  ℹ  No project tools directory — skipping"
+        echo "  ℹ  No project plugins directory — skipping"
         return 0
     fi
 
-    for tool_file in "$tools_dir"/*.ts; do
+    for tool_file in "$tools_dir"/*/index.ts; do
         [ -f "$tool_file" ] || continue
-        local tool_name=$(basename "$tool_file" .ts)
+        local tool_name=$(basename "$(dirname "$tool_file")")
 
         if ! grep -q 'export default' "$tool_file" 2>/dev/null; then
             echo "  ✗  tool $tool_name — missing default export"
             ((errors++))
-        elif ! grep -q 'tool(' "$tool_file" 2>/dev/null; then
-            echo "  ⚠  tool $tool_name — may not use tool() wrapper"
+        elif ! grep -q 'ctx.tool.transform' "$tool_file" 2>/dev/null || ! grep -q 'editor.add(' "$tool_file" 2>/dev/null; then
+            echo "  ✗  tool $tool_name — does not register a tool (needs ctx.tool.transform + editor.add)"
+            ((errors++))
         else
-            echo "  ✓  tool $tool_name — valid export"
+            echo "  ✓  tool $tool_name — valid tool plugin"
         fi
     done
 
@@ -305,7 +306,7 @@ generate_integration_report() {
 |------|-------|--------|
 | Agents | $(ls .opencode/agents/*.md 2>/dev/null | wc -l) | Validated |
 | Skills | $(ls .opencode/skills/*/SKILL.md 2>/dev/null | wc -l) | Validated |
-| Tools | $(ls .opencode/tools/*.ts 2>/dev/null | wc -l) | Validated |
+| Tools | $(ls -d .opencode/plugins/*/ 2>/dev/null | wc -l) | Validated |
 | Rules | $(ls .opencode/rules/*.md 2>/dev/null | wc -l) | Validated |
 | Context | $(find .opencode/context -name '*.md' 2>/dev/null | wc -l) | Validated |
 

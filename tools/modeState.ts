@@ -1,7 +1,8 @@
-import { tool } from "@opencode-ai/plugin"
+import { z } from "zod/v4"
 import * as fs from "fs"
 import * as path from "path"
 import { withToolCache, invalidateToolCache } from "./cache-utils"
+import type { ToolDefinition } from "./types"
 
 interface ModeState {
   active: boolean
@@ -55,31 +56,34 @@ const VALID_MODE_ACTIONS = ['start', 'stop', 'status', 'update', 'list-active', 
 const READ_ONLY_ACTIONS = new Set(['status', 'list-active', 'progress'])
 const MUTATION_ACTIONS = new Set(['start', 'stop', 'update'])
 
-export default tool({
+const input = z.object({
+  action: z.string().describe(`Action to perform on mode state. Valid: ${VALID_MODE_ACTIONS.join(", ")}`),
+  mode: z.string().optional().describe("Mode name (ralph, autopilot, ultrawork, team, ultraqa, ralplan)"),
+  prompt: z.string().optional().describe("Task prompt for start action"),
+  phase: z.string().optional().describe("Current phase for update action"),
+  iteration: z.number().optional().describe("Current iteration for update action"),
+  data: z.any().optional().describe("Additional state data for update action"),
+})
+
+export default {
+  name: "modeState",
   description: "Manage execution modes: start, stop, update, or check status of ralph, autopilot, ultrawork, team, ultraqa modes",
-  args: {
-    action: tool.schema.string().describe(`Action to perform on mode state. Valid: ${VALID_MODE_ACTIONS.join(', ')}`),
-    mode: tool.schema.string().optional().describe("Mode name (ralph, autopilot, ultrawork, team, ultraqa, ralplan)"),
-    prompt: tool.schema.string().optional().describe("Task prompt for start action"),
-    phase: tool.schema.string().optional().describe("Current phase for update action"),
-    iteration: tool.schema.number().optional().describe("Current iteration for update action"),
-    data: tool.schema.any().optional().describe("Additional state data for update action")
-  },
+  input,
   async execute(args, context) {
     const projectRoot = context.directory || process.cwd()
     const sessionId = context.sessionID
-    
+
     if (READ_ONLY_ACTIONS.has(args.action)) {
-      return withToolCache("modeState", args, () => executeModeState(args, projectRoot, sessionId), 300_000)
+      return { content: withToolCache("modeState", args, () => executeModeState(args, projectRoot, sessionId), 300_000) }
     }
-    
+
     if (MUTATION_ACTIONS.has(args.action)) {
       invalidateToolCache("modeState")
     }
-    
-    return executeModeState(args, projectRoot, sessionId)
-  }
-})
+
+    return { content: executeModeState(args, projectRoot, sessionId) }
+  },
+} satisfies ToolDefinition<z.infer<typeof input>>
 
 function executeModeState(args: any, projectRoot: string, sessionId: string | undefined): string {
     switch (args.action) {

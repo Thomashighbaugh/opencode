@@ -21,6 +21,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import * as fs from 'node:fs'
 import * as os from 'node:os'
 import * as path from 'node:path'
+import { callTool as invokeTool } from '../helpers/call-tool'
 
 const CONFIG_DIR = path.resolve(__dirname, '..', '..')
 const SEMANTIC_MOD = path.join(CONFIG_DIR, 'tools', 'semantic-cache.ts')
@@ -58,8 +59,7 @@ function indexPath(projectRoot: string) {
 }
 
 async function callTool(args: Record<string, unknown>, projectRoot = tmp): Promise<any> {
-  const handler = sc.default?.execute ?? sc.execute
-  return JSON.parse(await handler(args, { directory: projectRoot }))
+  return invokeTool(sc, args, { directory: projectRoot })
 }
 
 describe('semantic-cache: vector helpers', () => {
@@ -302,7 +302,8 @@ describe('semantic-cache: wiring', () => {
 
   it('the tool description does not advertise a daemon that is no longer used', () => {
     const src = fs.readFileSync(SEMANTIC_MOD, 'utf-8')
-    expect(src).not.toMatch(/description:.*Ollama/)
-    expect(src).toMatch(/description:.*ONNX/)
+    // The description sits on its own line, so the match has to cross newlines.
+    expect(src).not.toMatch(/description:[\s\S]{0,200}Ollama/)
+    expect(src).toMatch(/description:[\s\S]{0,200}ONNX/)
   })
 })

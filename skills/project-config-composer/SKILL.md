@@ -155,18 +155,20 @@ description: Auto-generated conventions for [framework] project
 
 ### 3. Tools (from templates/tools)
 
-When the recommendations include `tools[]`, the composer generates TypeScript tool files from the local template catalog at `~/.config/opencode/templates/tools/`:
+When the recommendations include `tools[]`, the composer generates **tool plugins** from the local template catalog at `~/.config/opencode/templates/tools/`:
 
 ```bash
 TOOL_TEMPLATES_DIR="$HOME/.config/opencode/templates/tools"
-PROJECT_TOOLS_DIR="$PROJECT_DIR/.opencode/tools"
+PROJECT_TOOLS_DIR="$PROJECT_DIR/.opencode/plugins"
 ```
 
 For each recommended tool, the composer:
 1. Reads the template file from `$TOOL_TEMPLATES_DIR/{category}/{name}.ts`
 2. Replaces `{{PLACEHOLDERS}}` with values from the stack fingerprint (e.g., `{{PROJECT_NAME}}`, `{{LANGUAGE}}`, `{{FRAMEWORK}}`)
-3. Writes the result to `$PROJECT_TOOLS_DIR/{name}.ts`
-4. Registers the tool in `opencode.jsonc` under the `tools` array
+3. Writes the result to `$PROJECT_TOOLS_DIR/{name}/index.ts`
+4. Registers nothing — OpenCode 2 auto-discovers every directory under `.opencode/plugins/`
+
+> OpenCode 2 removed file-based tool discovery. A file under `.opencode/tools/` is inert: a tool exists only when a plugin registers it through `ctx.tool.transform(editor => editor.add(...))`. Each generated tool is therefore its own plugin directory with an `index.ts`.
 
 **Template placeholders:**
 
@@ -184,17 +186,33 @@ For each recommended tool, the composer:
 **Example output** (from `templates/tools/typescript/type-check.ts`):
 
 ```typescript
+// .opencode/plugins/type-check/index.ts
 // Auto-generated from tool-template: typescript/type-check.ts
 // Project: my-app (TypeScript, Next.js)
 
-import { execSync } from 'child_process'
+import { execFile } from "node:child_process"
+import { promisify } from "node:util"
+
+const exec = promisify(execFile)
 
 export default {
-  name: 'type-check',
-  description: 'Run TypeScript type checking for my-app',
-  handler: () => {
-    execSync('npx tsc --noEmit', { stdio: 'inherit' })
-  }
+  id: "type-check",
+  setup(ctx: any) {
+    const directory: string = ctx?.location?.directory ?? process.cwd()
+
+    ctx.tool.transform((editor: any) => {
+      editor.add({
+        name: "type-check",
+        description: "Run TypeScript type checking for my-app",
+        input: { type: "object", properties: {} },
+        options: { codemode: false },
+        execute: async () => {
+          await exec("npx", ["tsc", "--noEmit"], { cwd: directory })
+          return { content: "Type check passed" }
+        },
+      })
+    })
+  },
 }
 ```
 
@@ -296,7 +314,7 @@ Check for `--minimal` flag: when present, generate only `opencode.jsonc` (valid 
 ```bash
 PROJECT_DIR="."  # or specified path
 mkdir -p "$PROJECT_DIR/.opencode/rules"
-mkdir -p "$PROJECT_DIR/.opencode/tools"
+mkdir -p "$PROJECT_DIR/.opencode/plugins"
 mkdir -p "$PROJECT_DIR/.opencode/skills"
 mkdir -p "$PROJECT_DIR/.opencode/agents"
 mkdir -p "$PROJECT_DIR/.opencode/instructions"
@@ -340,8 +358,8 @@ If the recommendations include `tools[]`:
 
 1. For each recommended tool, check if a matching template exists at `~/.config/opencode/templates/tools/{category}/{name}.ts`
 2. Read the template, replace `{{PLACEHOLDERS}}` with fingerprint values
-3. Write the result to `$PROJECT_DIR/.opencode/tools/{name}.ts`
-4. Add a `tools` entry to `opencode.jsonc` referencing the generated file
+3. Write the result to `$PROJECT_DIR/.opencode/plugins/{name}/index.ts`
+4. Register nothing — OpenCode 2 auto-discovers every directory under `.opencode/plugins/`
 
 If a tool template doesn't exist locally, suggest running `/resource-hub find tools` to search registries.
 
@@ -369,10 +387,10 @@ For each identified gap, create a minimal agent that fills the missing capabilit
 - `.opencode/opencode.jsonc` — Project config (valid keys only)
 - `.opencode/rules/project-conventions.md` — Stack-specific conventions
 - `.opencode/rules/project-testing.md` — Testing guidelines
-- `.opencode/tools/{n}.ts` — N project-specific TypeScript tools (from templates/tools)
+- `.opencode/plugins/{n}/index.ts` — N project-specific tool plugins (from templates/tools)
 - `.opencode/rules/{category}-{name}.md` — M fine-grained convention rules (from templates/rules)
 - `.opencode/skills/` — Project-specific skills only (global skills referenced, not copied)
-- `.opencode/tools/` — Synthesized tools (only on a genuine gap)
+- `.opencode/plugins/{name}/` — Synthesized tool plugins (only on a genuine gap)
 
 ### Recommendations Applied
 - ✅ Skills/agents/rules referenced (global resources, never duplicated)

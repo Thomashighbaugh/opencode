@@ -1,7 +1,8 @@
-import { tool } from "@opencode-ai/plugin"
-import { loadAllHubs, getDelegation } from "./hub-data"
+import { z } from "zod/v4"
+import { loadAllHubs, getDelegation } from "../plugins/hubs/data/hub-data"
 import * as fs from "fs"
 import { withToolCache } from "./cache-utils"
+import type { ToolDefinition } from "./types"
 
 function generateRoutingDocs(): string {
   const lines: string[] = [
@@ -11,14 +12,14 @@ function generateRoutingDocs(): string {
     "> Run `npx tsx tools/gen-routing-docs.ts` to regenerate.",
     "",
     "| Hub | Subcommand | Delegation | Target |",
-    "|-----|-----------|------------|--------|"
+    "|-----|-----------|------------|--------|",
   ]
 
   const hubs = loadAllHubs()
   for (const hub of hubs) {
     for (const sub of hub.subcommands) {
       const { type, target } = getDelegation(sub)
-      const targetStr = target || (type === 'inline' ? '—' : '—')
+      const targetStr = target || (type === "inline" ? "—" : "—")
       lines.push(`| ${hub.name} | ${sub.label} | ${type} | ${targetStr} |`)
     }
   }
@@ -27,23 +28,32 @@ function generateRoutingDocs(): string {
   return lines.join("\n")
 }
 
-export default tool({
-  description: "Generate hub routing documentation from canonical hubMenu.ts data",
-  args: {
-    output: tool.schema.string().optional().describe("Output file path (defaults to stdout)")
-  },
-  async execute(args) {
-    return withToolCache("gen-routing-docs", args, () => {
-    const markdown = generateRoutingDocs()
-
-    if (args.output) {
-      fs.writeFileSync(args.output, markdown, "utf-8")
-      return JSON.stringify({ generated: true, outputPath: args.output, size: markdown.length })
-    }
-
-    // Output to stdout
-    console.log(markdown)
-    return JSON.stringify({ generated: true, outputPath: "stdout", size: markdown.length })
-    }, 3_600_000) // 1h TTL
-  }
+const input = z.object({
+  output: z.string().optional().describe("Output file path (defaults to stdout)"),
 })
+
+export default {
+  name: "gen-routing-docs",
+  description: "Generate hub routing documentation from canonical hubMenu.ts data",
+  input,
+  async execute(args) {
+    const content = withToolCache(
+      "gen-routing-docs",
+      args,
+      () => {
+        const markdown = generateRoutingDocs()
+
+        if (args.output) {
+          fs.writeFileSync(args.output, markdown, "utf-8")
+          return JSON.stringify({ generated: true, outputPath: args.output, size: markdown.length })
+        }
+
+        // Output to stdout
+        console.log(markdown)
+        return JSON.stringify({ generated: true, outputPath: "stdout", size: markdown.length })
+      },
+      3_600_000, // 1h TTL
+    )
+    return { content }
+  },
+} satisfies ToolDefinition<z.infer<typeof input>>

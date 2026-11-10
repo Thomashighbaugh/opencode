@@ -1,8 +1,9 @@
-import { tool } from "@opencode-ai/plugin"
+import { z } from "zod/v4"
 import * as fs from "fs"
 import * as path from "path"
 import { homedir } from "os"
 import { withToolCache, invalidateToolCache } from "./cache-utils"
+import type { ToolDefinition } from "./types"
 
 const USER_CONFIG_DIR = process.env.OPENCODE_CONFIG_DIR || path.join(homedir(), '.config', 'opencode')
 
@@ -138,25 +139,32 @@ function executeAgentContext(args: any, projectRoot: string, paths: ReturnType<t
   }
 }
 
-export default tool({
-  description: "Get or update agent context including project memory, notepad, active modes, and Hubs state directories",
-  args: {
-    action: tool.schema.string().describe(`Action to perform on the context. Valid: ${VALID_CTX_ACTIONS.join(', ')}`),
-    data: tool.schema.any().optional().describe("Data for update operations (memory object, notepad content, or mode name for clear-mode)"),
-    mode: tool.schema.string().optional().describe("Mode name for get-state or clear-mode actions")
-  },
+const input = z.object({
+  action: z.string().describe(`Action to perform on the context. Valid: ${VALID_CTX_ACTIONS.join(", ")}`),
+  data: z
+    .any()
+    .optional()
+    .describe("Data for update operations (memory object, notepad content, or mode name for clear-mode)"),
+  mode: z.string().optional().describe("Mode name for get-state or clear-mode actions"),
+})
+
+export default {
+  name: "agentContext",
+  description:
+    "Get or update agent context including project memory, notepad, active modes, and Hubs state directories",
+  input,
   async execute(args, context) {
     const projectRoot = context.directory || process.cwd()
     const paths = getContextPaths(projectRoot)
-    
+
     if (READ_ONLY_ACTIONS.has(args.action)) {
-      return withToolCache("agentContext", args, () => executeAgentContext(args, projectRoot, paths), 300_000)
+      return { content: withToolCache("agentContext", args, () => executeAgentContext(args, projectRoot, paths), 300_000) }
     }
-    
+
     if (MUTATION_ACTIONS.has(args.action)) {
       invalidateToolCache("agentContext")
     }
-    
-    return executeAgentContext(args, projectRoot, paths)
-  }
-})
+
+    return { content: executeAgentContext(args, projectRoot, paths) }
+  },
+} satisfies ToolDefinition<z.infer<typeof input>>

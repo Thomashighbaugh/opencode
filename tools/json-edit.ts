@@ -1,7 +1,8 @@
-import { tool } from "@opencode-ai/plugin"
+import { z } from "zod/v4"
 import * as fs from "fs"
 import * as path from "path"
 import { JSONPath } from "jsonpath-plus"
+import type { ToolDefinition } from "./types"
 
 const VALID_ACTIONS = [
   "get", "set", "delete", "merge",
@@ -16,19 +17,22 @@ interface JsonPathMatch {
   fullPath: string
 }
 
-export default tool({
+const input = z.object({
+  file: z.string().describe("Path to JSON file"),
+  action: z.string().describe(`Operation. Valid: ${VALID_ACTIONS.join(", ")}`),
+  path: z.string().describe("JSONPath expression, e.g. '$.config.port', '$.users[0].name', '$.store.book[*].author'"),
+  value: z.any().optional().describe("Value for set / merge / arrayAppend / arrayInsert"),
+  index: z.number().optional().describe("Array index (for arrayRemove by index, arrayInsert)"),
+  removeValue: z.any().optional().describe("Value to remove from array (for arrayRemove by value)"),
+  indentSize: z.number().optional().describe("JSON indent size (default: 2)"),
+  trailingNewline: z.boolean().optional().describe("Ensure file ends with newline (default: true)"),
+  dryRun: z.boolean().optional().describe("Preview changes without applying (default: false)"),
+})
+
+export default {
+  name: "json-edit",
   description: "Edit JSON/JSONC files using JSON Path — get, set, delete, merge, array operations. No jq or inline scripts.",
-  args: {
-    file: tool.schema.string().describe("Path to JSON file"),
-    action: tool.schema.string().describe(`Operation. Valid: ${VALID_ACTIONS.join(", ")}`),
-    path: tool.schema.string().describe("JSONPath expression, e.g. '$.config.port', '$.users[0].name', '$.store.book[*].author'"),
-    value: tool.schema.any().optional().describe("Value for set / merge / arrayAppend / arrayInsert"),
-    index: tool.schema.number().optional().describe("Array index (for arrayRemove by index, arrayInsert)"),
-    removeValue: tool.schema.any().optional().describe("Value to remove from array (for arrayRemove by value)"),
-    indentSize: tool.schema.number().optional().describe("JSON indent size (default: 2)"),
-    trailingNewline: tool.schema.boolean().optional().describe("Ensure file ends with newline (default: true)"),
-    dryRun: tool.schema.boolean().optional().describe("Preview changes without applying (default: false)")
-  },
+  input,
   async execute(args) {
     const { file, action, path: jsonPath, value, index, removeValue, dryRun } = args
     const indent = args.indentSize ?? 2
@@ -214,8 +218,8 @@ export default tool({
     } catch (e: any) {
       return err(`Cannot write file: ${e.message}`)
     }
-  }
-})
+  },
+} satisfies ToolDefinition<z.infer<typeof input>>
 
 // ── Helpers ──────────────────────────────────────────────────────────────
 
@@ -237,9 +241,9 @@ function buildDiff(before: string, after: string): string {
 }
 
 function ok(data: Record<string, unknown>) {
-  return JSON.stringify({ success: true, ...data })
+  return { content: JSON.stringify({ success: true, ...data }) }
 }
 
 function err(msg: string) {
-  return JSON.stringify({ success: false, error: msg })
+  return { content: JSON.stringify({ success: false, error: msg }) }
 }

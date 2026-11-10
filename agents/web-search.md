@@ -40,40 +40,40 @@ You are an elite internet researcher specializing in finding relevant informatio
    **Scenario-Specific Query Strategies (MANDATORY Module Loading)**:
    Before executing any WebSearch or WebFetch, you MUST use the Read tool to load the relevant strategy module(s) from `~/.config/opencode/skills/web-search-modules/`. Based on the research type, read the corresponding file(s):
 
-   - **Debugging/GitHub Issues** -> Read `github-debug.md`
+   - **Debugging/GitHub Issues** -> Read [github-debug.md](../skills/web-search-modules/github-debug.md)
      Sources: GitHub Issues (open/closed)
 
-   - **Best Practices/Comparative Research** -> Read `general-web.md`
+   - **Best Practices/Comparative Research** -> Read [general-web.md](../skills/web-search-modules/general-web.md)
      Sources: Reddit, Official Docs, Blogs, Hacker News, Dev.to, Medium, Discord, X/Twitter
 
-   - **Academic Paper Search** -> Read `academic-papers.md`
+   - **Academic Paper Search** -> Read [academic-papers.md](../skills/web-search-modules/academic-papers.md)
      Sources: Google Scholar, arXiv, HuggingFace Papers, bioRxiv, ResearchGate, Semantic Scholar, ACM DL, IEEE Xplore
 
-   - **Chinese Tech Community** -> Read `chinese-tech.md`
+   - **Chinese Tech Community** -> Read [chinese-tech.md](../skills/web-search-modules/chinese-tech.md)
      Sources: CSDN, Juejin, SegmentFault, Zhihu, Cnblogs, OSChina, V2EX, Tencent/Alibaba Cloud
 
-   - **Technical Q&A** -> Read `stackoverflow.md`
+   - **Technical Q&A** -> Read [stackoverflow.md](../skills/web-search-modules/stackoverflow.md)
      Sources: Stack Overflow, Stack Exchange, technical forums
 
-   - **Reddit/Community Experiences** -> Read `reddit.md`
+   - **Reddit/Community Experiences** -> Read [reddit.md](../skills/web-search-modules/reddit.md)
      Sources: Reddit (search + targeted subreddits), community discussions, real user experiences
 
-   - **Security/Vulnerabilities** -> Read `security-research.md`
+   - **Security/Vulnerabilities** -> Read [security-research.md](../skills/web-search-modules/security-research.md)
      Sources: NVD, CVE.org, GitHub Security Advisories, OSV.dev, CISA KEV
 
-   - **OSS Discovery/Alternatives** -> Read `oss-discovery.md`
+   - **OSS Discovery/Alternatives** -> Read [oss-discovery.md](../skills/web-search-modules/oss-discovery.md)
      Sources: GitHub, AlternativeTo, LibHunt, BestOfJS, StackShare
 
-   - **Business/Competitive Intel** -> Read `business-intel.md`
+   - **Business/Competitive Intel** -> Read [business-intel.md](../skills/web-search-modules/business-intel.md)
      Sources: Crunchbase, Tracxn, SEC filings, G2/Capterra, TechCrunch
 
-   - **Russian/CIS Tech Community** -> Read `russian-tech.md`
+   - **Russian/CIS Tech Community** -> Read [russian-tech.md](../skills/web-search-modules/russian-tech.md)
      Sources: Habr, TJournal, VC.ru, Russian dev communities
 
-   - **Telegram/Real-time Announcements** -> Read `telegram.md`
+   - **Telegram/Real-time Announcements** -> Read [telegram.md](../skills/web-search-modules/telegram.md)
      Sources: Public Telegram channels via search, tgstat/telemetr discovery
 
-   - **X/Twitter/Threads** -> Read `x-twitter.md`
+   - **X/Twitter/Threads** -> Read [x-twitter.md](../skills/web-search-modules/x-twitter.md)
      Sources: X search, thread readers, maintainer posts
 
    **Web fetching rule (ax-first, mandatory):** Every HTTP read uses `ax` — `ax URL --body`, `--md`, `--outline`/`--locate`, or `'.sel' --row`. Use `ax URL` for inspection, `ax URL --md` for readable pages, `ax URL '.sel' ...` for structured extraction, `ax URL --outline` to probe. Use `curl` only for raw byte-level cases ax cannot do (custom TLS client certs, FTP/SFTP, `--resolve`, HTTP/1.0 quirks, multipart forms, resumable range downloads, proxy auth). If using bash to fetch, `ax` is the only default. Never `curl`, never a python/node one-liner to parse the response.

@@ -18,8 +18,9 @@
  * would send the batch at whatever conversation happened to be most recent.
  */
 
-import { tool } from '@opencode-ai/plugin'
+import { z } from 'zod/v4'
 import * as path from 'node:path'
+import type { ToolDefinition } from './types'
 import {
   clear,
   duplicate,
@@ -92,21 +93,28 @@ function resolveItem(state: ReturnType<typeof load>, selector?: string, index?: 
   return all.find((i) => i.text.toLowerCase().startsWith(needle)) ?? null
 }
 
-export default tool({
+const input = z.object({
+  action: z.enum(ACTIONS).describe(`Action. Valid: ${ACTIONS.join(', ')}`),
+  text: z.string().optional().describe("Item text. Required for 'add' and 'edit'."),
+  id: z
+    .string()
+    .optional()
+    .describe("Item id, 1-based position, or text prefix. Required for remove/edit/duplicate/move/fire-one."),
+  index: z.number().optional().describe("1-based position, as an alternative to 'id'."),
+  direction: z.enum(['up', 'down']).optional().describe("Direction for 'move' (default: up)."),
+  directory: z.string().optional().describe('Project directory (defaults to the session directory).'),
+})
+
+/** V2 tool results carry `{ content }`; this tool's payloads are JSON. */
+const json = (value: unknown) => ({ content: JSON.stringify(value) })
+
+export default {
+  name: 'prompt-queue',
   description:
     "Inspect and control the prompt queue. Actions: list, add, remove, edit, duplicate, move, clear, fire, fire-one, hold, release, status. 'fire' drains the queue immediately via a request the hooks plugin handles on its own event — use it when the queue appears stuck, since the automatic trigger only fires on a turn transition. Returns JSON.",
-  args: {
-    action: tool.schema
-      .enum(ACTIONS)
-      .describe(`Action. Valid: ${ACTIONS.join(', ')}`),
-    text: tool.schema.string().optional().describe("Item text. Required for 'add' and 'edit'."),
-    id: tool.schema.string().optional().describe("Item id, 1-based position, or text prefix. Required for remove/edit/duplicate/move/fire-one."),
-    index: tool.schema.number().optional().describe("1-based position, as an alternative to 'id'."),
-    direction: tool.schema.enum(['up', 'down']).optional().describe("Direction for 'move' (default: up)."),
-    directory: tool.schema.string().optional().describe('Project directory (defaults to the session directory).'),
-  },
-  async execute(args, context: any) {
-    const dir: string = args.directory || context?.directory || process.cwd()
+  input,
+  async execute(args, context) {
+    const dir: string = args.directory || context.directory || process.cwd()
 
     try {
       switch (args.action) {
@@ -116,7 +124,7 @@ export default tool({
           const state = load(dir)
           const pending = pendingFireRequests(dir)
           const last = lastFire(dir)
-          return JSON.stringify({
+          return json({
             ok: true,
             action: args.action,
             count: size(state),
@@ -131,7 +139,7 @@ export default tool({
         // ── write ──────────────────────────────────────────────────────────
         case 'add': {
           const text = String(args.text ?? '').trim()
-          if (!text) return JSON.stringify({ ok: false, error: "text is required for 'add'" })
+          if (!text) return json({ ok: false, error: "text is required for 'add'" })
           const state = load(dir)
           state.items.push({
             id: `${Date.now().toString(36)}-tool`,
@@ -140,49 +148,49 @@ export default tool({
             source: 'manual',
           })
           save(dir, state)
-          return JSON.stringify({ ok: true, action: 'add', count: size(state), text })
+          return json({ ok: true, action: 'add', count: size(state), text })
         }
 
         case 'remove': {
           const state = load(dir)
           const item = resolveItem(state, args.id, args.index)
-          if (!item) return JSON.stringify({ ok: false, error: `no queued item matches ${JSON.stringify(args.id ?? args.index ?? null)}` })
+          if (!item) return json({ ok: false, error: `no queued item matches ${JSON.stringify(args.id ?? args.index ?? null)}` })
           const after = remove(dir, item.id)
-          return JSON.stringify({ ok: true, action: 'remove', removed: item.text, count: size(after) })
+          return json({ ok: true, action: 'remove', removed: item.text, count: size(after) })
         }
 
         case 'edit': {
           const text = String(args.text ?? '').trim()
-          if (!text) return JSON.stringify({ ok: false, error: "text is required for 'edit'" })
+          if (!text) return json({ ok: false, error: "text is required for 'edit'" })
           const state = load(dir)
           const item = resolveItem(state, args.id, args.index)
-          if (!item) return JSON.stringify({ ok: false, error: `no queued item matches ${JSON.stringify(args.id ?? args.index ?? null)}` })
+          if (!item) return json({ ok: false, error: `no queued item matches ${JSON.stringify(args.id ?? args.index ?? null)}` })
           const before = item.text
           update(dir, item.id, text)
           // Position is preserved by `update`, and the response says so, because
           // "edited and moved to the end" is the failure users actually hit.
-          return JSON.stringify({ ok: true, action: 'edit', id: item.id, before, after: text, positionPreserved: true })
+          return json({ ok: true, action: 'edit', id: item.id, before, after: text, positionPreserved: true })
         }
 
         case 'duplicate': {
           const state = load(dir)
           const item = resolveItem(state, args.id, args.index)
-          if (!item) return JSON.stringify({ ok: false, error: `no queued item matches ${JSON.stringify(args.id ?? args.index ?? null)}` })
+          if (!item) return json({ ok: false, error: `no queued item matches ${JSON.stringify(args.id ?? args.index ?? null)}` })
           const after = duplicate(dir, item.id)
           const copy = after.items.find((i) => i.copiedFrom === item.id)
-          return JSON.stringify({ ok: true, action: 'duplicate', sourceId: item.id, newId: copy?.id ?? null, count: size(after) })
+          return json({ ok: true, action: 'duplicate', sourceId: item.id, newId: copy?.id ?? null, count: size(after) })
         }
 
         case 'move': {
           const delta = args.direction === 'down' ? 1 : -1
           const state = load(dir)
           const item = resolveItem(state, args.id, args.index)
-          if (!item) return JSON.stringify({ ok: false, error: `no queued item matches ${JSON.stringify(args.id ?? args.index ?? null)}` })
+          if (!item) return json({ ok: false, error: `no queued item matches ${JSON.stringify(args.id ?? args.index ?? null)}` })
           const from = [...state.items, ...state.deferred].findIndex((i) => i.id === item.id) + 1
           move(dir, item.id, delta)
           const after = load(dir)
           const to = [...after.items, ...after.deferred].findIndex((i) => i.id === item.id) + 1
-          return JSON.stringify({
+          return json({
             ok: true,
             action: 'move',
             id: item.id,
@@ -196,7 +204,7 @@ export default tool({
 
         case 'clear': {
           const state = clear(dir)
-          return JSON.stringify({ ok: true, action: 'clear', count: size(state), note: 'pending fire requests also cleared' })
+          return json({ ok: true, action: 'clear', count: size(state), note: 'pending fire requests also cleared' })
         }
 
         case 'hold':
@@ -204,7 +212,7 @@ export default tool({
           const state = load(dir)
           state.manual = args.action === 'hold' ? 'hold' : 'release'
           save(dir, state)
-          return JSON.stringify({
+          return json({
             ok: true,
             action: args.action,
             manual: state.manual,
@@ -218,10 +226,10 @@ export default tool({
         // ── fire ───────────────────────────────────────────────────────────
         case 'fire': {
           if (size(load(dir)) === 0) {
-            return JSON.stringify({ ok: false, error: 'queue is empty — nothing to fire' })
+            return json({ ok: false, error: 'queue is empty — nothing to fire' })
           }
           const token = requestFire(dir, { reason: 'tool' })
-          return JSON.stringify({
+          return json({
             ok: true,
             action: 'fire',
             token,
@@ -233,12 +241,12 @@ export default tool({
         case 'fire-one': {
           const state = load(dir)
           const item = resolveItem(state, args.id, args.index)
-          if (!item) return JSON.stringify({ ok: false, error: `no queued item matches ${JSON.stringify(args.id ?? args.index ?? null)}` })
+          if (!item) return json({ ok: false, error: `no queued item matches ${JSON.stringify(args.id ?? args.index ?? null)}` })
           // No drain here. The handler drains by id when it handles the request,
           // so touching the queue now would only risk losing the item if the
           // request were never handled — and would reorder it besides.
           const token = requestFire(dir, { reason: 'tool:one', ids: [item.id] })
-          return JSON.stringify({
+          return json({
             ok: true,
             action: 'fire-one',
             id: item.id,
@@ -249,11 +257,11 @@ export default tool({
         }
 
         default:
-          return JSON.stringify({ ok: false, error: `unknown action: ${args.action}` })
+          return json({ ok: false, error: `unknown action: ${args.action}` })
       }
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e)
-      return JSON.stringify({ ok: false, error: msg })
+      return json({ ok: false, error: msg })
     }
   },
-})
+} satisfies ToolDefinition<z.infer<typeof input>>

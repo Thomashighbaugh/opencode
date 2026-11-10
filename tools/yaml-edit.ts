@@ -1,26 +1,30 @@
-import { tool } from "@opencode-ai/plugin"
+import { z } from "zod/v4"
 import * as fs from "fs"
 import * as path from "path"
 import * as yaml from "js-yaml"
+import type { ToolDefinition } from "./types"
 
 const VALID_ACTIONS = [
   "get", "set", "delete", "merge",
   "arrayAppend", "arrayRemove", "arrayInsert"
 ] as const
 
-export default tool({
+const input = z.object({
+  file: z.string().describe("Path to YAML file (.yaml or .yml)"),
+  action: z.string().describe(`Operation. Valid: ${VALID_ACTIONS.join(", ")}`),
+  path: z.string().describe("Dot-path to navigate, e.g. 'server.port', 'users.0.name', 'database.hosts'"),
+  value: z.any().optional().describe("Value for set / merge / arrayAppend / arrayInsert"),
+  index: z.number().optional().describe("Array index (for arrayRemove by index, arrayInsert)"),
+  removeValue: z.any().optional().describe("Value to remove from array (for arrayRemove by value)"),
+  indentSize: z.number().optional().describe("YAML indent size (default: 2)"),
+  lineWidth: z.number().optional().describe("Max line width for YAML output (default: 120)"),
+  dryRun: z.boolean().optional().describe("Preview changes without applying (default: false)"),
+})
+
+export default {
+  name: "yaml-edit",
   description: "Edit YAML files using dot-path notation — get, set, delete, merge, and array operations. No yq or sed-on-YAML needed.",
-  args: {
-    file: tool.schema.string().describe("Path to YAML file (.yaml or .yml)"),
-    action: tool.schema.string().describe(`Operation. Valid: ${VALID_ACTIONS.join(", ")}`),
-    path: tool.schema.string().describe("Dot-path to navigate, e.g. 'server.port', 'users.0.name', 'database.hosts'"),
-    value: tool.schema.any().optional().describe("Value for set / merge / arrayAppend / arrayInsert"),
-    index: tool.schema.number().optional().describe("Array index (for arrayRemove by index, arrayInsert)"),
-    removeValue: tool.schema.any().optional().describe("Value to remove from array (for arrayRemove by value)"),
-    indentSize: tool.schema.number().optional().describe("YAML indent size (default: 2)"),
-    lineWidth: tool.schema.number().optional().describe("Max line width for YAML output (default: 120)"),
-    dryRun: tool.schema.boolean().optional().describe("Preview changes without applying (default: false)")
-  },
+  input,
   async execute(args) {
     const { file, action: actionName, path: dotPath, value, index, removeValue, dryRun } = args
     const indent = args.indentSize ?? 2
@@ -235,8 +239,8 @@ export default tool({
     } catch (e: any) {
       return err(`Cannot write file: ${e.message}`)
     }
-  }
-})
+  },
+} satisfies ToolDefinition<z.infer<typeof input>>
 
 // ── Helpers ──────────────────────────────────────────────────────────────
 
@@ -258,9 +262,9 @@ function buildDiff(before: string, after: string): string {
 }
 
 function ok(data: Record<string, unknown>) {
-  return JSON.stringify({ success: true, ...data })
+  return { content: JSON.stringify({ success: true, ...data }) }
 }
 
 function err(msg: string) {
-  return JSON.stringify({ success: false, error: msg })
+  return { content: JSON.stringify({ success: false, error: msg }) }
 }

@@ -134,9 +134,6 @@
     "terminal.suspend": "ctrl+z",
     "terminal.title.toggle": "none"
   },
-  "plugins": [
-    "./plugins/hubs-tui/index.js"
-  ],
   "leader": {
     "timeout": 2000
   },
@@ -175,5 +172,9 @@
   "experimental": {
     "client-mcp": true,
     "new-designs": true
+  },
+  "highlights": false,
+  "attention": {
+    "sound": false
   }
 }

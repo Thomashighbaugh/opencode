@@ -165,30 +165,32 @@ describe('feature package: hubs', () => {
     expect(leaning.slice(0, 5), `${leaning.length} description(s) assume the hub name is visible`).toEqual([])
   })
 
-  it('the generated TUI bundle contains every registered subcommand', () => {
-    // hub-menu-rebuild rule: a new subcommand is invisible until the generated
-    // bundle is regenerated. This is the check that rule exists to enforce.
-    //
-    // The comparison is against each spec's `label`, NOT the registry key. The
-    // two are deliberately different namespaces — the key is the file
-    // (ideate-hub/interview) while the label is what the dialog shows
-    // ("deep") — and an earlier version of this test compared against the key
-    // and reported five phantom stale subcommands that had been correct all
-    // along.
-    const generated = path.join(CONFIG_DIR, 'plugins', 'hubs-tui', 'src', 'generated-hubs.ts')
-    if (!fs.existsSync(generated)) return
-    const src = fs.readFileSync(generated, 'utf-8')
+  it('every registered subcommand has a spec file, a menu entry, and a registry entry', () => {
+    // The V2 TUI has no generated bundle: the picker reads the identity slice
+    // from `hubs/<hub>/index.ts` and the full spec from `spec-registry.json`.
+    // What can still go stale is the pair — a spec file that was never added
+    // to the menu, or a spec file that was never compiled into the registry.
+    // The old `generated-hubs.ts` check short-circuited to a no-op once that
+    // file was removed, so it stopped catching anything at all.
     const missing: string[] = []
-    for (const key of Object.keys(registry)) {
-      const [hubDir, file] = key.split('/')
-      const specFile = path.join(CONFIG_DIR, 'plugins', 'hubs', 'data', 'hubs', hubDir, `${file}.ts`)
-      if (!fs.existsSync(specFile)) { missing.push(`${key} (no spec file)`); continue }
-      const specSrc = fs.readFileSync(specFile, 'utf-8')
-      const label = specSrc.match(/label:\s*["']([^"']+)["']/)?.[1]
-      if (!label) { missing.push(`${key} (no label)`); continue }
-      if (!src.includes(`"${label}"`)) missing.push(`${key} (label "${label}")`)
+
+    for (const hub of HUB_DIRS) {
+      const hubDir = path.join(CONFIG_DIR, 'plugins', 'hubs', 'data', 'hubs', hub)
+      const specFiles = fs
+        .readdirSync(hubDir)
+        .filter((f) => f.endsWith('.ts') && f !== 'index.ts')
+        .map((f) => f.replace(/\.ts$/, ''))
+
+      const idx = fs.readFileSync(path.join(hubDir, 'index.ts'), 'utf-8')
+      const imported = new Set([...idx.matchAll(/from\s+"\.\/([^"]+)"/g)].map((m) => m[1]))
+
+      for (const spec of specFiles) {
+        if (!imported.has(spec)) missing.push(`${hub}/${spec} (not in the menu index)`)
+        if (!registry[`${hub}/${spec}`]) missing.push(`${hub}/${spec} (not in spec-registry.json)`)
+      }
     }
-    expect(missing.slice(0, 15), `generated-hubs.ts is stale — missing ${missing.length}:\n${missing.join('\n')}`).toEqual([])
+
+    expect(missing.slice(0, 15), `hub specs are stale — ${missing.length} problem(s):\n${missing.join('\n')}`).toEqual([])
   })
 
   it('every subcommand label is unique within its hub', () => {
@@ -404,24 +406,28 @@ describe('feature package: agents, rules, tools', () => {
     const bad: string[] = []
     for (const f of fs.readdirSync(toolsDir)) {
       if (!f.endsWith('.ts')) continue
-      // hub-*.ts are identity-slice manifests, and these are libraries — none
-      // of them is an OpenCode tool.
-      if (f.startsWith('hub-') || ['cache-utils.ts', 'state-utils.ts', 'hub-data.ts', 'build-spec-registry.ts', 'gen-routing-docs.ts', 'audit-density.ts'].includes(f)) continue
+      // cache-utils.ts is a shared library; types.ts holds the tool contract.
+      if (['cache-utils.ts', 'types.ts'].includes(f)) continue
       const src = fs.readFileSync(path.join(toolsDir, f), 'utf-8')
-      if (!/export\s+default\s+tool\(/.test(src)) bad.push(f)
+      // OpenCode 2 removed file-based tool discovery: a tool is a plain object
+      // with `{ name, description, input, execute }` that plugins/tools/index.ts
+      // registers through `ctx.tool.transform`. The V1 shape was
+      // `export default tool({ ... })`.
+      if (!/export\s+default\s*\{/.test(src) || !/satisfies\s+ToolDefinition/.test(src)) bad.push(f)
     }
-    expect(bad, `tools without a default export: ${bad.join(', ')}`).toEqual([])
+    expect(bad, `tools without a default tool definition: ${bad.join(', ')}`).toEqual([])
   })
 
-  it('every tool declares args via tool.schema (no unvalidated args)', () => {
+  it('every tool declares an input schema (no unvalidated args)', () => {
     const toolsDir = path.join(CONFIG_DIR, 'tools')
     const bad: string[] = []
     for (const f of fs.readdirSync(toolsDir)) {
-      if (!f.endsWith('.ts') || f.startsWith('hub-') || f === 'cache-utils.ts' || f === 'state-utils.ts' || f === 'hub-data.ts' || f === 'audit-density.ts' || f === 'build-spec-registry.ts' || f === 'gen-routing-docs.ts') continue
+      if (!f.endsWith('.ts') || ['cache-utils.ts', 'types.ts'].includes(f)) continue
       const src = fs.readFileSync(path.join(toolsDir, f), 'utf-8')
-      if (!/export\s+default\s+tool\(/.test(src)) continue
-      if (!/args:\s*\{/.test(src)) bad.push(f)
+      if (!/export\s+default\s*\{/.test(src)) continue
+      // V1 declared `args: { ... }`; V2 declares a zod schema named `input`.
+      if (!/const\s+input\s*=/.test(src) || !/^\s*input,\s*$/m.test(src)) bad.push(f)
     }
-    expect(bad, `tools with no args schema: ${bad.join(', ')}`).toEqual([])
+    expect(bad, `tools with no input schema: ${bad.join(', ')}`).toEqual([])
   })
 })

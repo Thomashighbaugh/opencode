@@ -1,24 +1,34 @@
-import { tool } from "@opencode-ai/plugin"
+import { z } from "zod/v4"
 import * as fs from "fs"
 import * as path from "path"
 import { globSync } from "glob"
+import type { ToolDefinition } from "./types"
 
 const VALID_ACTIONS = ["find", "replace", "replaceAll"] as const
 
-export default tool({
-  description: "Batch operations across multiple files by glob pattern — find, replace, replaceAll. No find+xargs+sed pipelines needed.",
-  args: {
-    glob: tool.schema.string().describe("Glob pattern to match files, e.g. 'src/**/*.ts', '*.json'"),
-    action: tool.schema.string().describe(`Operation. Valid: ${VALID_ACTIONS.join(", ")}`),
-    pattern: tool.schema.string().describe("Regex or string pattern to search for"),
-    replacement: tool.schema.string().optional().describe("Replacement text (for replace/replaceAll)"),
-    flags: tool.schema.string().optional().describe("Regex flags (default: '' for replace, 'g' for replaceAll)"),
-    encoding: tool.schema.string().optional().describe("File encoding (default: 'utf-8')"),
-    dryRun: tool.schema.boolean().optional().describe("Preview changes without applying (default: true for safety)"),
-    maxFiles: tool.schema.number().optional().describe("Safety limit on files processed (default: 50)"),
-    cwd: tool.schema.string().optional().describe("Working directory for glob resolution (default: cwd)"),
-    binaryExts: tool.schema.array(tool.schema.string()).optional().describe("File extensions to skip (default: ['.png','.jpg','.gif','.ico','.woff','.woff2','.ttf','.eot','.pdf','.zip','.gz','.tar'])")
-  },
+const input = z.object({
+  glob: z.string().describe("Glob pattern to match files, e.g. 'src/**/*.ts', '*.json'"),
+  action: z.string().describe(`Operation. Valid: ${VALID_ACTIONS.join(", ")}`),
+  pattern: z.string().describe("Regex or string pattern to search for"),
+  replacement: z.string().optional().describe("Replacement text (for replace/replaceAll)"),
+  flags: z.string().optional().describe("Regex flags (default: '' for replace, 'g' for replaceAll)"),
+  encoding: z.string().optional().describe("File encoding (default: 'utf-8')"),
+  dryRun: z.boolean().optional().describe("Preview changes without applying (default: true for safety)"),
+  maxFiles: z.number().optional().describe("Safety limit on files processed (default: 50)"),
+  cwd: z.string().optional().describe("Working directory for glob resolution (default: cwd)"),
+  binaryExts: z
+    .array(z.string())
+    .optional()
+    .describe(
+      "File extensions to skip (default: ['.png','.jpg','.gif','.ico','.woff','.woff2','.ttf','.eot','.pdf','.zip','.gz','.tar'])",
+    ),
+})
+
+export default {
+  name: "multi-edit",
+  description:
+    "Batch operations across multiple files by glob pattern — find, replace, replaceAll. No find+xargs+sed pipelines needed.",
+  input,
   async execute(args) {
     const { glob: globPattern, action, pattern, replacement, flags, dryRun, maxFiles, cwd, encoding } = args
     const enc = (encoding || "utf-8") as BufferEncoding
@@ -161,8 +171,8 @@ export default tool({
       errors: errors.length,
       results
     })
-  }
-})
+  },
+} satisfies ToolDefinition<z.infer<typeof input>>
 
 // ── Helpers ──────────────────────────────────────────────────────────────
 
@@ -190,9 +200,9 @@ function buildDiff(before: string, after: string): string {
 }
 
 function ok(data: Record<string, unknown>) {
-  return JSON.stringify({ success: true, ...data })
+  return { content: JSON.stringify({ success: true, ...data }) }
 }
 
 function err(msg: string) {
-  return JSON.stringify({ success: false, error: msg })
+  return { content: JSON.stringify({ success: false, error: msg }) }
 }

@@ -24,17 +24,9 @@
  * scorer was down" must stay distinguishable.
  */
 
-import { tool } from "@opencode-ai/plugin"
+import { z } from "zod/v4"
 import { loadModel, REQUIRED_MODELS } from "../skills/vectorize-context/scripts/onnx-runtime.ts"
-
-interface RerankArgs {
-  query: string
-  documents: string[]
-  model?: string
-  topK?: number
-  backend?: "onnx" | "ollama"
-  ollamaUrl?: string
-}
+import type { ToolDefinition } from "./types"
 
 /**
  * Logit → relevance, clamped so the result is strictly inside (0, 1).
@@ -135,40 +127,46 @@ async function rerankViaOllama(
   return data.results
 }
 
-export default tool({
+const input = z.object({
+  query: z.string().describe("The query to score documents against"),
+  documents: z.array(z.string()).describe("Array of document texts to rerank"),
+  model: z
+    .string()
+    .optional()
+    .describe(
+      "ONNX model id (default: Xenova/bge-reranker-base) or Ollama model tag when backend=ollama",
+    ),
+  topK: z
+    .number()
+    .optional()
+    .describe("Return only top K results (default: all, sorted by score descending)"),
+  backend: z
+    .enum(["onnx", "ollama"])
+    .optional()
+    .describe("Scoring backend (default: onnx — in-process, no daemon)"),
+  ollamaUrl: z
+    .string()
+    .optional()
+    .describe("Ollama API base URL, only used when backend=ollama (default: http://127.0.0.1:11434)"),
+})
+
+/** V2 tool results carry `{ content }`; this tool's payloads are JSON. */
+const json = (value: unknown) => ({ content: JSON.stringify(value) })
+
+export default {
+  name: "rerank",
   description:
     "Rerank documents against a query with a local in-process cross-encoder (ONNX Runtime, Xenova/bge-reranker-base q8, sigmoid scoring). No daemon and no network. Set backend=ollama to compare against an Ollama-served checkpoint instead.",
-  args: {
-    query: tool.schema.string().describe("The query to score documents against"),
-    documents: tool.schema.array(tool.schema.string()).describe("Array of document texts to rerank"),
-    model: tool.schema
-      .string()
-      .optional()
-      .describe(
-        "ONNX model id (default: Xenova/bge-reranker-base) or Ollama model tag when backend=ollama",
-      ),
-    topK: tool.schema
-      .number()
-      .optional()
-      .describe("Return only top K results (default: all, sorted by score descending)"),
-    backend: tool.schema
-      .enum(["onnx", "ollama"])
-      .optional()
-      .describe("Scoring backend (default: onnx — in-process, no daemon)"),
-    ollamaUrl: tool.schema
-      .string()
-      .optional()
-      .describe("Ollama API base URL, only used when backend=ollama (default: http://127.0.0.1:11434)"),
-  },
-  async execute(args: RerankArgs) {
+  input,
+  async execute(args) {
     const backend = args.backend ?? "onnx"
     const topK = args.topK ?? args.documents.length
 
     if (!args.query.trim()) {
-      return JSON.stringify({ ok: false, error: "query is required" })
+      return json({ ok: false, error: "query is required" })
     }
     if (!args.documents.length) {
-      return JSON.stringify({ ok: false, error: "at least one document required" })
+      return json({ ok: false, error: "at least one document required" })
     }
 
     let scored: Array<{ index: number; relevance_score: number }>
@@ -188,7 +186,7 @@ export default tool({
         backend === "onnx" && /not cached/.test(msg)
           ? " Run: npx tsx skills/vectorize-context/scripts/prefetch-models.ts"
           : ""
-      return JSON.stringify({ ok: false, backend, error: msg + hint })
+      return json({ ok: false, backend, error: msg + hint })
     }
 
     const enriched = scored
@@ -200,7 +198,7 @@ export default tool({
         text: args.documents[r.index] ?? "",
       }))
 
-    return JSON.stringify({
+    return json({
       ok: true,
       backend,
       model,
@@ -210,4 +208,4 @@ export default tool({
       results: enriched,
     })
   },
-})
+} satisfies ToolDefinition<z.infer<typeof input>>

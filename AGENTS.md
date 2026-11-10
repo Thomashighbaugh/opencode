@@ -7,8 +7,8 @@
 - **1 primary agent** (`hubs`) — the only primary. It handles tasks directly and is the sole entry point.
 - **31 subagents** — all `mode: subagent`, dispatched by `hubs` or by an explicit user request. See `agents/hubs.md`
 - **127 workflow skills** for development tasks
-- **31 TypeScript tools** for session management and file editing
-- **175 hub subcommand specs** across 13 hub directories, served by the `plugins/hubs/` V2 package
+- **29 TypeScript tools** (`tools/`, registered by `plugins/tools/`) for session management and file editing
+- **176 hub subcommand specs** across 13 hub directories, served by the `plugins/hubs/` V2 package
 - **Hook system plugin** for mode detection, state persistence, and context injection
 - **Multi-tier cache system** — tool, file, session, vector search caching
 - **Durable context storage** — knowledge compounds across sessions
@@ -144,7 +144,7 @@ keep working: `/init-project <sub>` and `/scaffold-hub <sub>` both route to `/hu
 
 | Command | # | Subcommands |
 |--------|--:|-------------|
-| `/hub-setup` | 12 | config, detect, doctor, map-codebase, provision, recommend, refresh, reset, setup, status, tag, verify |
+| `/hub-setup` | 13 | config, detect, doctor, map-codebase, migrate-v2, provision, recommend, refresh, reset, setup, status, tag, verify |
 | `/resource-hub` | 18 | add, config-orchestrator, create, edit, find, graph, info, knowledge-graph, list, package, prompt-simplifier, remove, scan, search, setup, sync, update, validate |
 | `/memory-hub` | 14 | capture, compress, consolidate-telemetry, consume, context, diff, export, memory, prune, search, secondbrain, session, vectorize, yt-transcript |
 | `/research-hub` | 14 | analyst, analyze-patterns, compare, competitive-analysis, convention-extractor, document-specialist, explore, extract-standards, library-docs, research, scientist, sciomc, tech-eval, web-research |

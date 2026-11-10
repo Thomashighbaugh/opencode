@@ -1,8 +1,9 @@
-import { tool } from "@opencode-ai/plugin"
+import { z } from "zod/v4"
 import * as fs from "fs"
 import * as path from "path"
 import { homedir } from "os"
 import { withToolCache } from "./cache-utils"
+import type { ToolDefinition } from "./types"
 
 // Path conventions:
 // - User-wide skills: ~/.config/opencode/skills/ (shared across all projects)
@@ -90,14 +91,22 @@ function findSkill(skillName: string, projectRoot: string): { path: string; sour
   return null
 }
 
-export default tool({
+const input = z.object({
+  skill: z.string().describe("Name of the skill to load (e.g., 'ralph', 'autopilot', 'verify')"),
+  section: z
+    .string()
+    .describe("Section to extract. Available common sections: workflow, steps, heuristics, examples, advanced, final-checklist"),
+})
+
+export default {
+  name: "loadSkill",
   description: "Load a skill's content, metadata, scripts, and references for an agent to use",
-  args: {
-    skill: tool.schema.string().describe("Name of the skill to load (e.g., 'ralph', 'autopilot', 'verify')"),
-    section: tool.schema.string().describe("Section to extract. Available common sections: workflow, steps, heuristics, examples, advanced, final-checklist"),
-  },
+  input,
   async execute(args, context) {
-    return withToolCache("loadSkill", args, () => {
+    const content = withToolCache(
+      "loadSkill",
+      args,
+      () => {
       const projectRoot = context.directory || process.cwd()
       const skillLocation = findSkill(args.skill, projectRoot)
       
@@ -142,6 +151,9 @@ export default tool({
         error: `Section '${args.section}' not found in skill '${args.skill}'`,
         availableSections: parsed.content.match(/^## [^\n]+/gm) || []
       })
-    }, 86_400_000) // 24h — skill content is static
-  }
-})
+      },
+      86_400_000, // 24h — skill content is static
+    )
+    return { content }
+  },
+} satisfies ToolDefinition<z.infer<typeof input>>

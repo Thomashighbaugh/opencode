@@ -1,9 +1,10 @@
-import { tool } from "@opencode-ai/plugin"
+import { z } from "zod/v4"
 import * as fs from "fs"
 import * as path from "path"
 import { homedir } from "os"
 import { loadAllHubs } from '../plugins/hubs/data/hub-data'
 import { withToolCache } from "./cache-utils"
+import type { ToolDefinition } from "./types"
 
 const USER_CONFIG_DIR = process.env.OPENCODE_CONFIG_DIR || path.join(homedir(), '.config', 'opencode')
 
@@ -96,19 +97,23 @@ export function validateTarget(
   return base
 }
 
-export default tool({
+const input = z.object({
+  action: z.string().describe("Action: 'validate' runs all checks, 'stats' shows summary count"),
+})
+
+export default {
+  name: "validate-delegation",
   description:
     "Validate delegation targets in hubMenu.ts — check that all skill/agent/command references resolve to existing files",
-  args: {
-    action: tool.schema
-      .string()
-      .describe("Action: 'validate' runs all checks, 'stats' shows summary count"),
-  },
+  input,
   async execute(args, context) {
     const projectRoot = context.directory || process.cwd()
     const action = args.action as string
 
-    return withToolCache("validate-delegation", args, () => {
+    const content = withToolCache(
+      "validate-delegation",
+      args,
+      () => {
 
     if (action === 'stats') {
       let total = 0
@@ -147,7 +152,7 @@ export default tool({
         }
       }
 
-      return JSON.stringify({ valid: missing === 0, total, ok, missing, warnings }, null, 2)
+        return JSON.stringify({ valid: missing === 0, total, ok, missing, warnings }, null, 2)
     }
 
     if (action === 'validate') {
@@ -213,6 +218,9 @@ export default tool({
     }
 
     return JSON.stringify({ error: `Unknown action '${action}'. Valid: validate, stats` })
-    }, 3_600_000) // 1h TTL
+      },
+      3_600_000, // 1h TTL
+    )
+    return { content }
   },
-})
+} satisfies ToolDefinition<z.infer<typeof input>>

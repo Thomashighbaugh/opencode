@@ -1,12 +1,15 @@
-import { tool } from "@opencode-ai/plugin"
+import { z } from "zod/v4"
 import { withToolCache } from "./cache-utils"
+import type { ToolDefinition } from "./types"
 
-export default tool({
+const input = z.object({})
+
+export default {
+  name: "getSessionID",
   description: "Get current session ID",
-  args: {},
+  input,
   async execute(args, context) {
-    return withToolCache("getSessionID", args, () => {
-      return context.sessionID
-    })
+    const content = withToolCache("getSessionID", args, () => context.sessionID)
+    return { content }
   },
-})
+} satisfies ToolDefinition<z.infer<typeof input>>

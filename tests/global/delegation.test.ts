@@ -169,8 +169,13 @@ describe('scaffold-hub merged into hub-setup', () => {
     'refresh', 'reset', 'setup', 'status', 'tag', 'verify',
   ]
 
-  it('hub-setup carries all twelve scaffold-hub subcommands', () => {
-    expect(hubSetupHub.subcommands.map(s => s.label).sort()).toEqual([...SCAFFOLD_LABELS].sort())
+  // hub-setup grew a thirteenth subcommand after the merge: `migrate-v2`
+  // rewrites a user project for OpenCode 2. The legacy-route assertions still
+  // use the original twelve.
+  const HUB_SETUP_LABELS = [...SCAFFOLD_LABELS, 'migrate-v2']
+
+  it('hub-setup carries every scaffold-hub subcommand plus migrate-v2', () => {
+    expect(hubSetupHub.subcommands.map(s => s.label).sort()).toEqual([...HUB_SETUP_LABELS].sort())
   })
 
   it('the erased menu has no manifest, no route entry, and no spec directory', () => {
@@ -187,6 +192,13 @@ describe('scaffold-hub merged into hub-setup', () => {
 
   it.each(SCAFFOLD_LABELS)('the old /scaffold-hub %s still routes to hub-setup', (label) => {
     expect(loadSubcommandSpec('scaffold-hub', label)).toEqual(loadSubcommandSpec('hub-setup', label))
+  })
+
+  it('hub-setup migrate-v2 loads a real spec', () => {
+    const spec = loadSubcommandSpec('hub-setup', 'migrate-v2')
+    expect(spec, 'hub-setup/migrate-v2 has no spec').not.toBeNull()
+    expect(spec!.label).toBe('migrate-v2')
+    expect(spec!.skill).toBe('hubs-setup')
   })
 
   it.each(['setup', 'refresh', 'provision', 'status', 'verify'])(

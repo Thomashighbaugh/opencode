@@ -18,7 +18,7 @@
  * `output` to write the full conversion to disk and get a small summary back.
  */
 
-import { tool } from "@opencode-ai/plugin"
+import { z } from "zod/v4"
 import * as fs from "fs"
 import * as path from "path"
 import { extractText, getDocumentProxy, getMeta } from "unpdf"
@@ -30,6 +30,7 @@ import JSZip from "jszip"
 // @ts-ignore — ships no types
 import WordExtractor from "word-extractor"
 import { XMLParser } from "fast-xml-parser"
+import type { ToolDefinition } from "./types"
 
 type OutputFormat = "markdown" | "json"
 
@@ -602,32 +603,35 @@ function truncate(content: string, maxChars: number): { content: string; truncat
 }
 
 function ok(data: Record<string, unknown>) {
-  return JSON.stringify({ success: true, ...data })
+  return { content: JSON.stringify({ success: true, ...data }) }
 }
 
 function err(message: string) {
-  return JSON.stringify({ success: false, error: message })
+  return { content: JSON.stringify({ success: false, error: message }) }
 }
 
-export default tool({
+const input = z.object({
+  path: z.string().describe("File or directory to convert (absolute or relative to workspace)"),
+  format: z
+    .string()
+    .optional()
+    .describe(
+      'Output format: "markdown" (default, returned raw) or "json" (structured; inline JSON truncates text and indexes pages/chapters — use output for the full structure)',
+    ),
+  output: z
+    .string()
+    .optional()
+    .describe("Optional path to write the full conversion to. Returns a summary instead of the content"),
+  pages: z.string().optional().describe('PDF page selection, e.g. "1-5,8,12-14" (default: all pages)'),
+  maxChars: z.number().optional().describe("Maximum characters returned inline (default: 150000)"),
+  recursive: z.boolean().optional().describe("Recurse into subdirectories when path is a directory (default: false)"),
+})
+
+export default {
+  name: "document-convert",
   description:
     "Convert PDF, EPUB, DOC, DOCX, ODT, RTF, HTML, or text files to markdown or structured JSON locally and deterministically — no model calls, no tokens spent on parsing. Supports a single file or a whole directory.",
-  args: {
-    path: tool.schema.string().describe("File or directory to convert (absolute or relative to workspace)"),
-    format: tool.schema
-      .string()
-      .optional()
-      .describe(
-        'Output format: "markdown" (default, returned raw) or "json" (structured; inline JSON truncates text and indexes pages/chapters — use output for the full structure)',
-      ),
-    output: tool.schema
-      .string()
-      .optional()
-      .describe("Optional path to write the full conversion to. Returns a summary instead of the content"),
-    pages: tool.schema.string().optional().describe('PDF page selection, e.g. "1-5,8,12-14" (default: all pages)'),
-    maxChars: tool.schema.number().optional().describe("Maximum characters returned inline (default: 150000)"),
-    recursive: tool.schema.boolean().optional().describe("Recurse into subdirectories when path is a directory (default: false)"),
-  },
+  input,
   async execute(args) {
     const target = args.path?.trim()
     if (!target) return err("path is required")
@@ -719,7 +723,7 @@ export default tool({
         if (content.length <= maxChars) break
         budget = Math.max(200, Math.floor(budget * 0.7))
       }
-      return content
+      return { content }
     }
 
     const combined = documents
@@ -747,6 +751,6 @@ export default tool({
     if (failures.length > 0) {
       response += `\n\n[${failures.length} file(s) failed: ${failures.map((f) => `${path.basename(f.path)} (${f.error})`).join(", ")}]`
     }
-    return response
+    return { content: response }
   },
-})
+} satisfies ToolDefinition<z.infer<typeof input>>

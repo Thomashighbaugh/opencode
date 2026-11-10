@@ -1,8 +1,9 @@
-import { tool } from "@opencode-ai/plugin"
+import { z } from "zod/v4"
 import * as fs from "fs"
 import * as path from "path"
 import { execFileSync, spawn } from "child_process"
 import { homedir } from "os"
+import type { ToolDefinition } from "./types"
 
 // ── Async Process Throttle ──────────────────────────────────────────────
 // Cap concurrent async subprocesses at 5 to prevent resource exhaustion.
@@ -90,31 +91,42 @@ function listSkillScripts(projectRoot: string, skillName?: string): Array<{skill
 
 const VALID_SCRIPT_ACTIONS = ['list', 'list-skill', 'run', 'run-async', 'read'] as const
 
-export default tool({
-  description: "List or execute skill scripts. Scripts are shell (.sh, run with bash) or TypeScript (.ts, run with bun) files bundled with skills for automation.",
-  args: {
-    action: tool.schema.string().describe(`Action: list all/for skill, run script, or read script content. Valid: ${VALID_SCRIPT_ACTIONS.join(', ')}`),
-    skill: tool.schema.string().optional().describe("Skill name (e.g., 'mcp-setup')"),
-    script: tool.schema.string().optional().describe("Script name without extension (e.g., 'install-servers')"),
-    args: tool.schema.array(tool.schema.string()).optional().describe("Additional arguments for the script"),
-    async: tool.schema.boolean().optional().describe("Run in background (for run action)")
-  },
+const input = z.object({
+  action: z
+    .string()
+    .describe(
+      `Action: list all/for skill, run script, or read script content. Valid: ${VALID_SCRIPT_ACTIONS.join(", ")}`,
+    ),
+  skill: z.string().optional().describe("Skill name (e.g., 'mcp-setup')"),
+  script: z.string().optional().describe("Script name without extension (e.g., 'install-servers')"),
+  args: z.array(z.string()).optional().describe("Additional arguments for the script"),
+  async: z.boolean().optional().describe("Run in background (for run action)"),
+})
+
+/** V2 tool results carry `{ content }`; this tool's payloads are JSON. */
+const json = (value: unknown) => ({ content: JSON.stringify(value) })
+
+export default {
+  name: "runSkillScript",
+  description:
+    "List or execute skill scripts. Scripts are shell (.sh, run with bash) or TypeScript (.ts, run with bun) files bundled with skills for automation.",
+  input,
   async execute(args, context) {
     const projectRoot = context.directory || process.cwd()
 
     switch (args.action) {
       case 'list': {
         const results = listSkillScripts(projectRoot)
-        return JSON.stringify({
+        return json({
           count: results.length,
           skills: results
         })
       }
 
       case 'list-skill': {
-        if (!args.skill) return JSON.stringify({ error: 'Skill name required for list-skill' })
+        if (!args.skill) return json({ error: 'Skill name required for list-skill' })
         const scripts = findSkillScript(projectRoot, args.skill)
-        return JSON.stringify({
+        return json({
           skill: args.skill,
           count: scripts.length,
           scripts: scripts.map(s => ({
@@ -127,12 +139,12 @@ export default tool({
       }
 
       case 'read': {
-        if (!args.skill || !args.script) return JSON.stringify({ error: 'Both skill and script name required' })
+        if (!args.skill || !args.script) return json({ error: 'Both skill and script name required' })
         const scripts = findSkillScript(projectRoot, args.skill, args.script)
-        if (scripts.length === 0) return JSON.stringify({ error: `Script '${args.script}' not found in skill '${args.skill}'` })
+        if (scripts.length === 0) return json({ error: `Script '${args.script}' not found in skill '${args.skill}'` })
 
         const content = fs.readFileSync(scripts[0].path, 'utf-8')
-        return JSON.stringify({
+        return json({
           skill: args.skill,
           script: args.script,
           content,
@@ -142,9 +154,9 @@ export default tool({
 
       case 'run':
       case 'run-async': {
-        if (!args.skill || !args.script) return JSON.stringify({ error: 'Both skill and script name required' })
+        if (!args.skill || !args.script) return json({ error: 'Both skill and script name required' })
         const scripts = findSkillScript(projectRoot, args.skill, args.script)
-        if (scripts.length === 0) return JSON.stringify({ error: `Script '${args.script}' not found in skill '${args.skill}'` })
+        if (scripts.length === 0) return json({ error: `Script '${args.script}' not found in skill '${args.skill}'` })
 
         const scriptPath = scripts[0].path
         const runner = runnerFor(scripts[0].script)
@@ -154,7 +166,7 @@ export default tool({
           if (args.action === 'run-async') {
             // Check concurrent process limit before launching
             if (_activeAsyncProcs.size >= MAX_ASYNC_PROCS) {
-              return JSON.stringify({ error: `Max async processes (${MAX_ASYNC_PROCS}) reached. Try again later.`, active: _activeAsyncProcs.size })
+              return json({ error: `Max async processes (${MAX_ASYNC_PROCS}) reached. Try again later.`, active: _activeAsyncProcs.size })
             }
             const procId = `${args.skill}:${args.script}`
             _activeAsyncProcs.add(procId)
@@ -164,10 +176,10 @@ export default tool({
             })
             child.unref()
             child.on('exit', () => { _activeAsyncProcs.delete(procId) })
-            return JSON.stringify({ launched: true, command: args.script, runner, skill: args.skill, activeProcs: _activeAsyncProcs.size })
+            return json({ launched: true, command: args.script, runner, skill: args.skill, activeProcs: _activeAsyncProcs.size })
           } else {
             const output = execFileSync(runner, [scriptPath, ...scriptArgs], { encoding: 'utf-8', timeout: 30000 })
-            return JSON.stringify({
+            return json({
               success: true,
               skill: args.skill,
               script: args.script,
@@ -177,7 +189,7 @@ export default tool({
             })
           }
         } catch (e: any) {
-          return JSON.stringify({
+          return json({
             error: e.message,
             skill: args.skill,
             script: args.script,
@@ -189,7 +201,7 @@ export default tool({
       }
 
       default:
-        return JSON.stringify({ error: `Unknown action: ${args.action}` })
+        return json({ error: `Unknown action: ${args.action}` })
     }
-  }
-})
+  },
+} satisfies ToolDefinition<z.infer<typeof input>>

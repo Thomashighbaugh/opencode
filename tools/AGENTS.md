@@ -4,12 +4,22 @@
 # tools
 
 ## Purpose
-TypeScript tool implementations (19 tools) that extend the OpenCode runtime. Tools provide structured APIs for session management, state persistence, agent listing, skill loading, hub menu routing, multi-tier prompt caching, and file editing.
+TypeScript tool definitions (29 tools) that extend the OpenCode runtime. Tools provide structured APIs for session management, state persistence, agent listing, skill loading, hub menu routing, multi-tier prompt caching, and file editing.
+
+## OpenCode 2 contract
+
+OpenCode 2 removed file-based tool discovery: a file under `tools/` is inert until a plugin registers it. These files are V2 **tool definitions**, not standalone tools.
+
+- `types.ts` — the V2 contract (`ToolDefinition`, `ToolContext`, `ToolResult`). Imported as a type only; never import `@opencode/plugin` at runtime (it pulls `@opencode/schema` against the host binary's embedded effect and breaks plugin loading).
+- Each file declares `const input = z.object({...})` (zod/v4) and exports `{ name, description, input, async execute(args, context) → { content } }` with `satisfies ToolDefinition<z.infer<typeof input>>`.
+- `plugins/tools/index.ts` is the plugin that registers all 29 through `await ctx.tool.transform(editor => editor.add(...))`, converting each zod schema with `z.toJSONSchema(schema, { io: "input", unrepresentable: "any" })`.
+- The V2 tool context carries no path, so the registering plugin injects the project root from `ctx.location.directory` as `context.directory`.
 
 ## Key Files
 
 | File | Description |
 |------|-------------|
+| `types.ts` | V2 tool contract — `ToolDefinition`, `ToolContext`, `ToolResult`, `JsonSchema`. Shared library, not a tool. |
 | *(hub routing moved)* | Hub router, specs, rules, skills and agents now live in `plugins/hubs/` (see `plugins/hubs/AGENTS.md`). |
 | `loadSkill.ts` | Load a skill's content, metadata, scripts, and references for agent use |
 | `listAgents.ts` | List available agents or get details about a specific agent |
@@ -35,17 +45,18 @@ TypeScript tool implementations (19 tools) that extend the OpenCode runtime. Too
 ## For AI Agents
 
 ### Working In This Directory
-- All tools are TypeScript files using the `@opencode-ai/plugin` SDK
-- Each tool exports a schema and handler function
-- Tools are registered in `opencode.jsonc` for runtime discovery
-- Tools are validated by the Hubs doctor diagnostic
+- A tool file is a plain object, not a `tool({...})` call — OpenCode 2 ignored the V1 shape after removing the directory scan
+- Every tool declares its input as a zod/v4 schema named `input` and returns `{ content }`
+- Registration lives in `plugins/tools/index.ts` — add a new tool there too, or it never reaches the model
+- Tools are validated by the Hubs doctor diagnostic and by `tests/global/feature-package.test.ts`
 
 ### Testing Requirements
 - Run `/hubs-doctor` to verify tool integration
+- `bun test plugins/hubs` and `npx vitest run` both exercise the tool contract
 
 ### Common Patterns
-- Each tool defines a JSON Schema for parameters
-- Handler functions return structured results
+- Input schema: zod/v4, converted to JSON Schema at registration
+- Handler returns `{ content: string }`; JSON payloads are `JSON.stringify`d into it
 - Tools interact with filesystem state in `.opencode/state/`
 
 ## Dependencies
@@ -56,7 +67,7 @@ TypeScript tool implementations (19 tools) that extend the OpenCode runtime. Too
 - `rules/hub-routing.md` — Hub routing conventions
 
 ### External
-- `@opencode-ai/plugin` — Tool development SDK
+- `zod/v4` — Input-schema validation
 - Node.js 18+ — Runtime environment
 - TypeScript 5.x — Compilation
 

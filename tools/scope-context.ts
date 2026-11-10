@@ -1,6 +1,7 @@
-import { tool } from "@opencode-ai/plugin"
+import { z } from "zod/v4"
 import * as fs from "fs"
 import * as path from "path"
+import type { ToolDefinition } from "./types"
 
 // ─── Constants ──────────────────────────────────────────────────────────
 
@@ -160,32 +161,28 @@ function findContextFiles(
 
 // ─── Tool Export ────────────────────────────────────────────────────────
 
-export default tool({
+const input = z.object({
+  task: z.string().describe("The task prompt to analyze for keywords"),
+  filePaths: z.array(z.string()).optional().describe("File paths involved in the task (for domain hints)"),
+  projectRoot: z.string().optional().describe("Project root directory (defaults to cwd)"),
+})
+
+export default {
+  name: "scope-context",
   description:
     "Extract keywords from a task prompt and return relevant context file paths based on the context-strategy frame convention. Scans .opencode/context/ subdirectories for files matching task keywords.",
-  args: {
-    task: tool.schema
-      .string()
-      .describe("The task prompt to analyze for keywords"),
-    filePaths: tool.schema
-      .array(tool.schema.string())
-      .optional()
-      .describe("File paths involved in the task (for domain hints)"),
-    projectRoot: tool.schema
-      .string()
-      .optional()
-      .describe("Project root directory (defaults to cwd)"),
-  },
+  input,
   async execute(args, context) {
-    const projectRoot =
-      args.projectRoot || context?.directory || process.cwd()
+    const projectRoot = args.projectRoot || context.directory || process.cwd()
     const keywords = extractKeywords(args.task, args.filePaths || [])
     const contextPaths = findContextFiles(keywords, projectRoot)
 
-    return JSON.stringify({
-      keywords,
-      contextPaths,
-      scope: contextPaths.length > 0 ? "matched" : "none",
-    })
+    return {
+      content: JSON.stringify({
+        keywords,
+        contextPaths,
+        scope: contextPaths.length > 0 ? "matched" : "none",
+      }),
+    }
   },
-})
+} satisfies ToolDefinition<z.infer<typeof input>>

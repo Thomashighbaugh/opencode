@@ -23,6 +23,7 @@
 import { describe, it, expect } from 'vitest'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
+import { callTool as invokeTool } from '../helpers/call-tool'
 
 const CONFIG_DIR = path.resolve(__dirname, '..', '..')
 const RERANK_MOD = path.join(CONFIG_DIR, 'tools', 'rerank.ts')
@@ -37,8 +38,7 @@ const hasReranker = rt.isCached(rt.REQUIRED_MODELS.reranker)
 /** Call the tool's handler the way the runtime does. */
 async function callTool(args: Record<string, unknown>): Promise<any> {
   const mod: any = await import(RERANK_MOD)
-  const handler = mod.default?.execute ?? mod.execute
-  return JSON.parse(await handler(args, {}))
+  return invokeTool(mod, args, {})
 }
 
 // ─── sigmoid ───────────────────────────────────────────────────────────────
@@ -296,12 +296,18 @@ describe('rerank: cross-encoder pairing', () => {
 
 describe('rerank: wiring', () => {
   it('is discoverable as an OpenCode tool', () => {
-    // Tools are auto-discovered from tools/ by their default `tool()` export —
-    // they are NOT listed in opencode.jsonc. Asserting the manifest contains
-    // "rerank" would pass on a typo'd filename and fail on a correct one.
+    // V2 has no file-based tool discovery: a tool exists only when a plugin
+    // registers it through `ctx.tool.transform(editor => editor.add(...))`.
+    // `plugins/tools/index.ts` is that plugin, and it imports this module by
+    // path. Asserting the manifest contains "rerank" would pass on a typo'd
+    // filename and fail on a correct one, so check the wiring itself.
     const src = fs.readFileSync(RERANK_MOD, 'utf-8')
-    expect(src).toMatch(/export default tool\(\{/)
+    expect(src).toMatch(/name:\s*["']rerank["']/)
     expect(path.basename(RERANK_MOD, '.ts')).toBe('rerank')
+
+    const registry = fs.readFileSync(path.join(CONFIG_DIR, 'plugins', 'tools', 'index.ts'), 'utf-8')
+    expect(registry).toMatch(/import\s+rerank\s+from\s+"\.\.\/\.\.\/tools\/rerank\.ts"/)
+    expect(registry).toMatch(/editor\.add\(/)
   })
 
   it('shares its model id and scoring convention with veclib', () => {

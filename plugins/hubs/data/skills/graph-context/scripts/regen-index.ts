@@ -42,6 +42,7 @@ function walk(dir: string, out: string[] = []): string[] {
 }
 
 function sectionFor(rel: string): string {
+  if (rel.startsWith('context/library/')) return 'Library (Captured Sources)'
   if (rel.startsWith('context/research/')) return 'Research (External Sources)'
   if (rel.startsWith('context/frameworks/')) return 'Frameworks (Architecture & Design)'
   if (rel.startsWith('context/patterns/')) return 'Patterns & Practices'
@@ -67,6 +68,8 @@ export function collectPages(): Page[] {
         fm = {}
       }
     }
+    if (fm.part !== undefined && fm.part !== null) continue
+    if (rel.startsWith('context/library/archive/')) continue
     pages.push({
       slug: rel.replace(/\.md$/, ''),
       rel,

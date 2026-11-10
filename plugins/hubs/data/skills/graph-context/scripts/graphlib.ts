@@ -140,7 +140,7 @@ export function resolvePaths(inputDir) {
     // Added for backfillFromCode: the code store is the only place that knows
     // which declarations exist per file, so it is the source of the code layer.
     codeDbPath: path.join(opencodeDir, 'state', 'vector', 'code.db'),
-    registryPath: path.join(projectRoot, 'tools', 'hubs', 'spec-registry.json'),
+    registryPath: path.join(projectRoot, 'plugins', 'hubs', 'data', 'hubs', 'spec-registry.json'),
   };
 }
 
@@ -168,7 +168,7 @@ function openDatabase(dbPath, readonly = false) {
  *   applies_to, supersedes, touches, related_to, part_of, used_by, derived_from
  */
 const NODE_TYPES = new Set([
-  'pattern', 'decision', 'entity', 'concept', 'learning', 'source-summary', 'synthesis',
+  'pattern', 'decision', 'entity', 'concept', 'learning', 'source-summary', 'document', 'synthesis',
   'rule', 'skill', 'agent', 'command', 'hub-subcommand', 'file', 'module',
   'symbol', 'reference',
 ]);
@@ -252,7 +252,7 @@ export function ensureGraphReady(inputDir) {
  * declarations.
  */
 const OPENCODE_PREFIXED_TYPES = new Set([
-  'concept', 'entity', 'rule', 'source-summary', 'decision', 'pattern',
+  'concept', 'entity', 'rule', 'source-summary', 'document', 'decision', 'pattern',
   'framework', 'learning', 'synthesis', 'reference', 'hub-subcommand', 'skill',
   'agent', 'command', 'research',
 ])
@@ -737,14 +737,14 @@ function adoptKnowledgeOrphansIn(db): number {
   try {
     const KNOWN = new Set([
       'concept', 'decision', 'pattern', 'learning', 'entity',
-      'source-summary', 'synthesis', 'hub-subcommand', 'command', 'agent',
-      'skill', 'rule',
+      'source-summary', 'document', 'synthesis', 'hub-subcommand', 'command', 'agent',
+      'skill', 'rule', 'reference',
     ]);
     // Types whose natural parent is their own directory (the directory is
     // the meaningful grouping: patterns/ vs decisions/ vs learnings/).
     const BY_DIRECTORY = new Set([
       'concept', 'decision', 'pattern', 'learning', 'entity',
-      'source-summary', 'synthesis',
+      'source-summary', 'synthesis', 'reference',
     ]);
     const ensureModule = (slug: string) => {
       const id = nodeId('module', slug);
@@ -1276,7 +1276,7 @@ export function backfillFromCode(inputDir: string | undefined): CodeBackfillResu
 // ─── Frontmatter parsing ───────────────────────────────────────────────────
 
 /**
- * One hub subcommand entry as it appears in tools/hubs/spec-registry.json.
+ * One hub subcommand entry as it appears in plugins/hubs/data/hubs/spec-registry.json.
  * Only the fields the graph builder reads are typed; the registry carries many
  * more (detailedDescription, examples, warnings) that are irrelevant here.
  */
@@ -1596,11 +1596,20 @@ export async function backfillFromWiki(inputDir) {
       for (const entry of entries) {
         if (!entry.isDirectory()) continue
         const skillRoot = path.join(dir, entry.name)
+        // A directory under skills/ is a skill only when it has a SKILL.md.
+        // `skills/web-search-modules/` holds strategy modules for the
+        // web-search AGENT and has no SKILL.md, so treating it as a skill
+        // wrote a `part_of` edge to a `skill:web-search-modules` node that
+        // nothing ever created. The edge dangled, the prune pass deleted it,
+        // and the twelve module files were left with no edge in either
+        // direction. Files in a SKILL-less directory are still indexed — as
+        // references with no owner — so the pages stay reachable.
+        const isSkill = fs.existsSync(path.join(skillRoot, 'SKILL.md'))
         const found = await walk(skillRoot)
         for (const f of found) {
           if (!f.endsWith('.md')) continue
           if (path.basename(f) === 'SKILL.md') continue
-          skillBundledMds.push({ file: f, skill: entry.name })
+          skillBundledMds.push({ file: f, skill: isSkill ? entry.name : '' })
         }
       }
     }
@@ -1882,6 +1891,16 @@ export async function backfillFromWiki(inputDir) {
       return null;
     };
 
+    // Node types the knowledge layer links freely: the pages an agent, a rule,
+    // or another page can point at. A bundled reference file is NOT one of
+    // them — it is linked TO, never FROM, so it needs an owner rather than a
+    // link set of its own.
+    const LINKABLE = new Set(['rule', 'skill', 'agent', 'concept', 'pattern', 'decision', 'command']);
+    const LINKABLE_SQL = [...LINKABLE].map((t) => `'${t}'`).join(',');
+
+    // The link targets this build resolved, per source node. Used below to
+    // reconcile the edges the markdown links own.
+    const linkTargets = new Map<string, Set<string>>();
     for (const [srcId, target, sourceRel] of pendingLinks) {
       const dstId = resolveLink(target, sourceRel, srcId);
       if (!dstId || dstId === srcId || !nodeExists.get(dstId)) {
@@ -1891,12 +1910,31 @@ export async function backfillFromWiki(inputDir) {
       }
       db.prepare('INSERT OR IGNORE INTO edges (src_id, dst_id, type) VALUES (?, ?, ?)').run(srcId, dstId, 'related_to');
       stats.edges++;
+      if (!linkTargets.has(srcId)) linkTargets.set(srcId, new Set());
+      linkTargets.get(srcId)!.add(dstId);
     }
     if (skippedLinks) {
       stats.skippedLinks = (stats.skippedLinks ?? 0) + skippedLinks;
       // Named, not just counted: "205 links skipped" is not actionable, and the
       // count is the whole reason this became visible.
       stats.skippedLinkSamples = [...(stats.skippedLinkSamples ?? []), ...skippedSamples];
+    }
+
+    // A markdown link that was REMOVED from a source file must not survive as
+    // an edge. The recompute further down owns every related_to edge between
+    // two linkable nodes, so those are reconciled there. The edges that point
+    // at a node the recompute does not manage — a bundled reference file, for
+    // instance — are owned by the markdown links, and they are reconciled
+    // here against the links this build actually found.
+    for (const [id, type] of nodeType) {
+      if (!LINKABLE.has(type)) continue;
+      const keep = linkTargets.get(id);
+      const keepList = keep ? [...keep].map((dst) => `'${dst.replace(/'/g, "''")}'`) : [];
+      let sql =
+        `DELETE FROM edges WHERE type = 'related_to' AND src_id = ?` +
+        ` AND dst_id NOT IN (SELECT id FROM nodes WHERE type IN (${LINKABLE_SQL}))`;
+      if (keepList.length) sql += ` AND dst_id NOT IN (${keepList.join(',')})`;
+      db.prepare(sql).run(id);
     }
 
     // sources[] → derived_from
@@ -1942,16 +1980,23 @@ export async function backfillFromWiki(inputDir) {
     // invoking it — the "which rules govern this work" question was unanswerable
     // at the knowledge layer even though the code layer could answer it.
     // Cheap: one content read per knowledge node, membership test per token.
-    const LINKABLE = new Set(['rule', 'skill', 'agent', 'concept', 'pattern', 'decision', 'command']);
     // Same recompute-not-accumulate rule as the code layer, for the same
     // reason: these links are derived from file content, and the wiki index and
     // log files grow over time, so accumulating them would inflate the graph on
     // every run. Curated touches/applies_to are left alone.
+    //
+    // Only the edges between two linkable nodes are recomputed here. The
+    // markdown links own the edges that point at a node this pass does not
+    // manage — a bundled reference file, for instance — and those are
+    // reconciled against the links the build found (see the cleanup above).
+    // Deleting them here dropped every markdown link an agent or rule wrote to
+    // a reference file, which is why `agent:web-search` could not see the
+    // strategy modules it loads.
     db.exec(`
       DELETE FROM edges
-      WHERE type = 'related_to' AND src_id IN (
-        SELECT id FROM nodes WHERE type IN ('rule','skill','agent','concept','pattern','decision','command')
-      )
+      WHERE type = 'related_to'
+        AND src_id IN (SELECT id FROM nodes WHERE type IN (${LINKABLE_SQL}))
+        AND dst_id IN (SELECT id FROM nodes WHERE type IN (${LINKABLE_SQL}))
     `);
     // Deterministic first-wins slug resolution (see the code-bridge note).
     const slugToNode = new Map<string, string>();
@@ -2015,7 +2060,7 @@ function upsertNodeInner(db, node) {
 
 /**
  * Backfill from the hub spec-registry (config-hub projects only):
- *   tools/hubs/spec-registry.json → hub-subcommand nodes + used_by edges to skills
+ *   plugins/hubs/data/hubs/spec-registry.json → hub-subcommand nodes + used_by edges to skills
  */
 /**
  * Delete edges whose endpoints no longer exist, and report how many.

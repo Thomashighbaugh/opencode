@@ -8,44 +8,47 @@
 ~/.config/opencode/
 ├── opencode.jsonc        # Main configuration (providers, plugins, instructions, permissions, MCP)
 ├── AGENTS.md             # This file — root instructions, agent catalog, available skills
-├── agents/               # Agent definitions (30 agents)
+├── agents/               # Agent definitions (32 files: hubs + 31 subagents)
 │   ├── hubs.md           # Primary agent (mode: primary)
 │   ├── executor.md       # Subagents (mode: subagent)
 │   ├── architect.md
-│   └── ...                # 30 total
-├── skills/               # Reusable workflow skills (99 skills)
+│   └── ...                # 31 subagents
+├── skills/               # Reusable workflow skills (127 skills)
 │   ├── provision/
 │   │   └── SKILL.md      # Entry point with YAML frontmatter
 │   ├── ralph/
 │   │   └── SKILL.md
-│   └── ...                # 99 total
-├── tools/                # TypeScript tools (19 tools — including the 5 new file-editing tools)
+│   └── ...                # 127 total
+├── tools/                # OpenCode 2 tool definitions (29 tools) — inert until registered
+│   ├── types.ts          # V2 tool contract (ToolDefinition / ToolContext / ToolResult)
 │   ├── regex-edit.ts
 │   ├── json-edit.ts
 │   ├── yaml-edit.ts
 │   ├── conf-edit.ts
 │   ├── multi-edit.ts
-│   ├── hubMenu.ts
-│   └── ...                # 19 total
+│   └── ...                # 29 total, registered by plugins/tools/index.ts
 ├── commands/             # Slash command definitions
 │   └── *.md
-├── plugins/              # Hook system plugins and TUI plugins
-│   ├── hooks/hooks.ts
-│   └── hubs-tui/
+├── plugins/              # Auto-discovered OpenCode 2 plugin directories
+│   ├── hubs/             # Hub router + vendored specs/skills/agents + TUI picker
+│   ├── tools/            # Registers every tools/*.ts definition via ctx.tool.transform
+│   ├── hooks/            # Session, modes, telemetry, cache, goal
+│   ├── todo/ prompt-queue/ memory-system/ token-optimizer/ toon/ ax-guard/ command-hooks/ env-protection/
 ├── rules/                # Shared agent instructions (loaded via opencode.jsonc)
 │   ├── shell_strategy.md
 │   ├── context-strategy.md
 │   ├── karpathy-guidelines.md
 │   ├── anti-sycophancy.md
-│   └── ...                # 16 total rules
+│   └── ...                # 24 total rules
 ├── templates/
 │   ├── projects/          # Project archetype templates for /init-project
 │   │   ├── bare-bones/
 │   │   ├── nextjs-webapp/
 │   │   └── ...             # 8 archetypes
-│   │   └── each archetype has: agents/, rules/, skills/, tools/
-│   │      # agents/ and rules/ → referenced in opencode.jsonc (agent + instructions keys)
-│   │      # skills/ and tools/ → copied/linked into project's .opencode/ directory
+│   │   └── each archetype has: manifest.json, opencode.jsonc, rules/
+│   │      # rules/ → referenced from opencode.jsonc `instructions`
+│   │      # agents/, skills/, tool plugins → provisioned by /hub-setup provision
+│   │      #   into the project's .opencode/{agents,skills,plugins}/
 │   ├── agent-template.md  # Agent definition template
 │   ├── context-template.md
 │   ├── rules/             # Rule generation templates
@@ -101,21 +104,30 @@ tags: [tag1, tag2]                        # from resource-tags.md vocabulary
 
 ### Tool Files (`tools/<name>.ts`)
 
-```typescript
-import { tool } from "@opencode-ai/plugin"
+OpenCode 2 removed file-based tool discovery: a file in `tools/` is inert until a plugin registers it. A tool is a plain object registered by `plugins/tools/index.ts` through `ctx.tool.transform`.
 
-export default tool({
+```typescript
+import { z } from "zod/v4"
+import type { ToolDefinition } from "./types"
+
+const input = z.object({ path: z.string().describe("File to read") })
+
+export default {
+  name: "read-thing",
   description: "...",
-  args: { ... },
-  async execute(args, context) { ... }
-})
+  input,
+  async execute(args, context) {
+    return { content: JSON.stringify({ ok: true }) }
+  },
+} satisfies ToolDefinition<z.infer<typeof input>>
 ```
 
 **Rules:**
-- Uses `@opencode-ai/plugin` SDK
-- Each tool exports a default tool definition
-- Tools are auto-discovered by OpenCode from this directory
-- Import external deps from the project's `node_modules/`
+- Input is a zod/v4 schema named `input`; the registering plugin converts it with `z.toJSONSchema`
+- `execute` returns `{ content: string }` — JSON payloads are stringified into it
+- The tool context carries `directory` (injected from `ctx.location.directory`), not a sandbox path
+- Register the tool in `plugins/tools/index.ts` — an unregistered file never reaches the model
+- Never import `@opencode/plugin` at runtime; import `./types` as a type only
 
 ### Rule Files (`rules/<name>.md`)
 
@@ -135,7 +147,7 @@ Markdown files with frontmatter defining the trigger and description. Follow the
 | --------- | --------------------------------- | -------------------------------- |
 | Agents    | kebab-case, descriptive noun      | `config-orchestrator.md`, `stack-detector.md` |
 | Skills    | kebab-case, short action noun     | `provision/`, `deep-interview/`, `ai-slop-cleaner/` |
-| Tools     | kebab-case, noun with hyphens     | `regex-edit.ts`, `json-edit.ts`, `hubMenu.ts` |
+| Tools     | kebab-case, noun with hyphens     | `regex-edit.ts`, `json-edit.ts`, `graphQuery.ts` |
 | Rules     | kebab-case, descriptive           | `artifact-placement.md`, `shell_strategy.md` |
 | Commands  | lowercase, no special chars       | `create-tests.md`, `git-stage-thread.md` |
 | Archetypes | kebab-case                        | `nextjs-webapp/`, `cli-tool/` |

@@ -1,8 +1,9 @@
-import { tool } from "@opencode-ai/plugin"
+import { z } from "zod/v4"
 import * as fs from "fs"
 import * as path from "path"
 import { homedir } from "os"
-import { CacheManager, getCache, withToolCache } from "./cache-utils"
+import { getCache, withToolCache } from "./cache-utils"
+import type { ToolDefinition } from "./types"
 
 // Path conventions:
 // - User-wide config: ~/.config/opencode/agents/ (shared agents across all projects)
@@ -56,19 +57,26 @@ function getAgentPath(agentName: string, projectRoot: string): string | null {
 
 const VALID_AGENT_ACTIONS = ['list', 'get', 'get-content', 'find-by-capability'] as const
 
-export default tool({
+const input = z.object({
+  action: z
+    .string()
+    .describe(
+      `Action: list all agents, get specific agent details, or find by capability. Valid: ${VALID_AGENT_ACTIONS.join(", ")}`,
+    ),
+  agent: z.string().optional().describe("Agent name for 'get' actions"),
+  capability: z.string().optional().describe("Capability keyword to search for (e.g., 'review', 'test', 'debug', 'plan')"),
+})
+
+export default {
+  name: "listAgents",
   description: "List available agents or get details about a specific agent for delegation or reference",
-  args: {
-    action: tool.schema.string().describe(`Action: list all agents, get specific agent details, or find by capability. Valid: ${VALID_AGENT_ACTIONS.join(', ')}`),
-    agent: tool.schema.string().optional().describe("Agent name for 'get' actions"),
-    capability: tool.schema.string().optional().describe("Capability keyword to search for (e.g., 'review', 'test', 'debug', 'plan')")
-  },
+  input,
   async execute(args, context) {
     const projectRoot = context.directory || process.cwd()
     
     switch (args.action) {
       case 'list': {
-        return withToolCache("listAgents", args, () => {
+        return { content: withToolCache("listAgents", args, () => {
           const agentPaths = [
             { type: 'project', path: path.join(projectRoot, '.opencode', 'agents') },
             { type: 'user', path: path.join(USER_CONFIG_DIR, 'agents') }
@@ -103,11 +111,11 @@ export default tool({
             count: agents.length,
             agents: agents.sort((a, b) => a.name.localeCompare(b.name))
           })
-        }, 86_400_000) // 24h — agent list is static
+        }, 86_400_000) } // 24h — agent list is static
       }
       
       case 'get': {
-        return withToolCache("listAgents", args, () => {
+        return { content: withToolCache("listAgents", args, () => {
           if (!args.agent) return JSON.stringify({ error: 'Agent name required for get action' })
           const agentPath = getAgentPath(args.agent, projectRoot)
           if (!agentPath) return JSON.stringify({ error: `Agent '${args.agent}' not found` })
@@ -122,11 +130,11 @@ export default tool({
             mode: meta.mode,
             path: agentPath
           })
-        }, 86_400_000)
+        }, 86_400_000) }
       }
       
       case 'get-content': {
-        return withToolCache("listAgents", args, () => {
+        return { content: withToolCache("listAgents", args, () => {
           if (!args.agent) return JSON.stringify({ error: 'Agent name required for get-content action' })
           const agentPath = getAgentPath(args.agent, projectRoot)
           if (!agentPath) return JSON.stringify({ error: `Agent '${args.agent}' not found` })
@@ -136,11 +144,11 @@ export default tool({
             content: fs.readFileSync(agentPath, 'utf-8'),
             path: agentPath
           })
-        }, 86_400_000)
+        }, 86_400_000) }
       }
       
       case 'find-by-capability': {
-        return withToolCache("listAgents", args, () => {
+        return { content: withToolCache("listAgents", args, () => {
           if (!args.capability) return JSON.stringify({ error: 'Capability keyword required' })
           const keyword = args.capability.toLowerCase()
           const agentPaths = [
@@ -175,11 +183,11 @@ export default tool({
             count: matches.length,
             matches: matches.sort((a, b) => a.name.localeCompare(b.name))
           })
-        }, 86_400_000)
+        }, 86_400_000) }
       }
       
       default:
-        return JSON.stringify({ error: `Unknown action: ${args.action}` })
+        return { content: JSON.stringify({ error: `Unknown action: ${args.action}` }) }
     }
-  }
-})
+  },
+} satisfies ToolDefinition<z.infer<typeof input>>

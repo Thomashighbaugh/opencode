@@ -1,20 +1,40 @@
 ---
 name: tool-creator
-description: Create valid, type-safe TypeScript tools for OpenCode — generates correct boilerplate, typed interfaces, and handler stubs. Use when building new tools for global config or per-project .opencode/tools/.
+description: Create valid, type-safe OpenCode 2 tool plugins — generates correct boilerplate, JSON Schema arguments, and handler stubs. Use when building new tools for the global config or a per-project .opencode/plugins/ tree.
 level: 2
 license: MIT
 tags: [opencode, tool, typescript, scaffold, automation]
-version: 1.0.0
+version: 2.0.0
 ---
 
 # Tool Creator
 
-Use this skill when creating OpenCode TypeScript tools that extend the agent's capabilities. The skill interviews you about what the tool should do, generates valid boilerplate via `tool-scaffolder`, and validates the output.
+Use this skill when creating OpenCode tools that extend the agent's capabilities. The skill interviews you about what the tool should do, generates valid boilerplate via `tool-scaffolder`, and validates the output.
+
+## The one rule that changed everything
+
+OpenCode 2 removed file-based tool discovery. In V1 a file at `.opencode/tools/foo.ts` was imported automatically and its default export became a tool. In V2 that file is **inert** — nothing scans the directory.
+
+A tool exists only when a plugin registers it:
+
+```typescript
+await ctx.tool.transform((editor) => {
+  editor.add({ name, description, input, options, execute })
+})
+```
+
+So a tool is not a file, it is a **plugin directory**:
+
+```
+.opencode/plugins/my-tool/index.ts
+```
+
+OpenCode 2 auto-discovers every directory under `<config>/plugins/` and `<project>/.opencode/plugins/`, loads its `index.ts`, and calls `setup(ctx)`. A scaffolded tool therefore works with no registration entry anywhere.
 
 ## When to Use
 
-- Creating a new TypeScript tool for `~/.config/opencode/tools/` (global scope)
-- Creating a project-specific tool in `.opencode/tools/` (project scope)
+- Creating a new tool for `~/.config/opencode/plugins/` (global scope)
+- Creating a project-specific tool in `.opencode/plugins/` (project scope)
 - Adding a missing tool type: file editing, validation, state management, search, etc.
 - User says "create a tool for X" or "I need a tool that does Y"
 
@@ -24,6 +44,7 @@ Use this skill when creating OpenCode TypeScript tools that extend the agent's c
 - The user wants a skill, not a tool (use `/resource-hub create skill`)
 - The user wants a slash command (use `opencode-command-creator`)
 - The user wants an agent (use `opencode-agent-creator`)
+- The user wants a plugin that is not a tool (use `opencode-plugin-creator`)
 
 ## Workflow
 
@@ -74,49 +95,80 @@ tool-scaffolder {
 
 Validation checks vary by language:
 
-| Language   | Checks                                                                 |
-| ---------- | ---------------------------------------------------------------------- |
-| TypeScript | import, export default tool(), description, args, async execute        |
-| Bash       | shebang (`#!/usr/bin/env bash`), `set -euo pipefail`                     |
+| Language   | Checks                                                                              |
+| ---------- | ----------------------------------------------------------------------------------- |
+| TypeScript | default export is a plugin (`export default {`), `setup(`, `ctx.tool.transform`, `editor.add(`, `name`, `description`, `input`, `async execute` |
+| Bash       | shebang (`#!/usr/bin/env bash`), `set -euo pipefail`                                  |
 
 If validation fails, fix the issues and re-validate.
 
 ### Step 4: Hand Off
 
 Show the user:
-- The generated file path
+- The generated plugin path
 - Parameter count and file size
 - A preview of the generated code (first 20 lines)
 - Reminder: the handler stub needs custom logic — search for `TODO: implement tool logic`
 
-## Tool File Structure
+## Tool Plugin Structure
 
-Generated tools follow this canonical pattern:
+Generated TypeScript tools follow this canonical pattern:
 
 ```typescript
-import { tool } from "@opencode-ai/plugin"
-import * as fs from "fs"
-import * as path from "path"
-import { homedir } from "os"
+/**
+ * my-tool — OpenCode 2 tool plugin.
+ *
+ * V2 removed file-based tool discovery: a file under `.opencode/tools/` is
+ * inert until a plugin registers it. This file *is* that plugin.
+ */
 
-interface MyToolArgs {
+interface Args {
   input: string
   verbose?: boolean
 }
 
-export default tool({
-  description: "What this tool does",
-  args: {
-    input: tool.schema.string().describe("Input value"),
-    verbose: tool.schema.boolean().optional().describe("Enable verbose output"),
+const input = {
+  type: "object" as const,
+  properties: {
+    input: { type: "string", description: "Input value" },
+    verbose: { type: "boolean", description: "Enable verbose output" },
   },
-  async execute(args: MyToolArgs, context) {
-    const projectRoot = context.directory || process.cwd()
-    // TODO: implement tool logic
-    return JSON.stringify({ ok: true })
+  required: ["input"],
+}
+
+export default {
+  id: "my-tool",
+  setup(ctx: any) {
+    const directory: string = ctx?.location?.directory ?? process.cwd()
+
+    ctx.tool.transform((editor: any) => {
+      editor.add({
+        name: "my-tool",
+        description: "What this tool does",
+        input,
+        // codemode: false keeps the tool on the provider's native tool list.
+        options: { codemode: false },
+        execute: async (args: Args, context: any) => {
+          const projectRoot = context?.directory ?? directory
+          // TODO: implement tool logic
+          return { content: JSON.stringify({ ok: true }) }
+        },
+      })
+    })
   },
-})
+}
 ```
+
+### Rules that bite
+
+| Rule | Why |
+| ---- | --- |
+| No `import { tool } from "@opencode-ai/plugin"` | That runtime import loads `@opencode/schema` against the host's embedded effect and breaks plugin loading. Type-only imports are safe. |
+| Input is plain JSON Schema | A project plugin should not acquire a zod dependency to describe four arguments. |
+| Result is `{ content }` | V2 tool results carry `content` (string or content parts), not a bare string. |
+| `options: { codemode: false }` | Without it the tool only appears inside Code Mode, not on the provider's native tool list. |
+| Tool names are `[A-Za-z0-9_-]+` | Anything else is rejected at registration. |
+| The project root comes from `ctx.location.directory` | The V2 tool context carries no filesystem path. |
 
 ### Bash Output Structure
 
@@ -141,32 +193,33 @@ printf '{"ok": true}\n'
 
 ## Scope Rules
 
-| Scope   | TypeScript                       | Shell (bash)                                 | Available         |
-| ------- | -------------------------------- | -------------------------------------------- | ----------------- |
-| global  | `~/.config/opencode/tools/`       | `~/.config/opencode/skills/<name>/scripts/`  | All projects      |
-| project | `<project>/.opencode/tools/`      | `<project>/.opencode/skills/<name>/scripts/` | This project only |
+| Scope   | TypeScript                          | Shell (bash)                                 | Available         |
+| ------- | ----------------------------------- | -------------------------------------------- | ----------------- |
+| global  | `~/.config/opencode/plugins/<name>/` | `~/.config/opencode/skills/<name>/scripts/`  | All projects      |
+| project | `<project>/.opencode/plugins/<name>/` | `<project>/.opencode/skills/<name>/scripts/` | This project only |
 
-**Artifact placement rule:** TypeScript tools go into `tools/` (global) or `.opencode/tools/` (project). Bash scripts go into `skills/<name>/scripts/` (global) or `.opencode/skills/<name>/scripts/` (project). Never create standalone scripts at the project root. See `rules/file-operations.md`.
+**Artifact placement rule:** TypeScript tools are plugin directories under `plugins/` (global) or `.opencode/plugins/` (project). Bash scripts go into `skills/<name>/scripts/` (global) or `.opencode/skills/<name>/scripts/` (project). Never create standalone scripts at the project root. See `rules/file-operations.md`.
 
 ## Parameter Types
 
-| Type      | TypeScript              | Bash                | Use Case          |
-| --------- | ----------------------- | ------------------- | ----------------- |
-| `string`    | `tool.schema.string()`    | positional/flag       | Text, paths, IDs    |
-| `number`    | `tool.schema.number()`    | positional/flag       | Counts, limits      |
-| `boolean`   | `tool.schema.boolean()`   | flag, no value        | Flags, toggles      |
-| `array`     | `tool.schema.array()`     | `IFS`-split string    | Lists (of strings)  |
-| `object`    | `tool.schema.object()`    | JSON string parse    | Complex nested data |
+| Type      | TypeScript (JSON Schema)          | Bash                | Use Case          |
+| --------- | --------------------------------- | ------------------- | ----------------- |
+| `string`    | `{ type: "string" }`              | positional/flag       | Text, paths, IDs    |
+| `number`    | `{ type: "number" }`              | positional/flag       | Counts, limits      |
+| `boolean`   | `{ type: "boolean" }`             | flag, no value        | Flags, toggles      |
+| `array`     | `{ type: "array", items: {...} }` | `IFS`-split string    | Lists (of strings)  |
+| `object`    | `{ type: "object" }`              | JSON string parse    | Complex nested data |
 
 ## Validation Checks
 
 After generation, always validate. The `tool-scaffolder validate` action checks:
 
 **TypeScript:**
-- ✓ Import from `@opencode-ai/plugin` present
-- ✓ `export default tool(` present
-- ✓ `description:` field defined
-- ✓ `args:` schema defined
+- ✓ `export default {` — a plugin, not a bare object
+- ✓ `setup(` present
+- ✓ `ctx.tool.transform` registration present
+- ✓ `editor.add(` present
+- ✓ `name:`, `description:`, `input` defined
 - ✓ `async execute` handler present
 
 **Bash:**
@@ -179,9 +232,11 @@ After generation, always validate. The `tool-scaffolder validate` action checks:
 | ---------------------------------- | ------------------------------------------- |
 | Creating a tool that duplicates an existing one | Check `tools/` first, then create     |
 | Hand-rolling boilerplate           | Use `tool-scaffolder generate`                |
-| Putting tools at project root      | Always in `.opencode/tools/` or `tools/`      |
+| Writing the tool to `.opencode/tools/` | Write a plugin directory under `.opencode/plugins/` |
+| Importing `@opencode-ai/plugin` at runtime | Plain object plugin, no runtime import |
+| Returning a bare string from `execute` | Return `{ content: "..." }`              |
 | Skipping validation                | Always run `tool-scaffolder validate`         |
-| Unclear parameter descriptions     | Each param gets a meaningful `.describe()`     |
+| Unclear parameter descriptions     | Each property gets a `description`            |
 
 ## Related
 

@@ -1164,167 +1164,263 @@ function generateTools(detection, opts) {
   if (opts.skipTools) return [];
   if (opts.verbose) console.log('\n[provision] Phase 4: Generating project-specific tools...');
 
-  const toolsDir = path.join(opts.outputDir, 'tools');
-  if (!fs.existsSync(toolsDir)) fs.mkdirSync(toolsDir, { recursive: true });
+  // OpenCode 2 removed file-based tool discovery. A file under
+  // `.opencode/tools/` is inert until a plugin registers it through
+  // `ctx.tool.transform`. Tools are therefore generated as plugin
+  // directories under `.opencode/plugins/<name>/index.ts`, which V2
+  // auto-discovers — no registration wiring needed.
+  const pluginsDir = path.join(opts.outputDir, 'plugins');
+  if (!fs.existsSync(pluginsDir)) fs.mkdirSync(pluginsDir, { recursive: true });
 
   const generated = [];
 
-  // project-info.ts — always generated
-  const infoContent = generateProjectInfoTool(detection);
-  if (safeWriteFile(path.join(toolsDir, 'project-info.ts'), infoContent, opts.force)) {
-    generated.push({ type: 'tool', name: 'project-info', path: '.opencode/tools/project-info.ts' });
-  }
+  const writeTool = (name, content) => {
+    const dir = path.join(pluginsDir, name);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    if (safeWriteFile(path.join(dir, 'index.ts'), content, opts.force)) {
+      generated.push({ type: 'tool', name, path: `.opencode/plugins/${name}/index.ts` });
+    }
+  };
+
+  // project-info — always generated
+  writeTool('project-info', generateProjectInfoTool(detection));
 
   // Deploy tool (if deployment detected)
   if (detection.deployment) {
-    const deployContent = generateDeployTool(detection);
-    if (safeWriteFile(path.join(toolsDir, 'deploy.ts'), deployContent, opts.force)) {
-      generated.push({ type: 'tool', name: 'deploy', path: '.opencode/tools/deploy.ts' });
-    }
+    writeTool('deploy', generateDeployTool(detection));
   }
 
   // DB migration tool (if database detected)
   if (detection.database) {
-    const dbContent = generateDbMigrateTool(detection);
-    if (safeWriteFile(path.join(toolsDir, 'db-migrate.ts'), dbContent, opts.force)) {
-      generated.push({ type: 'tool', name: 'db-migrate', path: '.opencode/tools/db-migrate.ts' });
-    }
+    writeTool('db-migrate', generateDbMigrateTool(detection));
   }
 
   return generated;
 }
 
 function generateProjectInfoTool(detection) {
-  return `import { tool } from "@opencode-ai/plugin"
+  return `/**
+ * project-info — OpenCode 2 tool plugin.
+ *
+ * V2 removed file-based tool discovery: a file under \`.opencode/tools/\` is
+ * inert until a plugin registers it. This file *is* that plugin — V2
+ * auto-discovers every directory under \`.opencode/plugins/\` and loads its
+ * \`index.ts\`.
+ */
 
-export default tool({
-  name: "project-info",
-  description: "Returns project metadata including language, framework, build/test/lint commands, and conventions.",
-  args: {},
-  async execute(args, context) {
-    return JSON.stringify({
-      language: "${detection.language}",
-      version: "${detection.version || ''}",
-      framework: "${detection.framework || ''}",
-      packageManager: "${detection.packageManager}",
-      buildCommand: "${detection.packageManager === 'npm' ? 'npm run build' : detection.packageManager + ' build'}",
-      testCommand: "${detection.testCommand || 'Not configured'}",
-      lintCommand: "${detection.lintCommand || 'Not configured'}",
-      devCommand: "${detection.devCommand || (detection.packageManager === 'npm' ? 'npm run dev' : 'Not configured')}",
-      sourceDir: "${detection.directories?.source || 'src/'}",
-      testDir: "${detection.directories?.test || 'tests/'}",
-      style: "${detection.styling || 'Not detected'}",
-      testing: "${detection.testFramework || 'Not detected'}",
-      architecture: "${detection.architecture || 'Not detected'}",
-      lint: "${detection.lintCommand || 'Not detected'}",
-      ci: "${detection.ci || 'Not detected'}",
-      deployment: "${detection.deployment || 'Not configured'}",
-      keyFiles: ${JSON.stringify(detection.keyFiles || [])},
-      directories: ${JSON.stringify(detection.directories || {})}
-    }, null, 2)
-  }
-})
+export default {
+  id: "project-info",
+  setup(ctx: any) {
+    ctx.tool.transform((editor: any) => {
+      editor.add({
+        name: "project-info",
+        description: "Returns project metadata including language, framework, build/test/lint commands, and conventions.",
+        input: { type: "object", properties: {} },
+        options: { codemode: false },
+        execute: async () => ({
+          content: JSON.stringify({
+            language: "${detection.language}",
+            version: "${detection.version || ''}",
+            framework: "${detection.framework || ''}",
+            packageManager: "${detection.packageManager}",
+            buildCommand: "${detection.packageManager === 'npm' ? 'npm run build' : detection.packageManager + ' build'}",
+            testCommand: "${detection.testCommand || 'Not configured'}",
+            lintCommand: "${detection.lintCommand || 'Not configured'}",
+            devCommand: "${detection.devCommand || (detection.packageManager === 'npm' ? 'npm run dev' : 'Not configured')}",
+            sourceDir: "${detection.directories?.source || 'src/'}",
+            testDir: "${detection.directories?.test || 'tests/'}",
+            style: "${detection.styling || 'Not detected'}",
+            testing: "${detection.testFramework || 'Not detected'}",
+            architecture: "${detection.architecture || 'Not detected'}",
+            lint: "${detection.lintCommand || 'Not detected'}",
+            ci: "${detection.ci || 'Not detected'}",
+            deployment: "${detection.deployment || 'Not configured'}",
+            keyFiles: ${JSON.stringify(detection.keyFiles || [])},
+            directories: ${JSON.stringify(detection.directories || {})}
+          }, null, 2)
+        }),
+      })
+    })
+  },
+}
 `;
 }
 
 function generateDeployTool(detection) {
-  return `import { tool } from "@opencode-ai/plugin"
-import { execSync } from "child_process"
+  const pm = detection.packageManager || 'npm';
+  const buildArgs = pm === 'npm' ? '["run", "build"]' : '["build"]';
+  return `import { execFile } from "node:child_process"
+import { promisify } from "node:util"
 
-export default tool({
-  name: "deploy",
-  description: "Deploy the project to ${detection.deployment}.",
-  args: {
+const exec = promisify(execFile)
+
+interface Args {
+  environment?: string
+}
+
+const input = {
+  type: "object" as const,
+  properties: {
     environment: {
       type: "string",
       description: "Deployment environment (preview or production)",
-      default: "preview"
-    }
+      default: "preview",
+    },
   },
-  async execute(args, context) {
-    const env = args.environment || "preview"
-    try {
-      const buildCmd = "${detection.packageManager === 'npm' ? 'npm run build' : detection.packageManager + ' build'}"
-      execSync(buildCmd, { stdio: "inherit" })
-      return { environment: env, status: "built", message: "Build completed. Ready for deployment." }
-    } catch (error) {
-      return { environment: env, status: "failed", error: error.message }
-    }
-  }
-})
+}
+
+export default {
+  id: "deploy",
+  setup(ctx: any) {
+    const directory: string = ctx?.location?.directory ?? process.cwd()
+
+    ctx.tool.transform((editor: any) => {
+      editor.add({
+        name: "deploy",
+        description: "Deploy the project to ${detection.deployment}.",
+        input,
+        options: { codemode: false },
+        execute: async (args: Args) => {
+          const environment = args.environment || "preview"
+          try {
+            // Arguments are passed as an array, never interpolated into a
+            // shell string.
+            await exec("${pm}", ${buildArgs}, { cwd: directory })
+            return {
+              content: JSON.stringify({
+                environment,
+                status: "built",
+                message: "Build completed. Ready for deployment.",
+              }),
+            }
+          } catch (error: any) {
+            return {
+              content: JSON.stringify({
+                environment,
+                status: "failed",
+                error: String(error.stderr || error.message || ""),
+              }),
+            }
+          }
+        },
+      })
+    })
+  },
+}
 `;
 }
 
 function generateDbMigrateTool(detection) {
   const orm = detection.database;
-  // Determine migration commands based on ORM
-  let createCmd, upCmd, downCmd, statusCmd;
-  
+  // Determine migration commands based on ORM. Each command is an argument
+  // array for `npx` — never a shell string, so a migration name cannot turn
+  // into a command.
+  let createArgs, upArgs, downArgs, statusArgs, createFlag;
+
   if (orm === 'prisma') {
-    createCmd = 'npx prisma migrate dev --name';
-    upCmd = 'npx prisma migrate deploy';
-    downCmd = 'npx prisma migrate reset';
-    statusCmd = 'npx prisma migrate status';
+    createArgs = ['prisma', 'migrate', 'dev'];
+    createFlag = '--name';
+    upArgs = ['prisma', 'migrate', 'deploy'];
+    downArgs = ['prisma', 'migrate', 'reset'];
+    statusArgs = ['prisma', 'migrate', 'status'];
   } else if (orm === 'typeorm') {
-    createCmd = 'npx typeorm migration:create';
-    upCmd = 'npx typeorm migration:run';
-    downCmd = 'npx typeorm migration:revert';
-    statusCmd = 'npx typeorm migration:show';
+    createArgs = ['typeorm', 'migration:create'];
+    createFlag = null;
+    upArgs = ['typeorm', 'migration:run'];
+    downArgs = ['typeorm', 'migration:revert'];
+    statusArgs = ['typeorm', 'migration:show'];
   } else if (orm === 'drizzle-orm') {
-    createCmd = 'npx drizzle-kit generate';
-    upCmd = 'npx drizzle-kit push';
-    downCmd = 'npx drizzle-kit drop';
-    statusCmd = 'npx drizzle-kit check';
+    createArgs = ['drizzle-kit', 'generate'];
+    createFlag = null;
+    upArgs = ['drizzle-kit', 'push'];
+    downArgs = ['drizzle-kit', 'drop'];
+    statusArgs = ['drizzle-kit', 'check'];
   } else {
-    createCmd = 'npx migrate create';
-    upCmd = 'npx migrate up';
-    downCmd = 'npx migrate down';
-    statusCmd = 'npx migrate status';
+    createArgs = ['migrate', 'create'];
+    createFlag = null;
+    upArgs = ['migrate', 'up'];
+    downArgs = ['migrate', 'down'];
+    statusArgs = ['migrate', 'status'];
   }
 
-  return `import { tool } from "@opencode-ai/plugin"
-import { execSync } from "child_process"
+  const createExpr = createFlag
+    ? `args.name ? [...${JSON.stringify(createArgs)}, "${createFlag}", args.name] : ${JSON.stringify(createArgs)}`
+    : `args.name ? [...${JSON.stringify(createArgs)}, args.name] : ${JSON.stringify(createArgs)}`;
 
-export default tool({
-  name: "db-migrate",
-  description: "Run database migrations for ${orm} — create, apply, rollback, status.",
-  args: {
+  return `import { execFile } from "node:child_process"
+import { promisify } from "node:util"
+
+const exec = promisify(execFile)
+
+interface Args {
+  action: "create" | "up" | "down" | "status"
+  name?: string
+}
+
+const input = {
+  type: "object" as const,
+  properties: {
     action: {
       type: "string",
       enum: ["create", "up", "down", "status"],
-      description: "Migration action"
+      description: "Migration action",
     },
     name: {
       type: "string",
-      description: "Migration name (for create action)"
-    }
+      description: "Migration name (for create action)",
+    },
   },
-  async execute(args, context) {
-    try {
-      let cmd
-      switch (args.action) {
-        case "create":
-          cmd = "${createCmd}" + (args.name ? " " + args.name : "")
-          break
-        case "up":
-          cmd = "${upCmd}"
-          break
-        case "down":
-          cmd = "${downCmd}"
-          break
-        case "status":
-          cmd = "${statusCmd}"
-          break
-        default:
-          return { error: "Unknown action: " + args.action }
-      }
-      execSync(cmd, { stdio: "inherit" })
-      return { action: args.action, status: "executed" }
-    } catch (error) {
-      return { action: args.action, status: "failed", error: error.message }
-    }
-  }
-})
+  required: ["action"],
+}
+
+export default {
+  id: "db-migrate",
+  setup(ctx: any) {
+    const directory: string = ctx?.location?.directory ?? process.cwd()
+
+    ctx.tool.transform((editor: any) => {
+      editor.add({
+        name: "db-migrate",
+        description: "Run database migrations for ${orm} — create, apply, rollback, status.",
+        input,
+        options: { codemode: false },
+        execute: async (args: Args) => {
+          let commandArgs: string[]
+
+          switch (args.action) {
+            case "create":
+              commandArgs = ${createExpr}
+              break
+            case "up":
+              commandArgs = ${JSON.stringify(upArgs)}
+              break
+            case "down":
+              commandArgs = ${JSON.stringify(downArgs)}
+              break
+            case "status":
+              commandArgs = ${JSON.stringify(statusArgs)}
+              break
+            default:
+              return { content: JSON.stringify({ error: "Unknown action: " + args.action }) }
+          }
+
+          try {
+            await exec("npx", commandArgs, { cwd: directory })
+            return { content: JSON.stringify({ action: args.action, status: "executed" }) }
+          } catch (error: any) {
+            return {
+              content: JSON.stringify({
+                action: args.action,
+                status: "failed",
+                error: String(error.stderr || error.message || ""),
+              }),
+            }
+          }
+        },
+      })
+    })
+  },
+}
 `;
 }
 
@@ -1725,7 +1821,6 @@ function generateInstall(generated, detection, opts) {
   },
   "mcp": {},
   "skills": { "paths": ["./.opencode/skills"] },
-  "plugin": ["./plugins/hubs-plugin.ts"],
   "instructions": ["AGENTS.md"]
 }
 `;
@@ -1877,7 +1972,9 @@ Project-specific reusable workflow skills.
 
 ## Tools
 
-Project-specific TypeScript tools.
+Project-specific tool plugins. Each tool lives in its own directory under
+\`.opencode/plugins/<name>/\` — OpenCode 2 auto-discovers those, so a tool
+needs no registration entry.
 
 | Tool | Description |
 |------|-------------|
@@ -2018,11 +2115,16 @@ function generateVerify(generated, opts) {
       const fullPath = path.join(opts.outputDir, g.path.replace('.opencode/', ''));
       if (fs.existsSync(fullPath)) {
         const content = fs.readFileSync(fullPath, 'utf-8');
-        if (content.includes('export default tool')) {
-          report.push(`  ✓ ${g.name} — valid tool export`);
+        // V2 tool plugins register through ctx.tool.transform(editor => editor.add(...)).
+        // A file that only exports a bare object registers nothing.
+        const registered = content.includes('export default {') &&
+          content.includes('ctx.tool.transform') &&
+          content.includes('editor.add(');
+        if (registered) {
+          report.push(`  ✓ ${g.name} — valid tool plugin`);
         } else {
-          report.push(`  ⚠ ${g.name} — may lack default export`);
-          errors.push(`Tool ${g.name}: may lack default export`);
+          report.push(`  ⚠ ${g.name} — does not register a tool (needs ctx.tool.transform + editor.add)`);
+          errors.push(`Tool ${g.name}: does not register a tool`);
         }
       } else {
         report.push(`  ✗ ${g.name} — file not found`);

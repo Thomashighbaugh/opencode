@@ -174,7 +174,7 @@ Backfill is **idempotent and lazy** — mtime-skipped re-runs; safe to call any 
 - `.opencode/context/learnings/**` (LRN/ERR/FEAT entries → `learning` nodes)
 - `.opencode/rules/**` (rule nodes)
 - `.opencode/skills/**/SKILL.md` (skill nodes — global + project)
-- `tools/hubs/spec-registry.json` (hub-subcommand nodes + `used_by` edges → skills/agents) — config-hub projects only
+- `plugins/hubs/data/hubs/spec-registry.json` (hub-subcommand nodes + `used_by` edges → skills/agents) — config-hub projects only
 - Markdown `[[wikilinks]]` / `[text](file.md)` → `related_to` edges
 
 ### 2. Query (hybrid retrieval)

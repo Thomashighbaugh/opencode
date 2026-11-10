@@ -6,11 +6,12 @@
  * description keyword heuristics as fallback.
  */
 
-import { tool } from "@opencode-ai/plugin"
+import { z } from "zod/v4"
 import * as fs from "fs"
 import * as path from "path"
 import { homedir } from "os"
 import { withToolCache } from "./cache-utils"
+import type { ToolDefinition } from "./types"
 
 const USER_CONFIG_DIR = process.env.OPENCODE_CONFIG_DIR || path.join(homedir(), '.config', 'opencode')
 const SKILLS_DIR = path.join(USER_CONFIG_DIR, 'skills')
@@ -403,32 +404,47 @@ function searchAllSkills(query: string): SkillMeta[] {
 
 // ─── Tool Export ─────────────────────────────────────────────────────────
 
-export default tool({
-  description: "Browse and search skills grouped by functional category (Init, Ideation, Orchestrate, Harvest, Project, UX/Design, External, Meta, QA/Verify, Docs). Reads SKILL.md frontmatter from all skill directories, categorizes using authoritative AGENTS.md data plus keyword heuristics.",
-  args: {
-    action: tool.schema.string().describe(
-      "Action: 'list-categories' shows all skills grouped by category, 'search' searches across all skills by name or description"
-    ),
-    query: tool.schema.string().optional().describe(
-      "Search query for 'search' action — matches against skill name and description"
-    ),
-  },
-  async execute(args) {
-    return withToolCache("skill-categories", args, () => {
-    if (args.action === 'list-categories') {
-      const categories = getAllCategorizedSkills()
-      return JSON.stringify({ categories, totalSkills: categories.reduce((sum, c) => sum + c.skills.length, 0) }, null, 2)
-    }
-
-    if (args.action === 'search') {
-      if (!args.query) {
-        return JSON.stringify({ error: "Query required for 'search' action" })
-      }
-      const results = searchAllSkills(args.query)
-      return JSON.stringify({ query: args.query, results, count: results.length }, null, 2)
-    }
-
-    return JSON.stringify({ error: `Invalid action '${args.action}'. Valid: list-categories, search` })
-    }, 3_600_000) // 1h TTL — categories rarely change
-  },
+const input = z.object({
+  action: z.string().describe(
+    "Action: 'list-categories' shows all skills grouped by category, 'search' searches across all skills by name or description",
+  ),
+  query: z
+    .string()
+    .optional()
+    .describe("Search query for 'search' action — matches against skill name and description"),
 })
+
+export default {
+  name: "skill-categories",
+  description:
+    "Browse and search skills grouped by functional category (Init, Ideation, Orchestrate, Harvest, Project, UX/Design, External, Meta, QA/Verify, Docs). Reads SKILL.md frontmatter from all skill directories, categorizes using authoritative AGENTS.md data plus keyword heuristics.",
+  input,
+  async execute(args) {
+    const content = withToolCache(
+      "skill-categories",
+      args,
+      () => {
+        if (args.action === "list-categories") {
+          const categories = getAllCategorizedSkills()
+          return JSON.stringify(
+            { categories, totalSkills: categories.reduce((sum, c) => sum + c.skills.length, 0) },
+            null,
+            2,
+          )
+        }
+
+        if (args.action === "search") {
+          if (!args.query) {
+            return JSON.stringify({ error: "Query required for 'search' action" })
+          }
+          const results = searchAllSkills(args.query)
+          return JSON.stringify({ query: args.query, results, count: results.length }, null, 2)
+        }
+
+        return JSON.stringify({ error: `Invalid action '${args.action}'. Valid: list-categories, search` })
+      },
+      3_600_000, // 1h TTL — categories rarely change
+    )
+    return { content }
+  },
+} satisfies ToolDefinition<z.infer<typeof input>>

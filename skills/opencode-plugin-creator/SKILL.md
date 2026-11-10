@@ -1,17 +1,32 @@
 ---
 name: opencode-plugin-creator
-description: Guide for creating OpenCode plugins — hook plugins (.ts), npm plugins, and TUI plugins (.tsx). Covers feasibility, architecture patterns, and full procedural workflow. Use when building, updating, or packaging OpenCode plugins.
+description: Guide for creating OpenCode 2 plugins — local plugin directories, npm packages, tool plugins, and TUI plugins. Covers the V2 plugin context, discovery rules, and the full procedural workflow. Use when building, updating, or packaging OpenCode plugins.
 level: 3
 license: MIT
+version: 2.0.0
 ---
 
 # OpenCode Plugin Creator
 
-Guide for creating OpenCode plugins. Covers three plugin types:
+Guide for creating OpenCode 2 plugins. Four shapes:
 
-1. **Hook plugins** — TypeScript `.ts` files that register lifecycle hooks
-2. **NPM plugins** — Published packages consumed via `opencode.jsonc`
-3. **TUI plugins** — TSX terminal UI components with dialogs
+1. **Local plugin** — a directory under `plugins/` with an `index.ts` (server) and optional `tui.tsx` (TUI)
+2. **Tool plugin** — a local plugin whose only job is to register a tool
+3. **NPM plugin** — a published package referenced from `opencode.jsonc`
+4. **TUI plugin** — a local plugin with a `tui.tsx` entrypoint that renders dialogs
+
+## What changed in V2
+
+| V1 | V2 |
+| --- | --- |
+| Plugin = a file listed in `opencode.jsonc` `plugin[]` | Plugin = a **directory** under `plugins/` (or `.opencode/plugins/`); auto-discovered, no config entry |
+| `import { Plugin } from "@opencode-ai/plugin"` | Plain object `{ id, setup(ctx) }` — a runtime import of `@opencode/plugin` breaks plugin loading |
+| Hook map `hooks["tool.execute.before"] = ...` | `ctx.tool.hook("execute.before", ...)`, `ctx.session.hook("context", ...)`, `ctx.permission.hook("evaluate", ...)`, `ctx.event.subscribe(...)` |
+| `tool({ args, execute })` files auto-discovered | `ctx.tool.transform((editor) => editor.add({ name, description, input, execute }))` |
+| `client.registerDialog(...)` | TUI plugin exports a `Plugin` definition from `tui.tsx` and renders through the V2 TUI plugin API |
+| Config key `plugin: [...]` | `plugin: [...]` still accepted (migrated), `plugins: [...]` is the native form |
+
+**Why the runtime import matters:** importing `@opencode/plugin` pulls in `@opencode/schema`, which binds to the host binary's embedded Effect instance. The plugin then fails to load with a schema/effect mismatch. Type-only imports (`import type { ... }`) are safe. See the note at the top of `plugins/hubs/index.ts`.
 
 ## When to Use
 
@@ -27,65 +42,98 @@ Guide for creating OpenCode plugins. Covers three plugin types:
 
 Ask the user: "What behavior are you trying to add?"
 
-| If they want to... | Use hook(s) |
-|-------------------|-------------|
-| Auto-approve safe bash commands | `permission.ask` |
-| Persist state across compaction | `experimental.session.compacting` |
-| Inject context every turn | `experimental.chat.system.transform` |
-| Detect magic keywords in chat | `chat.message` or `tui.prompt.append` |
-| Track tool usage | `tool.execute.before` / `.after` |
-| Intercept custom commands | `command.execute.before` / `.after` |
-| Add TUI dialog menus | TUI plugin with DialogSelect |
-| Run on session start/end | `session.created` / `.deleted` |
-| Modify tool arguments before execution | `tool.execute.before` (mutate input) |
+| If they want to... | V2 registration |
+|-------------------|-----------------|
+| Auto-approve safe shell commands | `ctx.permission.hook("evaluate", ...)` → set `event.effect = "allow"` |
+| Inject context every turn | `ctx.session.hook("context", ...)` → push `{ type: "text", text }` to `event.system` |
+| Preserve state across compaction | `ctx.session.hook("compaction", ...)` → prepend to `event.result.summary` |
+| Detect magic keywords in chat | `ctx.session.hook("prompt", ...)` |
+| Track tool usage | `ctx.tool.hook("execute.before" / "execute.after", ...)` |
+| Intercept a tool's arguments | `ctx.tool.hook("execute.before", ...)` → mutate `event.input` |
+| Add a slash command | `ctx.command.transform((editor) => editor.add({ name, description, execute }))` |
+| Add a tool for the model | `ctx.tool.transform((editor) => editor.add({ ... }))` |
+| React to any server event | `ctx.event.subscribe({ signal })` and filter on `event.type` |
+| Add TUI dialog menus | TUI plugin with a `tui.tsx` entrypoint |
+
+The working reference for all of these is `plugins/hooks/index.ts` — it maps every V1 hook this repo used onto its V2 domain.
 
 ### Step 2: Determine Plugin Type
 
 | Type | Location | Registration | Best For |
 |------|----------|-------------|----------|
-| **Hook plugin** (.ts) | `plugins/my-plugin.ts` | `"./plugins/my-plugin.ts"` | Internal hooks, project-specific behavior |
-| **NPM plugin** | `node_modules/` | `"@scope/package@version"` | Reusable, published behavior |
-| **TUI plugin** (.tsx) | `plugins/my-tui/` | `"./plugins/my-tui/index.js"` | Visual dialogs and menus |
+| **Local plugin** | `plugins/<name>/index.ts` | none — auto-discovered | Internal hooks, project behavior |
+| **Tool plugin** | `plugins/<name>/index.ts` | none — auto-discovered | One tool per plugin |
+| **NPM plugin** | `node_modules/` | `"plugin": ["@scope/package@version"]` | Reusable, published behavior |
+| **TUI plugin** | `plugins/<name>/tui.tsx` | none — auto-discovered | Visual dialogs and menus |
+
+Discovery details: OpenCode 2 scans `<config>/plugin` and `<config>/plugins` (and the project equivalents) for directories. A directory contributes a server entrypoint at `index` and a TUI entrypoint at `tui`. A single file (`plugins/foo.ts`) also works as a server entrypoint.
 
 ### Step 3: Scaffold
 
-Use the templates in `references/templates.md` to scaffold:
-
 ```bash
-# Hook plugin (single file)
-touch plugins/my-plugin.ts
-# Paste the Minimal Hook Plugin Template
+# Local plugin
+mkdir -p plugins/my-plugin
+# Create plugins/my-plugin/index.ts
 
-# TUI plugin (project)
-mkdir -p plugins/my-tui/src plugins/my-tui/dist
-# Create package.json, src/index.tsx, build config
+# TUI plugin (adds a tui.tsx beside index.ts)
+mkdir -p plugins/my-tui
 ```
 
-### Step 4: Implement Hooks
-
-Each hook follows this pattern:
+A minimal server plugin:
 
 ```typescript
-hooks["hook.name"] = async (input, output) => {
-  // input contains event data
-  // output allows modification of behavior
-  
-  // For context injection: use queueContextMessage() + experimental.chat.system.transform
-  // For state: use readJsonFile()/writeJsonFile() in .opencode/state/sessions/<id>/
-  // For permissions: set output.status = 'allow' | 'deny'
-  // For compaction: push to output.context[]
-  // For system: push to output.system[]
+export default {
+  id: "my-plugin",
+  async setup(ctx: any) {
+    // register commands, tools, hooks here
+  },
 }
 ```
 
-### Step 5: Register
+### Step 4: Implement the behavior
 
-Add the plugin to `opencode.jsonc`:
+```typescript
+// Command
+await ctx.command.transform((editor: any) => {
+  editor.add({
+    name: "my-command",
+    description: "What it does",
+    async execute(invocation: any) {
+      const sessionID = String(invocation?.sessionID ?? "")
+      await ctx.session.prompt({ sessionID, text: "done" })
+    },
+  })
+})
+
+// Tool
+await ctx.tool.transform((editor: any) => {
+  editor.add({
+    name: "my-tool",
+    description: "What it does",
+    input: { type: "object", properties: {} },
+    options: { codemode: false },
+    execute: async () => ({ content: "ok" }),
+  })
+})
+
+// Event
+const controller = new AbortController()
+void (async () => {
+  for await (const event of ctx.event.subscribe({ signal: controller.signal })) {
+    if (event?.type === "session.idle") { /* ... */ }
+  }
+})()
+return () => controller.abort()
+```
+
+### Step 5: Register (only for npm packages)
+
+Local plugins under `plugins/` need no config entry. NPM packages do:
 
 ```jsonc
 {
   "plugin": [
-    "./plugins/my-plugin.ts",
+    "@scope/package@version"
   ]
 }
 ```
@@ -93,61 +141,53 @@ Add the plugin to `opencode.jsonc`:
 ### Step 6: Test
 
 ```bash
-# Check plugin loads
-btw_status
+# Confirm the plugin is discovered
+opencode2 plugin list
 
-# Run hub doctor for diagnostics
-/hubs-doctor
-
-# Verify hooks fire by observing behavior
+# Confirm the tool is registered (ask the model to list its tools, or read the run log)
+opencode2 run --standalone --model <provider/model> "list your tool names"
 ```
+
+## V1 → V2 Hook Mapping
+
+| V1 hook | V2 registration | Notes |
+| --- | --- | --- |
+| `event` | `ctx.event.subscribe` | V2 events carry fields under `data`; V1 modules read `properties` |
+| `tool.execute.before` | `ctx.tool.hook("execute.before")` | mutate `event.input` to change the call |
+| `tool.execute.after` | `ctx.tool.hook("execute.after")` | write back via `event.result.content` |
+| `chat.message` | `ctx.session.hook("prompt")` | |
+| `experimental.chat.system.transform` | `ctx.session.hook("context")` | push `{ type: "text", text }` parts |
+| `experimental.session.compacting` | `ctx.session.hook("compaction")` | append to `event.result.summary` |
+| `permission.ask` | `ctx.permission.hook("evaluate")` | V2 action is `shell` where V1 said `bash` |
+| `command.execute.before` | no equivalent | V2 has no global command-execute hook; register a command instead |
 
 ## The Two Context Injection Patterns
 
-OpenCode has two independent mechanisms for injecting context:
-
-### Pattern A: Per-Turn System Injection (`experimental.chat.system.transform`)
+### Pattern A: Per-Turn System Injection (`ctx.session.hook("context")`)
 
 ```typescript
-const _contextMessages: Record<string, string[]> = {}
+const queued = new Map<string, string[]>()
 
 function queueContextMessage(sessionId: string, message: string) {
-  if (!_contextMessages[sessionId]) _contextMessages[sessionId] = []
-  _contextMessages[sessionId].push(message)
+  if (!queued.has(sessionId)) queued.set(sessionId, [])
+  queued.get(sessionId)!.push(message)
 }
 
-function consumeContextMessages(sessionId: string): string[] {
-  const messages = _contextMessages[sessionId] || []
-  delete _contextMessages[sessionId]
-  return messages
-}
-
-hooks["experimental.chat.system.transform"] = async (input, output) => {
-  const sessionId = input.sessionID
-  if (!sessionId) return
-  const messages = consumeContextMessages(sessionId)
-  if (messages.length === 0) return
-  // Wrapped in XML tags for clean parsing
-  output.system.push(`<my-plugin>\n${messages.join('\n\n')}\n</my-plugin>`)
-}
+await ctx.session.hook("context", async (event: any) => {
+  const messages = queued.get(event.sessionID) ?? []
+  queued.delete(event.sessionID)
+  for (const text of messages) event.system.push({ type: "text", text })
+})
 ```
 
-**Key detail:** Messages queued via `queueContextMessage()` are injected into the *system prompt* on every turn. They persist until consumed. Use this for: mode reminders, state summaries, todo lists.
-
-### Pattern B: Compaction Preservation (`experimental.session.compacting`)
+### Pattern B: Compaction Preservation (`ctx.session.hook("compaction")`)
 
 ```typescript
-hooks["experimental.session.compacting"] = async (_input, output) => {
-  // Push plain markdown — survives context window compression
-  output.context.push(`## My Plugin State
-- Active: true
-- Started: ${startedAt}
-- Items processed: ${count}
-`)
-}
+await ctx.session.hook("compaction", async (event: any) => {
+  if (!event.result) return
+  event.result.summary = `## My Plugin State\n- Active: true\n` + event.result.summary
+})
 ```
-
-**Key detail:** `output.context` is markdown injected during context window compression events. It survives compaction and ensures the agent remembers plugin state after the window is compressed.
 
 ## State File Architecture
 
@@ -165,95 +205,87 @@ Use per-session state by passing `sessionId` to the file path. Use global state 
 ## Permission Auto-Approval Pattern
 
 ```typescript
-hooks["permission.ask"] = async (input, output) => {
-  if (input.type !== 'bash') return
+await ctx.permission.hook("evaluate", async (event: any) => {
+  if (event.action !== "shell") return
 
-  const command = typeof input.pattern === 'string' ? input.pattern : ''
-  
-  // Define safe command patterns
+  const command = event.resources.join(" ")
   const safePatterns = [
     /^git (status|diff|log|branch|show|fetch)/,
     /^npm (test|run (test|lint|build|check))/,
     /^ls( |$)/,
-    /^node --check/,
   ]
-  
-  const isSafe = safePatterns.some(p => p.test(command.trim()))
+  const isSafe = safePatterns.some((p) => p.test(command.trim()))
   const hasDangerousChars = /[;&|`$()<>\n\r\t\0\\]/.test(command)
-  
-  if (isSafe && !hasDangerousChars) {
-    output.status = 'allow'
-  }
-  // Leave unset = prompt user (default)
-}
+
+  if (isSafe && !hasDangerousChars) event.effect = "allow"
+  // Leave unset = prompt the user (default)
+})
 ```
 
 ## TUI Plugin Entry Point
 
-```tsx
-// plugins/<name>/src/index.tsx
-import { Plugin } from "@opencode-ai/tui-sdk"
+A TUI plugin lives beside the server plugin in the same directory and exports a TUI plugin definition:
 
-export default {
-  async setup(client) {
-    client.registerDialog("my-command", {
-      render: ({ onClose }) => (
-        <MyHubDialog options={[...]} onClose={onClose} />
-      )
-    })
-  }
-}
+```
+plugins/my-plugin/
+├── index.ts     # server entrypoint
+└── tui.tsx      # TUI entrypoint
 ```
 
-Build with `bun run build` (configured in `package.json`). Register compiled `.js` in `opencode.jsonc`.
+```tsx
+import type { Plugin } from "@opencode/plugin/tui"
+
+export default {
+  id: "my-plugin",
+  setup(ctx) {
+    // register dialogs / palette entries against the V2 TUI plugin API
+  },
+} satisfies Plugin.Definition
+```
+
+The working example in this repo is `plugins/hubs/tui.tsx` (hub picker, skill browser, sidebar) alongside `plugins/hubs/index.ts`.
 
 ## Feasibility Check
-
-Not every idea can be a plugin. Validate before building:
 
 ### Feasible as plugins:
 - Intercepting/blocking tool calls
 - Reacting to events (file edits, session completion, etc.)
 - Adding custom tools for the LLM
-- Modifying LLM parameters (temperature, etc.)
-- Custom auth flows for providers
-- Customizing session compaction
-- Displaying status messages (toasts, inline)
+- Customizing session compaction and system context
+- Adding slash commands
+- Displaying status messages in the TUI
 
 ### NOT feasible (inform user):
-- Modifying TUI rendering or layout
-- Adding new built-in tools (requires OC source)
 - Changing core agent behavior/prompts
 - Intercepting assistant responses mid-stream
-- Adding new keybinds or commands
+- Adding new permission *types* (a plugin can set the effect of an existing action)
 - Modifying internal file read/write
-- Adding new permission types
 
-**Alternatives:** OC core changes → contribute to `packages/opencode`; MCP tools → use MCP server configuration; Simple automation → shell scripts.
+**Alternatives:** OC core changes → contribute upstream; MCP tools → use MCP server configuration; simple automation → shell scripts.
 
 ## Common Mistakes
 
 | Mistake | Fix |
 |---------|-----|
-| Using `client.registerTool()` | Use `tool: { name: tool({...}) }` |
-| Wrong event property names | Check `references/events.md` |
-| Sync event handler | MUST use `async` |
-| Not throwing to block | `throw new Error()` in `tool.execute.before` |
-| Forgetting TypeScript types | `import type { Plugin } from "@opencode-ai/plugin"` |
+| `import { Plugin } from "@opencode-ai/plugin"` at runtime | Plain object plugin; type-only imports are fine |
+| `client.registerTool()` | `ctx.tool.transform((editor) => editor.add({ ... }))` |
+| Registering a tool as a file under `.opencode/tools/` | Make it a plugin directory under `.opencode/plugins/` |
+| Returning a bare string from `execute` | Return `{ content: "..." }` |
+| Assuming `context.directory` exists in a tool | Use `ctx.location.directory` (the tool context has no path) |
+| Omitting `options: { codemode: false }` | The tool stays out of the provider's native tool list |
+| Duplicate plugin `id` | V2 keeps the first occurrence and reports the rest as failures — ids must be unique |
 
 ## Modular Structure (Complex Plugins)
 
-For complex plugins, use a modular directory structure:
-
 ```
-.opencode/plugin/my-plugin/
-├── index.ts          # Entry point, exports Plugin
+plugins/my-plugin/
+├── index.ts          # entrypoint, exports { id, setup }
 ├── types.ts          # TypeScript types/interfaces
-├── utils.ts          # Shared utilities
-├── hooks/            # Hook implementations
+├── utils.ts          # shared utilities
+├── hooks/            # hook implementations
 │   ├── event.ts
 │   └── tool-execute.ts
-└── tools/            # Custom tool definitions
+└── tools/            # tool registration modules
     └── my-tool.ts
 ```
 
@@ -261,24 +293,32 @@ For complex plugins, use a modular directory structure:
 
 ## References
 
-- `references/hook-api.md` — Complete hook API reference and patterns
-- `references/templates.md` — Ready-to-use templates for hook, stateful, and TUI plugins
-- `references/hooks.md` — Hook signatures (auto-generated via extract script)
-- `references/events.md` — Event types and properties
-- `references/examples.md` — Complete plugin examples
-- `references/hook-patterns.md` — Hook implementation patterns
-- `references/CODING-TS.MD` — Code architecture principles
-- `references/tool-helper.md` — Zod tool schemas for custom tools
-- `references/testing.md` — Testing procedure
+V2 sources of truth (read these before the reference pack):
+
+- `plugins/hooks/index.ts` — every V1 hook mapped onto its V2 domain
+- `plugins/hubs/index.ts` — tool + command registration, and the "no runtime import" rule
+- `plugins/tools/index.ts` — a plugin that registers a whole tool suite
+- `plugins/hubs/tui.tsx` — TUI plugin entrypoint
+
+Reference pack (written for V1 — check each pattern against the mapping table above):
+
+- `references/hook-api.md` — V1 hook API reference and patterns
+- `references/templates.md` — V1 hook, stateful, and TUI plugin templates
+- `references/hooks.md` — V1 hook signatures
+- `references/events.md` — V1 event types and properties
+- `references/examples.md` — V1 plugin examples
+- `references/hook-patterns.md` — V1 hook implementation patterns
+- `references/CODING-TS.MD` — code architecture principles
+- `references/tool-helper.md` — V1 zod tool schemas for custom tools
+- `references/testing.md` — testing procedure
 - `references/publishing.md` — npm publishing guide
-- `references/toast-notifications.md` — Toast popup API
-- `references/ui-feedback.md` — Inline message API
-- `references/update-notifications.md` — Version update toast pattern
-- `scripts/extract-plugin-api.ts` — API reference extraction script (run to regenerate hooks/events/tools refs)
+- `references/toast-notifications.md` — toast popup API
+- `references/ui-feedback.md` — inline message API
+- `references/update-notifications.md` — version update toast pattern
+- `scripts/extract-plugin-api.ts` — API reference extraction script
 
 ## See Also
 
+- `tool-creator` skill — for a plugin whose only job is one tool
 - Existing plugins in `~/.config/opencode/plugins/` for reference
-- `plugins/hubs-plugin.ts` — Full-featured hook plugin example
-- `plugins/hubs/` — Full V2 plugin example (server + TUI entrypoints)
-- `opencode.jsonc` — Plugin registration config
+- `opencode.jsonc` — npm plugin registration config

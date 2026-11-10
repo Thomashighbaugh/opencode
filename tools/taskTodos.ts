@@ -1,7 +1,8 @@
-import { tool } from "@opencode-ai/plugin"
+import { z } from "zod/v4"
 import * as fs from "fs"
 import * as path from "path"
 import { withToolCache, invalidateToolCache } from "./cache-utils"
+import type { ToolDefinition } from "./types"
 
 type TodoStatus = 'pending' | 'in_progress' | 'completed' | 'cancelled'
 type TodoPriority = 'high' | 'medium' | 'low'
@@ -39,30 +40,33 @@ const VALID_PRIORITIES = ['high', 'medium', 'low'] as const
 const READ_ONLY_ACTIONS = new Set(['get', 'next', 'summary'])
 const MUTATION_ACTIONS = new Set(['create', 'add', 'update', 'clear'])
 
-export default tool({
+const input = z.object({
+  action: z.string().describe(`Action to perform. Valid: ${VALID_TODO_ACTIONS.join(", ")}`),
+  items: z.array(z.any()).optional().describe("Todo items for create/add actions"),
+  content: z.string().optional().describe("Task content for single add/update"),
+  status: z.string().optional().describe(`Status for update. Valid: ${VALID_STATUSES.join(", ")}`),
+  priority: z.string().optional().describe(`Priority level. Valid: ${VALID_PRIORITIES.join(", ")}`),
+  index: z.number().optional().describe("Index for update action"),
+})
+
+export default {
+  name: "taskTodos",
   description: "Manage task todos: create list, add items, update status, get current, or clear all",
-  args: {
-    action: tool.schema.string().describe(`Action to perform. Valid: ${VALID_TODO_ACTIONS.join(', ')}`),
-    items: tool.schema.array(tool.schema.any()).optional().describe("Todo items for create/add actions"),
-    content: tool.schema.string().optional().describe("Task content for single add/update"),
-    status: tool.schema.string().optional().describe(`Status for update. Valid: ${VALID_STATUSES.join(', ')}`),
-    priority: tool.schema.string().optional().describe(`Priority level. Valid: ${VALID_PRIORITIES.join(', ')}`),
-    index: tool.schema.number().optional().describe("Index for update action")
-  },
+  input,
   async execute(args, context) {
     const projectRoot = context.directory || process.cwd()
-    
+
     if (READ_ONLY_ACTIONS.has(args.action)) {
-      return withToolCache("taskTodos", args, () => executeTodos(args, projectRoot), 300_000)
+      return { content: withToolCache("taskTodos", args, () => executeTodos(args, projectRoot), 300_000) }
     }
-    
+
     if (MUTATION_ACTIONS.has(args.action)) {
       invalidateToolCache("taskTodos")
     }
-    
-    return executeTodos(args, projectRoot)
-  }
-})
+
+    return { content: executeTodos(args, projectRoot) }
+  },
+} satisfies ToolDefinition<z.infer<typeof input>>
 
 function executeTodos(args: any, projectRoot: string): string {
     switch (args.action) {

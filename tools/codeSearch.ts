@@ -32,11 +32,12 @@
  * empty result set that looks like a negative answer.
  */
 
-import { tool } from "@opencode-ai/plugin"
+import { z } from "zod/v4"
 import * as fs from "node:fs"
 import * as os from "node:os"
 import * as path from "node:path"
 import { pathToFileURL } from "node:url"
+import type { ToolDefinition } from "./types"
 
 // ---------------------------------------------------------------------------
 // Config-stack module loading (same dynamic-import pattern as graphQuery.ts:
@@ -706,39 +707,47 @@ function formatResults(hits: SearchHit[], maxSnippetLines: number | null) {
 // Tool
 // ---------------------------------------------------------------------------
 
-export default tool({
+const input = z.object({
+  query: z.string().describe("Natural-language description or symbol name (e.g. 'authentication flow' or 'SessionManager')"),
+  dir: z.string().optional().describe("Repo root to search (default: session directory)"),
+  topK: z.number().optional().describe(`Results to return (default ${TOP_K_DEFAULT})`),
+  maxSnippetLines: z
+    .number()
+    .optional()
+    .describe(
+      "Lines of source per result. 0 = location only, omit = 10 (signature + first body lines). Use 0 to triage, then Read the winners.",
+    ),
+  content: z
+    .enum(["code", "docs", "config", "all"])
+    .optional()
+    .describe("What to index/search (default: code)"),
+  alpha: z
+    .number()
+    .optional()
+    .describe("Dense-vs-BM25 blend 0..1. Omit for auto: 0.3 symbol-like queries, 0.5 natural language."),
+  rerank: z.boolean().optional().describe("Cross-encoder rerank (default true). Disable for speed on huge repos."),
+  reindex: z.boolean().optional().describe("Force a full rebuild, ignoring the mtime cache"),
+  stats: z.boolean().optional().describe("Return index stats instead of searching"),
+})
+
+/** V2 tool results carry `{ content }`; this tool's payloads are JSON. */
+const json = (value: unknown) => ({ content: JSON.stringify(value) })
+
+export default {
+  name: "codeSearch",
   description:
     "Semantic code search over the project — the grep+read replacement. Indexes the repo once (local bge-small embeddings + BM25, persisted under .opencode/state/vector/codesearch/, mtime-invalidated), then answers natural-language or symbol queries with ranked file:line locations and trimmed snippets. Hybrid RRF + symbol/definition boosts + bge-reranker cross-encoder. Runs fully in-process, no daemon, no network at query time.",
-  args: {
-    query: tool.schema.string().describe("Natural-language description or symbol name (e.g. 'authentication flow' or 'SessionManager')"),
-    dir: tool.schema.string().optional().describe("Repo root to search (default: session directory)"),
-    topK: tool.schema.number().optional().describe(`Results to return (default ${TOP_K_DEFAULT})`),
-    maxSnippetLines: tool.schema
-      .number()
-      .optional()
-      .describe("Lines of source per result. 0 = location only, omit = 10 (signature + first body lines). Use 0 to triage, then Read the winners."),
-    content: tool.schema
-      .enum(["code", "docs", "config", "all"])
-      .optional()
-      .describe("What to index/search (default: code)"),
-    alpha: tool.schema
-      .number()
-      .optional()
-      .describe("Dense-vs-BM25 blend 0..1. Omit for auto: 0.3 symbol-like queries, 0.5 natural language."),
-    rerank: tool.schema.boolean().optional().describe("Cross-encoder rerank (default true). Disable for speed on huge repos."),
-    reindex: tool.schema.boolean().optional().describe("Force a full rebuild, ignoring the mtime cache"),
-    stats: tool.schema.boolean().optional().describe("Return index stats instead of searching"),
-  },
+  input,
   async execute(args, context) {
-    const dir = path.resolve(args.dir || context?.directory || process.cwd())
+    const dir = path.resolve(args.dir || context.directory || process.cwd())
     const kind = (args.content ?? "code") as ContentKind
     try {
       const L = await libs(dir)
 
       if (args.stats) {
         const idx = loadIndex(dir)
-        if (!idx) return JSON.stringify({ ok: true, indexed: false, dir })
-        return JSON.stringify({
+        if (!idx) return json({ ok: true, indexed: false, dir })
+        return json({
           ok: true,
           indexed: true,
           dir,
@@ -749,7 +758,7 @@ export default tool({
         })
       }
 
-      if (!args.query?.trim()) return JSON.stringify({ ok: false, error: "query is required" })
+      if (!args.query?.trim()) return json({ ok: false, error: "query is required" })
 
       if (args.reindex) {
         const p = indexPath(dir)
@@ -761,7 +770,7 @@ export default tool({
       const buildMs = Date.now() - t0
 
       if (!idx.chunks.length) {
-        return JSON.stringify({ ok: true, indexed: false, results: [], note: `no ${kind} files found under ${dir}` })
+        return json({ ok: true, indexed: false, results: [], note: `no ${kind} files found under ${dir}` })
       }
 
       const t1 = Date.now()
@@ -774,7 +783,7 @@ export default tool({
       )
       const searchMs = Date.now() - t1
 
-      return JSON.stringify({
+      return json({
         ok: true,
         query: args.query,
         dir,
@@ -788,7 +797,7 @@ export default tool({
       const hint = /not cached/.test(msg)
         ? " Run: npx tsx skills/vectorize-context/scripts/prefetch-models.ts"
         : ""
-      return JSON.stringify({ ok: false, error: msg + hint })
+      return json({ ok: false, error: msg + hint })
     }
   },
-})
+} satisfies ToolDefinition<z.infer<typeof input>>

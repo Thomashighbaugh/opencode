@@ -120,33 +120,53 @@ You are a frontend component developer for a {framework} project using {language
 
 ### Step 3: Create Project Tools (Full Mode Only)
 
-Create TypeScript tools in `.opencode/tools/` for project-specific automation.
+Create TypeScript tools in `.opencode/plugins/<tool-name>/index.ts` for project-specific automation.
+
+OpenCode 2 removed file-based tool discovery: a file under `.opencode/tools/` is inert. A tool exists only when a plugin registers it, and plugins are auto-discovered from `.opencode/plugins/` — so each tool is its own plugin directory.
 
 **Template:**
 ```typescript
-import { tool } from "@opencode-ai/plugin"
+// .opencode/plugins/{tool-name}/index.ts
+interface Args {
+  // Define parameters
+}
 
-export default tool({
-  name: "{tool-name}",
-  description: "{description of what this tool does}",
-  args: {
+const input = {
+  type: "object" as const,
+  properties: {
     // Define parameters
   },
-  async execute(args, context) {
-    // Implementation
-    return { result: "done" }
-  }
-})
+}
+
+export default {
+  id: "{tool-name}",
+  setup(ctx: any) {
+    const directory: string = ctx?.location?.directory ?? process.cwd()
+
+    ctx.tool.transform((editor: any) => {
+      editor.add({
+        name: "{tool-name}",
+        description: "{description of what this tool does}",
+        input,
+        options: { codemode: false },
+        execute: async (args: Args) => {
+          // Implementation
+          return { content: "done" }
+        },
+      })
+    })
+  },
+}
 ```
 
-After creating, place in `.opencode/tools/`. Tools are auto-discovered from the `tools/` directory — no registration in `opencode.jsonc` is needed.
+No registration in `opencode.jsonc` is needed — OpenCode 2 auto-discovers every directory under `.opencode/plugins/`.
 
 Example project tools:
-- `lint-project.ts` — Run project-specific linting
-- `test-component.ts` — Run tests for a specific component
-- `deploy-preview.ts` — Deploy a preview environment
-- `generate-migration.ts` — Generate database migrations (for ORM projects)
-- `type-check.ts` — Run type checking with project config
+- `.opencode/plugins/lint-project/index.ts` — Run project-specific linting
+- `.opencode/plugins/test-component/index.ts` — Run tests for a specific component
+- `.opencode/plugins/deploy-preview/index.ts` — Deploy a preview environment
+- `.opencode/plugins/generate-migration/index.ts` — Generate database migrations (for ORM projects)
+- `.opencode/plugins/type-check/index.ts` — Run type checking with project config
 
 ### Step 4: Create Project Commands
 
@@ -240,12 +260,10 @@ Example project skills:
 
 ### Step 6: Update opencode.jsonc (if needed)
 
-If tools were created, add them to the tools block:
-
 ```bash
-# Tools are auto-discovered from .opencode/tools/ — no opencode.jsonc registration needed
-# Just ensure the tool files exist in the tools directory
-echo "  → Tools auto-discovered from .opencode/tools/"
+# Tool plugins are auto-discovered from .opencode/plugins/ — no opencode.jsonc registration needed
+# Just ensure each tool has its own plugin directory with an index.ts
+echo "  → Tool plugins auto-discovered from .opencode/plugins/"
 ```
 
 ## Output
@@ -253,7 +271,7 @@ echo "  → Tools auto-discovered from .opencode/tools/"
 | Artifact | Location | Mode |
 |----------|----------|------|
 | Project agents | `.opencode/agents/` | default+ |
-| Project tools | `.opencode/tools/` | full only |
+| Project tools | `.opencode/plugins/<name>/index.ts` | full only |
 | Project commands | `.opencode/commands/` | default+ |
 | Project skills | `.opencode/skills/{name}/` | full only |
 | Updated opencode.jsonc | `.opencode/opencode.jsonc` | full only |
@@ -263,7 +281,7 @@ echo "  → Tools auto-discovered from .opencode/tools/"
 After scaffolding:
 ```bash
 ls .opencode/agents/*.md 2>/dev/null && echo "Agents created" || echo "No agents"
-ls .opencode/tools/*.ts 2>/dev/null && echo "Tools created" || echo "No tools"
+ls -d .opencode/plugins/*/ 2>/dev/null && echo "Tool plugins created" || echo "No tools"
 ls .opencode/commands/*.md 2>/dev/null && echo "Commands created" || echo "No commands"
 ls .opencode/skills/*/SKILL.md 2>/dev/null && echo "Skills created" || echo "No skills"
 ```

@@ -214,7 +214,7 @@ Create complete structure:
 - `.opencode/agent/` - Custom agent templates
 - `.opencode/skills/` - Project skill placeholders
 - `.opencode/commands/` - Project command placeholders
-- `.opencode/tools/` - Project tool placeholders
+- `.opencode/plugins/` - Project tool plugin placeholders (one directory per tool)
 - `.opencode/templates/` - Project templates
 
 ### --refresh Mode

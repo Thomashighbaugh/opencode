@@ -1,322 +1,313 @@
 ---
 name: opencode-sdk-development
-description: This skill should be used when the user asks to "create an OpenCode tool", "build an OpenCode plugin", "write a custom tool for OpenCode", "use @opencode-ai/sdk", "use @opencode-ai/plugin", "integrate with OpenCode", "create OpenCode hooks", "define tool schema", "use tool.schema", "work with OpenCode sessions", or needs guidance on OpenCode SDK patterns, plugin development, or custom tool creation.
+description: This skill should be used when the user asks to "create an OpenCode tool", "build an OpenCode plugin", "write a custom tool for OpenCode", "use the OpenCode client", "integrate with OpenCode", "create OpenCode hooks", "define tool schema", "work with OpenCode sessions", or needs guidance on OpenCode 2 SDK patterns, plugin development, or custom tool creation.
 level: 2
 license: MIT
-version: 1.0.0
+version: 2.0.0
 ---
 
-# OpenCode SDK Development
+# OpenCode SDK Development (OpenCode 2)
 
-Guide for creating custom tools and plugins using the OpenCode SDK.
+Guide for creating custom tools and plugins against the OpenCode 2 runtime.
 
 ## Overview
 
-OpenCode provides two main packages for SDK development:
+OpenCode 2 ships four packages that matter for extension work:
 
 | Package | Purpose |
 |---------|---------|
-| `@opencode-ai/sdk` | Client SDK for interacting with OpenCode server (sessions, messages, files) |
-| `@opencode-ai/plugin` | Plugin system for creating custom tools with schema validation |
+| `@opencode/plugin` | Plugin context: tool/command registration, hooks, events. Promise API at the root, Effect API at `@opencode/plugin/effect`, TUI API at `@opencode/plugin/tui` |
+| `@opencode/client` | Client SDK for talking to a running OpenCode server (sessions, events, plugins, permissions) |
+| `@opencode/schema` | The shared schemas (tool, permission, model, config). **Do not import at runtime from a plugin** — see below |
+| `@opencode/ai` | Message/prompt types used by the plugin and client APIs |
+
+**The runtime-import rule:** importing `@opencode/plugin` (or `@opencode/schema`) at runtime inside a plugin binds those packages to the host binary's embedded Effect instance. The plugin then fails to load. Use a plain object plugin and type-only imports. The note at the top of `plugins/hubs/index.ts` explains it in full.
 
 ## Quick Start: Custom Tools
 
-Custom tools extend OpenCode's capabilities. Tools are TypeScript/JavaScript files auto-discovered from:
-- **Local**: `.opencode/tool/` in project directory
-- **Global**: `~/.config/opencode/tool/`
-
-The **filename becomes the tool name**.
-
-### Basic Tool Structure
+V2 removed file-based tool discovery. A file at `.opencode/tool/foo.ts` is inert — nothing scans the directory. A tool exists only when a plugin registers it.
 
 ```typescript
-import { tool } from "@opencode-ai/plugin"
-
-export default tool({
-  description: "Brief description of what the tool does",
-  args: {
-    paramName: tool.schema.string().describe("Parameter description")
+// .opencode/plugins/my-tool/index.ts
+export default {
+  id: "my-tool",
+  async setup(ctx: any) {
+    await ctx.tool.transform((editor: any) => {
+      editor.add({
+        name: "my-tool",
+        description: "Brief description of what the tool does",
+        input: {
+          type: "object",
+          properties: {
+            paramName: { type: "string", description: "Parameter description" },
+          },
+          required: ["paramName"],
+        },
+        options: { codemode: false },
+        async execute(args: any, context: any) {
+          return { content: "Result string returned to the AI" }
+        },
+      })
+    })
   },
-  async execute(args, context) {
-    // context provides: sessionID, messageID, agent, abort
-    return "Result string returned to the AI"
-  }
-})
+}
 ```
 
-### Schema Definition
+OpenCode 2 auto-discovers every directory under `<config>/plugins/` and `<project>/.opencode/plugins/`, loads its `index.ts`, and calls `setup(ctx)`. No registration entry is needed.
 
-Use `tool.schema` (which is Zod) for argument validation:
+### Input Schema
+
+`input` accepts a plain JSON Schema, an Effect codec, or a Standard Schema. For a project plugin, use plain JSON Schema — a zod dependency is not worth four arguments.
 
 ```typescript
-args: {
-  // String with description
-  query: tool.schema.string().describe("Search query"),
-
-  // Optional string
-  path: tool.schema.string().optional().describe("File path"),
-
-  // Number with constraints
-  limit: tool.schema.number().min(1).max(100).default(10).describe("Max results"),
-
-  // Enum/literal union
-  format: tool.schema.enum(["json", "text"]).describe("Output format"),
-
-  // Boolean
-  recursive: tool.schema.boolean().default(false).describe("Search recursively")
+input: {
+  type: "object",
+  properties: {
+    query: { type: "string", description: "Search query" },
+    path: { type: "string", description: "File path" },
+    limit: { type: "number", minimum: 1, maximum: 100, description: "Max results" },
+    format: { type: "string", enum: ["json", "text"], description: "Output format" },
+    recursive: { type: "boolean", description: "Search recursively" },
+  },
+  required: ["query"],
 }
+```
+
+A zod schema is also valid — but the host converts a Standard Schema with *its own* zod instance, which does not match the zod copy a plugin imports. If you use zod, convert it yourself before registering:
+
+```typescript
+import { z } from "zod/v4"
+
+const input = z.object({ query: z.string().describe("Search query") })
+const jsonSchema = z.toJSONSchema(input, { io: "input", unrepresentable: "any" })
 ```
 
 ### Tool Context
 
-The execute function receives a context object:
-
 ```typescript
 type ToolContext = {
-  sessionID: string      // Current session ID
-  messageID: string      // Current message ID
-  agent: string          // Current agent identifier
-  abort: AbortSignal     // Signal for cancellation
+  sessionID: string
+  messageID: string
+  agent: string
+  id: string
+  signal: AbortSignal
+  progress: (update: unknown) => Promise<void>
 }
 ```
+
+There is **no** `directory` in the tool context. The project root comes from the plugin context: `ctx.location.directory`. Inject it into the tool when registering.
+
+### Result Shape
+
+```typescript
+return { content: "text the model reads" }
+// or structured parts
+return { content: [{ type: "text", text: "..." }] }
+```
+
+Returning a bare string is a V1 shape and is not the V2 contract.
 
 ### Example: File Search Tool
 
 ```typescript
-import { tool } from "@opencode-ai/plugin"
-import { $ } from "bun"
+import { execFile } from "node:child_process"
+import { promisify } from "node:util"
 
-export default tool({
-  description: "Search for files matching a pattern",
-  args: {
-    pattern: tool.schema.string().describe("Glob pattern to match"),
-    directory: tool.schema.string().default(".").describe("Directory to search")
+const exec = promisify(execFile)
+
+export default {
+  id: "file-search",
+  async setup(ctx: any) {
+    const directory: string = ctx?.location?.directory ?? process.cwd()
+
+    await ctx.tool.transform((editor: any) => {
+      editor.add({
+        name: "file-search",
+        description: "Search for files matching a pattern",
+        input: {
+          type: "object",
+          properties: {
+            pattern: { type: "string", description: "Glob pattern to match" },
+            directory: { type: "string", description: "Directory to search" },
+          },
+          required: ["pattern"],
+        },
+        options: { codemode: false },
+        async execute(args: any) {
+          const { stdout } = await exec("find", [args.directory ?? ".", "-name", args.pattern])
+          return { content: stdout || "No files found" }
+        },
+      })
+    })
   },
-  async execute({ pattern, directory }) {
-    const result = await $`find ${directory} -name "${pattern}"`.text()
-    return result || "No files found"
-  }
-})
+}
 ```
+
+Arguments are passed as an array, never interpolated into a shell string — a caller-supplied pattern must not be able to become a command.
 
 ## Plugin Development
 
-Plugins provide more comprehensive integrations with hooks for events, authentication, and tool modification.
-
-### Plugin Structure
-
 ```typescript
-import type { Plugin } from "@opencode-ai/plugin"
+export default {
+  id: "my-plugin",
+  async setup(ctx: any) {
+    // Commands
+    await ctx.command.transform((editor: any) => {
+      editor.add({
+        name: "my-command",
+        description: "What it does",
+        async execute(invocation: any) {
+          await ctx.session.prompt({ sessionID: invocation.sessionID, text: "done" })
+        },
+      })
+    })
 
-const plugin: Plugin = async (input) => {
-  const { client, project, directory, worktree, $ } = input
+    // Events
+    const controller = new AbortController()
+    void (async () => {
+      for await (const event of ctx.event.subscribe({ signal: controller.signal })) {
+        if (event?.type === "session.idle") { /* ... */ }
+      }
+    })()
 
-  return {
-    // Custom tools
-    tool: {
-      myTool: tool({ /* definition */ })
-    },
-
-    // Event hooks
-    event: async ({ event }) => { /* handle events */ },
-
-    // Configuration hooks
-    config: async (config) => { /* modify config */ },
-
-    // Message hooks
-    "chat.message": async (input, output) => { /* modify messages */ },
-
-    // Tool execution hooks
-    "tool.execute.before": async (input, output) => { /* pre-processing */ },
-    "tool.execute.after": async (input, output) => { /* post-processing */ }
-  }
+    return () => controller.abort()
+  },
 }
-
-export default plugin
 ```
 
-### Available Hooks
+### Plugin Context Domains
 
-| Hook | Purpose |
-|------|---------|
-| `event` | Handle real-time events from server |
-| `config` | Modify configuration on load |
-| `tool` | Register custom tools |
-| `auth` | Custom authentication providers |
-| `chat.message` | Modify messages before sending |
-| `chat.params` | Modify LLM parameters (temperature, topP) |
-| `permission.ask` | Handle permission requests |
-| `tool.execute.before` | Pre-process tool arguments |
-| `tool.execute.after` | Post-process tool output |
+| Domain | What it gives you |
+|--------|-------------------|
+| `ctx.location` | `{ directory }` — the project root |
+| `ctx.tool` | `transform(editor)`, `hook("execute.before"/"execute.after")`, `list()`, `reload()` |
+| `ctx.command` | `transform(editor)` → `editor.add({ name, description, execute })` |
+| `ctx.event` | `subscribe({ signal })` — an async iterator of server events |
+| `ctx.permission` | `hook("evaluate")`, `list()`, `get()`, `reply()` |
+| `ctx.session` | `prompt(...)`, `hook("prompt"/"context"/"compaction")` |
+| `ctx.skill` | skill listing and transforms |
+| `ctx.storage` | key/value storage scoped to the plugin |
+| `ctx.model`, `ctx.provider` | model and provider introspection |
+| `ctx.agent`, `ctx.reference`, `ctx.vcs`, `ctx.worktree` | agent definitions, references, version control, worktrees |
+| `ctx.shell`, `ctx.websearch`, `ctx.mcp`, `ctx.rpc` | shell, web search, MCP servers, raw RPC |
 
-## SDK Client Usage
+### Hook → V2 registration
 
-The SDK client provides programmatic access to OpenCode functionality.
+| V1 hook | V2 |
+|---------|-----|
+| `event` | `ctx.event.subscribe` |
+| `tool.execute.before` / `.after` | `ctx.tool.hook("execute.before" / "execute.after")` |
+| `chat.message` | `ctx.session.hook("prompt")` |
+| `experimental.chat.system.transform` | `ctx.session.hook("context")` — push `{ type: "text", text }` parts |
+| `experimental.session.compacting` | `ctx.session.hook("compaction")` — append to `event.result.summary` |
+| `permission.ask` | `ctx.permission.hook("evaluate")` — set `event.effect = "allow" \| "deny"` |
 
-### Initialization
+There is no global command-execute hook in V2.
+
+## Client SDK Usage
+
+The client talks to a running OpenCode server.
 
 ```typescript
-import { createOpencode, createOpencodeClient } from "@opencode-ai/sdk"
+import { OpenCode } from "@opencode/client"
 
-// Create both client and server
-const { client, server } = await createOpencode({
-  hostname: "127.0.0.1",
-  port: 4096,
-  timeout: 5000
-})
+const client = OpenCode.make({ baseUrl: "http://127.0.0.1:4096" })
 
-// Or just the client
-const client = createOpencodeClient({
-  baseUrl: "http://127.0.0.1:4096"
-})
+const sessions = await client.session.list({ directory: process.cwd() })
+const events = await client.event.subscribe({ signal: controller.signal })
 ```
 
 ### Client API Categories
 
 | Category | Methods |
 |----------|---------|
-| `client.session` | list, create, get, delete, prompt, messages, fork, share |
-| `client.project` | list, current |
-| `client.file` | list, read, status |
-| `client.find` | text, files, symbols |
-| `client.tool` | ids, list |
-| `client.event` | subscribe (SSE streaming) |
-| `client.mcp` | status, add |
-| `client.tui` | appendPrompt, submitPrompt, showToast |
+| `client.session` | list, get, create, prompt, messages, fork, interrupt, compact, export |
+| `client.event` | subscribe (async iterator) |
+| `client.plugin` | list, check, update |
+| `client.command` | list |
+| `client.permission` | list, reply |
+| `client.agent`, `client.config`, `client.file`, `client.mcp` | server introspection |
 
-### Session Management
-
-```typescript
-// List sessions
-const { data: sessions } = await client.session.list()
-
-// Create session
-const { data: session } = await client.session.create()
-
-// Send prompt
-const { data: response } = await client.session.prompt({
-  path: { id: sessionId },
-  body: {
-    parts: [{ type: "text", text: "Your message here" }]
-  }
-})
-
-// Get messages
-const { data: messages } = await client.session.messages({
-  path: { id: sessionId }
-})
-```
-
-### Event Streaming
-
-```typescript
-const result = await client.event.subscribe()
-
-for await (const event of result.events) {
-  console.log("Event:", event.type, event.data)
-}
-```
+Arguments are passed as a single object (`{ sessionID }`, `{ directory }`), not as V1's `{ path, body }` pairs.
 
 ## Installation
 
 ```bash
-# Install SDK
-npm install @opencode-ai/sdk
+# Client SDK
+npm install @opencode/client
 
-# Install plugin package (for tools)
-npm install @opencode-ai/plugin
+# Plugin types (type-only imports are safe; runtime imports are not)
+npm install -D @opencode/plugin
 ```
 
 Requires TypeScript >= 4.9.
 
-## Tool File Location
+## Tool Plugin Location
 
 | Location | Scope |
 |----------|-------|
-| `.opencode/tool/*.ts` | Project-specific tools |
-| `~/.config/opencode/tool/*.ts` | Global tools for all projects |
+| `<project>/.opencode/plugins/<name>/index.ts` | Project-specific tools |
+| `~/.config/opencode/plugins/<name>/index.ts` | Global tools for all projects |
 
-Multiple exports create multiple tools: `filename_exportname`.
+A plugin directory may register several tools; one tool per directory is the convention this repo follows.
 
 ## Best Practices
 
-1. **Clear Descriptions**: Write concise, action-oriented descriptions for tools and parameters
-2. **Schema Validation**: Use Zod schemas to validate all inputs before processing
-3. **Error Handling**: Return meaningful error messages as strings
-4. **Abort Signal**: Check `context.abort` for long-running operations
-5. **Type Safety**: Use TypeScript for full type inference from schemas
-6. **Minimal Dependencies**: Keep tools lightweight and focused
+1. **Clear descriptions** — concise, action-oriented, for the tool and each property
+2. **Plain JSON Schema** — no zod dependency in a project plugin
+3. **Return `{ content }`** — that is the result contract
+4. **`options: { codemode: false }`** — keeps the tool on the provider's native tool list
+5. **Inject the directory** — `ctx.location.directory`, because the tool context has no path
+6. **Array arguments, not shell strings** — never let caller input become a command
+7. **Abort signal** — check `context.signal` for long-running operations
 
 ## Common Patterns
-
-### Cross-Language Tool
-
-```typescript
-import { tool } from "@opencode-ai/plugin"
-import { $ } from "bun"
-
-export default tool({
-  description: "Run Python analysis script",
-  args: {
-    file: tool.schema.string().describe("File to analyze")
-  },
-  async execute({ file }) {
-    return await $`bun analyze.ts ${file}`.text()
-  }
-})
-```
 
 ### Tool with Context
 
 ```typescript
-import { tool } from "@opencode-ai/plugin"
-
-export default tool({
-  description: "Get current session info",
-  args: {},
-  async execute(args, context) {
-    return JSON.stringify({
+execute: async (_args: any, context: any) => ({
+  content: JSON.stringify(
+    {
       session: context.sessionID,
       message: context.messageID,
-      agent: context.agent
-    }, null, 2)
-  }
+      agent: context.agent,
+    },
+    null,
+    2,
+  ),
 })
 ```
 
 ## Troubleshooting
 
 **Tool not appearing:**
-- Verify file is in `.opencode/tool/` or `~/.config/opencode/tool/`
-- Check file exports a valid tool definition
-- Restart OpenCode to reload tools
+- The file must live in a plugin directory (`plugins/<name>/index.ts`), not in a `tools/` directory
+- The plugin must call `ctx.tool.transform` and `editor.add`
+- `options: { codemode: false }` is required for the provider's native tool list
+- Check the server log for `loading plugin` and registration errors
+- Confirm the plugin `id` is unique — a duplicate id is dropped
 
-**Schema errors:**
-- Ensure all required args are provided
-- Check type constraints (string vs number)
-- Verify optional fields use `.optional()`
+**Registration errors:**
+- `Invalid tool name` — names must match `[A-Za-z0-9_-]+`
+- `Schema vendor "zod" does not support JSON Schema conversion` — the host tried to convert a Standard Schema with its own zod; convert it yourself or use plain JSON Schema
+- Plugin loads but no tools — the plugin exported something other than `{ id, setup }`, or `setup` threw
 
 **Execution errors:**
-- Check `execute` returns a string
-- Verify async operations complete
-- Handle errors and return error messages as strings
+- `execute` must return `{ content }` (or `{ output }`/`{ metadata }`)
+- Verify async operations complete before returning
 
 ## Additional Resources
 
-### Reference Files
+### Working examples in this repo
 
-For detailed API documentation:
-- **`references/sdk-api.md`** - Complete SDK client API reference
-- **`references/plugin-api.md`** - Full plugin hooks and types
-
-### Example Files
-
-Working examples in `examples/`:
-- **`examples/basic-tool.ts`** - Simple tool implementation
-- **`examples/full-plugin.ts`** - Complete plugin with hooks
+- `plugins/tools/index.ts` — one plugin registering 29 tools
+- `plugins/hubs/index.ts` — tool + command registration, and the runtime-import rule
+- `plugins/hooks/index.ts` — every V1 hook mapped onto its V2 domain
+- `plugins/hubs/tui.tsx` — TUI plugin entrypoint
 
 ### External Documentation
 
 - [OpenCode SDK Docs](https://opencode.ai/docs/sdk/)
 - [Custom Tools Guide](https://opencode.ai/docs/custom-tools/)
-- [OpenCode GitHub](https://github.com/sst/opencode)
+- [OpenCode GitHub](https://github.com/anomalyco/opencode)

@@ -1,9 +1,10 @@
-import { tool } from "@opencode-ai/plugin"
+import { z } from "zod/v4"
 import * as fs from "fs"
 import * as path from "path"
 import * as crypto from "crypto"
 import { getCache, CacheManager, getProjectSlug } from "./cache-utils"
 import { embedQuery, EMBED_DIM, EMBED_MODEL_KEY } from "../skills/vectorize-context/scripts/embedder.ts"
+import type { ToolDefinition } from "./types"
 
 const VALID_ACTIONS = ["save", "load", "invalidate", "stats"] as const
 const SIMILARITY_THRESHOLD = 0.92
@@ -162,15 +163,27 @@ function buildExactKey(agentType: string, taskPrompt: string, filePaths: string[
 
 // ─── Tool Definition ─────────────────────────────────────────────────────
 
-export default tool({
-  description: "Semantic similarity cache for subagent outputs — embedding-based near-match detection via the local in-process ONNX embedder (Xenova/bge-small-en-v1.5, 384-dim, no daemon). Two-tier: exact SHA-256 match first, then 0.92 cosine fallback. Saves API calls by returning cached results for semantically similar task prompts on unchanged files.",
-  args: {
-    action: tool.schema.string().describe(`Action. Valid: ${VALID_ACTIONS.join(", ")}`),
-    agentType: tool.schema.string().optional().describe("Agent type (e.g., 'executor', 'code-reviewer')"),
-    taskPrompt: tool.schema.string().optional().describe("The task prompt sent to the subagent"),
-    output: tool.schema.string().optional().describe("Subagent output to cache (for save action)"),
-    filePaths: tool.schema.array(tool.schema.string()).optional().describe("File paths the subagent worked on (for invalidation on file change)"),
-  },
+const input = z.object({
+  action: z.string().describe(`Action. Valid: ${VALID_ACTIONS.join(", ")}`),
+  agentType: z.string().optional().describe("Agent type (e.g., 'executor', 'code-reviewer')"),
+  taskPrompt: z.string().optional().describe("The task prompt sent to the subagent"),
+  output: z.string().optional().describe("Subagent output to cache (for save action)"),
+  filePaths: z
+    .array(z.string())
+    .optional()
+    .describe("File paths the subagent worked on (for invalidation on file change)"),
+})
+
+/** V2 tool results carry `{ content }`; this tool's payloads are JSON. */
+const json = (value: unknown, replacer?: (key: string, value: unknown) => unknown, space?: string | number) => ({
+  content: JSON.stringify(value, replacer, space),
+})
+
+export default {
+  name: "semantic-cache",
+  description:
+    "Semantic similarity cache for subagent outputs — embedding-based near-match detection via the local in-process ONNX embedder (Xenova/bge-small-en-v1.5, 384-dim, no daemon). Two-tier: exact SHA-256 match first, then 0.92 cosine fallback. Saves API calls by returning cached results for semantically similar task prompts on unchanged files.",
+  input,
   async execute(args, context) {
     const projectRoot = context.directory || process.cwd()
     const agentCache = getCache("agent", projectRoot)
@@ -179,7 +192,7 @@ export default tool({
       // ── SAVE ──────────────────────────────────────────────────────────
       case "save": {
         if (!args.agentType || !args.taskPrompt || !args.output) {
-          return JSON.stringify({ success: false, error: "agentType, taskPrompt, and output required for save" })
+          return json({ success: false, error: "agentType, taskPrompt, and output required for save" })
         }
         const filePaths = args.filePaths || []
         const exactKey = buildExactKey(args.agentType, args.taskPrompt, filePaths)
@@ -213,17 +226,17 @@ export default tool({
           }
 
           saveIndex(projectRoot, index)
-          return JSON.stringify({ success: true, action: "save", key: exactKey, agentType: args.agentType })
+          return json({ success: true, action: "save", key: exactKey, agentType: args.agentType })
         } catch (err: any) {
           // Embedding failed — exact-match cache is still saved, that's fine
-          return JSON.stringify({ success: true, action: "save", key: exactKey, semanticFallback: false, warning: err.message })
+          return json({ success: true, action: "save", key: exactKey, semanticFallback: false, warning: err.message })
         }
       }
 
       // ── LOAD ──────────────────────────────────────────────────────────
       case "load": {
         if (!args.agentType || !args.taskPrompt) {
-          return JSON.stringify({ success: false, error: "agentType and taskPrompt required for load" })
+          return json({ success: false, error: "agentType and taskPrompt required for load" })
         }
         const filePaths = args.filePaths || []
         const exactKey = buildExactKey(args.agentType, args.taskPrompt, filePaths)
@@ -234,10 +247,10 @@ export default tool({
           try {
             const parsed = JSON.parse(exactCached)
             if (parsed.output) {
-              return JSON.stringify({ success: true, action: "load", hit: true, tier: "exact", output: parsed.output })
+              return json({ success: true, action: "load", hit: true, tier: "exact", output: parsed.output })
             }
           } catch {
-            return JSON.stringify({ success: true, action: "load", hit: true, tier: "exact", output: exactCached })
+            return json({ success: true, action: "load", hit: true, tier: "exact", output: exactCached })
           }
         }
 
@@ -248,7 +261,7 @@ export default tool({
           const candidates = index.entries.filter(e => e.agentType === args.agentType)
 
           if (candidates.length === 0) {
-            return JSON.stringify({ success: true, action: "load", hit: false, tier: "none", reason: "no-candidates" })
+            return json({ success: true, action: "load", hit: false, tier: "none", reason: "no-candidates" })
           }
 
           let best: { entry: SemanticEntry; similarity: number } | null = null
@@ -286,7 +299,7 @@ export default tool({
               best.entry.lastAccess = new Date().toISOString()
               saveIndex(projectRoot, index)
 
-              return JSON.stringify({
+              return json({
                 success: true, action: "load", hit: true, tier: "semantic",
                 similarity: Math.round(best.similarity * 1000) / 1000,
                 output: best.entry.output,
@@ -300,10 +313,10 @@ export default tool({
           }
         } catch (err: any) {
           // Embedding failed — fall through to miss
-          return JSON.stringify({ success: true, action: "load", hit: false, tier: "none", reason: `embed-error: ${err.message}` })
+          return json({ success: true, action: "load", hit: false, tier: "none", reason: `embed-error: ${err.message}` })
         }
 
-        return JSON.stringify({ success: true, action: "load", hit: false, tier: "none", reason: "no-match" })
+        return json({ success: true, action: "load", hit: false, tier: "none", reason: "no-match" })
       }
 
       // ── INVALIDATE ────────────────────────────────────────────────────
@@ -312,7 +325,7 @@ export default tool({
           // Clear everything
           saveIndex(projectRoot, { version: INDEX_VERSION, entries: [] })
           agentCache.clear()
-          return JSON.stringify({ success: true, action: "invalidate", cleared: "all" })
+          return json({ success: true, action: "invalidate", cleared: "all" })
         }
 
         if (args.taskPrompt) {
@@ -323,7 +336,7 @@ export default tool({
           saveIndex(projectRoot, index)
           // Invalidate from exact-match cache
           if (args.agentType) agentCache.invalidatePrefix(args.agentType)
-          return JSON.stringify({ success: true, action: "invalidate", key })
+          return json({ success: true, action: "invalidate", key })
         }
 
         if (args.agentType) {
@@ -332,10 +345,10 @@ export default tool({
           index.entries = index.entries.filter(e => e.agentType !== args.agentType)
           saveIndex(projectRoot, index)
           agentCache.invalidatePrefix(args.agentType)
-          return JSON.stringify({ success: true, action: "invalidate", agentType: args.agentType })
+          return json({ success: true, action: "invalidate", agentType: args.agentType })
         }
 
-        return JSON.stringify({ success: false, error: "provide agentType, taskPrompt, or neither (clear all) to invalidate" })
+        return json({ success: false, error: "provide agentType, taskPrompt, or neither (clear all) to invalidate" })
       }
 
       // ── STATS ─────────────────────────────────────────────────────────
@@ -351,7 +364,7 @@ export default tool({
           scanStats = JSON.parse(fs.readFileSync(statsPath, "utf-8"))
         } catch { /* no stats yet */ }
 
-        return JSON.stringify({
+        return json({
           success: true,
           action: "stats",
           semanticEntries: index.entries.length,
@@ -370,7 +383,7 @@ export default tool({
       }
 
       default:
-        return JSON.stringify({ success: false, error: `Unknown action: ${args.action}` })
+        return json({ success: false, error: `Unknown action: ${args.action}` })
     }
-  }
-})
+  },
+} satisfies ToolDefinition<z.infer<typeof input>>

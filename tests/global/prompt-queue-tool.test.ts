@@ -16,6 +16,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import * as fs from 'node:fs'
 import * as os from 'node:os'
 import * as path from 'node:path'
+import { callTool } from '../helpers/call-tool'
 
 const CONFIG_DIR = path.resolve(__dirname, '..', '..')
 const q: typeof import('../../plugins/prompt-queue/queue') = await import(
@@ -32,8 +33,7 @@ afterEach(() => {
 })
 
 async function call(args: Record<string, unknown>): Promise<any> {
-  const handler = toolMod.default?.execute ?? toolMod.execute
-  return JSON.parse(await handler(args, { directory: tmp }))
+  return callTool(toolMod, args, { directory: tmp })
 }
 
 describe('prompt-queue tool: read', () => {
@@ -359,8 +359,13 @@ describe('prompt-queue tool: fire lifecycle end to end', () => {
 
 describe('prompt-queue tool: wiring', () => {
   it('is discoverable as an OpenCode tool', () => {
+    // OpenCode 2 removed file-based tool discovery: the tool module is a plain
+    // object that `plugins/tools/index.ts` registers through
+    // `ctx.tool.transform`. The V1 shape was `export default tool({ ... })`.
     const src = fs.readFileSync(path.join(CONFIG_DIR, 'tools', 'prompt-queue.ts'), 'utf-8')
-    expect(src).toMatch(/export default tool\(\{/)
+    expect(src).toMatch(/export default \{/)
+    expect(src).toMatch(/satisfies ToolDefinition/)
+    expect(src).toMatch(/name:\s*['"]prompt-queue['"]/)
   })
 
   it('every declared action is handled', async () => {

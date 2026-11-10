@@ -65,7 +65,7 @@ After `stack-recommender` produces the tool recommendations, `find-tools` is cal
 
 ## Installation
 
-Tools are generated (not installed from registries) by `project-config-composer` into `.opencode/tools/`. Registry tools are suggested for manual review.
+Tools are generated (not installed from registries) by `project-config-composer` into `.opencode/plugins/{name}/index.ts` — OpenCode 2 auto-discovers those plugin directories, so a tool needs no registration entry. Registry tools are suggested for manual review.
 
 ## Security & Privacy
 

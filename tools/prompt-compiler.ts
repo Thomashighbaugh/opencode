@@ -1,7 +1,8 @@
-import { tool } from "@opencode-ai/plugin"
+import { z } from "zod/v4"
 import * as fs from "fs"
 import * as path from "path"
 import * as crypto from "crypto"
+import type { ToolDefinition } from "./types"
 
 // ─── Boilerplate Patterns ──────────────────────────────────────────────
 // These are sections that the target subagent already has in its base
@@ -308,19 +309,23 @@ function applyOutputContract(prompt: string, agentType: string): string {
 
 // ─── Tool Definition ─────────────────────────────────────────────────────
 
-export default tool({
-  description: "Compile subagent dispatch prompts by stripping redundant boilerplate, scoping file contents, and converting narrative to structured format. Reduces per-request token consumption by 40-60% without changing the LLM's output quality. No budget enforcement — pure quality optimization.",
-  args: {
-    prompt: tool.schema.string().describe("The raw task prompt to compile"),
-    agentType: tool.schema.string().optional().describe("Agent type being dispatched (e.g., 'executor', 'code-reviewer')"),
-    filePaths: tool.schema.array(tool.schema.string()).optional().describe("File paths referenced in the prompt, for content scoping"),
-    skipBoilerplate: tool.schema.boolean().optional().describe("Skip boilerplate stripping (default: true)"),
-    scopeFiles: tool.schema.boolean().optional().describe("Scope file contents to relevant sections (default: true)"),
-  },
+const input = z.object({
+  prompt: z.string().describe("The raw task prompt to compile"),
+  agentType: z.string().optional().describe("Agent type being dispatched (e.g., 'executor', 'code-reviewer')"),
+  filePaths: z.array(z.string()).optional().describe("File paths referenced in the prompt, for content scoping"),
+  skipBoilerplate: z.boolean().optional().describe("Skip boilerplate stripping (default: true)"),
+  scopeFiles: z.boolean().optional().describe("Scope file contents to relevant sections (default: true)"),
+})
+
+export default {
+  name: "prompt-compiler",
+  description:
+    "Compile subagent dispatch prompts by stripping redundant boilerplate, scoping file contents, and converting narrative to structured format. Reduces per-request token consumption by 40-60% without changing the LLM's output quality. No budget enforcement — pure quality optimization.",
+  input,
   async execute(args, context) {
     const projectRoot = context.directory || process.cwd()
     let prompt = args.prompt || ""
-    if (!prompt) return JSON.stringify({ success: false, error: "prompt required" })
+    if (!prompt) return { content: JSON.stringify({ success: false, error: "prompt required" }) }
 
     const originalTokens = tokenCount(prompt)
     let stages: string[] = []
@@ -418,17 +423,19 @@ export default tool({
       ? Math.round((savedTokens / originalTokens) * 100)
       : 0
 
-    return JSON.stringify({
-      success: true,
-      originalTokens,
-      compiledTokens,
-      savedTokens,
-      savingsPercent,
-      stages: [...new Set(stages)],
-      compiled: prompt,
-    })
-  }
-})
+    return {
+      content: JSON.stringify({
+        success: true,
+        originalTokens,
+        compiledTokens,
+        savedTokens,
+        savingsPercent,
+        stages: [...new Set(stages)],
+        compiled: prompt,
+      }),
+    }
+  },
+} satisfies ToolDefinition<z.infer<typeof input>>
 
 // ─── Utility ───────────────────────────────────────────────────────────
 

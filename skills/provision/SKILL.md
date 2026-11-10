@@ -165,7 +165,7 @@ When invoked on an empty directory with free-text intent, populate a minimal det
   "generatedFiles": {
     "agents": [".opencode/agents/executor.md", ".opencode/agents/planner.md"],
     "skills": [],
-    "tools": [".opencode/tools/project-info.ts", ".opencode/tools/deploy.ts"],
+    "tools": [".opencode/plugins/project-info/index.ts", ".opencode/plugins/deploy/index.ts"],
     "rules": [".opencode/rules/00-typescript-conventions.md"],
     "config": ".opencode/opencode.jsonc"
   }
@@ -184,7 +184,7 @@ When invoked on an empty directory with free-text intent, populate a minimal det
 | 1 - Scan | Analyze codebase or parse user description for empty dirs | `explore` agent + `provision.ts` | `.opencode/state/init/init-detection.json` |
 | 2 - Agents | Generate project-aware agent wrappers around global agents | `provision.ts` | `.opencode/agents/` |
 | 3 - Skills | Generate project-specific workflow skills | `provision.ts` | `.opencode/skills/{name}/` |
-| 4 - Tools | Generate project-specific TypeScript tools | `provision.ts` | `.opencode/tools/` |
+| 4 - Tools | Generate project-specific tool plugins | `provision.ts` | `.opencode/plugins/{name}/index.ts` |
 | 5 - Rules | Generate project rules and conventions | `provision.ts` | `.opencode/rules/` |
 | 6 - Install | Register in opencode.jsonc, create AGENTS.md | `config-orchestrator` | `.opencode/opencode.jsonc`, `.opencode/AGENTS.md` |
 | 7 - Verify | Validate everything works end-to-end | `verifier` agent | `.opencode/state/init/provision-report.md` |
@@ -506,94 +506,119 @@ Only generate skills that are relevant — skip `deploy` if no deployment config
 
 ### Phase 4: Tools
 
-Generate project-specific TypeScript tools in `.opencode/tools/`.
+Generate project-specific tool plugins in `.opencode/plugins/{name}/index.ts`.
 
-> **CRITICAL**: All generated tools MUST go into `.opencode/tools/` — never at the project root. OpenCode auto-discovers tools from `.opencode/tools/` via their default exports. Root-level `./tools/`, `./scripts/`, or standalone `.ts`/`.sh` files are NOT auto-discovered and create root directory pollution. See `rules/artifact-placement.md` for the full rule.
+> **CRITICAL**: OpenCode 2 removed file-based tool discovery — a file under `.opencode/tools/` is inert. A tool exists only when a plugin registers it through `ctx.tool.transform(editor => editor.add(...))`, and plugins are auto-discovered from `.opencode/plugins/`. So each generated tool is its own plugin directory with an `index.ts`. Never at the project root: root-level `./tools/`, `./scripts/`, or standalone `.ts`/`.sh` files are NOT auto-discovered and create root directory pollution. See `rules/artifact-placement.md` for the full rule.
 
 **Standard tools:**
 
-#### `project-info.ts`
+#### `.opencode/plugins/project-info/index.ts`
 
 Returns project metadata — language, framework, build/test/lint commands. Used by other agents to self-configure.
 
 ```typescript
-import { tool } from "@opencode-ai/plugin"
-
-export default tool({
-  name: "project-info",
-  description: "Returns project metadata including language, framework, build/test/lint commands, and key conventions.",
-  args: {},
-  async execute(args, context) {
-    return {
-      language: "[language]",
-      framework: "[framework]",
-      packageManager: "[packageManager]",
-      buildCommand: "[buildCommand]",
-      testCommand: "[testCommand]",
-      lintCommand: "[lintCommand]",
-      devCommand: "[devCommand]",
-      sourceDir: "[sourceDir]",
-      testDir: "[testDir]",
-      conventions: {
-        naming: "[naming convention summary]",
-        testing: "[testing summary]",
-        errors: "[error handling summary]"
-      }
-    }
-  }
-})
+export default {
+  id: "project-info",
+  setup(ctx: any) {
+    ctx.tool.transform((editor: any) => {
+      editor.add({
+        name: "project-info",
+        description: "Returns project metadata including language, framework, build/test/lint commands, and key conventions.",
+        input: { type: "object", properties: {} },
+        options: { codemode: false },
+        execute: async () => ({
+          content: JSON.stringify({
+            language: "[language]",
+            framework: "[framework]",
+            packageManager: "[packageManager]",
+            buildCommand: "[buildCommand]",
+            testCommand: "[testCommand]",
+            lintCommand: "[lintCommand]",
+            devCommand: "[devCommand]",
+            sourceDir: "[sourceDir]",
+            testDir: "[testDir]",
+            conventions: {
+              naming: "[naming convention summary]",
+              testing: "[testing summary]",
+              errors: "[error handling summary]",
+            },
+          }, null, 2),
+        }),
+      })
+    })
+  },
+}
 ```
 
-#### `deploy.ts` (if deployment configured)
+#### `.opencode/plugins/deploy/index.ts` (if deployment configured)
 
 ```typescript
-import { tool } from "@opencode-ai/plugin"
-
-export default tool({
-  name: "deploy",
-  description: "Deploy the project to [deploymentTarget] — run build then deploy.",
-  args: {
-    environment: {
-      type: "string",
-      description: "Deployment environment (preview or production)",
-      default: "preview"
-    }
+export default {
+  id: "deploy",
+  setup(ctx: any) {
+    ctx.tool.transform((editor: any) => {
+      editor.add({
+        name: "deploy",
+        description: "Deploy the project to [deploymentTarget] — run build then deploy.",
+        input: {
+          type: "object",
+          properties: {
+            environment: {
+              type: "string",
+              description: "Deployment environment (preview or production)",
+              default: "preview",
+            },
+          },
+        },
+        options: { codemode: false },
+        execute: async (args: any) => {
+          const environment = args.environment || "preview"
+          // Implementation: run build then deploy
+          return { content: JSON.stringify({ environment, status: "initiated" }) }
+        },
+      })
+    })
   },
-  async execute(args, context) {
-    const env = args.environment || "preview"
-    // Implementation: run build then deploy
-    return { environment: env, status: "initiated" }
-  }
-})
+}
 ```
 
-#### `db-migrate.ts` (if database ORM detected)
+#### `.opencode/plugins/db-migrate/index.ts` (if database ORM detected)
 
 ```typescript
-import { tool } from "@opencode-ai/plugin"
-
-export default tool({
-  name: "db-migrate",
-  description: "Run database migrations for [project] — create, apply, rollback.",
-  args: {
-    action: {
-      type: "string",
-      enum: ["create", "up", "down", "status"],
-      description: "Migration action"
-    },
-    name: {
-      type: "string",
-      description: "Migration name (for create action)"
-    }
+export default {
+  id: "db-migrate",
+  setup(ctx: any) {
+    ctx.tool.transform((editor: any) => {
+      editor.add({
+        name: "db-migrate",
+        description: "Run database migrations for [project] — create, apply, rollback.",
+        input: {
+          type: "object",
+          properties: {
+            action: {
+              type: "string",
+              enum: ["create", "up", "down", "status"],
+              description: "Migration action",
+            },
+            name: {
+              type: "string",
+              description: "Migration name (for create action)",
+            },
+          },
+          required: ["action"],
+        },
+        options: { codemode: false },
+        execute: async (args: any) => {
+          // Implementation based on detected ORM (Prisma, TypeORM, Alembic, etc.)
+          return { content: JSON.stringify({ action: args.action, status: "executed" }) }
+        },
+      })
+    })
   },
-  async execute(args, context) {
-    // Implementation based on detected ORM (Prisma, TypeORM, Alembic, etc.)
-    return { action: args.action, status: "executed" }
-  }
-})
+}
 ```
 
-Tool generation is scoped to project needs — only create tools that match the detected stack. A static site with no database doesn't need `db-migrate.ts`.
+Tool generation is scoped to project needs — only create tools that match the detected stack. A static site with no database doesn't need a `db-migrate` plugin.
 
 ### Phase 5: Rules
 
@@ -808,7 +833,7 @@ Register generated artifacts and create `.opencode/AGENTS.md`. Note that OpenCod
 
 All other artifacts are auto-discovered:
 - **Agents** from `.opencode/agents/` — auto-loaded
-- **Tools** from `.opencode/tools/` — auto-discovered via default export
+- **Tool plugins** from `.opencode/plugins/<name>/index.ts` — auto-discovered as plugins
 - **Rules** from `.opencode/rules/` — auto-loaded via `instructions` glob patterns
 - **Commands** from `.opencode/commands/` — auto-discovered
 - **Do NOT inject** `"agents"`, `"commands"`, `"rules"`, or `"agentPaths"` keys — they break OpenCode's config loader
@@ -886,15 +911,16 @@ for skill_dir in .opencode/skills/*/; do
   fi
 done
 
-# Check tools compile (or at least parse)
-for tool in .opencode/tools/*.ts; do
+# Check tool plugins register a tool
+for tool in .opencode/plugins/*/index.ts; do
   if [ -f "$tool" ]; then
-    name=$(basename "$tool" .ts)
+    name=$(basename "$(dirname "$tool")")
     has_export=$(grep -c "export default" "$tool" 2>/dev/null)
-    if [ "$has_export" -gt 0 ]; then
-      echo "  ✓ $name tool"
+    has_register=$(grep -c "editor.add(" "$tool" 2>/dev/null)
+    if [ "$has_export" -gt 0 ] && [ "$has_register" -gt 0 ]; then
+      echo "  ✓ $name tool plugin"
     else
-      echo "  ⚠ $name tool — may lack default export"
+      echo "  ⚠ $name tool plugin — does not register a tool (needs export default + editor.add)"
       errors=$((errors + 1))
     fi
   fi
@@ -968,7 +994,7 @@ Exit codes:
 | `--phases 1` | Scan | Saves detection JSON |
 | `--phases 2` | Agents | Writes to `.opencode/agents/*.md` |
 | `--phases 3` | Skills | Writes to `.opencode/skills/*/SKILL.md` |
-| `--phases 4` | Tools | Writes to `.opencode/tools/*.ts` |
+| `--phases 4` | Tools | Writes to `.opencode/plugins/{name}/index.ts` |
 | `--phases 5` | Rules | Writes to `.opencode/rules/*.md` |
 | `--phases 6` | Install | Updates `opencode.jsonc`, creates `AGENTS.md` |
 | `--phases 7` | Verify | Writes verification report |

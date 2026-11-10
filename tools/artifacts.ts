@@ -1,7 +1,8 @@
-import { tool } from "@opencode-ai/plugin"
+import { z } from "zod/v4"
 import * as fs from "fs"
 import * as path from "path"
 import { withToolCache, invalidateToolCache } from "./cache-utils"
+import type { ToolDefinition } from "./types"
 
 interface ArtifactsManifest {
   created: string
@@ -24,30 +25,33 @@ const VALID_ARTIFACT_TYPES = ['text', 'json', 'markdown'] as const
 const READ_ONLY_ACTIONS = new Set(['load', 'list', 'list-all', 'get-latest'])
 const MUTATION_ACTIONS = new Set(['save', 'delete'])
 
-export default tool({
+const input = z.object({
+  action: z.string().describe(`Action to perform. Valid: ${VALID_ARTIFACT_ACTIONS.join(", ")}`),
+  skill: z.string().optional().describe("Skill name for artifact scope"),
+  name: z.string().optional().describe("Artifact name (for save/load/delete)"),
+  content: z.string().optional().describe("Content for save action"),
+  type: z.string().optional().describe(`Content type (default: markdown). Valid: ${VALID_ARTIFACT_TYPES.join(", ")}`),
+  limit: z.number().optional().describe("Max items for list action"),
+})
+
+export default {
+  name: "artifacts",
   description: "Manage skill artifacts: save, load, list, or delete artifacts created by skills",
-  args: {
-    action: tool.schema.string().describe(`Action to perform. Valid: ${VALID_ARTIFACT_ACTIONS.join(', ')}`),
-    skill: tool.schema.string().optional().describe("Skill name for artifact scope"),
-    name: tool.schema.string().optional().describe("Artifact name (for save/load/delete)"),
-    content: tool.schema.string().optional().describe("Content for save action"),
-    type: tool.schema.string().optional().describe(`Content type (default: markdown). Valid: ${VALID_ARTIFACT_TYPES.join(', ')}`),
-    limit: tool.schema.number().optional().describe("Max items for list action")
-  },
+  input,
   async execute(args, context) {
     const projectRoot = context.directory || process.cwd()
-    
+
     if (READ_ONLY_ACTIONS.has(args.action)) {
-      return withToolCache("artifacts", args, () => executeArtifacts(args, projectRoot), 300_000)
+      return { content: withToolCache("artifacts", args, () => executeArtifacts(args, projectRoot), 300_000) }
     }
-    
+
     if (MUTATION_ACTIONS.has(args.action)) {
       invalidateToolCache("artifacts")
     }
-    
-    return executeArtifacts(args, projectRoot)
-  }
-})
+
+    return { content: executeArtifacts(args, projectRoot) }
+  },
+} satisfies ToolDefinition<z.infer<typeof input>>
 
 function executeArtifacts(args: any, projectRoot: string): string {
     switch (args.action) {

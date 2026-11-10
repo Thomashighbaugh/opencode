@@ -1,6 +1,7 @@
-import { tool } from "@opencode-ai/plugin"
+import { z } from "zod/v4"
 import * as fs from "fs"
 import * as path from "path"
+import type { ToolDefinition } from "./types"
 
 const VALID_ACTIONS = ["get", "set", "delete", "commentOut", "uncomment"] as const
 
@@ -14,19 +15,22 @@ interface ConfigEntry {
   line: number
 }
 
-export default tool({
+const input = z.object({
+  file: z.string().describe("Path to config file"),
+  action: z.string().describe(`Operation. Valid: ${VALID_ACTIONS.join(", ")}`),
+  key: z.string().optional().describe("Key name (for get/set/delete/commentOut/uncomment)"),
+  value: z.string().optional().describe("Value to set"),
+  section: z.string().optional().describe("INI section header (e.g. 'database') for scoped operations"),
+  separator: z.string().optional().describe("Key-value separator (default: '=')"),
+  commentChar: z.string().optional().describe("Comment character (default: '#')"),
+  format: z.string().optional().describe("Config format: 'auto', 'env', 'ini', or 'kv'. Default: 'auto'"),
+  dryRun: z.boolean().optional().describe("Preview changes without applying (default: false)"),
+})
+
+export default {
+  name: "conf-edit",
   description: "Edit config files (.env, INI, key=value) — get, set, delete, comment/uncomment keys. No sed required.",
-  args: {
-    file: tool.schema.string().describe("Path to config file"),
-    action: tool.schema.string().describe(`Operation. Valid: ${VALID_ACTIONS.join(", ")}`),
-    key: tool.schema.string().optional().describe("Key name (for get/set/delete/commentOut/uncomment)"),
-    value: tool.schema.string().optional().describe("Value to set"),
-    section: tool.schema.string().optional().describe("INI section header (e.g. 'database') for scoped operations"),
-    separator: tool.schema.string().optional().describe("Key-value separator (default: '=')"),
-    commentChar: tool.schema.string().optional().describe("Comment character (default: '#')"),
-    format: tool.schema.string().optional().describe("Config format: 'auto', 'env', 'ini', or 'kv'. Default: 'auto'"),
-    dryRun: tool.schema.boolean().optional().describe("Preview changes without applying (default: false)")
-  },
+  input,
   async execute(args) {
     const { file, action: actionName, key, value, section, dryRun } = args
     const separator = args.separator || "="
@@ -297,8 +301,8 @@ export default tool({
     }
 
     return err(`Unknown action: ${actionName}`)
-  }
-})
+  },
+} satisfies ToolDefinition<z.infer<typeof input>>
 
 // ── Helpers ──────────────────────────────────────────────────────────────
 
@@ -316,9 +320,9 @@ function escapeRegex(s: string): string {
 }
 
 function ok(data: Record<string, unknown>) {
-  return JSON.stringify({ success: true, ...data })
+  return { content: JSON.stringify({ success: true, ...data }) }
 }
 
 function err(msg: string) {
-  return JSON.stringify({ success: false, error: msg })
+  return { content: JSON.stringify({ success: false, error: msg }) }
 }

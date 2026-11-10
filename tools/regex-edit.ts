@@ -1,5 +1,6 @@
-import { tool } from "@opencode-ai/plugin"
+import { z } from "zod/v4"
 import * as fs from "fs"
+import type { ToolDefinition } from "./types"
 
 const VALID_ACTIONS = [
   "replace", "replaceAll",
@@ -8,21 +9,31 @@ const VALID_ACTIONS = [
   "insertAtLine", "getLines"
 ] as const
 
-export default tool({
-  description: "Edit text files using regex patterns and line operations — replace, insert, delete lines, get matching lines. No temporary scripts needed.",
-  args: {
-    file: tool.schema.string().describe("Path to file to edit (absolute or relative to workspace)"),
-    action: tool.schema.string().describe(`Operation to perform. Valid: ${VALID_ACTIONS.join(", ")}`),
-    pattern: tool.schema.string().optional().describe("Regex pattern (for replace, insertBefore, insertAfter, deleteMatching, getLines)"),
-    replacement: tool.schema.string().optional().describe("Replacement text (for replace, replaceAll)"),
-    content: tool.schema.string().optional().describe("Content to insert (for insertBefore, insertAfter, insertAtLine)"),
-    startLine: tool.schema.number().optional().describe("Start line number, 1-indexed (for deleteRange)"),
-    endLine: tool.schema.number().optional().describe("End line number, inclusive (for deleteRange)"),
-    line: tool.schema.number().optional().describe("Line number to insert at, 1-indexed (for insertAtLine)"),
-    flags: tool.schema.string().optional().describe("Regex flags. Default: '' for replace, 'g' for replaceAll, '' for line ops"),
-    dryRun: tool.schema.boolean().optional().describe("Preview changes without applying (default: false)"),
-    encoding: tool.schema.string().optional().describe("File encoding (default: 'utf-8')")
-  },
+const input = z.object({
+  file: z.string().describe("Path to file to edit (absolute or relative to workspace)"),
+  action: z.string().describe(`Operation to perform. Valid: ${VALID_ACTIONS.join(", ")}`),
+  pattern: z
+    .string()
+    .optional()
+    .describe("Regex pattern (for replace, insertBefore, insertAfter, deleteMatching, getLines)"),
+  replacement: z.string().optional().describe("Replacement text (for replace, replaceAll)"),
+  content: z.string().optional().describe("Content to insert (for insertBefore, insertAfter, insertAtLine)"),
+  startLine: z.number().optional().describe("Start line number, 1-indexed (for deleteRange)"),
+  endLine: z.number().optional().describe("End line number, inclusive (for deleteRange)"),
+  line: z.number().optional().describe("Line number to insert at, 1-indexed (for insertAtLine)"),
+  flags: z
+    .string()
+    .optional()
+    .describe("Regex flags. Default: '' for replace, 'g' for replaceAll, '' for line ops"),
+  dryRun: z.boolean().optional().describe("Preview changes without applying (default: false)"),
+  encoding: z.string().optional().describe("File encoding (default: 'utf-8')"),
+})
+
+export default {
+  name: "regex-edit",
+  description:
+    "Edit text files using regex patterns and line operations — replace, insert, delete lines, get matching lines. No temporary scripts needed.",
+  input,
   async execute(args) {
     const { file, action, pattern, replacement, content, startLine, endLine, line, dryRun } = args
     const enc = (args.encoding || "utf-8") as BufferEncoding
@@ -135,8 +146,8 @@ export default tool({
       default:
         return err(`Unknown action: ${action}`)
     }
-  }
-})
+  },
+} satisfies ToolDefinition<z.infer<typeof input>>
 
 // ── Helpers ──────────────────────────────────────────────────────────────
 
@@ -180,9 +191,9 @@ function buildDiff(before: string, after: string): string {
 }
 
 function ok(data: Record<string, unknown>) {
-  return JSON.stringify({ success: true, ...data })
+  return { content: JSON.stringify({ success: true, ...data }) }
 }
 
 function err(msg: string) {
-  return JSON.stringify({ success: false, error: msg })
+  return { content: JSON.stringify({ success: false, error: msg }) }
 }

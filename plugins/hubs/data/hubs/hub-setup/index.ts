@@ -3,6 +3,7 @@ import config from "./config"
 import detect from "./detect"
 import doctor from "./doctor"
 import mapCodebase from "./map-codebase"
+import migrateV2 from "./migrate-v2"
 import provision from "./provision"
 import recommend from "./recommend"
 import refresh from "./refresh"
@@ -13,7 +14,7 @@ import tag from "./tag"
 import verify from "./verify"
 
 export const specs = [
-  config, detect, doctor, mapCodebase, provision, recommend, refresh, reset,
+  config, detect, doctor, mapCodebase, migrateV2, provision, recommend, refresh, reset,
   setup, status, tag, verify
 ]
 

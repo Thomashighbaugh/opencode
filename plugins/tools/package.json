@@ -1,0 +1,9 @@
+{
+  "name": "opencode-tools",
+  "version": "2.0.0",
+  "description": "This repository's tool suite, registered as an OpenCode 2 plugin",
+  "type": "module",
+  "license": "MIT",
+  "exports": { ".": "./index.ts" },
+  "files": ["index.ts"]
+}
