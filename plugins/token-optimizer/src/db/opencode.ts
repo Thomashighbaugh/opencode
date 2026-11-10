@@ -80,14 +80,15 @@ function parse(data: unknown): Record<string, any> {
   }
 }
 
-export function sessionRow(db: Database, id: string): SessionRow | null {
-  const row = db.query(
-    `SELECT id, project_id, directory, title, agent, model, cost,
-            tokens_input, tokens_output, tokens_reasoning,
-            tokens_cache_read, tokens_cache_write, time_created, time_updated
-     FROM session_v2 WHERE id = ?`,
-  ).get(id) as any
-  if (!row) return null
+function hasTable(db: Database, name: string): boolean {
+  try {
+    return db.query("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?").get(name) !== undefined
+  } catch {
+    return false
+  }
+}
+
+function mapSessionRow(row: any): SessionRow {
   return {
     id: String(row.id),
     projectID: String(row.project_id),
@@ -104,6 +105,28 @@ export function sessionRow(db: Database, id: string): SessionRow | null {
     createdAt: Number(row.time_created ?? 0),
     updatedAt: Number(row.time_updated ?? 0),
   }
+}
+
+const SESSION_COLUMNS = `id, project_id, directory, title, agent, model, cost,
+            tokens_input, tokens_output, tokens_reasoning,
+            tokens_cache_read, tokens_cache_write, time_created, time_updated`
+
+export function sessionRow(db: Database, id: string): SessionRow | null {
+  // V2 first, then V1. Sessions created by OpenCode 1 never receive a
+  // `session_v2` row — they live in the `session` table only. Query both
+  // so the sidebar can score any session, not just V2 ones. No undefined
+  // helpers: `hasTable` is defined above, and each table query is wrapped
+  // in try/catch so a missing table never crashes the session.
+  for (const table of ["session_v2", "session"] as const) {
+    if (!hasTable(db, table)) continue
+    try {
+      const row = db.query(`SELECT ${SESSION_COLUMNS} FROM ${table} WHERE id = ?`).get(id) as any
+      if (row) return mapSessionRow(row)
+    } catch {
+      continue
+    }
+  }
+  return null
 }
 
 export function listSessions(db: Database, days = 30, projectID?: string): SessionRow[] {
