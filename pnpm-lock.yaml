@@ -8,9 +8,6 @@ importers:
 
   .:
     dependencies:
-      '@franlol/opencode-md-table-formatter':
-        specifier: 0.0.3
-        version: 0.0.3(@opencode-ai/plugin@1.18.35(@opentui/core@0.5.17(typescript@6.0.3)(web-tree-sitter@0.25.10))(@opentui/solid@0.5.17(solid-js@1.9.12)(typescript@6.0.3)(web-tree-sitter@0.25.10)))
       '@huggingface/transformers':
         specifier: ^4.3.2
         version: 4.3.2(@types/node@25.9.9)
@@ -18,20 +15,17 @@ importers:
         specifier: ^1.32.2
         version: 1.32.2(zod@3.25.76)
       '@opencode-ai/plugin':
-        specifier: 1.18.35
-        version: 1.18.35(@opentui/core@0.5.17(typescript@6.0.3)(web-tree-sitter@0.25.10))(@opentui/solid@0.5.17(solid-js@1.9.12)(typescript@6.0.3)(web-tree-sitter@0.25.10))
+        specifier: 1.19.5
+        version: 1.19.5(@opentui/core@0.5.17(typescript@5.9.3)(web-tree-sitter@0.25.10))(@opentui/solid@0.5.17(solid-js@1.9.12)(typescript@5.9.3)(web-tree-sitter@0.25.10))
       '@opencode-ai/sdk':
         specifier: ^1.19.5
         version: 1.19.5
-      '@opencode-plugins/env-protection':
-        specifier: ^1.0.4
-        version: 1.0.4
       '@opentui/react':
         specifier: ^0.5.17
-        version: 0.5.17(react-devtools-core@7.0.1)(react@19.3.1)(typescript@6.0.3)(web-tree-sitter@0.25.10)(ws@8.22.0)
+        version: 0.5.17(react-devtools-core@7.0.1)(react@19.3.1)(typescript@5.9.3)(web-tree-sitter@0.25.10)(ws@8.22.0)
       '@opentui/solid':
         specifier: ^0.5.17
-        version: 0.5.17(solid-js@1.9.12)(typescript@6.0.3)(web-tree-sitter@0.25.10)
+        version: 0.5.17(solid-js@1.9.12)(typescript@5.9.3)(web-tree-sitter@0.25.10)
       better-sqlite3:
         specifier: ^13.0.3
         version: 13.0.3
@@ -47,6 +41,9 @@ importers:
       js-yaml:
         specifier: ^5.5.0
         version: 5.5.0
+      jsonc-parser:
+        specifier: ^3.3.1
+        version: 3.3.1
       jsonpath-plus:
         specifier: ^10.4.0
         version: 10.4.0
@@ -69,8 +66,8 @@ importers:
         specifier: ^1.0.2
         version: 1.0.2
       typescript:
-        specifier: ^6.0.3
-        version: 6.0.3
+        specifier: ^5.9.3
+        version: 5.9.3
       typescript-language-server:
         specifier: ^5.3.0
         version: 5.3.0
@@ -241,12 +238,6 @@ packages:
 
   '@emnapi/runtime@1.11.3':
     resolution: {integrity: sha512-Xz4Tpyki7XyrpbUK1jR1AhdAdaXyhhY4lZ3neLodmhpuWfy2PAQN5B46sAiU4liOXGLkHypn/qU+jvfWSCYYLA==}
-
-  '@franlol/opencode-md-table-formatter@0.0.3':
-    resolution: {integrity: sha512-1+Nt4TU/J3mQ1n1gB62Si7ehboTrzXUbEVMk2U1EFqT4nlQCBdZzd8PcYQMWXmYHYV+RSFe10rQS7s9hxJvBNA==}
-    engines: {node: '>=18.0.0'}
-    peerDependencies:
-      '@opencode-ai/plugin': '>=0.13.7'
 
   '@hono/node-server@2.1.5':
     resolution: {integrity: sha512-MgP/I06GdvsilDspMk/qmRzpk8LOUStP6jFAbSRi40W09DhoyUn+Mj7eyKICPqeYKybOjVFLVIAQzvu1bfIa7Q==}
@@ -500,8 +491,8 @@ packages:
   '@nodable/entities@3.1.0':
     resolution: {integrity: sha512-LsS/DjHr+uDM647Gru/cA8+J3a3HfhttwCKLyuoyN7yXTFCxKBtSgMQBvrW9yNPa2/zDRUNuGPaH5QUFoa4arQ==}
 
-  '@opencode-ai/plugin@1.18.35':
-    resolution: {integrity: sha512-mjM0N4tceFiNy+t28VKnU9XAOhflWsyzLDZWrf3D3HLpSF3dX3dFc/0xf/PaRK76V7hIIkA3vWy/ZvLk8SZBKw==}
+  '@opencode-ai/plugin@1.19.5':
+    resolution: {integrity: sha512-79PY+pxcJajHReWv2OP2SYTdlx1f7zOmq2hIaReOJnovsxNaSvxVyQHx+6Yq22T5UcS4z3Qgws4KB4lQOaIbdQ==}
     peerDependencies:
       '@opentui/core': '>=0.4.5'
       '@opentui/keymap': '>=0.4.5'
@@ -514,14 +505,8 @@ packages:
       '@opentui/solid':
         optional: true
 
-  '@opencode-ai/sdk@1.18.35':
-    resolution: {integrity: sha512-cp3IFKwnqgeUbflrrwz/WmG/dALVyM2k0LA1aqCvWe58Tu4utNTNw+BwZzQEML1HxDaLrIB+Fc4Ztb8S16Ijcw==}
-
   '@opencode-ai/sdk@1.19.5':
     resolution: {integrity: sha512-+bqu8gHiwmq96T9q5G34uLNHWCInIMsrE3hytCNHj1cVaxjY0AGJyNCT1rkeeZwgPU7A5TMTNwN+0XxCO2vqDg==}
-
-  '@opencode-plugins/env-protection@1.0.4':
-    resolution: {integrity: sha512-ad2WJl8JTain+tf5AnUnO6MUEPh3+DKPln2mAseaJnml5dnUZnr3pIJXCW/lwq5oNterxzopl9s5efb0Bk8o3Q==}
 
   '@opentui/core-darwin-arm64@0.5.17':
     resolution: {integrity: sha512-ptobzW+1zM29nHvadwy+8uW9jvV8NJr63vcQXWe2rQNtpwN/6k7lEXWiS5LndeBs9AMV5tTsXMEMhttgts4BDQ==}
@@ -1947,8 +1932,8 @@ packages:
     engines: {node: '>=4.2.0'}
     hasBin: true
 
-  typescript@6.0.3:
-    resolution: {integrity: sha512-y2TvuxSZPDyQakkFRPZHKFm+KKVqIisdg9/CZwm9ftvKXLP8NRWj38/ODjNbr43SsoXqNuAisEf1GdCxqWcdBw==}
+  typescript@5.9.3:
+    resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
     engines: {node: '>=14.17'}
     hasBin: true
 
@@ -2415,10 +2400,6 @@ snapshots:
       tslib: 2.8.1
     optional: true
 
-  '@franlol/opencode-md-table-formatter@0.0.3(@opencode-ai/plugin@1.18.35(@opentui/core@0.5.17(typescript@6.0.3)(web-tree-sitter@0.25.10))(@opentui/solid@0.5.17(solid-js@1.9.12)(typescript@6.0.3)(web-tree-sitter@0.25.10)))':
-    dependencies:
-      '@opencode-ai/plugin': 1.18.35(@opentui/core@0.5.17(typescript@6.0.3)(web-tree-sitter@0.25.10))(@opentui/solid@0.5.17(solid-js@1.9.12)(typescript@6.0.3)(web-tree-sitter@0.25.10))
-
   '@hono/node-server@2.1.5(hono@4.13.14)':
     dependencies:
       hono: 4.13.14
@@ -2614,25 +2595,19 @@ snapshots:
 
   '@nodable/entities@3.1.0': {}
 
-  '@opencode-ai/plugin@1.18.35(@opentui/core@0.5.17(typescript@6.0.3)(web-tree-sitter@0.25.10))(@opentui/solid@0.5.17(solid-js@1.9.12)(typescript@6.0.3)(web-tree-sitter@0.25.10))':
+  '@opencode-ai/plugin@1.19.5(@opentui/core@0.5.17(typescript@5.9.3)(web-tree-sitter@0.25.10))(@opentui/solid@0.5.17(solid-js@1.9.12)(typescript@5.9.3)(web-tree-sitter@0.25.10))':
     dependencies:
       '@ai-sdk/provider': 3.0.8
-      '@opencode-ai/sdk': 1.18.35
+      '@opencode-ai/sdk': 1.19.5
       effect: 4.0.0-beta.83
       zod: 4.1.8
     optionalDependencies:
-      '@opentui/core': 0.5.17(typescript@6.0.3)(web-tree-sitter@0.25.10)
-      '@opentui/solid': 0.5.17(solid-js@1.9.12)(typescript@6.0.3)(web-tree-sitter@0.25.10)
-
-  '@opencode-ai/sdk@1.18.35':
-    dependencies:
-      cross-spawn: 7.0.6
+      '@opentui/core': 0.5.17(typescript@5.9.3)(web-tree-sitter@0.25.10)
+      '@opentui/solid': 0.5.17(solid-js@1.9.12)(typescript@5.9.3)(web-tree-sitter@0.25.10)
 
   '@opencode-ai/sdk@1.19.5':
     dependencies:
       cross-spawn: 7.0.6
-
-  '@opencode-plugins/env-protection@1.0.4': {}
 
   '@opentui/core-darwin-arm64@0.5.17':
     optional: true
@@ -2658,9 +2633,9 @@ snapshots:
   '@opentui/core-win32-x64@0.5.17':
     optional: true
 
-  '@opentui/core@0.5.17(typescript@6.0.3)(web-tree-sitter@0.25.10)':
+  '@opentui/core@0.5.17(typescript@5.9.3)(web-tree-sitter@0.25.10)':
     dependencies:
-      bun-ffi-structs: 0.3.1(typescript@6.0.3)
+      bun-ffi-structs: 0.3.1(typescript@5.9.3)
       diff: 9.0.0
       marked: 17.0.1
       string-width: 7.2.0
@@ -2678,9 +2653,9 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
-  '@opentui/react@0.5.17(react-devtools-core@7.0.1)(react@19.3.1)(typescript@6.0.3)(web-tree-sitter@0.25.10)(ws@8.22.0)':
+  '@opentui/react@0.5.17(react-devtools-core@7.0.1)(react@19.3.1)(typescript@5.9.3)(web-tree-sitter@0.25.10)(ws@8.22.0)':
     dependencies:
-      '@opentui/core': 0.5.17(typescript@6.0.3)(web-tree-sitter@0.25.10)
+      '@opentui/core': 0.5.17(typescript@5.9.3)(web-tree-sitter@0.25.10)
       react: 19.3.1
       react-devtools-core: 7.0.1
       react-reconciler: 0.33.0(react@19.3.1)
@@ -2689,11 +2664,11 @@ snapshots:
       - typescript
       - web-tree-sitter
 
-  '@opentui/solid@0.5.17(solid-js@1.9.12)(typescript@6.0.3)(web-tree-sitter@0.25.10)':
+  '@opentui/solid@0.5.17(solid-js@1.9.12)(typescript@5.9.3)(web-tree-sitter@0.25.10)':
     dependencies:
       '@babel/core': 7.29.7
       '@babel/preset-typescript': 7.27.1(@babel/core@7.29.7)
-      '@opentui/core': 0.5.17(typescript@6.0.3)(web-tree-sitter@0.25.10)
+      '@opentui/core': 0.5.17(typescript@5.9.3)(web-tree-sitter@0.25.10)
       babel-plugin-module-resolver: 5.0.2
       babel-preset-solid: 1.9.12(@babel/core@7.29.7)(solid-js@1.9.12)
       entities: 7.0.1
@@ -2937,9 +2912,9 @@ snapshots:
 
   buffer-crc32@0.2.13: {}
 
-  bun-ffi-structs@0.3.1(typescript@6.0.3):
+  bun-ffi-structs@0.3.1(typescript@5.9.3):
     dependencies:
-      typescript: 6.0.3
+      typescript: 5.9.3
 
   bytes@3.1.2: {}
 
@@ -4007,7 +3982,7 @@ snapshots:
 
   typescript@4.9.5: {}
 
-  typescript@6.0.3: {}
+  typescript@5.9.3: {}
 
   underscore@1.13.8: {}
 
