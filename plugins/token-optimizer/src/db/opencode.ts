@@ -172,10 +172,6 @@ function isV2Session(db: Database, id: string): boolean {
   }
 }
 
-function messageTable(db: Database, sessionID: string): string {
-  return isV2Session(db, sessionID) ? "session_message" : "message"
-}
-
 function usageFromTokens(tokens: any, model?: string): Usage | undefined {
   return {
     input: Number(tokens.input ?? 0),
@@ -191,11 +187,21 @@ function usageFromTokens(tokens: any, model?: string): Usage | undefined {
 
 export function messageUsage(db: Database, sessionID: string): Usage[] {
   const v2 = isV2Session(db, sessionID)
-  const table = messageTable(db, sessionID)
-  const rows = (v2
-    ? db.query(`SELECT data, type FROM ${table} WHERE session_id = ? ORDER BY time_created ASC LIMIT 20000`).all(sessionID)
-    : db.query(`SELECT data FROM ${table} WHERE session_id = ? ORDER BY time_created ASC LIMIT 20000`).all(sessionID)
-  ) as Array<{ data: string; type?: string }>
+  const rows: Array<{ data: string; type?: string }> = []
+  if (v2) {
+    try {
+      const v2Rows = db.query(`SELECT data, type FROM session_message WHERE session_id = ? ORDER BY time_created ASC LIMIT 20000`).all(sessionID) as Array<{ data: string; type?: string }>
+      rows.push(...v2Rows)
+    } catch {
+      // fall through to V1
+    }
+  }
+  if (!v2 || rows.length === 0) {
+    try {
+      const v1Rows = db.query(`SELECT data FROM message WHERE session_id = ? ORDER BY time_created ASC LIMIT 20000`).all(sessionID) as Array<{ data: string }>
+      for (const r of v1Rows) rows.push({ data: r.data })
+    } catch {}
+  }
   const out: Usage[] = []
   for (const row of rows) {
     const m = parse(row.data)
@@ -221,10 +227,13 @@ export function sessionParts(db: Database, sessionID: string, limit = 4000): Par
   try {
     v2 = db.query("SELECT 1 FROM session_v2 WHERE id = ?").get(sessionID) != null
   } catch {}
-  try {
-    if (v2) return sessionPartsV2(db, sessionID, limit)
-  } catch {
-    // fall through to V1 path
+  if (v2) {
+    try {
+      const v2Parts = sessionPartsV2(db, sessionID, limit)
+      if (v2Parts.length > 0) return v2Parts
+    } catch {
+      // fall through to V1 path
+    }
   }
   return sessionPartsV1(db, sessionID, limit)
 }
@@ -377,11 +386,21 @@ function sessionPartsV2(db: Database, sessionID: string, limit: number): PartEnt
 
 export function latestUsage(db: Database, sessionID: string): Usage | null {
   const v2 = isV2Session(db, sessionID)
-  const table = messageTable(db, sessionID)
-  const rows = (v2
-    ? db.query(`SELECT data, type FROM ${table} WHERE session_id = ? ORDER BY time_created DESC LIMIT 50`).all(sessionID)
-    : db.query(`SELECT data FROM ${table} WHERE session_id = ? ORDER BY time_created DESC LIMIT 50`).all(sessionID)
-  ) as Array<{ data: string; type?: string }>
+  const rows: Array<{ data: string; type?: string }> = []
+  if (v2) {
+    try {
+      const v2Rows = db.query(`SELECT data, type FROM session_message WHERE session_id = ? ORDER BY time_created DESC LIMIT 50`).all(sessionID) as Array<{ data: string; type?: string }>
+      rows.push(...v2Rows)
+    } catch {
+      // fall through to V1
+    }
+  }
+  if (!v2 || rows.length === 0) {
+    try {
+      const v1Rows = db.query(`SELECT data FROM message WHERE session_id = ? ORDER BY time_created DESC LIMIT 50`).all(sessionID) as Array<{ data: string }>
+      for (const r of v1Rows) rows.push({ data: r.data })
+    } catch {}
+  }
   for (const row of rows) {
     const m = parse(row.data)
     if (v2 ? row.type !== "assistant" : m.role !== "assistant") continue

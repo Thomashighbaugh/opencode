@@ -24,6 +24,7 @@ beforeAll(() => {
       tokens_cache_write INTEGER DEFAULT 0, time_created INTEGER, time_updated INTEGER);
     CREATE TABLE message (id TEXT PRIMARY KEY, session_id TEXT, time_created INTEGER, time_updated INTEGER, data TEXT);
     CREATE TABLE part (id TEXT PRIMARY KEY, message_id TEXT, session_id TEXT, time_created INTEGER, time_updated INTEGER, data TEXT);
+    CREATE TABLE session_message (id TEXT PRIMARY KEY, session_id TEXT, type TEXT, seq INTEGER, time_created INTEGER, time_updated INTEGER, data TEXT);
   `)
   const now = Date.now()
   db.run("INSERT INTO session_v2(id,project_id,directory,model,cost,tokens_input,time_created,time_updated) VALUES('s1','p','/tmp','claude-sonnet-4',0,1000,?,?)", [now, now])

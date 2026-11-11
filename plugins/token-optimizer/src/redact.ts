@@ -11,7 +11,7 @@ const PATTERNS: Array<[RegExp, string]> = [
   [/\b(AKIA[0-9A-Z]{16})\b/g, "[REDACTED_KEY]"],
   [/\b(Bearer\s+)[A-Za-z0-9._~+/=-]{20,}/gi, "$1[REDACTED]"],
   [/\b(password|passwd|pwd|secret|token|api[_-]?key)\s*[:=]\s*["']?[^\s"']{6,}/gi, "$1=[REDACTED]"],
-  [/\b-----BEGIN [A-Z ]*PRIVATE KEY-----[\s\S]*?-----END [A-Z ]*PRIVATE KEY-----/g, "[REDACTED_PRIVATE_KEY]"],
+  [/-----BEGIN [A-Z ]*PRIVATE KEY-----[\s\S]*?-----END [A-Z ]*PRIVATE KEY-----/g, "[REDACTED_PRIVATE_KEY]"],
 ]
 
 export function redact(text: string): string {
