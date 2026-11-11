@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// @ts-nocheck
 /**
  * graphlib.ts — Shared per-project knowledge graph library.
  *

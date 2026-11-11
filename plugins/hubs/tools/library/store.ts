@@ -301,8 +301,8 @@ export function ingest(input: IngestInput): IngestResult {
   }
 
   const title: string = input.title ?? String(existing?.data.title ?? "")
-  const resolvedTitle: string = title || firstHeading(normalized) || input.url
-  const slug = uniqueSlug(directory, input.collection, resolvedTitle, input.url, existing)
+  const resolvedTitle: string = (title || firstHeading(normalized) || input.url) ?? ""
+  const slug = uniqueSlug(directory as string, input.collection as string, resolvedTitle as string, input.url ?? "", existing as Page | null | undefined);
   const revision = existing ? Number(existing.data.revision ?? 1) + 1 : 1
   const body = existing ? mergeNotes(normalized, existing.body) : normalized
 

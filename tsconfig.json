@@ -21,7 +21,9 @@
     "declarationMap": false,
     "sourceMap": true,
     "resolveJsonModule": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "jsx": "preserve",
+    "jsxImportSource": "@opentui/solid"
   },
   "include": ["src/**/*", "plugins/**/*", ".opencode/plugins/**/*", "tools/**/*", "tests/**/*"],
   "exclude": ["node_modules", "dist"]

@@ -84,7 +84,7 @@ const SAFE_TOKEN = /^[A-Za-z0-9][A-Za-z0-9._:/-]*$/;
 
 const IMPLEMENTER_KEY = "opencode";
 
-function applyFleetLane(opts, flagged) {
+function applyFleetLane(opts: any, flagged: any) {
   if (!opts.lane) return;
   const script = join(dirname(fileURLToPath(import.meta.url)), "../../delegate-setup/scripts/lane.mjs");
   if (!existsSync(script)) {
@@ -120,14 +120,14 @@ function applyFleetLane(opts, flagged) {
   }
 }
 
-function fail(message, code = 2) {
+function fail(message: string, code = 2) {
   process.stderr.write(`relay: ${message}\n`);
   process.exit(code);
 }
 
-function parseArgs(argv) {
+function parseArgs(argv: string[]) {
   const flagged = new Set();
-  const opts = {
+  const opts: any = {
     lane: null,
     laneSource: null,
     brief: null,
@@ -189,7 +189,7 @@ function parseArgs(argv) {
   return opts;
 }
 
-function parseDuration(duration) {
+function parseDuration(duration: string) {
   const match = /^(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?$/.exec(duration);
   if (!match || (!match[1] && !match[2] && !match[3])) return null;
   try {
@@ -205,7 +205,7 @@ function parseDuration(duration) {
   }
 }
 
-function killChild(child, signal = "SIGTERM") {
+function killChild(child: any, signal = "SIGTERM") {
   if (!child || !child.pid) return;
   if (process.platform === "win32") {
     if (signal !== "SIGTERM") return;
@@ -237,7 +237,7 @@ function headerComment() {
   return match[1].replace(/^\s*\* ?/gm, "").trim() + "\n";
 }
 
-function readBrief(opts) {
+function readBrief(opts: any) {
   if (opts.brief) {
     if (!existsSync(opts.brief)) fail(`brief file not found: ${opts.brief}`);
     return readFileSync(opts.brief, "utf8");
@@ -255,7 +255,7 @@ function readBrief(opts) {
   return stdin;
 }
 
-function versionProbeTimeout(opts) {
+function versionProbeTimeout(opts: any) {
   // The watchdog is only armed once opencode is running, so the preflight needs a bound of
   // its own: an `opencode --version` that never returns would wedge the relay here, before
   // any result.json exists, and --timeout could not reach it.
@@ -263,7 +263,7 @@ function versionProbeTimeout(opts) {
   return timeoutMs === null ? VERSION_PROBE_TIMEOUT_MS : Math.min(timeoutMs, VERSION_PROBE_TIMEOUT_MS);
 }
 
-function opencodeVersion(probeTimeoutMs) {
+function opencodeVersion(probeTimeoutMs: number | null) {
   try {
     // On Windows, npm installs `opencode` as a .cmd shim; Node's CreateProcess only
     // auto-appends .exe, never .cmd, so launching it needs shell:true there or it
@@ -272,11 +272,11 @@ function opencodeVersion(probeTimeoutMs) {
     const version = execFileSync("opencode", ["--version"], {
       encoding: "utf8",
       shell: process.platform === "win32",
-      timeout: probeTimeoutMs,
-      killSignal: "SIGKILL",
-    }).trim();
+      timeout: probeTimeoutMs ?? undefined,
+      killSignal: "SIGKILL" as const,
+    } as any).trim();
     return { version: version || "unknown", error: null };
-  } catch (error) {
+  } catch (error: any) {
     if (error?.code === "ENOENT") return { version: null, error: null };
     // shell:true routes a missing binary through cmd.exe, which reports it as a non-zero
     // exit rather than ENOENT; that is still "not installed", not a broken install.
@@ -291,7 +291,7 @@ function opencodeVersion(probeTimeoutMs) {
   }
 }
 
-function gitTouchedFiles(cwd) {
+function gitTouchedFiles(cwd: string) {
   try {
     const output = execFileSync("git", ["status", "--porcelain"], {
       cwd,
@@ -312,7 +312,7 @@ function timestamp() {
   return new Date().toISOString().replace(/[:.]/g, "-");
 }
 
-function buildArgv(opts) {
+function buildArgv(opts: any) {
   const argv = ["run", "--format", "json"];
   if (opts.pure) argv.push("--pure");
   // Resume continues an existing session; --session pins a specific id, otherwise
@@ -337,7 +337,7 @@ function buildArgv(opts) {
   return argv;
 }
 
-function makeEventScanner(onObject) {
+function makeEventScanner(onObject: any) {
   // OpenCode emits newline-delimited JSON events on stdout, but local plugins can
   // prepend terminal-notify escape sequences (e.g. `]777;notify;...{...}`) on the
   // same line. A plain line-splitter would choke on those. This brace-aware
@@ -350,7 +350,7 @@ function makeEventScanner(onObject) {
   let start = -1;
   let inString = false;
   let escaped = false;
-  return (chunk) => {
+  return (chunk: any) => {
     buf += chunk;
     for (let i = 0; i < buf.length; i += 1) {
       const ch = buf[i];
@@ -395,7 +395,7 @@ function makeEventScanner(onObject) {
   };
 }
 
-function prepareRunDir(opts, brief) {
+function prepareRunDir(opts: any, brief: string) {
   const startedAt = new Date().toISOString();
   // Default the run dir to system temp so the repo under review stays pristine —
   // the touched-files report must show only OpenCode's edits, not relay's artifacts.
@@ -413,11 +413,11 @@ function prepareRunDir(opts, brief) {
   return run;
 }
 
-function makeResultWriter(opts, version, run) {
+function makeResultWriter(opts: any, version: any, run: any) {
   // Returns writeResult(extra): merges the per-outcome fields onto the run's
   // standing metadata, persists result.json, and returns the object it just
   // wrote so the caller can hand it straight to printSummary.
-  return (extra) => {
+  return (extra: any) => {
     const resuming = Boolean(opts.session || opts.resumeLast);
     const result = {
       schema: "delegate-relay.result.v1",
@@ -448,14 +448,14 @@ function makeResultWriter(opts, version, run) {
   };
 }
 
-function reportUnavailable(writeResult, resultPath) {
+function reportUnavailable(writeResult: any, resultPath: string) {
   const result = writeResult({ status: "opencode_unavailable", exitCode: 127, signal: null, sessionId: null, finalMessage: "", touchedFiles: null, cost: null });
   printSummary(result, resultPath);
   process.stderr.write("relay: `opencode` not found on PATH. Install it (npm i -g opencode-ai) and run `opencode auth login`.\n");
   process.exit(127);
 }
 
-function reportVersionFailure(opts, writeResult, run, error, probeTimeoutMs) {
+function reportVersionFailure(opts: any, writeResult: any, run: any, error: any, probeTimeoutMs: number) {
   const timedOut = error?.code === "ETIMEDOUT";
   const stderr = String(error?.stderr || "").trim();
   const message = timedOut
@@ -477,7 +477,7 @@ function reportVersionFailure(opts, writeResult, run, error, probeTimeoutMs) {
   process.exit(result.exitCode);
 }
 
-function dispatchToOpenCode(opts, brief, run, writeResult) {
+function dispatchToOpenCode(opts: any, brief: string, run: any, writeResult: any) {
   const argv = buildArgv(opts);
   // Pin the working root two ways: `cwd` sets the child's real directory, and PWD
   // is set explicitly because OpenCode can resolve its project root from the
@@ -500,11 +500,11 @@ function dispatchToOpenCode(opts, brief, run, writeResult) {
   let sessionId = opts.session || null;
   let totalCost = 0;
   let sawCost = false;
-  const textParts = new Map(); // part.id -> latest text
-  const textOrder = []; // part.ids in first-seen order
-  const stderrTail = [];
+  const textParts = new Map<string, string>(); // part.id -> latest text
+  const textOrder: string[] = []; // part.ids in first-seen order
+  const stderrTail: string[] = [];
 
-  const scan = makeEventScanner((event) => {
+  const scan = makeEventScanner((event: any) => {
     // Session id: real events carry `sessionID` (camelCase); plugin notify objects
     // carry `session_id` (snake_case). Accept either.
     const sid = event.sessionID || event.session_id;
@@ -550,8 +550,8 @@ function dispatchToOpenCode(opts, brief, run, writeResult) {
 
   let settled = false;
   let watchdogFired = false;
-  let watchdogTimer = null;
-  let sigkillTimer = null;
+  let watchdogTimer: any = null;
+  let sigkillTimer: any = null;
   const timeoutMs = opts.timeout === null ? null : parseDuration(opts.timeout);
   if (timeoutMs !== null) {
     watchdogTimer = setTimeout(() => {
@@ -583,7 +583,7 @@ function dispatchToOpenCode(opts, brief, run, writeResult) {
       clearWatchdog();
       const abortedFields = {
         status: "aborted",
-        exitCode: 128 + (constants.signals[sig] || 15),
+        exitCode: 128 + ((constants.signals as any)[sig] || 15),
         signal: sig,
         sessionId,
         finalMessage: assembleFinal(),
@@ -625,7 +625,7 @@ function dispatchToOpenCode(opts, brief, run, writeResult) {
     // A timed-out run is never a success even if opencode handles SIGTERM by exiting 0 -
     // orchestrators key off status and the relay exit code.
     const succeeded = code === 0 && !watchdogFired;
-    const mapped = code ?? (constants.signals[signal] ? 128 + constants.signals[signal] : 1);
+    const mapped = code ?? ((constants.signals as any)[signal ?? ""] ? 128 + (constants.signals as any)[signal as any] : 1);
     const result = writeResult({
       status: succeeded ? "completed" : watchdogFired ? "timeout" : "failed",
       exitCode: succeeded ? 0 : mapped === 0 ? 1 : mapped,
@@ -659,7 +659,7 @@ function dispatchToOpenCode(opts, brief, run, writeResult) {
  * Reads only the local OpenCode session database (node:sqlite, a Node built-in) — no
  * network, no credentials, no writes. Returns "provider/id".
  */
-function resolveInheritedModel(opts) {
+function resolveInheritedModel(opts: any) {
   if (opts.model) return opts.model; // explicit flag always wins
   let db;
   try {
@@ -674,7 +674,7 @@ function resolveInheritedModel(opts) {
     return null; // node:sqlite unavailable or db unreadable — caller falls back to erroring
   }
 
-  const toModelId = (raw) => {
+  const toModelId = (raw: any) => {
     if (!raw) return null;
     try {
       const parsed = typeof raw === "string" ? JSON.parse(raw) : raw;
@@ -754,7 +754,7 @@ function main() {
   dispatchToOpenCode(opts, brief, run, writeResult);
 }
 
-function printSummary(result, resultPath) {
+function printSummary(result: any, resultPath: string) {
   const lines = [];
   lines.push("");
   lines.push(`relay: ${result.status} (exit ${result.exitCode}${result.signal ? `, killed by ${result.signal}` : ""})  ·  opencode ${result.opencodeVersion ?? "?"}`);

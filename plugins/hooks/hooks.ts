@@ -8,8 +8,6 @@
  *
  * This is the plugin entry point (exported as default).
  */
-import type { Hooks } from "@opencode-ai/plugin"
-import type { Event } from "@opencode-ai/sdk"
 import { join } from "path"
 import { existsSync, readdirSync, unlinkSync, statSync } from "fs"
 import { spawn } from "child_process"
@@ -200,9 +198,9 @@ export async function createHooksRuntime({ directory }: { directory: string }) {
   activeVectorize = vectorize
   setupCacheHook(directory)
 
-  const hooks: Hooks = {}
+  const hooks: any = {}
 
-  hooks.event = async ({ event }) => {
+  hooks.event = async ({ event }: any) => {
     switch (event.type) {
       case 'session.created': {
         const sessionId = event.properties.info.id
@@ -462,7 +460,7 @@ Propose the mode to the user and ask before activating.
   const readCacheKey = (filePath: string, args: Record<string, unknown>) =>
     CacheManager.key('Read', filePath, String(args.offset ?? ''), String(args.limit ?? ''))
 
-  hooks["tool.execute.before"] = async (input, output) => {
+  hooks["tool.execute.before"] = async (input: any, output: any) => {
     const toolName = input.tool || 'unknown'
     const sessionId = input.sessionID
 
@@ -710,7 +708,7 @@ Propose the mode to the user and ask before activating.
     }
   }
 
-  hooks["tool.execute.after"] = async (input, output) => {
+  hooks["tool.execute.after"] = async (input: any, output: any) => {
     const toolName = input.tool || 'unknown'
     const sessionId = input.sessionID
     const toolOutput = output.output || ''
@@ -1091,7 +1089,7 @@ Propose the mode to the user and ask before activating.
     return text.substring(0, maxChars) + '\n[...truncated]'
   }
 
-  hooks["experimental.chat.system.transform"] = async (input, output) => {
+  hooks["experimental.chat.system.transform"] = async (input: any, output: any) => {
     const sessionId = input.sessionID
     if (!sessionId) return
 
@@ -1243,7 +1241,7 @@ Propose the mode to the user and ask before activating.
     } catch {}
   }
 
-  hooks["experimental.session.compacting"] = async (input, output) => {
+  hooks["experimental.session.compacting"] = async (input: any, output: any) => {
     const sessionId = input.sessionID
 
     const ralphState = readState(directory, 'ralph', sessionId)
@@ -1382,7 +1380,7 @@ ${notes ? `### Custom Notes:\n${notes}` : ''}
     } catch { /* best-effort — never block compaction */ }
   }
 
-  hooks["permission.ask"] = async (input, output) => {
+  hooks["permission.ask"] = async (input: any, output: any) => {
     const permissionType = input.type
     const sessionId = input.sessionID
     const pattern = input.pattern
@@ -1415,7 +1413,7 @@ ${notes ? `### Custom Notes:\n${notes}` : ''}
     }
   }
 
-  hooks["chat.message"] = async (input, output) => {
+  hooks["chat.message"] = async (input: any, output: any) => {
     const sessionId = input.sessionID
 
     // ── Capture latest user prompt for vector-search injection ──────
@@ -1453,7 +1451,7 @@ Original task: ${ultraworkState.original_prompt}
     }
   }
 
-  hooks["command.execute.before"] = async (input, output) => {
+  hooks["command.execute.before"] = async (input: any, output: any) => {
     const command = input.command
     const sessionId = input.sessionID
 

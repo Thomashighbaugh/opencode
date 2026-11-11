@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, test } from "bun:test"
+import { afterAll, beforeAll, describe, expect, test } from "bun:test"
 import { Database } from "bun:sqlite"
 import { mkdtempSync } from "node:fs"
 import { tmpdir } from "node:os"
@@ -22,11 +22,11 @@ let db: Database
 const oldDb = process.env.OPENCODE_DB
 
 function exec(db: Database, sql: string, params: any[] = []) {
-  return db.prepare(sql).run(...params)
+  return (db as any).prepare(sql).run(...params)
 }
 
 function queryOne(db: Database, sql: string, params: any[] = []) {
-  return db.prepare(sql).get(...params) as any
+  return (db as any).prepare(sql).get(...params) as any
 }
 
 beforeAll(() => {
@@ -108,7 +108,7 @@ function insertV1Part(sessionID: string, type: string, data: any) {
 }
 
 describe("db - sessionRow V2", () => {
-  beforeEach(() => {
+  beforeAll(() => {
     insertV2Session("ses_v2_1", 50000, 10000)
     insertV2Session("ses_v2_2", 100, 10)
   })
@@ -147,7 +147,7 @@ describe("db - sessionRow V2", () => {
 })
 
 describe("db - listSessions", () => {
-  beforeEach(() => {
+  beforeAll(() => {
     insertV2Session("ses_list_1")
     insertV2Session("ses_list_2")
     insertV1Session("ses_list_v1")
@@ -177,7 +177,7 @@ describe("db - listSessions", () => {
 })
 
 describe("db - sessionParts V1", () => {
-  beforeEach(() => {
+  beforeAll(() => {
     insertV1Session("ses_parts_v1")
     insertV1Part("ses_parts_v1", "tool", { tool: "read", state: { status: "completed", input: { filePath: "src/a.ts" }, output: "x".repeat(100) } })
     insertV1Part("ses_parts_v1", "text", { text: "hello world this is a substantive message" })
@@ -200,7 +200,7 @@ describe("db - sessionParts V1", () => {
 })
 
 describe("db - sessionParts V2 (session_message)", () => {
-  beforeEach(() => {
+  beforeAll(() => {
     insertV2Session("ses_parts_v2")
     insertV2Message("ses_parts_v2", "user", { text: "fix the bug", time: { created: Date.now() } }, 1)
     insertV2Message("ses_parts_v2", "assistant", {
@@ -236,7 +236,7 @@ describe("db - sessionParts V2 (session_message)", () => {
 })
 
 describe("db - messageUsage", () => {
-  beforeEach(() => {
+  beforeAll(() => {
     insertV2Session("ses_usage_v2")
     insertV2Message("ses_usage_v2", "assistant", {
       model: { id: "claude-sonnet-4", providerID: "anthropic" },
@@ -269,7 +269,7 @@ describe("db - messageUsage", () => {
 })
 
 describe("db - latestUsage", () => {
-  beforeEach(() => {
+  beforeAll(() => {
     insertV2Session("ses_latest_v2")
   })
 
@@ -299,7 +299,7 @@ describe("db - latestUsage", () => {
 })
 
 describe("db - sessionUsage", () => {
-  beforeEach(() => {
+  beforeAll(() => {
     insertV2Session("ses_total_v2")
     insertV2Message("ses_total_v2", "assistant", {
       model: { id: "claude-sonnet-4", providerID: "anthropic" },

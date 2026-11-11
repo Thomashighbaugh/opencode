@@ -279,7 +279,7 @@ export default definePlugin({
 
     ctx.ui.slot({
       append: "sidebar.content",
-      render: (input) => {
+      render: (input: any) => {
         createEffect(() => setLoaded(extractLoadedSkills(ctx.data.session.message.list(input.sessionID))))
 
         const menus = createMemo(() =>
@@ -294,7 +294,7 @@ export default definePlugin({
             <box flexDirection="column" gap={0}>
               <text fg={ctx.theme.text.base}>{`Hubs · ${menus().length} menus · /hubs`}</text>
               <For each={menus()}>
-                {(menu) => (
+                {(menu: { name: string; subs: string[] }) => (
                   <box flexDirection="column">
                     <text
                       fg={ctx.theme.text.base}
@@ -307,7 +307,7 @@ export default definePlugin({
                     </text>
                     <Show when={expanded().has(menu.name)}>
                       <For each={menu.subs}>
-                        {(sub) => <text fg={ctx.theme.text.muted}>{`    ${sub}`}</text>}
+                        {(sub: string) => <text fg={ctx.theme.text.muted}>{`    ${sub}`}</text>}
                       </For>
                     </Show>
                     <Show when={!expanded().has(menu.name)}>

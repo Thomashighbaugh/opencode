@@ -33,7 +33,7 @@ export default {
           ...tool,
           async execute(input: any, toolCtx: any) {
             try {
-              return await tool.execute(input, toolCtx)
+              return await (tool as any).execute(input, toolCtx)
             } catch (error) {
               return { content: `memory-system error: ${error instanceof Error ? error.message : String(error)}` }
             }

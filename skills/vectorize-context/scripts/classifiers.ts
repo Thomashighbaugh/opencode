@@ -98,7 +98,7 @@ export async function extractEntities(
     const pipe = await loadPipeline(model.task, opts.modelId || model.id, {
       allowDownload: opts.allowDownload ?? false,
       cachedFile: model.cachedFile,
-      dtype: model.dtype as any,
+      dtype: (model as any).dtype,
     })
     const out = await pipe(src.slice(0, 4000), { aggregation_strategy: 'simple' })
     if (!Array.isArray(out)) return null

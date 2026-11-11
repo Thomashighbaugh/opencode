@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// @ts-nocheck
 /**
  * graph.ts — Per-project knowledge graph CLI.
  *

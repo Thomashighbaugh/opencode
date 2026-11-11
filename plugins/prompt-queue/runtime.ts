@@ -22,7 +22,7 @@
  * task in front of it. The whole point of queueing is to defer without derailing.
  */
 
-import type { Plugin } from '@opencode-ai/plugin'
+import type { Plugin } from '@opencode/plugin/tui'
 import { decide, extractDeferred, type Classifier } from './gate.ts'
 import * as onnxClassifier from './classifier.ts'
 import {
