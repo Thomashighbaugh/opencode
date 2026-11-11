@@ -171,6 +171,25 @@ export default {
           surface("fresh", `[Token Optimizer] Session is long (~${Math.round(quality.fillPct * 100)}% full) and context quality is ${Math.round(quality.resourceHealth)}. A fresh session would reclaim roughly ${Math.round(absolute / 1000)}K tokens; the active task is checkpointed.`)
         }
 
+        // Automatic compaction when context is critically full
+        if (cfg.smartCompaction) {
+          const compactCheck = service.shouldCompact(sessionID)
+          if (compactCheck.compact) {
+            const msg = `[Token Optimizer] Context at ${Math.round(compactCheck.fillPct * 100)}% full (quality ${Math.round(compactCheck.quality)}/100). Compacting session...`
+            if (cfg.nudges === "toast") {
+              toast(ctx, msg, "warning")
+            } else {
+              event.system.push({ type: "text", text: msg })
+            }
+            // Attempt to trigger compaction via client API
+            try {
+              await ctx.client.session.compact?.({ sessionID })
+            } catch {
+              // Compact API not available or failed; system may auto-compact on next idle
+            }
+          }
+        }
+
         if (cfg.nudges !== "inject") return
         const pushOnce = (key: string, text: string) => {
           const id = `${sessionID}:${key}`

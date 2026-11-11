@@ -112,7 +112,14 @@ export class Service {
     const entries = this.entries(sessionID)
     const signals = deriveSignals(entries)
     const usage = signals.lastUsage ?? (this.database() ? latestUsage(this.database()!, sessionID) : null)
-    const result = computeQuality(session, signals, usage, {
+    // Cumulative session tokens for accurate fill percentage. Single-message
+    // usage (latestUsage / signals.lastUsage) represents one message's tokens
+    // and can inflate fill to 100% on one long message.
+    const fillUsage = this.database() ? sessionUsage(this.database()!, sessionID) : null
+    const usageForFill = fillUsage && (fillUsage.input > 0 || fillUsage.output > 0 ||
+      fillUsage.cacheRead > 0 || fillUsage.cacheWrite > 0)
+      ? fillUsage : usage
+    const result = computeQuality(session, signals, usageForFill, {
       qualityWindow: this.cfg.qualityWindow,
       toolCallWarn: this.cfg.toolCallWarn,
       toolCallCritical: this.cfg.toolCallCritical,
@@ -142,6 +149,12 @@ export class Service {
   mode(sessionID: string): Mode {
     const signals = deriveSignals(this.entries(sessionID))
     return classifyMode(signals.toolBuckets.slice(-10), signals.results.slice(-10).some((r) => r.failure))
+  }
+
+  shouldCompact(sessionID: string): { compact: boolean; fillPct: number; quality: number } {
+    const quality = this.quality(sessionID)
+    const compact = quality.fillPct >= 0.85 || quality.resourceHealth < 50
+    return { compact, fillPct: quality.fillPct, quality: quality.resourceHealth }
   }
 
   checkpoint(sessionID: string, trigger = "manual"): CheckpointRow {

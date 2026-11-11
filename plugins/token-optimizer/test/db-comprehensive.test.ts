@@ -14,6 +14,7 @@ import {
   sessionUsage,
   type SessionRow,
 } from "../src/db/opencode.ts"
+import { Service, config } from "../src/service.ts"
 
 let dir: string
 let dbPath: string
@@ -339,5 +340,109 @@ describe("db - databasePath and openOpenCode", () => {
     const d = openOpenCode(dbPath)
     expect(d).not.toBeNull()
     d!.close()
+  })
+})
+
+describe("service - shouldCompact", () => {
+  let dir: string
+  let dbPath: string
+  const oldDb = process.env.OPENCODE_DB
+  const oldData = process.env.TOKEN_OPTIMIZER_DATA_DIR
+
+  beforeAll(() => {
+    dir = mkdtempSync(join(tmpdir(), "token-compact-"))
+    dbPath = join(dir, "opencode.db")
+    process.env.OPENCODE_DB = dbPath
+    process.env.TOKEN_OPTIMIZER_DATA_DIR = join(dir, "data")
+    const db = new Database(dbPath, { create: true })
+    db.exec(`
+      CREATE TABLE session_v2 (
+        id TEXT PRIMARY KEY, project_id TEXT, directory TEXT, title TEXT,
+        agent TEXT, model TEXT, cost REAL DEFAULT 0,
+        tokens_input INTEGER DEFAULT 0, tokens_output INTEGER DEFAULT 0,
+        tokens_reasoning INTEGER DEFAULT 0, tokens_cache_read INTEGER DEFAULT 0,
+        tokens_cache_write INTEGER DEFAULT 0, time_created INTEGER,
+        time_updated INTEGER
+      );
+      CREATE TABLE session_message (
+        id TEXT PRIMARY KEY, session_id TEXT, type TEXT, seq INTEGER,
+        time_created INTEGER, time_updated INTEGER, data TEXT
+      );
+      CREATE TABLE message (
+        id TEXT PRIMARY KEY, session_id TEXT, time_created INTEGER,
+        time_updated INTEGER, data TEXT
+      );
+      CREATE TABLE part (
+        id TEXT PRIMARY KEY, message_id TEXT, session_id TEXT,
+        time_created INTEGER, time_updated INTEGER, data TEXT
+      );
+    `)
+    const now = Date.now()
+    // Full session: 180K tokens out of 200K window = 90% fill
+    db.run(`INSERT INTO session_v2 (id,project_id,directory,title,agent,model,cost,
+      tokens_input,tokens_output,tokens_reasoning,tokens_cache_read,tokens_cache_write,time_created,time_updated)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+      ["ses_full", "prj", "/tmp", "Full", "hubs", "claude-sonnet-4", 0.5, 180_000, 0, 0, 0, 0, now, now])
+    db.run(`INSERT INTO session_message (id,session_id,type,seq,time_created,time_updated,data) VALUES (?,?,?,?,?,?,?)`,
+      ["msg_full", "ses_full", "assistant", 1, now, now,
+       JSON.stringify({ model: { id: "claude-sonnet-4" }, tokens: { input: 180_000, output: 0, cache: { read: 0, write: 0 } }, cost: 0.5, time: { created: now } })])
+    db.close()
+  })
+
+  afterAll(() => {
+    if (oldDb === undefined) delete process.env.OPENCODE_DB
+    else process.env.OPENCODE_DB = oldDb
+    if (oldData === undefined) delete process.env.TOKEN_OPTIMIZER_DATA_DIR
+    else process.env.TOKEN_OPTIMIZER_DATA_DIR = oldData
+  })
+
+  test("returns compact=true when fill >= 85%", () => {
+    const svc = new Service("/tmp", "prj", config())
+    const result = svc.shouldCompact("ses_full")
+    expect(result.compact).toBe(true)
+    expect(result.fillPct).toBeGreaterThanOrEqual(0.85)
+    svc.close()
+  })
+
+  test("returns compact=false when fill is low", () => {
+    const lowDir = mkdtempSync(join(tmpdir(), "token-compact-low-"))
+    const lowDbPath = join(lowDir, "opencode.db")
+    const db = new Database(lowDbPath, { create: true })
+    db.exec(`
+      CREATE TABLE session_v2 (
+        id TEXT PRIMARY KEY, project_id TEXT, directory TEXT, title TEXT,
+        agent TEXT, model TEXT, cost REAL DEFAULT 0,
+        tokens_input INTEGER DEFAULT 0, tokens_output INTEGER DEFAULT 0,
+        tokens_reasoning INTEGER DEFAULT 0, tokens_cache_read INTEGER DEFAULT 0,
+        tokens_cache_write INTEGER DEFAULT 0, time_created INTEGER,
+        time_updated INTEGER
+      );
+      CREATE TABLE session_message (
+        id TEXT PRIMARY KEY, session_id TEXT, type TEXT, seq INTEGER,
+        time_created INTEGER, time_updated INTEGER, data TEXT
+      );
+      CREATE TABLE message (
+        id TEXT PRIMARY KEY, session_id TEXT, time_created INTEGER,
+        time_updated INTEGER, data TEXT
+      );
+      CREATE TABLE part (
+        id TEXT PRIMARY KEY, message_id TEXT, session_id TEXT,
+        time_created INTEGER, time_updated INTEGER, data TEXT
+      );
+    `)
+    db.run(`INSERT INTO session_v2 (id,project_id,directory,title,agent,model,cost,
+      tokens_input,tokens_output,tokens_reasoning,tokens_cache_read,tokens_cache_write,time_created,time_updated)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+      ["ses_low", "prj", "/tmp", "Low", "hubs", "claude-sonnet-4", 0.01, 10_000, 0, 0, 0, 0, Date.now(), Date.now()])
+    db.close()
+    // Temporarily override OPENCODE_DB for the low session
+    const prevDb = process.env.OPENCODE_DB
+    process.env.OPENCODE_DB = lowDbPath
+    const svc = new Service("/tmp", "prj", config())
+    const result = svc.shouldCompact("ses_low")
+    expect(result.compact).toBe(false)
+    expect(result.fillPct).toBeLessThan(0.85)
+    svc.close()
+    process.env.OPENCODE_DB = prevDb
   })
 })

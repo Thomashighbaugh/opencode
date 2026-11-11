@@ -76,7 +76,7 @@ describe("analyze - deriveSignals", () => {
   test("captures last usage from entry", () => {
     const entries = [
       part(0, { tool: "read", input: {}, output: "" }),
-      part(1, { type: "text", role: "assistant", text: "hi", usage: { input: 10, output: 5, cacheRead: 0, cacheWrite: 0, cost: 0.001, model: "claude-sonnet-4", time: 1 } }),
+      part(1, { type: "text", role: "assistant", text: "hi", usage: { input: 10, output: 5, cacheRead: 0, cacheWrite: 0, reasoning: 0, cost: 0.001, model: "claude-sonnet-4", time: 1 } }),
     ]
     const sig = deriveSignals(entries)
     expect(sig.lastUsage?.input).toBe(10)
@@ -193,22 +193,41 @@ describe("analyze - fillFraction", () => {
   })
 
   test("computes fill from usage", () => {
-    const usage = { input: 50_000, output: 1000, cacheRead: 0, cacheWrite: 0, cost: 0, model: "claude-sonnet-4", time: 1 }
+    const usage = { input: 50_000, output: 1000, cacheRead: 0, cacheWrite: 0, reasoning: 0, cost: 0, model: "claude-sonnet-4", time: 1 }
     // claude-sonnet-4 window = 200_000
     expect(fillFraction(null, usage)).toBeCloseTo(51_000 / 200_000, 4)
   })
 
   test("caps at 1.0", () => {
-    const usage = { input: 1_000_000, output: 0, cacheRead: 0, cacheWrite: 0, cost: 0, model: "claude-sonnet-4", time: 1 }
+    const usage = { input: 1_000_000, output: 0, cacheRead: 0, cacheWrite: 0, reasoning: 0, cost: 0, model: "claude-sonnet-4", time: 1 }
     expect(fillFraction(null, usage)).toBe(1)
+  })
+
+  test("prefers cumulative session tokens over per-message usage", () => {
+    const session = {
+      id: "s1", projectID: "p", directory: "/tmp", title: "t",
+      agent: "hubs", model: "claude-sonnet-4", cost: 0.01,
+      tokensInput: 46_000, tokensOutput: 1000, tokensReasoning: 100,
+      tokensCacheRead: 0, tokensCacheWrite: 0, createdAt: 1, updatedAt: 1
+    } as any
+    // Per-message usage says 200K input (would inflate fill to 100%)
+    const usage = { input: 200_000, output: 0, cacheRead: 0, cacheWrite: 0, reasoning: 0, cost: 0, model: "claude-sonnet-4", time: 1 }
+    // Session says 47K total (23.5% of 200K window)
+    expect(fillFraction(session, usage)).toBeCloseTo(47_000 / 200_000, 4)
+  })
+
+  test("falls back to per-message usage when session has no tokens", () => {
+    const session = { id: "s1", projectID: "p", directory: "/tmp", tokensInput: 0, tokensOutput: 0, tokensCacheRead: 0, tokensCacheWrite: 0 } as any
+    const usage = { input: 50_000, output: 1000, cacheRead: 0, cacheWrite: 0, reasoning: 0, cost: 0, model: "claude-sonnet-4", time: 1 }
+    expect(fillFraction(session, usage)).toBeCloseTo(51_000 / 200_000, 4)
   })
 })
 
 describe("analyze - usageCost", () => {
   test("sums costs with fallback pricing", () => {
     const usage = [
-      { input: 1_000_000, output: 0, cacheRead: 0, cacheWrite: 0, cost: 0, model: "claude-sonnet-4", time: 1 },
-      { input: 0, output: 1_000_000, cacheRead: 0, cacheWrite: 0, cost: 0, model: "claude-sonnet-4", time: 1 },
+      { input: 1_000_000, output: 0, cacheRead: 0, cacheWrite: 0, reasoning: 0, cost: 0, model: "claude-sonnet-4", time: 1 },
+      { input: 0, output: 1_000_000, cacheRead: 0, cacheWrite: 0, reasoning: 0, cost: 0, model: "claude-sonnet-4", time: 1 },
     ]
     // input rate 3/1e6, output rate 15/1e6
     expect(usageCost(usage)).toBeCloseTo(3 + 15, 4)
@@ -249,14 +268,14 @@ describe("analyze - computeQuality", () => {
   })
 
   test("high fill triggers CRITICAL warning", () => {
-    const usage = { input: 180_000, output: 0, cacheRead: 0, cacheWrite: 0, cost: 0, model: "claude-sonnet-4", time: 1 }
+    const usage = { input: 180_000, output: 0, cacheRead: 0, cacheWrite: 0, reasoning: 0, cost: 0, model: "claude-sonnet-4", time: 1 }
     const q = computeQuality(null, deriveSignals([]), usage)
     expect(q.fillPct).toBeGreaterThanOrEqual(0.85)
     expect(q.fillWarning?.level).toBe("CRITICAL")
   })
 
   test("fillWarning message references compaction", () => {
-    const usage = { input: 180_000, output: 0, cacheRead: 0, cacheWrite: 0, cost: 0, model: "claude-sonnet-4", time: 1 }
+    const usage = { input: 180_000, output: 0, cacheRead: 0, cacheWrite: 0, reasoning: 0, cost: 0, model: "claude-sonnet-4", time: 1 }
     const q = computeQuality(null, deriveSignals([]), usage)
     expect(q.fillWarning?.message).toContain("compact")
   })

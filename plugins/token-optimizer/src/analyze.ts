@@ -210,7 +210,18 @@ export function band(score: number): string {
 export function fillFraction(session: SessionRow | null, usage: Usage | null): number {
   const model = usage?.model || session?.model
   const window = contextWindowForModel(model)
-  const used = usage ? usage.input + usage.cacheRead + usage.cacheWrite + usage.output : 0
+  // Prefer cumulative session-level token totals (accurate for fill) over
+  // per-message usage (which represents a single message's tokens, not the
+  // full context window). A single long message can have input tokens equal
+  // to the whole window, which would falsely pin fill at 100%.
+  let used = 0
+  if (session && (session.tokensInput > 0 || session.tokensOutput > 0 ||
+      session.tokensCacheRead > 0 || session.tokensCacheWrite > 0)) {
+    used = session.tokensInput + session.tokensOutput +
+           session.tokensCacheRead + session.tokensCacheWrite
+  } else if (usage) {
+    used = usage.input + usage.cacheRead + usage.cacheWrite + usage.output
+  }
   return window > 0 ? Math.min(1, used / window) : 0
 }
 
