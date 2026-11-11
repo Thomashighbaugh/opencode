@@ -198,6 +198,20 @@ export class MemoryService {
       if (!user && !assistant) return null
       const summary = `Session ${sessionID.slice(0, 8)}: ${trim(user || assistant, 180)}${files.length ? ` | files: ${files.join(", ")}` : ""}`
       this.db.upsertProgress(this.project, sessionID, summary)
+      // Also store as a memory so the sidebar shows live data instead of 0.
+      // addMemory dedups by content hash, so repeated calls are safe.
+      try {
+        this.db.addMemory({
+          content: summary,
+          title: `Session ${sessionID.slice(0, 8)}`,
+          category: "workflow",
+          importance: 3,
+          confidence: 1,
+          project: this.project,
+          agent: "hubs",
+          origin: "agent-observation",
+        })
+      } catch {}
       return summary
     } finally {
       try { db.close() } catch {}
