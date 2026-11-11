@@ -203,17 +203,16 @@ describe("analyze - fillFraction", () => {
     expect(fillFraction(null, usage)).toBe(1)
   })
 
-  test("prefers cumulative session tokens over per-message usage", () => {
+  test("uses per-message usage (not cumulative session tokens)", () => {
     const session = {
       id: "s1", projectID: "p", directory: "/tmp", title: "t",
       agent: "hubs", model: "claude-sonnet-4", cost: 0.01,
       tokensInput: 46_000, tokensOutput: 1000, tokensReasoning: 100,
       tokensCacheRead: 0, tokensCacheWrite: 0, createdAt: 1, updatedAt: 1
     } as any
-    // Per-message usage says 200K input (would inflate fill to 100%)
+    // Per-message usage says 200K input → fill = 100% (cumulative session tokens ignored)
     const usage = { input: 200_000, output: 0, cacheRead: 0, cacheWrite: 0, reasoning: 0, cost: 0, model: "claude-sonnet-4", time: 1 }
-    // Session says 47K total (23.5% of 200K window)
-    expect(fillFraction(session, usage)).toBeCloseTo(47_000 / 200_000, 4)
+    expect(fillFraction(session, usage)).toBeCloseTo(200_000 / 200_000, 4)
   })
 
   test("falls back to per-message usage when session has no tokens", () => {

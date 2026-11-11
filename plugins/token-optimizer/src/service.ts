@@ -111,15 +111,13 @@ export class Service {
     const session = this.session(sessionID)
     const entries = this.entries(sessionID)
     const signals = deriveSignals(entries)
+    // Per-message usage (latestUsage / signals.lastUsage) reflects the tokens
+    // in the current turn's message — the best proxy for what's actually
+    // occupying the context window right now. Cumulative session tokens grow
+    // monotonically and always pin fill at 100% on any long session, making
+    // the metric useless.
     const usage = signals.lastUsage ?? (this.database() ? latestUsage(this.database()!, sessionID) : null)
-    // Cumulative session tokens for accurate fill percentage. Single-message
-    // usage (latestUsage / signals.lastUsage) represents one message's tokens
-    // and can inflate fill to 100% on one long message.
-    const fillUsage = this.database() ? sessionUsage(this.database()!, sessionID) : null
-    const usageForFill = fillUsage && (fillUsage.input > 0 || fillUsage.output > 0 ||
-      fillUsage.cacheRead > 0 || fillUsage.cacheWrite > 0)
-      ? fillUsage : usage
-    const result = computeQuality(session, signals, usageForFill, {
+    const result = computeQuality(session, signals, usage, {
       qualityWindow: this.cfg.qualityWindow,
       toolCallWarn: this.cfg.toolCallWarn,
       toolCallCritical: this.cfg.toolCallCritical,

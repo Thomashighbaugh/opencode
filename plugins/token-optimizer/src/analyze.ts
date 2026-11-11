@@ -210,17 +210,13 @@ export function band(score: number): string {
 export function fillFraction(session: SessionRow | null, usage: Usage | null): number {
   const model = usage?.model || session?.model
   const window = contextWindowForModel(model)
-  // Prefer cumulative session-level token totals (accurate for fill) over
-  // per-message usage (which represents a single message's tokens, not the
-  // full context window). A single long message can have input tokens equal
-  // to the whole window, which would falsely pin fill at 100%.
+  // Use per-message usage (the latest assistant message's tokens) as the fill
+  // proxy. Cumulative session tokens grow monotonically and always exceed the
+  // window, which pins fill at 100% and makes the metric useless. Per-message
+  // tokens reflect what's actually occupying the context window right now.
   let used = 0
-  if (session && (session.tokensInput > 0 || session.tokensOutput > 0 ||
-      session.tokensCacheRead > 0 || session.tokensCacheWrite > 0)) {
-    used = session.tokensInput + session.tokensOutput +
-           session.tokensCacheRead + session.tokensCacheWrite
-  } else if (usage) {
-    used = usage.input + usage.cacheRead + usage.cacheWrite + usage.output
+  if (usage) {
+    used = usage.input + usage.output + usage.reasoning + usage.cacheRead + usage.cacheWrite
   }
   return window > 0 ? Math.min(1, used / window) : 0
 }
@@ -271,9 +267,11 @@ export function computeQuality(
   const warn = config.toolCallWarn ?? Math.floor(25 * scale)
   const critical = config.toolCallCritical ?? Math.floor(40 * scale)
   let toolCallWarning: Quality["toolCallWarning"] = null
-  if (fillPct >= 0.5 && signals.toolCalls >= critical) {
+  // Fill < 35% means the context isn't actually full — tool-call volume alone
+  // shouldn't declare CRITICAL.
+  if (fillPct >= 0.35 && signals.toolCalls >= critical) {
     toolCallWarning = { level: "CRITICAL", toolCalls: signals.toolCalls, message: `${critical}+ tool calls, instruction adherence severely degraded` }
-  } else if (fillPct >= 0.5 && signals.toolCalls >= warn) {
+  } else if (fillPct >= 0.35 && signals.toolCalls >= warn) {
     toolCallWarning = { level: "WARNING", toolCalls: signals.toolCalls, message: `${warn}+ tool calls, consider a fresh session` }
   }
 
