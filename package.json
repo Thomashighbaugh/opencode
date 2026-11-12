@@ -9,7 +9,7 @@
     "doctor": "npm run check-all",
     "test": "vitest",
     "test:run": "vitest run",
-    "test:bun": "bun test plugins/token-optimizer/test/",
+    "test:bun": "bun test plugins/rio/test/",
     "test:all": "npm run test:run && npm run test:bun",
     "test:coverage": "vitest run --coverage"
   },

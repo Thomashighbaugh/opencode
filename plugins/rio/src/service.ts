@@ -331,6 +331,11 @@ export class Service {
 
   shouldPreferLargerRequest(sessionID: string): boolean {
     const re = this.requestEfficiency(sessionID)
+    const recs = this.requestRecords.get(sessionID) ?? []
+    const distinctConcerns = new Set(recs.map((r) => r.concern).filter(Boolean)).size
+    const decomposed = recs.length > 1 && distinctConcerns === recs.length
+    // Decomposed requests are genuinely different concerns — don't suggest merging.
+    if (decomposed) return false
     return re.requestCount >= 5 && re.tokensPerRequest < 20_000 && re.efficiency < 0.3
   }
 

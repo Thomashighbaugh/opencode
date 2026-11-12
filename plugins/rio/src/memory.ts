@@ -223,7 +223,7 @@ export class MemoryService {
     }
     const lower = `${incoming}\n${existing}`.toLowerCase()
     if (/\b(instead of|replaces?|no longer|supersedes?|deprecated)\b/.test(lower)) return "supersedes"
-    if (/\b(contradicts?|conflicts?|but actually|not true|wrong|opposite)\b/.test(lower)) return "contradicts"
+    if (/\b(contradicts?|conflicts?|but actually|not true|wrong|opposite|never)\b/.test(lower)) return "contradicts"
     if (/\b(depends on|requires|needs)\b/.test(lower)) return "depends_on"
     if (/\b(refines?|clarifies?|extends?|narrows?)\b/.test(lower)) return "refines"
     if (/\b(supports?|confirms?|consistent)\b/.test(lower)) return "supports"

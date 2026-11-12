@@ -43,23 +43,13 @@ export type Memory = {
 
 export type OriginStats = { total: number; byOrigin: Record<string, number> }
 
-let dbConstructorCache: any = null
-let dbConstructorPromise: Promise<any> | null = null
+let Database: any = null
 
-async function ensureDbConstructor(): Promise<any> {
-  if (dbConstructorCache) return dbConstructorCache
-  if (dbConstructorPromise) return dbConstructorPromise
-  dbConstructorPromise = (async () => {
-    try {
-      const mod = await import("bun:sqlite")
-      dbConstructorCache = mod.Database
-      return mod.Database
-    } catch {
-      dbConstructorCache = null
-      return null
-    }
-  })()
-  return dbConstructorPromise
+try {
+  // bun:sqlite is available synchronously in bun runtime
+  Database = require("bun:sqlite").Database
+} catch {
+  // Non-bun runtime: fall back to async import
 }
 
 export function memoryDbPath(directory: string): string {
@@ -79,25 +69,23 @@ export class MemoryDb {
     try {
       mkdirSync(dirname(this.path), { recursive: true })
     } catch {}
-    this.db = null
-    void this._init()
+    this._init()
   }
 
-  private async _init(): Promise<void> {
-    const Database = await ensureDbConstructor()
+  private _init(): void {
     if (!Database) return
     try {
       this.db = new Database(this.path, { create: true })
       this.db.exec("PRAGMA journal_mode=WAL")
       this.db.exec("PRAGMA busy_timeout=3000")
-      await this.loadVec()
+      this.loadVec()
       this.ensure()
     } catch {}
   }
 
-  private async loadVec(): Promise<void> {
+  private loadVec(): void {
     try {
-      const vec = await import("sqlite-vec")
+      const vec = require("sqlite-vec")
       if (vec && typeof vec.load === "function") {
         vec.load(this.db as any)
         this.db.exec("SELECT vec_version()")
@@ -309,6 +297,10 @@ export class MemoryDb {
         this.db.query("INSERT INTO memories_vec (memory_id, embedding) VALUES (?, ?)").run(id, JSON.stringify(input.embedding))
       } catch {}
     }
+    // Index in FTS for lexical search
+    try {
+      this.db.query("INSERT INTO memories_fts(rowid, title, content) VALUES (?, ?, ?)").run(id, input.title ?? null, content)
+    } catch {}
     this.audit(id, "insert", content.slice(0, 200))
     return { id, action: "inserted", memory: this.get(id)! }
   }
@@ -319,13 +311,13 @@ export class MemoryDb {
       const rows = project
         ? this.db.query(
             `SELECT m.* FROM memories_fts f
-             JOIN memories m ON m.id = f.memory_id
+             JOIN memories m ON m.id = f.rowid
              WHERE memories_fts MATCH ? AND m.project = ?
              ORDER BY rank LIMIT ?`,
           ).all(query, project, limit)
         : this.db.query(
             `SELECT m.* FROM memories_fts f
-             JOIN memories m ON m.id = f.memory_id
+             JOIN memories m ON m.id = f.rowid
              WHERE memories_fts MATCH ?
              ORDER BY rank LIMIT ?`,
           ).all(query, limit)
@@ -369,6 +361,9 @@ export class MemoryDb {
     if (!this.db) return
     try {
       this.db.query("DELETE FROM memories WHERE id = ?").run(id)
+      try {
+        this.db.query("DELETE FROM memories_fts WHERE rowid = ?").run(id)
+      } catch {}
     } catch {}
   }
 
