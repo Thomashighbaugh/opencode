@@ -15,7 +15,6 @@
 
 import { For, Show, createEffect, createMemo, createSignal } from "solid-js"
 import type { Plugin } from "@opencode/plugin/tui"
-import { rgbToHex } from "@opentui/core"
 
 import { hub, hubNames, render, renderIndex, route } from "./src/core"
 import {
@@ -33,7 +32,12 @@ type Prefs = { collapsed: boolean; scope: SkillScope; tokens: boolean }
 
 function themeColor(color: any, fallback: string): string {
   try {
-    return color != null ? rgbToHex(color) : fallback
+    if (color == null) return fallback
+    // RGBA objects expose r, g, b as 0-255 numbers
+    const r = Math.round(color.r ?? color[0] ?? 0)
+    const g = Math.round(color.g ?? color[1] ?? 0)
+    const b = Math.round(color.b ?? color[2] ?? 0)
+    return `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`
   } catch {
     return fallback
   }
