@@ -292,14 +292,14 @@ export default definePlugin({
         return (
           <Show when={!prefs.collapsed}>
             <box flexDirection="column" gap={0}>
-              <text fg={ctx.theme.text.base}>{`Hubs · ${menus().length} menus · /hubs`}</text>
+              <text fg={ctx.theme.current.text}>{`Hubs · ${menus().length} menus · /hubs`}</text>
               <For each={menus()}>
                 {(menu: { name: string; subs: string[] }) => {
                   const isExpanded = expanded().has(menu.name)
                   return (
                     <box flexDirection="column">
                       <text
-                        fg={ctx.theme.text.base}
+                        fg={ctx.theme.current.primary}
                         onMouseUp={(event: any) => {
                           if (event?.button === 2) void openHub(menu.name)
                           else toggleMenu(menu.name)
@@ -309,11 +309,11 @@ export default definePlugin({
                       </text>
                       <Show when={isExpanded}>
                         <For each={menu.subs}>
-                          {(sub: string) => <text fg={ctx.theme.text.muted}>{`    ${sub}`}</text>}
+                          {(sub: string) => <text fg={ctx.theme.current.textMuted}>{`    ${sub}`}</text>}
                         </For>
                       </Show>
                       <Show when={!isExpanded}>
-                        <text fg={ctx.theme.text.muted}>
+                        <text fg={ctx.theme.current.textMuted}>
                           {`   ${menu.subs.slice(0, 6).join(" · ")}${menu.subs.length > 6 ? " · …" : ""}`}
                         </text>
                       </Show>
