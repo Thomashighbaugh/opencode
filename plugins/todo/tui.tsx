@@ -131,8 +131,6 @@ export default definePlugin({
         return
       }
 
-      ctx.ui.dialog.setSize("xlarge")
-
       const choice = await ctx.ui.dialog.select({
         title: `Todo — ${items.length} open · Enter sends to the agent`,
         placeholder: "Filter",
