@@ -461,6 +461,11 @@
             }
         }
     },
+    "permission": {
+        "bash": {
+            "*": "allow"
+        }
+    },
     "mcp": {
         "context7": {
             "enabled": true,
