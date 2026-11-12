@@ -322,11 +322,6 @@ export default definePlugin({
                           {(sub: string) => <text fg={themeColor(ctx.theme.current?.textMuted, "#888888")}>{`    ${sub}`}</text>}
                         </For>
                       </Show>
-                      <Show when={!isExpanded}>
-                        <text fg={themeColor(ctx.theme.current?.textMuted, "#888888")}>
-                          {`   ${menu.subs.slice(0, 6).join(" · ")}${menu.subs.length > 6 ? " · …" : ""}`}
-                        </text>
-                      </Show>
                     </box>
                  )}}
               </For>
