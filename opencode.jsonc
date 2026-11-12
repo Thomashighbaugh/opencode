@@ -502,7 +502,7 @@
         "./plugins/toon",
         "./plugins/env-protection",
         "./plugins/ax-guard",
-        "./plugins/remote_inference_endpoint_optimizations"
+        "./plugins/rio"
     ],
     "instructions": [
         "AGENTS.md",

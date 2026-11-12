@@ -51,6 +51,8 @@ export type Config = {
   mechanicalAlternatives: boolean
   promoteToProjectTooling: boolean
   preferTypeScriptOverPython: boolean
+  memory: boolean
+  keepWarm: boolean
 }
 
 export function config(env = process.env): Config {
@@ -90,6 +92,8 @@ export function config(env = process.env): Config {
     mechanicalAlternatives: flag("RIO_MECHANICAL_ALTERNATIVES", true),
     promoteToProjectTooling: flag("RIO_PROMOTE_TO_PROJECT_TOOLING", true),
     preferTypeScriptOverPython: flag("RIO_PREFER_TYPESCRIPT_OVER_PYTHON", true),
+    memory: flag("RIO_MEMORY", true),
+    keepWarm: flag("RIO_KEEP_WARM", true),
   }
 }
 

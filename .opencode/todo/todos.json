@@ -5,6 +5,21 @@
       "id": "mw5jx98m-d1laa",
       "text": "implement decisions model (hopefully onnxruntime and local) to ease the use of larger models in cases mechanical tools are too complex or fickle",
       "createdAt": "2026-11-06T22:34:00.070Z"
+    },
+    {
+      "id": "mwd34g3i-vda81",
+      "text": "in the sidebar listing of the various hub menus, when collapsed do not list subcommand since they appear once expanded anyway",
+      "createdAt": "2026-11-12T05:05:51.486Z"
+    },
+    {
+      "id": "mwd35ib8-epzas",
+      "text": "add color to the sidebar listing of the hub commands, different color for the arrows, subcommands, when hovered etc its react/tsx based so this is possible",
+      "createdAt": "2026-11-12T05:06:41.012Z"
+    },
+    {
+      "id": "mwd37vz6-r8v4v",
+      "text": "todo menu's footer is not correctly justified and the add and list all descriptions become a huge long column when a wider todo menu would be fine and the menu should be larger in general (something responsive like 60% of the screen width wide",
+      "createdAt": "2026-11-12T05:08:32.034Z"
     }
   ]
 }

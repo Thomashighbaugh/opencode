@@ -1,15 +1,20 @@
 /**
- * remote_inference_endpoint_optimizations — V2 plugin.
+ * rio — V2 plugin. Single access point: one command (/rio) opens a hub-like
+ * menu with all subcommands hidden inside. Detached from the hubs plugin;
+ * self-contained here.
  *
- * Single access point: one command (/rio) opens a hub-like menu with all
- * subcommands hidden inside. Detached from the hubs plugin; self-contained
- * here.
+ * Rio combines token-optimization (fill %, quality scoring, request
+ * efficiency, mechanical alternatives) with a local memory system (embedding
+ * + rerank + classification over .opencode/state/vector/memory.db — the same
+ * target used by memory-hub subcommands so rio and memory-hub are always
+ * compatible).
  *
  * Feature flags (all default true, env-overridable):
  *   RIO_PRECISE_PROMPTS, RIO_ANTI_DUPLICATION, RIO_SINGLE_CONCERN,
  *   RIO_QUICK_ROUTING, RIO_PRE_COMPUTATION, RIO_CUT_EXPLORE_AGENT,
  *   RIO_PREFER_FEWER_LARGER_REQUESTS, RIO_MECHANICAL_ALTERNATIVES,
- *   RIO_PROMOTE_TO_PROJECT_TOOLING, RIO_PREFER_TYPESCRIPT_OVER_PYTHON
+ *   RIO_PROMOTE_TO_PROJECT_TOOLING, RIO_PREFER_TYPESCRIPT_OVER_PYTHON,
+ *   RIO_MEMORY, RIO_KEEP_WARM
  *
  * Nudge delivery: inject only (no toast, no off).
  */
@@ -21,6 +26,7 @@ import { compactModeInstructions, computeQuality, deriveSignals, resumeIntent } 
 import { compressShellOutput } from "./src/compress.ts"
 import { buildIntelDigest } from "./src/intel.ts"
 import { qualityNudge, verbosityNudge } from "./src/nudges.ts"
+import { MemoryService } from "./src/memory.ts"
 
 const DECISION_RE = /\b(decid|decided|decision|agreed|resolved|chose|selected|going with|will use|approve|confirm)\b/i
 
@@ -52,13 +58,15 @@ function detectLoop(texts: string[]): string | null {
 }
 
 export default {
-  id: "remote_inference_endpoint_optimizations",
+  id: "rio",
   async setup(ctx: any) {
     let service: Service | null = null
+    let memory: MemoryService | null = null
     try {
       const directory: string = ctx?.location?.directory ?? ctx?.directory ?? process.cwd()
       const projectID: string = ctx?.location?.project?.id ?? ""
       service = new Service(directory, projectID, config())
+      memory = new MemoryService(directory, projectID)
     } catch {
       // Service creation failed — plugin still loads but does nothing useful
     }
@@ -66,7 +74,9 @@ export default {
     const cleanups: Array<() => void | Promise<void>> = []
     const abort = new AbortController()
 
-    if (!service) return async () => { abort.abort() }
+    if (!service || !memory) return async () => { abort.abort() }
+
+    const MEMORY_ENABLED = cfg.memory !== false // RIO_MEMORY defaults true
 
     // ── Register tools ──────────────────────────────────────────────
     try {
@@ -101,6 +111,109 @@ export default {
                 }
               },
             })
+            editor.add({
+              name: "rio_menu",
+              input: { type: "object", additionalProperties: false } as any,
+              description: "Open the rio hub-like menu (single access point)",
+              async execute() {
+                const items = buildMenuItems()
+                return { content: `rio menu:\n${formatMenu(items)}\n\nRun /rio <subcommand> to execute one.` }
+              },
+            })
+            if (MEMORY_ENABLED) {
+              editor.add({
+                name: "memory_learn",
+                input: {
+                  type: "object",
+                  properties: {
+                    content: { type: "string", description: "Durable insight, decision, gotcha, or pattern" },
+                    title: { type: "string", description: "Short noun-phrase label (<=60 chars)" },
+                    category: { type: "string", enum: ["preference", "architecture", "gotcha", "pattern", "workflow", "constraint"] },
+                    importance: { type: "number", minimum: 1, maximum: 5 },
+                    confidence: { type: "number", minimum: 0, maximum: 1 },
+                    project: { type: "string" },
+                    files: { type: "array", items: { type: "string" } },
+                    origin: { type: "string", enum: ["owner-statement", "agent-observation", "external-source", "proposal", "historical-approval"] },
+                    private: { type: "boolean" },
+                  },
+                  required: ["content"],
+                } as any,
+                description: "Store or reinforce a durable project memory.",
+                async execute(input: any) {
+                  try {
+                    const result = await memory!.learn({
+                      content: input.content, title: input.title, category: input.category,
+                      importance: input.importance, confidence: input.confidence,
+                      project: input.project, files: input.files,
+                      origin: input.origin, isPrivate: input.private,
+                    })
+                    return { content: JSON.stringify({ ok: true, id: result.id, action: result.action, category: result.category }) }
+                  } catch (e) {
+                    return { content: `memory learn error: ${e instanceof Error ? e.message : String(e)}` }
+                  }
+                },
+              })
+              editor.add({
+                name: "memory_recall",
+                input: {
+                  type: "object",
+                  properties: {
+                    query: { type: "string" },
+                    project: { type: "string" },
+                    limit: { type: "number", minimum: 1, maximum: 50 },
+                    category: { type: "string" },
+                    semantic: { type: "boolean" },
+                    includePrivate: { type: "boolean" },
+                  },
+                } as any,
+                description: "Hybrid memory recall over FTS5 and the local sqlite-vec store.",
+                async execute(input: any) {
+                  try {
+                    const hits = await memory!.recall({
+                      query: input.query, project: input.project, limit: input.limit,
+                      category: input.category, semantic: input.semantic,
+                      includePrivate: input.includePrivate,
+                    })
+                    return { content: JSON.stringify({ count: hits.length, memories: hits.map((h) => ({
+                      id: h.id, title: h.title, category: h.category, importance: h.importance,
+                      score: Math.round(h.score * 1000) / 1000, stale: h.stale, content: h.content,
+                    })) }) }
+                  } catch (e) {
+                    return { content: `memory recall error: ${e instanceof Error ? e.message : String(e)}` }
+                  }
+                },
+              })
+              editor.add({
+                name: "memory_get",
+                input: { type: "object", properties: { id: { type: "number" }, includePrivate: { type: "boolean" } }, required: ["id"] } as any,
+                description: "Fetch one memory by ID.",
+                async execute(input: any) {
+                  try {
+                    const m = memory!.get(input.id)
+                    if (!m) return { content: JSON.stringify({ ok: false, error: "not_found", id: input.id }) }
+                    if (m.isPrivate && !input.includePrivate) return { content: JSON.stringify({ ok: false, error: "private", id: input.id }) }
+                    const files = memory!.db.files(input.id)
+                    const memObj = { ...m, files }
+                    return { content: JSON.stringify({ ok: true, memory: memObj }) }
+                  } catch (e) {
+                    return { content: `memory get error: ${e instanceof Error ? e.message : String(e)}` }
+                  }
+                },
+              })
+              editor.add({
+                name: "memory_forget",
+                input: { type: "object", properties: { id: { type: "number" }, reason: { type: "string" } }, required: ["id"] } as any,
+                description: "Delete a memory by ID.",
+                async execute(input: any) {
+                  try {
+                    memory!.forget(input.id)
+                    return { content: JSON.stringify({ ok: true, id: input.id }) }
+                  } catch (e) {
+                    return { content: `memory forget error: ${e instanceof Error ? e.message : String(e)}` }
+                  }
+                },
+              })
+            }
           } catch (e) {
             console.error("[rio] tool registration error:", e)
           }
@@ -117,7 +230,7 @@ export default {
           try {
             editor.add({
               name: "rio",
-              description: "Rio hub-like menu: status, compact, resume, compress, route, savings, audit, config",
+              description: "Rio hub-like menu: status, compact, resume, compress, route, savings, audit, config, memory, recall, coach, doctor, report, memory-review, expand, resume-lean",
               async execute(input: any) {
                 try {
                   const sessionID = String(input.sessionID ?? "")
@@ -128,7 +241,7 @@ export default {
                       : ""
                   const parts = promptText.trim().split(/\s+/)
                   const sub = parts[0]?.toLowerCase() ?? "status"
-                  const result = await runMenuAction(sub, service, ctx, sessionID)
+                  const result = await runMenuAction(sub, service, memory!, ctx, sessionID)
                   try { await ctx.session.prompt({ sessionID, text: result, resume: false }) } catch {}
                 } catch (e) {
                   console.error("[rio] command execute error:", e)
@@ -311,27 +424,21 @@ export default {
           try {
             if (!event?.sessionID) return
             const sessionID = String(event.sessionID)
-            if (!INJECTED.has(sessionID) && cfg.promoteToProjectTooling) {
-              const prompt = FIRST_PROMPT.get(sessionID)
+
+            // ── Memory recall injected into context ───────────────────
+            if (MEMORY_ENABLED) {
+              const prompt = FIRST_PROMPT.get(sessionID) ?? ""
               if (prompt) {
-                const match = await service.restoreFor(sessionID, prompt)
-                if (match) {
-                  event.system.push({ type: "text", text: match.block })
-                  const tokens = Math.min(200_000, Math.max(1, Math.ceil(match.checkpoint.content.length / 3.3)))
-                  const db = await service.db()
-                  const model = db ? (await service.session(sessionID))?.model : undefined
-                  service.store.logSavings({
-                    type: "checkpoint_restore",
-                    tokens,
-                    costUsd: costOf(model, { input: tokens, output: 0, cacheRead: 0, cacheWrite: 0 }),
-                    sessionID,
-                    model,
-                    detail: `restored checkpoint ${match.checkpoint.id}`,
-                    createdAt: Date.now() / 1000,
-                  })
+                const hits = await memory!.recall({ query: prompt, limit: 5 })
+                if (hits.length) {
+                  const block = [
+                    "## Active Memories (rio)",
+                    ...hits.map((h) => `- [${h.category}] ${h.content.slice(0, 200)}`).join("\n"),
+                    "",
+                  ].join("\n")
+                  event.system.push({ type: "text", text: block })
                 }
               }
-              INJECTED.add(sessionID)
             }
 
             const quality = await service.quality(sessionID)
@@ -405,6 +512,28 @@ export default {
               `Context quality before compaction: ${Math.round(quality.resourceHealth)}/100`,
               digest,
             ].filter(Boolean)
+
+            // ── Memory: record session summary + inject active memories ──
+            if (MEMORY_ENABLED) {
+              try {
+                await memory!.learn({
+                  content: `Session summary: ${mode} mode, quality ${Math.round(quality.resourceHealth)}/100, fill ${Math.round(quality.fillPct * 100)}%. Session ${sessionID}.`,
+                  title: `Session ${sessionID.slice(0, 12)} summary`,
+                  category: "workflow",
+                  origin: "agent-observation",
+                  project: service.projectID,
+                })
+              } catch {}
+              const hits = await memory!.recall({ query: digest.slice(0, 500), limit: 5 })
+              if (hits.length) {
+                instructions.push(
+                  "",
+                  "## Related Memories",
+                  ...hits.map((h) => `- [${h.category}] ${h.content.slice(0, 150)}`),
+                )
+              }
+            }
+
             if (event.result) event.result.summary = [event.result.summary, ...instructions].filter(Boolean).join("\n\n")
             else if (Array.isArray(event.system)) event.system.push(...instructions.map((text) => ({ type: "text", text })))
           } catch (e) {
@@ -452,6 +581,7 @@ export default {
         try { await cleanup() } catch {}
       }
       service.close()
+      memory.close()
     }
   },
 }
