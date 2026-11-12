@@ -5,7 +5,6 @@ dist/
 pnpm-workspace.yaml 
 pnpm-lock.yaml 
 bun.lock
-package-lock.json
 service.json
 
 # Runtime-generated state files

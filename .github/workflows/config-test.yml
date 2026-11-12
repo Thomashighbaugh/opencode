@@ -14,7 +14,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-          cache: 'npm'
       - run: npm ci
       - run: npm run test:run
         env:
@@ -29,7 +28,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-          cache: 'npm'
       - run: npm ci
       - name: Run project-scoped tests only
         run: npx vitest run tests/project/
