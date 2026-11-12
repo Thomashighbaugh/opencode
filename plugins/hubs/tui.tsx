@@ -292,14 +292,14 @@ export default definePlugin({
         return (
           <Show when={!prefs.collapsed}>
             <box flexDirection="column" gap={0}>
-              <text fg={ctx.theme.text.primary}>{`Hubs · ${menus().length} menus · /hubs`}</text>
+              <text fg={ctx.theme.text.base}>{`Hubs · ${menus().length} menus · /hubs`}</text>
               <For each={menus()}>
                 {(menu: { name: string; subs: string[] }) => {
                   const isExpanded = expanded().has(menu.name)
                   return (
                     <box flexDirection="column">
                       <text
-                        fg={ctx.theme.text.primary}
+                        fg={ctx.theme.text.base}
                         onMouseUp={(event: any) => {
                           if (event?.button === 2) void openHub(menu.name)
                           else toggleMenu(menu.name)
