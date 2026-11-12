@@ -17,6 +17,7 @@
  * handle — see `./composer.ts`.
  */
 
+import { For, createMemo, createSignal } from "solid-js"
 import type { Plugin } from "@opencode/plugin/tui"
 
 import { add, archive, archiveItem, remove, resolveId } from "./ops"
@@ -24,6 +25,15 @@ import { readTodos } from "./todo-store"
 import { appendComposer, clearComposer, readComposer } from "./composer"
 
 const definePlugin = (plugin: Plugin.Definition): Plugin.Definition => plugin
+
+function themeColor(color: any, fallback: string): string | undefined {
+  try {
+    if (color == null) return fallback
+    return color
+  } catch {
+    return fallback
+  }
+}
 
 export default definePlugin({
   id: "todo",
@@ -61,9 +71,8 @@ export default definePlugin({
       const drafted = readComposer(ctx).trim()
 
       /**
-       * Redraw the menu after a mutation. Footer actions do not close the
-       * dialog, and opening a second select on top of the first leaves the
-       * stale list visible underneath — so clear the stack first.
+       * Redraw the menu after a mutation. Clear the dialog stack first so a
+       * stale list isn't left visible underneath.
        */
       const reopen = () => {
         ctx.ui.dialog.clear()
@@ -74,24 +83,22 @@ export default definePlugin({
         {
           bind: "ctrl+a",
           title: "Add",
-          selection: "none" as const,
           onTrigger: () => void addFlow(drafted),
         },
         {
           bind: "ctrl+i",
           title: "Insert",
-          selection: "required" as const,
           onTrigger: (id: string) => {
             const item = refresh().find((entry) => entry.id === resolveId(directory(), id))
             if (!item) return
             const ok = appendComposer(ctx, item.text)
             toast(ok ? "Inserted into prompt" : "Could not reach the prompt input", ok ? "info" : "warning")
+            reopen()
           },
         },
         {
           bind: "ctrl+d",
           title: "Delete",
-          selection: "required" as const,
           onTrigger: (id: string) => {
             const resolved = resolveId(directory(), id) ?? id
             toast(remove(directory(), resolved).message, "warning")
@@ -101,7 +108,6 @@ export default definePlugin({
         {
           bind: "ctrl+r",
           title: "Archive",
-          selection: "required" as const,
           onTrigger: (id: string) => {
             const resolved = resolveId(directory(), id) ?? id
             const result = archiveItem(directory(), resolved)
@@ -112,10 +118,9 @@ export default definePlugin({
         {
           bind: "ctrl+o",
           title: "Open archive",
-          side: "right" as const,
-          selection: "none" as const,
           onTrigger: () => {
             const result = archive(directory())
+            ctx.ui.dialog.clear()
             void ctx.ui.dialog.alert({ title: "Todo archive", message: result.message })
           },
         },
@@ -131,37 +136,100 @@ export default definePlugin({
         return
       }
 
-      ctx.ui.dialog.setSize("xlarge")
-
-      const choice = await ctx.ui.dialog.select({
-        title: `Todo — ${items.length} open · Enter sends to the agent`,
-        placeholder: "Filter",
-        options: items.map((item) => ({
-          title: item.text,
-          value: item.id,
-          description: item.id.length > 12 ? `${item.id.slice(0, 8)}…` : item.id,
-          category: "open",
-        })),
-        search: (query: string, options: any[]) => {
-          const needle = query.trim().toLowerCase()
-          if (!needle) return options
-          return options.filter((option: any) => `${option.title} ${option.value}`.toLowerCase().includes(needle))
-        },
-        actions,
+      // Search state + filtered list
+      const [search, setSearch] = createSignal("")
+      const [selectedId, setSelectedId] = createSignal<string | null>(null)
+      const filtered = createMemo(() => {
+        const needle = search().trim().toLowerCase()
+        if (!needle) return items
+        return items.filter((item) => `${item.text} ${item.id}`.toLowerCase().includes(needle))
       })
 
-      if (!choice) return
-      // Enter hands the item to the agent. It is NOT removed: only Delete and
-      // Archive take an item out of the list, and both are explicit.
-      const resolved = resolveId(directory(), choice) ?? choice
-      const item = refresh().find((entry) => entry.id === resolved)
-      if (!item) {
-        toast(`No open item with id ${resolved}`, "warning")
-        return
+      const handleItem = (id: string) => {
+        ctx.ui.dialog.clear()
+        setSelectedId(id)
+        const resolved = resolveId(directory(), id) ?? id
+        const item = refresh().find((entry) => entry.id === resolved)
+        if (!item) return
+        void sendToAgent(item.text)
       }
-      if (await sendToAgent(item.text)) {
-        toast(`Sent to the agent — "${shorten(item.text)}" stays open until you archive it`)
+
+      const handleAction = (bind: string) => {
+        ctx.ui.dialog.clear()
+        const id = selectedId()
+        const action = actions.find((a) => a.bind === bind)
+        if (!action) return
+        if (bind === "ctrl+a" || bind === "ctrl+o") {
+          ;(action as any).onTrigger()
+          return
+        }
+        if (!id) {
+          toast("No item selected", "warning")
+          return
+        }
+        ;(action as any).onTrigger(id)
       }
+
+      ctx.ui.dialog.show(() => (
+        <scrollbox width="100%" height="100%" scrollY>
+          <box flexDirection="column" padding={1} gap={1}>
+            <text fg={themeColor(ctx.theme.current?.text, "#ffffff")}>
+              {`Todo — ${items.length} open · Enter sends to agent`}
+            </text>
+            <input
+              placeholder="Filter"
+              value={search()}
+              onInput={(value: string) => setSearch(value)}
+            />
+            <For each={filtered()}>
+              {(item: any) => (
+                <text
+                  fg={themeColor(ctx.theme.current?.text, "#ffffff")}
+                  onMouseUp={() => {
+                    setSelectedId(item.id)
+                    handleItem(item.id)
+                  }}
+                >
+                  {`  ${item.id === selectedId() ? "▸ " : ""}${item.text}`}
+                </text>
+              )}
+            </For>
+            <box flexDirection="row" justifyContent="space-between" padding={1} gap={2}>
+              <text
+                fg={themeColor(ctx.theme.current?.textMuted, "#888888")}
+                onMouseUp={() => handleAction("ctrl+a")}
+              >
+                Add (ctrl+a)
+              </text>
+              <text
+                fg={themeColor(ctx.theme.current?.textMuted, "#888888")}
+                onMouseUp={() => handleAction("ctrl+i")}
+              >
+                Insert (ctrl+i)
+              </text>
+              <text
+                fg={themeColor(ctx.theme.current?.textMuted, "#888888")}
+                onMouseUp={() => handleAction("ctrl+d")}
+              >
+                Delete (ctrl+d)
+              </text>
+              <text
+                fg={themeColor(ctx.theme.current?.textMuted, "#888888")}
+                onMouseUp={() => handleAction("ctrl+r")}
+              >
+                Archive (ctrl+r)
+              </text>
+              <text
+                fg={themeColor(ctx.theme.current?.textMuted, "#888888")}
+                onMouseUp={() => handleAction("ctrl+o")}
+              >
+                Open archive (ctrl+o)
+              </text>
+            </box>
+            </box>
+          </scrollbox>
+        ))
+      ctx.ui.dialog.set({ size: "xlarge" })
     }
 
     async function addFlow(prefill = ""): Promise<void> {
