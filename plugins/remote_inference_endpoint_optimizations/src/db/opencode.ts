@@ -1,9 +1,11 @@
 /**
  * Read-only adapter over OpenCode's own database. Source of truth for all
  * metrics. No inference used for any value — everything derives from SQL.
+ *
+ * `bun:sqlite` is imported lazily because the OpenCode server runtime may
+ * not be a bun process. If unavailable, all functions degrade gracefully.
  */
 
-import { Database } from "bun:sqlite"
 import { existsSync } from "node:fs"
 import { homedir } from "node:os"
 import { join } from "node:path"
@@ -14,9 +16,30 @@ export function databasePath(): string {
   return join(homedir(), ".local/share/opencode/opencode.db")
 }
 
-export function openOpenCode(path = databasePath()): Database | null {
+let dbConstructorCache: any = null
+let dbConstructorPromise: Promise<any> | null = null
+
+async function ensureDbConstructor(): Promise<any> {
+  if (dbConstructorCache) return dbConstructorCache
+  if (dbConstructorPromise) return dbConstructorPromise
+  dbConstructorPromise = (async () => {
+    try {
+      const mod = await import("bun:sqlite")
+      dbConstructorCache = mod.Database
+      return mod.Database
+    } catch {
+      dbConstructorCache = null
+      return null
+    }
+  })()
+  return dbConstructorPromise
+}
+
+export async function openOpenCode(path = databasePath()): Promise<any | null> {
   if (!existsSync(path)) return null
   try {
+    const Database = await ensureDbConstructor()
+    if (!Database) return null
     const db = new Database(path, { readonly: true })
     db.exec("PRAGMA query_only=ON")
     db.exec("PRAGMA busy_timeout=3000")
@@ -80,7 +103,7 @@ function parse(data: unknown): Record<string, any> {
   }
 }
 
-function hasTable(db: Database, name: string): boolean {
+function hasTable(db: any, name: string): boolean {
   try {
     return db.query("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?").get(name) != null
   } catch {
@@ -129,7 +152,7 @@ const SESSION_COLUMNS = `id, project_id, directory, title, agent, model, cost,
             tokens_input, tokens_output, tokens_reasoning,
             tokens_cache_read, tokens_cache_write, time_created, time_updated`
 
-export function sessionRow(db: Database, id: string): SessionRow | null {
+export async function sessionRow(db: any, id: string): Promise<SessionRow | null> {
   for (const table of ["session_v2", "session"] as const) {
     if (!hasTable(db, table)) continue
     try {
@@ -142,7 +165,7 @@ export function sessionRow(db: Database, id: string): SessionRow | null {
   return null
 }
 
-export function listSessions(db: Database, days = 30, projectID?: string): SessionRow[] {
+export async function listSessions(db: any, days = 30, projectID?: string): Promise<SessionRow[]> {
   const cutoff = Date.now() - Math.max(1, days) * 86_400_000
   const rows = projectID
     ? db.query(
@@ -167,14 +190,14 @@ function usageFromTokens(tokens: any, model?: string): Usage | undefined {
   }
 }
 
-export function sessionParts(db: Database, sessionID: string, limit = 4000): PartEntry[] {
+export async function sessionParts(db: any, sessionID: string, limit = 4000): Promise<PartEntry[]> {
   let v2 = false
   try {
     v2 = db.query("SELECT 1 FROM session_v2 WHERE id = ?").get(sessionID) != null
   } catch {}
   if (v2) {
     try {
-      const v2Parts = sessionPartsV2(db, sessionID, limit)
+      const v2Parts = await sessionPartsV2(db, sessionID, limit)
       if (v2Parts.length > 0) return v2Parts
     } catch {
       // fall through to V1 path
@@ -183,7 +206,7 @@ export function sessionParts(db: Database, sessionID: string, limit = 4000): Par
   return sessionPartsV1(db, sessionID, limit)
 }
 
-function sessionPartsV1(db: Database, sessionID: string, limit: number): PartEntry[] {
+async function sessionPartsV1(db: any, sessionID: string, limit: number): Promise<PartEntry[]> {
   const rows = db.query(
     `SELECT p.id, p.data AS part_data, m.data AS message_data, p.time_created
      FROM part p JOIN message m ON m.id = p.message_id
@@ -237,7 +260,7 @@ function sessionPartsV1(db: Database, sessionID: string, limit: number): PartEnt
   return out
 }
 
-function sessionPartsV2(db: Database, sessionID: string, limit: number): PartEntry[] {
+async function sessionPartsV2(db: any, sessionID: string, limit: number): Promise<PartEntry[]> {
   const rows = db.query(
     `SELECT id, type, seq, data FROM session_message WHERE session_id = ? ORDER BY seq ASC LIMIT ?`,
   ).all(sessionID, Math.max(1, Math.min(limit, 20000))) as Array<{
@@ -329,7 +352,7 @@ function sessionPartsV2(db: Database, sessionID: string, limit: number): PartEnt
   return out
 }
 
-export function latestUsage(db: Database, sessionID: string): Usage | null {
+export async function latestUsage(db: any, sessionID: string): Promise<Usage | null> {
   let v2 = false
   try {
     v2 = db.query("SELECT 1 FROM session_v2 WHERE id = ?").get(sessionID) != null

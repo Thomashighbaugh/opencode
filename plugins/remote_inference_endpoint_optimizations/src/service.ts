@@ -4,7 +4,6 @@
  * Everything derives from OpenCode's DB — no inference calls.
  */
 
-import type { Database } from "bun:sqlite"
 import {
   databasePath,
   latestUsage,
@@ -99,20 +98,42 @@ export class Service {
   readonly projectID: string
   readonly store: OptimizerStore
   readonly cfg: Config
-  private db: Database | null = null
-  private qualityCache = new Map<string, { at: number; value: Quality }>()
+  private dbPromise: Promise<any | null> | null = null
+  private dbCache: any | null = null
   private fileContents = new Map<string, string>()
+  private qualityCache = new Map<string, { at: number; value: Quality }>()
 
   constructor(directory: string, projectID: string, cfg = config()) {
     this.directory = directory
     this.projectID = projectID
     this.cfg = cfg
     this.store = new OptimizerStore(dataDir())
+    // Kick off DB initialization lazily
+    void this.ensureDb()
   }
 
-  database(): Database | null {
-    if (!this.db) this.db = openOpenCode(databasePath())
-    return this.db
+  private async ensureDb(): Promise<any | null> {
+    if (this.dbCache !== null) return this.dbCache
+    if (this.dbPromise) return this.dbPromise
+    this.dbPromise = (async () => {
+      try {
+        const db = await openOpenCode(databasePath())
+        this.dbCache = db
+        return db
+      } catch {
+        this.dbCache = null
+        return null
+      }
+    })()
+    return this.dbPromise
+  }
+
+  async db(): Promise<any | null> {
+    return this.ensureDb()
+  }
+
+  async dbHandle(): Promise<any | null> {
+    return this.ensureDb()
   }
 
   invalidate(sessionID: string): void {
@@ -120,28 +141,29 @@ export class Service {
   }
 
   close(): void {
-    try { this.db?.close() } catch {}
-    this.db = null
+    this.dbCache = null
+    this.dbPromise = null
     this.store.close()
   }
 
-  session(sessionID: string): SessionRow | null {
-    const db = this.database()
+  async session(sessionID: string): Promise<SessionRow | null> {
+    const db = await this.db()
     return db ? sessionRow(db, sessionID) : null
   }
 
-  entries(sessionID: string): PartEntry[] {
-    const db = this.database()
+  async entries(sessionID: string): Promise<PartEntry[]> {
+    const db = await this.db()
     return db ? sessionParts(db, sessionID) : []
   }
 
-  quality(sessionID: string): Quality {
+  async quality(sessionID: string): Promise<Quality> {
     const cachedQuality = this.qualityCache.get(sessionID)
     if (cachedQuality && Date.now() - cachedQuality.at < 120_000) return cachedQuality.value
-    const session = this.session(sessionID)
-    const entries = this.entries(sessionID)
+    const session = await this.session(sessionID)
+    const entries = await this.entries(sessionID)
     const signals = deriveSignals(entries, this.cfg.cutExploreAgent)
-    const usage = signals.lastUsage ?? (this.database() ? latestUsage(this.database()!, sessionID) : null)
+    const db = await this.db()
+    const usage = signals.lastUsage ?? (db ? await latestUsage(db, sessionID) : null)
     const result = computeQuality(session, signals, usage)
     const cached = this.store.getQuality(sessionID)
     if (cached && result.compactions <= cached.compactions && cached.resourceHealth !== null && result.resourceHealth > cached.resourceHealth) {
@@ -165,22 +187,22 @@ export class Service {
     return result
   }
 
-  mode(sessionID: string): Mode {
-    const signals = deriveSignals(this.entries(sessionID), this.cfg.cutExploreAgent)
+  async mode(sessionID: string): Promise<string> {
+    const signals = deriveSignals(await this.entries(sessionID), this.cfg.cutExploreAgent)
     return classifyMode(signals.toolBuckets.slice(-10), signals.results.slice(-10).some((r) => r.failure))
   }
 
-  shouldCompact(sessionID: string): { compact: boolean; fillPct: number; quality: number } {
-    const quality = this.quality(sessionID)
+  async shouldCompact(sessionID: string): Promise<{ compact: boolean; fillPct: number; quality: number }> {
+    const quality = await this.quality(sessionID)
     const compact = quality.fillPct >= 0.85 || quality.resourceHealth < 50
     return { compact, fillPct: quality.fillPct, quality: quality.resourceHealth }
   }
 
-  checkpoint(sessionID: string, trigger = "manual"): CheckpointRow {
-    const session = this.session(sessionID)
-    const entries = this.entries(sessionID)
+  async checkpoint(sessionID: string, trigger = "manual"): Promise<CheckpointRow> {
+    const session = await this.session(sessionID)
+    const entries = await this.entries(sessionID)
     const signals = deriveSignals(entries, this.cfg.cutExploreAgent)
-    const quality = this.quality(sessionID)
+    const quality = await this.quality(sessionID)
     const mode = classifyMode(signals.toolBuckets.slice(-10), signals.results.slice(-10).some((r) => r.failure))
     const files = [...new Set([...signals.writes, ...signals.reads].map((x) => x.path))].slice(0, 15)
     const content = buildCheckpointContent({
@@ -206,9 +228,9 @@ export class Service {
     })
   }
 
-  restoreFor(sessionID: string, prompt: string): { block: string; checkpoint: CheckpointRow; score: number } | null {
+  async restoreFor(sessionID: string, prompt: string): Promise<{ block: string; checkpoint: CheckpointRow; score: number } | null> {
     if (!this.cfg.continuity || !prompt.trim()) return null
-    const session = this.session(sessionID)
+    const session = await this.session(sessionID)
     const project = session?.projectID ?? this.projectID
     const candidates = this.store.findCheckpointCandidates(project, this.cfg.retentionDays, 50)
       .filter((cp) => cp.sessionID !== sessionID)
@@ -227,13 +249,13 @@ export class Service {
     }
   }
 
-  history(days = 30): SessionRow[] {
-    const db = this.database()
+  async history(days = 30): Promise<SessionRow[]> {
+    const db = await this.db()
     return db ? listSessions(db, days, this.projectID || undefined) : []
   }
 
-  savings(days = 30) {
-    const sessions = this.history(days).filter((s) => s.tokensInput >= 1000)
+  async savings(days = 30): Promise<{ sessions: number; spent: number; events: SavingsEvent[]; cost: number }> {
+    const sessions = (await this.history(days)).filter((s) => s.tokensInput >= 1000)
     const events = this.store.savings(days)
     const spent = sessions.reduce((n, s) => n + (s.cost || costOf(s.model, {
       input: s.tokensInput, output: s.tokensOutput, cacheRead: s.tokensCacheRead, cacheWrite: s.tokensCacheWrite,
@@ -249,7 +271,6 @@ export class Service {
       this.fileContents.set(key, newContent)
       return { compressed: false, content: newContent, savedChars: 0 }
     }
-    // Delta: return only lines that changed
     const prevLines = prev.split("\n")
     const newLines = newContent.split("\n")
     const changed: string[] = []
@@ -329,6 +350,3 @@ export class Service {
     ].filter(Boolean).join("\n")
   }
 }
-
-// Re-exported for index.ts
-export { buildCheckpointContent } from "./checkpoint.ts"
