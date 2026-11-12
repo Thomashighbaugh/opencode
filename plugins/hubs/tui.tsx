@@ -33,11 +33,21 @@ type Prefs = { collapsed: boolean; scope: SkillScope; tokens: boolean }
 function themeColor(color: any, fallback: string): string {
   try {
     if (color == null) return fallback
-    // RGBA objects expose r, g, b as 0-255 numbers
-    const r = Math.round(color.r ?? color[0] ?? 0)
-    const g = Math.round(color.g ?? color[1] ?? 0)
-    const b = Math.round(color.b ?? color[2] ?? 0)
-    return `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`
+    let r: number, g: number, b: number
+    if (typeof color.toInts === 'function') {
+      const ints = color.toInts()
+      r = ints[0]
+      g = ints[1]
+      b = ints[2]
+    } else {
+      r = color.r ?? color[0] ?? 0
+      g = color.g ?? color[1] ?? 0
+      b = color.b ?? color[2] ?? 0
+    }
+    r = Math.max(0, Math.min(255, Math.round(r)))
+    g = Math.max(0, Math.min(255, Math.round(g)))
+    b = Math.max(0, Math.min(255, Math.round(b)))
+    return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
   } catch {
     return fallback
   }
