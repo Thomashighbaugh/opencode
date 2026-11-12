@@ -31,6 +31,14 @@ const definePlugin = (plugin: Plugin.Definition): Plugin.Definition => plugin
 
 type Prefs = { collapsed: boolean; scope: SkillScope; tokens: boolean }
 
+function themeColor(color: any, fallback: string): string {
+  try {
+    return color ? rgbToHex(color) : fallback
+  } catch {
+    return fallback
+  }
+}
+
 export default definePlugin({
   id: "hubs",
   setup(ctx) {
@@ -293,14 +301,14 @@ export default definePlugin({
         return (
           <Show when={!prefs.collapsed}>
             <box flexDirection="column" gap={0}>
-              <text fg={rgbToHex(ctx.theme.current.text)}>{`Hubs · ${menus().length} menus · /hubs`}</text>
+              <text fg={themeColor(ctx.theme.current.text, "#ffffff")}>{`Hubs · ${menus().length} menus · /hubs`}</text>
               <For each={menus()}>
                 {(menu: { name: string; subs: string[] }) => {
                   const isExpanded = expanded().has(menu.name)
                   return (
                     <box flexDirection="column">
                       <text
-                        fg={rgbToHex(ctx.theme.current.primary)}
+                        fg={themeColor(ctx.theme.current.primary, "#ffffff")}
                         onMouseUp={(event: any) => {
                           if (event?.button === 2) void openHub(menu.name)
                           else toggleMenu(menu.name)
@@ -310,11 +318,11 @@ export default definePlugin({
                       </text>
                       <Show when={isExpanded}>
                         <For each={menu.subs}>
-                          {(sub: string) => <text fg={rgbToHex(ctx.theme.current.textMuted)}>{`    ${sub}`}</text>}
+                          {(sub: string) => <text fg={themeColor(ctx.theme.current.textMuted, "#888888")}>{`    ${sub}`}</text>}
                         </For>
                       </Show>
                       <Show when={!isExpanded}>
-                        <text fg={rgbToHex(ctx.theme.current.textMuted)}>
+                        <text fg={themeColor(ctx.theme.current.textMuted, "#888888")}>
                           {`   ${menu.subs.slice(0, 6).join(" · ")}${menu.subs.length > 6 ? " · …" : ""}`}
                         </text>
                       </Show>
