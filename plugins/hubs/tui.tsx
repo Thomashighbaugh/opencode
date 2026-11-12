@@ -305,9 +305,7 @@ export default definePlugin({
                           else toggleMenu(menu.name)
                         }}
                       >
-                        <text fg={isExpanded ? ctx.theme.text.base : ctx.theme.text.muted}>
-                          {isExpanded ? "▾" : "▸"}
-                        </text>{` /${menu.name} (${menu.subs.length})`}
+                        {`${isExpanded ? "▾" : "▸"} /${menu.name} (${menu.subs.length})`}
                       </text>
                       <Show when={isExpanded}>
                         <For each={menu.subs}>
