@@ -31,9 +31,9 @@ export async function runMenuAction(
   sub: string,
   service: any,
   ctx: any,
+  sessionID?: string,
 ): Promise<string> {
-  const sessionID = () => String(ctx.data.session.message.list?.()?.sessionID ?? ctx.ui.router.current()?.sessionID ?? "")
-  const id = sessionID()
+  const id = sessionID ?? String(ctx.data.session.message.list?.()?.sessionID ?? ctx.ui.router.current()?.sessionID ?? "")
 
   switch (sub) {
     case "status": {

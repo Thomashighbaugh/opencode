@@ -1,8 +1,9 @@
 /**
  * remote_inference_endpoint_optimizations — V2 plugin.
  *
- * Single access point: one command opens a hub-like menu with all subcommands
- * hidden inside. Detached from the hubs plugin; self-contained here.
+ * Single access point: one command (/rio) opens a hub-like menu with all
+ * subcommands hidden inside. Detached from the hubs plugin; self-contained
+ * here.
  *
  * Two core insights baked in:
  *   1. Request efficiency > token efficiency: fewer larger requests preferred
@@ -66,24 +67,37 @@ function detectLoop(texts: string[]): string | null {
   return hit ? `Detected ${hit.count} similar messages in the last ${window.length} turns.` : null
 }
 
+const JSON_SCHEMA = {
+  type: "object",
+  additionalProperties: false,
+} as const
+
 export default {
   id: "remote_inference_endpoint_optimizations",
   async setup(ctx: any) {
-    const directory: string = ctx?.location?.directory ?? ctx?.directory ?? process.cwd()
-    const projectID: string = ctx?.location?.project?.id ?? ""
-    const service = new Service(directory, projectID, config())
-    const cfg = service.cfg
+    let service: Service | null = null
+    try {
+      const directory: string = ctx?.location?.directory ?? ctx?.directory ?? process.cwd()
+      const projectID: string = ctx?.location?.project?.id ?? ""
+      service = new Service(directory, projectID, config())
+    } catch {
+      // Service creation failed (e.g. DB unavailable) — plugin still loads
+      // but tool/command registrations are skipped below.
+    }
+    const cfg = service?.cfg ?? config()
     const cleanups: Array<() => void | Promise<void>> = []
     const abort = new AbortController()
+
+    if (!service) return async () => { abort.abort() }
 
     // ── Register tools ──────────────────────────────────────────────
     await ctx.tool.transform((editor: any) => {
       editor.add({
-        id: "rio_status",
         name: "rio_status",
+        input: JSON_SCHEMA,
         description: "Live context health, fill %, tool count, quality grade",
-        async execute(input: any, toolCtx: any) {
-          const id = String(input?.sessionID ?? toolCtx?.sessionID ?? "")
+        async execute(input: any, context: any) {
+          const id = String(context?.sessionID ?? "")
           if (!id) return { content: "No active session" }
           const q = service.quality(id)
           const re = service.requestEfficiency?.(id) ?? { requestCount: 0, totalTokens: 0, tokensPerRequest: 0, efficiency: 0 }
@@ -103,10 +117,10 @@ export default {
         },
       })
       editor.add({
-        id: "rio_menu",
         name: "rio_menu",
+        input: JSON_SCHEMA,
         description: "Open the rio hub-like menu (single access point)",
-        async execute(input: any, toolCtx: any) {
+        async execute() {
           const items = buildMenuItems()
           return { content: `rio menu:\n${formatMenu(items)}\n\nRun /rio <subcommand> to execute one.` }
         },
@@ -117,63 +131,19 @@ export default {
     if (ctx.command?.transform) {
       cleanups.push(await ctx.command.transform((editor: any) => {
         editor.add({
-          id: "rio",
           name: "rio",
           description: "Rio hub-like menu: status, compact, resume, compress, route, savings, audit, config",
-          async execute(input: any, toolCtx: any) {
-            const sub = String(input?.subcommand ?? input?.action ?? "status").toLowerCase()
-            const id = String(input?.sessionID ?? toolCtx?.sessionID ?? "")
-            switch (sub) {
-              case "status": {
-                const q = service.quality(id || "current")
-                const re = service.requestEfficiency?.(id || "current") ?? { requestCount: 0, totalTokens: 0, tokensPerRequest: 0, efficiency: 0 }
-                return { content: `rio · ${id.slice(0, 12)}\nQuality: ${Math.round(q.score)}/100 (${q.grade})\nHealth: ${Math.round(q.resourceHealth)}/100\nFill: ${Math.round(q.fillPct * 100)}%\nTool Calls: ${q.toolCalls}\nRequests: ${re.requestCount} · ${Math.round(re.tokensPerRequest)} tok/req\nEfficiency: ${Math.round(re.efficiency * 100)}%` }
-              }
-              case "compact": {
-                try { await ctx.client.session.compact?.({ sessionID: id || "current" }) } catch {}
-                return { content: `rio · compact triggered for ${id.slice(0, 12)}` }
-              }
-              case "resume": {
-                const checkpoints = service.store.findCheckpointCandidates(service.projectID, 30, 10)
-                if (!checkpoints.length) return { content: "rio · no checkpoints available" }
-                const best = checkpoints[0]
-                return { content: `rio · resume lean: ${best.trigger} · ${best.mode} · quality ${best.qualityScore ?? "N/A"}/100` }
-              }
-              case "compress": {
-                const entries = service.entries(id || "current")
-                let saved = 0
-                for (const e of entries) {
-                  if (e.output && e.output.length > 8192) saved += e.output.length - Math.min(e.output.length, 2048)
-                }
-                return { content: `rio · estimated ${Math.round(saved / 4)} tokens savable via local compression` }
-              }
-              case "route": {
-                const q = service.quality(id || "current")
-                const rec = q.resourceHealth >= 70 ? "standard" : q.resourceHealth >= 40 ? "reasoning" : "high"
-                return { content: `rio · route: ${rec} · health ${Math.round(q.resourceHealth)}/100 · fill ${Math.round(q.fillPct * 100)}%` }
-              }
-              case "savings": {
-                const events = service.store.savings(30)
-                const tokens = events.reduce((n: number, e: { tokens: number }) => n + e.tokens, 0)
-                const cost = events.reduce((n: number, e: { costUsd: number }) => n + e.costUsd, 0)
-                return { content: `rio · last 30 days: ${tokens} tokens saved, $${cost.toFixed(4)} estimated savings across ${events.length} events` }
-              }
-              case "audit": {
-                const q = service.quality(id || "current")
-                const re = service.requestEfficiency?.(id || "current") ?? { requestCount: 0, totalTokens: 0, tokensPerRequest: 0, efficiency: 0 }
-                const advice: string[] = []
-                if (q.fillPct >= 0.85) advice.push("CRITICAL: compact now")
-                else if (q.fillPct >= 0.75) advice.push("WARNING: consider compacting")
-                if (service.shouldPreferLargerRequest?.(id || "current")) advice.push("Prefer one larger request over several small ones")
-                if (q.toolCallWarning) advice.push(q.toolCallWarning.message)
-                return { content: `rio · audit\nQuality: ${Math.round(q.score)}/100 (${q.grade})\nFill: ${Math.round(q.fillPct * 100)}%\nRequests: ${re.requestCount} · efficiency ${Math.round(re.efficiency * 100)}%\nAdvice: ${advice.length ? advice.join("; ") : "No issues"}` }
-              }
-              case "config": {
-                return { content: `rio · config\nprecisePrompts: ${cfg.precisePrompts}\nantDuplication: ${cfg.antiDuplication}\nsingleConcern: ${cfg.singleConcern}\nquickRouting: ${cfg.quickRouting}\npreComputation: ${cfg.preComputation}\ncutExploreAgent: ${cfg.cutExploreAgent}\nnudgeDelivery: ${cfg.nudgeDelivery}\npreferFewerLargerRequests: ${cfg.preferFewerLargerRequests}\nmechanicalAlternatives: ${cfg.mechanicalAlternatives}\npromoteToProjectTooling: ${cfg.promoteToProjectTooling}\npreferTypeScriptOverPython: ${cfg.preferTypeScriptOverPython}` }
-              }
-              default:
-                return { content: `rio · unknown subcommand "${sub}". Use: status, compact, resume, compress, route, savings, audit, config` }
-            }
+          async execute(input: any) {
+            const sessionID = String(input.sessionID ?? "")
+            const promptText = typeof input.prompt?.text === "string"
+              ? input.prompt.text
+              : Array.isArray(input.prompt?.parts)
+                ? input.prompt.parts.filter((p: any) => p?.type === "text").map((p: any) => p.text ?? "").join(" ")
+                : ""
+            const parts = promptText.trim().split(/\s+/)
+            const sub = parts[0]?.toLowerCase() ?? "status"
+            const result = await runMenuAction(sub, service, ctx, sessionID)
+            try { await ctx.session.prompt({ sessionID, text: result, resume: false }) } catch {}
           },
         })
       }))
@@ -205,24 +175,6 @@ export default {
           const outLen = typeof result?.content === "string" ? result.content.length :
             typeof result?.output === "string" ? result.output.length : 0
           service.recordRequest(sessionID, Math.floor(before.length / 4), Math.floor(outLen / 4), model ?? "unknown", tool)
-
-          // ── Decision Extraction (insight 2: preserve decisions) ─────
-          if (before && DECISION_RE.test(before)) {
-            const decisions = extractDecisions(before)
-            if (decisions.length) {
-              const existing = sessionDecisions.get(sessionID) ?? []
-              const updated = [...existing, ...decisions].slice(-10)
-              sessionDecisions.set(sessionID, updated)
-              service.store.logSavings({
-                type: "decision_extracted",
-                tokens: decisions.reduce((n, d) => n + d.length, 0),
-                costUsd: 0,
-                sessionID,
-                detail: `extracted ${decisions.length} decision(s)`,
-                createdAt: Date.now() / 1000,
-              })
-            }
-          }
 
           if (before.length > 8192) service.store.logSavings({
             type: "meta-large-output",
@@ -270,7 +222,6 @@ export default {
                   createdAt: Date.now() / 1000,
                 })
               } else if (!delta.compressed && before.length > 4096) {
-                // First read: offer structure map for large files
                 const sm = service.fileStructureMap(before)
                 if (sm.savedChars > 0 && result) {
                   if (typeof result.content === "string") result.content = sm.content
@@ -303,6 +254,24 @@ export default {
                 costUsd: 0,
                 sessionID,
                 detail: `search results ${before.length} -> ${compressed.length} chars`,
+                createdAt: Date.now() / 1000,
+              })
+            }
+          }
+
+          // ── Decision Extraction (insight 2: preserve decisions) ─────
+          if (before && DECISION_RE.test(before)) {
+            const decisions = extractDecisions(before)
+            if (decisions.length) {
+              const existing = sessionDecisions.get(sessionID) ?? []
+              const updated = [...existing, ...decisions].slice(-10)
+              sessionDecisions.set(sessionID, updated)
+              service.store.logSavings({
+                type: "decision_extracted",
+                tokens: decisions.reduce((n, d) => n + d.length, 0),
+                costUsd: 0,
+                sessionID,
+                detail: `extracted ${decisions.length} decision(s)`,
                 createdAt: Date.now() / 1000,
               })
             }
@@ -397,16 +366,6 @@ export default {
           if (re.requestCount >= 3 && re.efficiency < 0.4) {
             const suggested = quality.resourceHealth >= 70 ? "standard" : quality.resourceHealth >= 40 ? "reasoning" : "high"
             surface("routing", `[rio] Request efficiency ${Math.round(re.efficiency * 100)}% — ${re.requestCount} requests averaging ${Math.round(re.tokensPerRequest)} tokens. Consider one larger ${suggested}-tier request instead of several small ones.`)
-          }
-        }
-
-        // Automatic compaction when context is critically full
-        if (cfg.preComputation) {
-          const compactCheck = service.shouldCompact(sessionID)
-          if (compactCheck.compact) {
-            const msg = `[rio] Context at ${Math.round(compactCheck.fillPct * 100)}% full (quality ${Math.round(compactCheck.quality)}/100). Compacting...`
-            surface("compaction", msg)
-            try { await ctx.client.session.compact?.({ sessionID }) } catch {}
           }
         }
 
