@@ -17,7 +17,7 @@
     "@huggingface/transformers": "^4.3.2",
     "@modelcontextprotocol/sdk": "^1.32.2",
     "@opencode/plugin": "^2.1.0",
-    "@opentui/react": "^0.5.17",
+    "@opentui/react": "^0.8.3",
     "@opentui/solid": "^0.5.17",
     "better-sqlite3": "^13.0.3",
     "fast-xml-parser": "^5.11.2",
