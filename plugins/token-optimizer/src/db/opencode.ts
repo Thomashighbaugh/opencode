@@ -80,6 +80,29 @@ function parse(data: unknown): Record<string, any> {
   }
 }
 
+/** OpenCode stores model as either a plain string ("claude-sonnet-4") or a
+ *  JSON object string ('{"id":"...","providerID":"..."}'). Extract the id
+ *  string so pricing/window lookup can match it. */
+export function extractModelId(model: unknown): string | undefined {
+  if (typeof model !== "string" && typeof model !== "object") return undefined
+  if (typeof model === "string") {
+    // Already a plain model id like "claude-sonnet-4"
+    if (!model.startsWith("{")) return model || undefined
+    // JSON object string: parse and pull .id
+    try {
+      const parsed = JSON.parse(model)
+      if (parsed && typeof parsed === "object" && parsed.id) return String(parsed.id)
+    } catch {
+      // Not JSON — return as-is
+      return model || undefined
+    }
+    return undefined
+  }
+  // Plain object: { id, providerID }
+  if (model && typeof model === "object" && (model as any).id) return String((model as any).id)
+  return undefined
+}
+
 function hasTable(db: Database, name: string): boolean {
   try {
     return db.query("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?").get(name) != null
@@ -95,7 +118,7 @@ function mapSessionRow(row: any): SessionRow {
     directory: String(row.directory ?? ""),
     title: row.title ?? undefined,
     agent: row.agent ?? undefined,
-    model: row.model ?? undefined,
+    model: extractModelId(row.model),
     cost: Number(row.cost ?? 0),
     tokensInput: Number(row.tokens_input ?? 0),
     tokensOutput: Number(row.tokens_output ?? 0),
@@ -214,7 +237,7 @@ export function messageUsage(db: Database, sessionID: string): Usage[] {
       cacheRead: Number(m.tokens.cache?.read ?? 0),
       cacheWrite: Number(m.tokens.cache?.write ?? 0),
       cost: Number(m.cost ?? 0),
-      model: typeof m.modelID === "string" ? m.modelID : typeof m.model === "object" && m.model ? String(m.model.id ?? "") : undefined,
+      model: extractModelId(m.modelID ?? m.model),
       time: Number(m.time?.created ?? 0),
     })
   }
@@ -274,7 +297,7 @@ function sessionPartsV1(db: Database, sessionID: string, limit: number): PartEnt
       output,
       status: typeof state.status === "string" ? state.status : undefined,
       error: typeof state.error === "string" ? state.error : undefined,
-      model: typeof m.modelID === "string" ? m.modelID : undefined,
+      model: extractModelId(m.modelID ?? m.model),
       usage: m.tokens
         ? {
             input: Number(m.tokens.input ?? 0),
@@ -283,7 +306,7 @@ function sessionPartsV1(db: Database, sessionID: string, limit: number): PartEnt
             cacheRead: Number(m.tokens.cache?.read ?? 0),
             cacheWrite: Number(m.tokens.cache?.write ?? 0),
             cost: Number(m.cost ?? 0),
-            model: typeof m.modelID === "string" ? m.modelID : undefined,
+            model: extractModelId(m.modelID ?? m.model),
             time: Number(m.time?.created ?? 0),
           }
         : undefined,
@@ -305,7 +328,7 @@ function sessionPartsV2(db: Database, sessionID: string, limit: number): PartEnt
   let seq = 0
   for (const row of rows) {
     const m = parse(row.data)
-    const model = typeof m.model === "object" && m.model ? String(m.model.id ?? "") : undefined
+    const model = extractModelId(m.model)
     if (row.type === "user") {
       out.push({
         id: String(row.id),
@@ -412,7 +435,7 @@ export function latestUsage(db: Database, sessionID: string): Usage | null {
       cacheRead: Number(m.tokens.cache?.read ?? 0),
       cacheWrite: Number(m.tokens.cache?.write ?? 0),
       cost: Number(m.cost ?? 0),
-      model: typeof m.modelID === "string" ? m.modelID : typeof m.model === "object" && m.model ? String(m.model.id ?? "") : undefined,
+      model: extractModelId(m.modelID ?? m.model),
       time: Number(m.time?.created ?? 0),
     }
   }

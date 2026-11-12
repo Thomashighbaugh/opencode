@@ -1,4 +1,5 @@
 import type { PartEntry, SessionRow, Usage } from "./db/opencode.ts"
+import { extractModelId } from "./db/opencode.ts"
 import { estimateQualityFromFill } from "./quality/curves.ts"
 import { contextWindowForModel, costOf } from "./pricing/table.ts"
 import { redact, scrubControl } from "./redact.ts"
@@ -208,15 +209,15 @@ export function band(score: number): string {
 }
 
 export function fillFraction(session: SessionRow | null, usage: Usage | null): number {
-  const model = usage?.model || session?.model
+  const model = extractModelId(usage?.model ?? session?.model)
   const window = contextWindowForModel(model)
-  // Use per-message usage (the latest assistant message's tokens) as the fill
-  // proxy. Cumulative session tokens grow monotonically and always exceed the
-  // window, which pins fill at 100% and makes the metric useless. Per-message
-  // tokens reflect what's actually occupying the context window right now.
+  // Fill counts only new tokens in the current message (input + output +
+  // reasoning). cacheRead/cacheWrite are tokens reused from the KV cache —
+  // they were already counted when first added to the window, so including
+  // them here would double-count and artificially pin fill near 100%.
   let used = 0
   if (usage) {
-    used = usage.input + usage.output + usage.reasoning + usage.cacheRead + usage.cacheWrite
+    used = usage.input + usage.output + usage.reasoning
   }
   return window > 0 ? Math.min(1, used / window) : 0
 }
