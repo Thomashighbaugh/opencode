@@ -828,7 +828,7 @@ function getSessionRestoreMessages(directory: string, sessionId?: string): strin
 ```typescript
 // .opencode/plugins/my-plugin.ts
 
-import type { Plugin, Hooks } from "@opencode-ai/plugin"
+import type { Plugin, Hooks } from "@opencode/plugin"
 
 export const MyPlugin: Plugin = async ({ project, client, directory, worktree }) => {
   const hooks: Hooks = {}

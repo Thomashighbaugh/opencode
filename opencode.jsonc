@@ -461,26 +461,6 @@
             }
         }
     },
-    "permission": {
-        "edit": {
-            ".opencode/**": "allow"
-        },
-        "websearch": "allow",
-        "webfetch": "allow",
-        "lsp": "allow",
-        "bash": {
-            "*": "allow",
-            "grep *": "ask",
-            "rg *": "ask"
-        },
-        "read": "allow",
-        "grep": "ask",
-        "glob": "allow",
-        "skill": "allow",
-        "task": "allow",
-        "todowrite": "allow",
-        "question": "allow"
-    },
     "mcp": {
         "context7": {
             "enabled": true,
@@ -517,8 +497,7 @@
         "./plugins/toon",
         "./plugins/env-protection",
         "./plugins/ax-guard",
-        "./plugins/token-optimizer",
-        "./plugins/memory-system"
+        "./plugins/remote_inference_endpoint_optimizations"
     ],
     "instructions": [
         "AGENTS.md",

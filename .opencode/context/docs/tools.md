@@ -27,7 +27,7 @@ status: active
 
 ## Overview
 
-Hubs includes TypeScript tools that provide programmatic access to core functionality. Each tool is a TypeScript file using the `@opencode-ai/plugin` SDK.
+Hubs includes TypeScript tools that provide programmatic access to core functionality. Each tool is a TypeScript file using the `@opencode/plugin` SDK.
 
 | Tool | Purpose |
 |------|---------|
@@ -87,7 +87,7 @@ Hubs includes TypeScript tools that provide programmatic access to core function
 ### Tool Definition Pattern
 
 ```typescript
-import { tool } from "@opencode-ai/plugin"
+import { tool } from "@opencode/plugin"
 
 export default tool({
   description: "Tool description",
@@ -860,7 +860,7 @@ touch .opencode/tools/my-tool.ts
 #### Step 2: Implement Tool
 
 ```typescript
-import { tool } from "@opencode-ai/plugin"
+import { tool } from "@opencode/plugin"
 import { z } from "zod"  // Optional: for validation
 
 // Define arguments schema

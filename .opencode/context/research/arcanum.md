@@ -41,7 +41,7 @@ status: active
 
 ### Runes (`@runecraft/runes`)
 - Persistent cross-session memory plugin for OpenCode
-- Built with `@opencode-ai/plugin` SDK and Zod for validation
+- Built with `@opencode/plugin` SDK and Zod for validation
 - Binary: `runes`
 - Requires Node >= 22
 - Uses `@runecraft/grimoire` for shared tooling configs

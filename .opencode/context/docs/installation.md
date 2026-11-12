@@ -130,8 +130,8 @@ curl -fsSL https://raw.githubusercontent.com/Thomashighbaugh/opencode/main/insta
 
 4. **Dependencies**: bun or pnpm packages installed
    ```
-   @opencode-ai/plugin
-   @opencode-ai/sdk
+   @opencode/plugin
+   @opencode/ai
    @plannotifier/opencode
    @opencode-plugins/env-protection
    @0xsero/open-queue
@@ -381,7 +381,7 @@ OpenCode CLI not installed or not in PATH.
 # Follow the installation instructions for OpenCode
 
 # Or with bun
-bun install -g @opencode-ai/cli
+bun install -g @opencode/cli
 ```
 
 #### "Permission denied" during installation

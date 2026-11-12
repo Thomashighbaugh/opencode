@@ -5,7 +5,7 @@
 
 ## TypeScript Tool Definition Pattern
 
-Every tool in `tools/<name>.ts` exports a `default` via `@opencode-ai/plugin` SDK.
+Every tool in `tools/<name>.ts` exports a `default` via `@opencode/plugin` SDK.
 
 **Canonical structure:**
 1. `VALID_ACTIONS` declared as `const` tuple at top

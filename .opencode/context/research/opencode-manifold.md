@@ -159,8 +159,8 @@ Settings (`Manifold/settings.json`):
 
 ## Dependencies
 
-- `@opencode-ai/sdk` — OpenCode SDK
-- `@opencode-ai/plugin` — OpenCode plugin API
+- `@opencode/ai` — OpenCode SDK
+- `@opencode/plugin` — OpenCode plugin API
 - `better-sqlite3` — SQLite for persistent storage
 - `js-yaml` — YAML parsing
 - `zod` — Schema validation

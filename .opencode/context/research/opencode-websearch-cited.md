@@ -90,4 +90,4 @@ The plugin scans `provider` entries in order and uses the first provider with `o
 - Provider-agnostic — works with Google, OpenAI, or OpenRouter
 - Must be last in the plugin list to avoid interfering with other plugins' auth processes
 - Compatible with `opencode-antigravity-auth` for Google auth
-- Development with Bun + TypeScript, uses `@opencode-ai/plugin` SDK
+- Development with Bun + TypeScript, uses `@opencode/plugin` SDK

@@ -246,7 +246,7 @@ Remove all redundant config files from `.opencode/`:
 Keep only: `context/`, `state/`, `CHANGELOG.md`, `AGENTS.md`, `.vector/`, `.gitignore`
 
 ## Rationale
-- Eliminates duplicate version pinning (root had `@opencode-ai/plugin@1.14.30`, `.opencode/` had `1.14.25`)
+- Eliminates duplicate version pinning (root had `@opencode/plugin@1.14.30`, `.opencode/` had `1.14.25`)
 - Removes conceptual confusion about where config lives
 - Saves 58MB of duplicated `node_modules/`
 

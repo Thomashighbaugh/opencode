@@ -15,11 +15,11 @@ Source: Context7 MCP — 2026-05-02
 - Stored in `.opencode/skills/<name>/SKILL.md`
 - Skills are reusable markdown files with procedural workflows and when-to-use triggers
 
-## OpenCode SDK (@opencode-ai/sdk)
+## OpenCode SDK (@opencode/ai)
 
 ### Streaming Responses
 ```ts
-import Opencode from '@opencode-ai/sdk';
+import Opencode from '@opencode/ai';
 const client = new Opencode();
 const stream = await client.event.list();
 for await (const eventListResponse of stream) {

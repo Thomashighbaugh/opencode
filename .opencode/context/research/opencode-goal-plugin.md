@@ -104,7 +104,7 @@ Project-local: `<cwd>/.opencode/goals/state.json`. Precedence: explicit `stateFi
 
 ## Agent Tools (Optional)
 
-Requires `@opencode-ai/plugin` peer dep. Tools: `get_goal`, `get_goal_history`, `set_goal`, `update_goal`, `clear_goal`. Same state as command path.
+Requires `@opencode/plugin` peer dep. Tools: `get_goal`, `get_goal_history`, `set_goal`, `update_goal`, `clear_goal`. Same state as command path.
 
 ## Prompt Safety
 
