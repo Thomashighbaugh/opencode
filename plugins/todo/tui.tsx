@@ -131,13 +131,15 @@ export default definePlugin({
         return
       }
 
+      ctx.ui.dialog.setSize("xlarge")
+
       const choice = await ctx.ui.dialog.select({
         title: `Todo — ${items.length} open · Enter sends to the agent`,
         placeholder: "Filter",
         options: items.map((item) => ({
           title: item.text,
           value: item.id,
-          description: item.id,
+          description: item.id.length > 12 ? `${item.id.slice(0, 8)}…` : item.id,
           category: "open",
         })),
         search: (query: string, options: any[]) => {
