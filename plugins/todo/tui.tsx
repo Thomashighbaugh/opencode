@@ -171,20 +171,21 @@ export default definePlugin({
       }
 
       ctx.ui.dialog.show(() => (
-        <scrollbox width="100%" height="100%" scrollY>
-          <box flexDirection="column" padding={1} gap={1}>
-            <text fg={themeColor(ctx.theme.current?.text, "#ffffff")}>
-              {`Todo — ${items.length} open · Enter sends to agent`}
-            </text>
-            <input
-              placeholder="Filter"
-              value={search()}
-              onInput={(value: string) => setSearch(value)}
-            />
+        <box flexDirection="column" padding={1} gap={1}>
+          <text fg={themeColor(ctx.theme.current?.text, "#ffffff")}>
+            {`Todo — ${items.length} open · Enter sends to agent`}
+          </text>
+          <input
+            placeholder="Filter"
+            value={search()}
+            onInput={(value: string) => setSearch(value)}
+          />
+          <scrollbox height="100%" scrollY>
             <For each={filtered()}>
               {(item: any) => (
                 <text
                   fg={themeColor(ctx.theme.current?.text, "#ffffff")}
+                  paddingLeft={1}
                   onMouseUp={() => {
                     setSelectedId(item.id)
                     handleItem(item.id)
@@ -194,41 +195,44 @@ export default definePlugin({
                 </text>
               )}
             </For>
-            <box flexDirection="row" justifyContent="space-between" padding={1} gap={2}>
-              <text
-                fg={themeColor(ctx.theme.current?.textMuted, "#888888")}
-                onMouseUp={() => handleAction("ctrl+a")}
-              >
-                Add (ctrl+a)
-              </text>
-              <text
-                fg={themeColor(ctx.theme.current?.textMuted, "#888888")}
-                onMouseUp={() => handleAction("ctrl+i")}
-              >
-                Insert (ctrl+i)
-              </text>
-              <text
-                fg={themeColor(ctx.theme.current?.textMuted, "#888888")}
-                onMouseUp={() => handleAction("ctrl+d")}
-              >
-                Delete (ctrl+d)
-              </text>
-              <text
-                fg={themeColor(ctx.theme.current?.textMuted, "#888888")}
-                onMouseUp={() => handleAction("ctrl+r")}
-              >
-                Archive (ctrl+r)
-              </text>
-              <text
-                fg={themeColor(ctx.theme.current?.textMuted, "#888888")}
-                onMouseUp={() => handleAction("ctrl+o")}
-              >
-                Open archive (ctrl+o)
-              </text>
-            </box>
-            </box>
           </scrollbox>
-        ))
+          <text fg={themeColor(ctx.theme.current?.textMuted, "#666666")}>
+            {`  ─────────────────────────────────────────`}
+          </text>
+          <box flexDirection="row" justifyContent="space-between" padding={1} gap={2}>
+            <text
+              fg={themeColor(ctx.theme.current?.textMuted, "#888888")}
+              onMouseUp={() => handleAction("ctrl+a")}
+            >
+              Add (ctrl+a)
+            </text>
+            <text
+              fg={themeColor(ctx.theme.current?.textMuted, "#888888")}
+              onMouseUp={() => handleAction("ctrl+i")}
+            >
+              Insert (ctrl+i)
+            </text>
+            <text
+              fg={themeColor(ctx.theme.current?.textMuted, "#888888")}
+              onMouseUp={() => handleAction("ctrl+d")}
+            >
+              Delete (ctrl+d)
+            </text>
+            <text
+              fg={themeColor(ctx.theme.current?.textMuted, "#888888")}
+              onMouseUp={() => handleAction("ctrl+r")}
+            >
+              Archive (ctrl+r)
+            </text>
+            <text
+              fg={themeColor(ctx.theme.current?.textMuted, "#888888")}
+              onMouseUp={() => handleAction("ctrl+o")}
+            >
+              Open archive (ctrl+o)
+            </text>
+          </box>
+        </box>
+      ))
       ctx.ui.dialog.set({ size: "xlarge" })
     }
 
