@@ -280,12 +280,16 @@ export async function decideAdhoc(
   text: string,
   opts: DecideOptions & { threshold?: number } = {},
 ): Promise<DecisionResult> {
+  // Empty input is a property of the request, not of model availability: it must
+  // read the same whether or not the weights are on disk. Checking it after the
+  // model lookup made an unconfigured install report `default` for `""`.
+  const body = String(text ?? '').trim().slice(-600)
+  if (!body) return { value: null, source: 'empty', probability: null }
+
   const modelId = opts.noModel ? null : isCached(DEBERTA) ? DEBERTA : isCached(MOBILEBERT) ? MOBILEBERT : null
   if (!modelId) {
     return { value: null, source: 'default', probability: null, evidence: 'no model cached' }
   }
-  const body = String(text ?? '').trim().slice(-600)
-  if (!body) return { value: null, source: 'empty', probability: null }
   const scores = await entailmentScores(body, [question, contrast], { modelId })
   if (!scores) return { value: null, source: 'default', probability: null, evidence: 'model unavailable' }
   const probability = sigmoid(scores[0] - scores[1])
