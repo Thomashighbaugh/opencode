@@ -27,18 +27,23 @@ with `memory-hub` so the two are always compatible, but it imports nothing from 
 | --- | --- |
 | `rio_status` | Live context health, fill %, tool count, quality grade |
 | `rio_menu` | Open the hub-like menu |
-| `rio_decide` | Answer a yes/no question about text with a **local ONNX model** — no inference request |
+| `rio_decide` | Pick one label from a registered option set with a **local ONNX model** — no inference request |
 | `rio` | Menu dispatch by subcommand id |
 | `memory_learn` / `memory_recall` / `memory_get` / `memory_forget` | Local memory CRUD and hybrid recall |
 
-`rio_decide` is the "don't escalate to a bigger model for a mechanical yes/no" surface. It takes
-either a registered `decision` id or an ad-hoc `question` + `contrast` pair:
+`rio_decide` is the "don't escalate to a bigger model for a mechanical choice" surface. It takes a
+**registered** decision id and a piece of text, and returns one label from that decision's fixed
+option set. It cannot be given new options:
 
 ```
 rio_decide { decision: "asksChoice", text: "Pick one: rewrite or revert." }
-rio_decide { question: "This text reports a failure.", contrast: "This text reports success.", text: "..." }
 rio_decide { stats: true }
 ```
+
+There is deliberately no free-form `question` + `contrast` path. Options typed at call time have no
+fixed membership and no corpus, so any threshold attached to them is invented — which would make
+`source: "model"` a guess wearing a measurement's clothes. A question worth asking locally is worth
+adding to the registry, where its separation gets measured before it ships.
 
 ## The decisions model
 

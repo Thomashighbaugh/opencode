@@ -157,6 +157,13 @@ Order is deliberate, each step cheaper than the next:
 Vetoes run **before** cues: "Should we stick with Postgres?" contains "stick with" and is not a
 decision.
 
+The **option set is closed**. A decision is a choice between answers declared in the registry; there
+is no API for supplying the options at call time. Options typed by a caller have no fixed membership
+and no corpus, so the threshold attached to them would be invented — which turns `source: "model"`
+into a guess wearing a measurement's clothes. A question worth answering locally becomes a registry
+entry, measured before it ships. Two-option decisions cover the current callers; an N-option
+decision scores each option and takes the argmax, and for the same reason lives in the registry too.
+
 ### Thresholds are per model, never portable
 
 `calibrated` maps a model id to the threshold measured **on that model**. A model absent from the

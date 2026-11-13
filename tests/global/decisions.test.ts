@@ -278,29 +278,12 @@ describe('decisions: model-backed calibration', () => {
     expect(r.value).toBe(true)
   }, 180_000)
 
-  it('answers an ad-hoc question without a registered decision', async () => {
-    // The point of the tool: a question the registry does not cover is still a
-    // local yes/no, not an inference request.
-    const r = await engine.decideAdhoc(
-      'adhoc',
-      'This text reports that a build succeeded.',
-      'This text reports that a build failed.',
-      'The build failed with exit code 1.',
-    )
-    if (r.source === 'default') {
-      // No model cached in this environment — the contract is "no verdict".
-      expect(r.value).toBeNull()
-      return
-    }
-    expect(r.source).toBe('model')
-    expect(r.value).toBe(false)
-    expect(r.probability).not.toBeNull()
-  }, 120_000)
-
-  it('an ad-hoc question with no text is empty, not defaulted', async () => {
-    const r = await engine.decideAdhoc('adhoc', 'q', 'c', '   ')
-    expect(r.source).toBe('empty')
-    expect(r.value).toBeNull()
+  it('there is no API for inventing options at call time', () => {
+    // The option set is closed. A caller-supplied hypothesis pair has no fixed
+    // membership and no corpus, so its threshold would be invented — `model`
+    // would then mean "a coin flip with a measured-looking label". A new
+    // question is a new registry entry, measured before it ships.
+    expect((engine as any).decideAdhoc).toBeUndefined()
   })
 })
 

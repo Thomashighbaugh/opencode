@@ -5,6 +5,22 @@
  * and a threshold measured per model. `decide` answers it with the cheapest
  * signal that can answer it and says which signal that was.
  *
+ * ── The option set is closed, by design ────────────────────────────────────
+ *
+ * A decision here is a choice between a **fixed** set of answers declared in
+ * this file. There is deliberately no API for inventing the options at call
+ * time: a pair of hypotheses typed by a caller has no fixed membership, no
+ * corpus, and therefore no measurement behind its threshold — which would make
+ * `source: 'model'` a fabricated verdict dressed as a measured one, the exact
+ * failure the calibration rule below exists to prevent. A new question becomes a
+ * new entry in `DECISIONS`, with its separation measured before it ships.
+ *
+ * `ask`, `failure` and `asksChoice` are two-option decisions, which is what the
+ * callers need. The primitive generalises: an N-option decision scores every
+ * option's hypothesis and takes the argmax, and belongs here as a registry entry
+ * for the same reason — the options are part of the measurement, not part of the
+ * call.
+ *
  * ── Why a registry rather than a call site ─────────────────────────────────
  *
  * A decision made inline ("is this a failure?", "did the turn end on a
@@ -270,31 +286,6 @@ export async function decide(
   if (cache.size >= CACHE_LIMIT) cache.delete(cache.keys().next().value as string)
   cache.set(k, result)
   return result
-}
-
-/** Answer a decision that is not in the registry, with a caller-supplied pair. */
-export async function decideAdhoc(
-  id: string,
-  question: string,
-  contrast: string,
-  text: string,
-  opts: DecideOptions & { threshold?: number } = {},
-): Promise<DecisionResult> {
-  // Empty input is a property of the request, not of model availability: it must
-  // read the same whether or not the weights are on disk. Checking it after the
-  // model lookup made an unconfigured install report `default` for `""`.
-  const body = String(text ?? '').trim().slice(-600)
-  if (!body) return { value: null, source: 'empty', probability: null }
-
-  const modelId = opts.noModel ? null : isCached(DEBERTA) ? DEBERTA : isCached(MOBILEBERT) ? MOBILEBERT : null
-  if (!modelId) {
-    return { value: null, source: 'default', probability: null, evidence: 'no model cached' }
-  }
-  const scores = await entailmentScores(body, [question, contrast], { modelId })
-  if (!scores) return { value: null, source: 'default', probability: null, evidence: 'model unavailable' }
-  const probability = sigmoid(scores[0] - scores[1])
-  const threshold = opts.threshold ?? 0.8
-  return { value: probability >= threshold, source: 'model', probability, evidence: `${id} ≥ ${threshold}` }
 }
 
 export function decisionStats() {

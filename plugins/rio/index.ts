@@ -28,7 +28,7 @@ import { buildIntelDigest } from "./src/intel.ts"
 import { qualityNudge, verbosityNudge } from "./src/nudges.ts"
 import { MemoryService } from "./src/memory.ts"
 import { extractDecisions } from "./src/decisions.ts"
-import { DECISIONS, decide, decideAdhoc, decisionStats } from "../../skills/vectorize-context/scripts/decisions.ts"
+import { DECISIONS, decide, decisionStats } from "../../skills/vectorize-context/scripts/decisions.ts"
 
 /** Built-in decisions `rio_decide` can answer by id. */
 const DECISION_IDS = Object.keys(DECISIONS) as Array<keyof typeof DECISIONS>
@@ -125,16 +125,7 @@ export default {
                   decision: {
                     type: "string",
                     enum: DECISION_IDS,
-                    description: "Built-in decision to answer by id",
-                  },
-                  question: {
-                    type: "string",
-                    description:
-                      "Affirmative yes/no question about the text. Must not be the negation of `contrast` — NLI reads a negated hypothesis as topical overlap, not as the complement.",
-                  },
-                  contrast: {
-                    type: "string",
-                    description: "Affirmative, mutually exclusive alternative claim about the text",
+                    description: "Which registered decision to answer",
                   },
                   text: { type: "string", description: "The text to judge" },
                   stats: { type: "boolean", description: "Report decision-engine statistics instead" },
@@ -142,7 +133,7 @@ export default {
                 required: [],
               } as any,
               description:
-                "Answer a yes/no question about text with a local ONNX model — no inference request. Cheaper than escalating a mechanical heuristic to a larger model.",
+                "Pick one label from a registered, fixed option set using a local ONNX model — no inference request. Answers only decisions declared in the registry; it cannot be given new options.",
               async execute(input: any) {
                 try {
                   if (input?.stats) return { content: JSON.stringify(decisionStats()) }
@@ -150,26 +141,21 @@ export default {
                   if (!text.trim()) return { content: JSON.stringify({ ok: false, error: "text required" }) }
 
                   const id = typeof input?.decision === "string" ? input.decision : null
-                  if (id) {
-                    const spec = (DECISIONS as Record<string, any>)[id]
-                    if (!spec) {
-                      return { content: JSON.stringify({ ok: false, error: `unknown decision: ${id}`, known: DECISION_IDS }) }
-                    }
-                    const result = await decide(spec, text)
-                    return { content: JSON.stringify({ ok: true, decision: id, ...result }) }
-                  }
-
-                  if (!input?.question || !input?.contrast) {
+                  if (!id) {
                     return {
                       content: JSON.stringify({
                         ok: false,
-                        error: "provide `decision`, or both `question` and `contrast`",
+                        error: "`decision` is required — this tool answers only registered decisions",
                         known: DECISION_IDS,
                       }),
                     }
                   }
-                  const result = await decideAdhoc("adhoc", String(input.question), String(input.contrast), text)
-                  return { content: JSON.stringify({ ok: true, decision: "adhoc", ...result }) }
+                  const spec = (DECISIONS as Record<string, any>)[id]
+                  if (!spec) {
+                    return { content: JSON.stringify({ ok: false, error: `unknown decision: ${id}`, known: DECISION_IDS }) }
+                  }
+                  const result = await decide(spec, text)
+                  return { content: JSON.stringify({ ok: true, decision: id, ...result }) }
                 } catch (e) {
                   return { content: JSON.stringify({ ok: false, error: e instanceof Error ? e.message : String(e) }) }
                 }
