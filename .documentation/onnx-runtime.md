@@ -1,13 +1,15 @@
 # ONNX Runtime — local inference
 
-Both local models in this harness — the embedder and the prompt-queue's classifier — run on
-ONNX Runtime via `@huggingface/transformers`, in-process, int8-quantized.
+Every local model in this harness — the embedder, the reranker, the prompt-queue's classifier, and
+the decision engine — runs on ONNX Runtime via `@huggingface/transformers`, in-process,
+int8-quantized.
 
 | Model                                | Role                                | Dim / size          |
 | ------------------------------------ | ----------------------------------- | ------------------- |
-| `Xenova/bge-small-en-v1.5`           | Embedder (was Ollama `mxbai`)       | 384, ~33 MB         |
+| `Xenova/bge-small-en-v1.5`           | Embedder (was Ollama `mxbai`)       | 384, ~58 MB         |
 | `Xenova/bge-reranker-base`           | Cross-encoder reranker              | single logit, ~279 MB |
-| `Xenova/mobilebert-uncased-mnli`     | Zero-shot classifier for the gate   | 3-way, ~25 MB       |
+| `Xenova/mobilebert-uncased-mnli`     | Zero-shot classifier — gate, `ask`  | 3-way, ~27 MB       |
+| `Xenova/nli-deberta-v3-xsmall`       | Stronger head — `failure`, `asksChoice` | 3-way, ~92 MB (optional) |
 
 ```bash
 npx tsx skills/vectorize-context/scripts/prefetch-models.ts          # fetch
@@ -59,6 +61,7 @@ Then there are **two** rules, because the two models sit on opposite sides of a 
 | Embedder        | index-time   | **Yes**                    | Runs in batches once per changed file; an index that cannot run is worse than one that fetched 33 MB |
 | Reranker        | query-time   | **No**                     | The user is waiting; a model fetch inside a keystroke's latency is indistinguishable from a hang |
 | Classifier      | query-time   | **No**                     | Same |
+| Decision engine | query-time   | **No**                     | Same — an uncached model means "no verdict", not a stalled turn |
 
 A missing query-time model degrades to a documented fallback — distance ordering without a
 reranker, the regex gate without the classifier.
@@ -135,6 +138,76 @@ that merely enumerate. A stuck queue costs more than one missed queued prompt.
 
 ---
 
+## The decision engine
+
+`skills/vectorize-context/scripts/decisions.ts` is the generic form of the classifier above: a
+declared decision is one **affirmative question**, one **affirmative, mutually exclusive contrast**,
+and a threshold **measured per model**. `decide(spec, text)` answers with the cheapest signal that
+can answer and reports which one it was (`source`: `veto` · `cue` · `model` · `default` · `empty`).
+
+Order is deliberate, each step cheaper than the next:
+
+| Step | Answers | Cost |
+| ---- | ------- | ---- |
+| veto | an option, a hypothetical, a question | free |
+| cue | a commitment marker | free |
+| model | the cases the cues cannot see | one forward pass |
+| default | nothing is cached | free |
+
+Vetoes run **before** cues: "Should we stick with Postgres?" contains "stick with" and is not a
+decision.
+
+### Thresholds are per model, never portable
+
+`calibrated` maps a model id to the threshold measured **on that model**. A model absent from the
+map is never consulted, and the decision returns `defaultWhenUnavailable`. This is not ceremony:
+`mobilebert-uncased-mnli` and `nli-deberta-v3-xsmall` order and scale the same hypothesis pair
+differently, so a threshold carried across heads is a fabricated verdict wearing a measured one's
+clothes. `resolveModel` therefore returns `null` rather than a substitute.
+
+### Both hypotheses must be affirmative and mutually exclusive
+
+A hypothesis phrased as the negation of the other — "This text does **not** contain a security
+risk" — reads as thematic overlap in NLI, not as the complement, and collapses the margin:
+
+| Framing | Measured AUC | Verdict |
+| ------- | ------------ | ------- |
+| negated contrast ("does not …") | 0.500 | useless |
+| affirmative but overlapping ("tells the reader what to do") | no usable margin | rejected |
+
+The contrast choice is load-bearing. For `asksChoice`, the obvious "This text tells the reader what
+to do" does **not** separate (positives 0.68..2.48 against negatives 1.90..2.22) because a
+preference statement also tells the reader what to do. "…reports a choice that was already made" is
+mutually exclusive with asking, and it separates at positives 4.50..5.95 against negatives
+2.66..−1.58.
+
+### What ships, with the measurement behind it
+
+`Xenova/nli-deberta-v3-xsmall`, six examples per class, using the exact registered pairs:
+
+| Decision | Δ positives | Δ negatives | Threshold | AUC |
+| -------- | ----------- | ----------- | --------- | --- |
+| `failure` — "reports a failure or an error" vs "everything worked as expected" | 5.78..1.33 | 0.64..−2.81 | 0.728 | 1.000 |
+| `asksChoice` — "asks the reader to make a choice" vs "reports a choice already made" | 4.50..5.95 | 2.66..−1.58 | 0.973 | 1.000 |
+| `ask` — the gate's pair, on `mobilebert` | 2.30..5.51 | 0.19..−0.35 | 0.817 | 1.000 |
+
+Two decisions were measured and **rejected**, both recorded in the module header:
+
+- **`security` — "contains a security risk"** (AUC 0.722, classes interleaved). Factual properties
+  are not what NLI entailed; a natural-language secret scored *below* an ordinary ADR.
+- **`durableDecision` — "committed" vs "reported" stance.** On a small balanced set this looked
+  separable at AUC 0.972. On 30/30 realistic assistant sentences it measured **AUC 0.37–0.75 across
+  five framings**, and an embedding-prototype attempt scored at chance (max-cosine gap −0.01).
+  Stance is not an entailment relation, so rio's decision *extractor* stays cue-based and uses the
+  model only for the one thing it measures well — "is this sentence a question?".
+
+`plugins/rio/src/decisions.ts` is that extractor: veto → cue → `ask` (only for sentences with
+second-person address, because the gate's threshold over-reads bare declaratives at ~0.91) →
+default. Cue-only, it measures **96.7 % recall / 100 % precision** on the 30/30 corpus in
+`tests/global/fixtures/decision-corpus.ts`.
+
+---
+
 ## Cold start, and a regression worth naming
 
 The query child is a persistent server that now warms **both** models before signalling
@@ -164,5 +237,18 @@ vectors and determinism · classifier contract (can only tighten) · the measure
 gate integration with stub and live classifiers · the classifier never being consulted for an
 already-held turn · the anti-deadlock guard applying to model holds · and the wiring, including
 that `hooks.ts` reports the embedder without importing the vector library.
+
+`tests/global/decisions.test.ts` — 24 tests. Three layers, only the last needing weights:
+
+- **degrade contract** — empty input is `null`/`empty`; no cue and no model returns the *declared*
+  default; a spec whose calibrated model is not cached is never consulted.
+- **precedence and extraction** — a veto beats a cue ("Should we stick with Postgres?"); the
+  30/30 corpus is held at ≥0.9 recall and **zero** false positives; a realistic eight-sentence turn
+  yields exactly its three decisions; sentence segmentation survives `tui.tsx`, `0.82` and
+  `.opencode/state`.
+- **calibration** — every threshold names a model the runtime declares (a typo would otherwise mean
+  a decision that silently always defaults), and each decision's calibration set must separate on
+  the cached head. The `ask` false positive on a bare preference statement is asserted *as* a false
+  positive, so tightening it has to confront the gate it is shared with.
 
 → [Knowledge Plane](knowledge-plane.md) · [Prompt Queue](prompt-queue.md)

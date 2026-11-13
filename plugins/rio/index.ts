@@ -27,14 +27,11 @@ import { compressShellOutput } from "./src/compress.ts"
 import { buildIntelDigest } from "./src/intel.ts"
 import { qualityNudge, verbosityNudge } from "./src/nudges.ts"
 import { MemoryService } from "./src/memory.ts"
+import { extractDecisions } from "./src/decisions.ts"
+import { DECISIONS, decide, decideAdhoc, decisionStats } from "../../skills/vectorize-context/scripts/decisions.ts"
 
-const DECISION_RE = /\b(decid|decided|decision|agreed|resolved|chose|selected|going with|will use|approve|confirm)\b/i
-
-function extractDecisions(text: string): string[] {
-  if (!text || text.length < 10) return []
-  const sentences = text.split(/[.!?]+/).map((s) => s.trim()).filter((s) => s.length > 5)
-  return sentences.filter((s) => DECISION_RE.test(s)).slice(0, 5)
-}
+/** Built-in decisions `rio_decide` can answer by id. */
+const DECISION_IDS = Object.keys(DECISIONS) as Array<keyof typeof DECISIONS>
 
 const sessionDecisions = new Map<string, string[]>()
 
@@ -118,6 +115,64 @@ export default {
               async execute() {
                 const items = buildMenuItems()
                 return { content: `rio menu:\n${formatMenu(items)}\n\nRun /rio <subcommand> to execute one.` }
+              },
+            })
+            editor.add({
+              name: "rio_decide",
+              input: {
+                type: "object",
+                properties: {
+                  decision: {
+                    type: "string",
+                    enum: DECISION_IDS,
+                    description: "Built-in decision to answer by id",
+                  },
+                  question: {
+                    type: "string",
+                    description:
+                      "Affirmative yes/no question about the text. Must not be the negation of `contrast` — NLI reads a negated hypothesis as topical overlap, not as the complement.",
+                  },
+                  contrast: {
+                    type: "string",
+                    description: "Affirmative, mutually exclusive alternative claim about the text",
+                  },
+                  text: { type: "string", description: "The text to judge" },
+                  stats: { type: "boolean", description: "Report decision-engine statistics instead" },
+                },
+                required: [],
+              } as any,
+              description:
+                "Answer a yes/no question about text with a local ONNX model — no inference request. Cheaper than escalating a mechanical heuristic to a larger model.",
+              async execute(input: any) {
+                try {
+                  if (input?.stats) return { content: JSON.stringify(decisionStats()) }
+                  const text = String(input?.text ?? "")
+                  if (!text.trim()) return { content: JSON.stringify({ ok: false, error: "text required" }) }
+
+                  const id = typeof input?.decision === "string" ? input.decision : null
+                  if (id) {
+                    const spec = (DECISIONS as Record<string, any>)[id]
+                    if (!spec) {
+                      return { content: JSON.stringify({ ok: false, error: `unknown decision: ${id}`, known: DECISION_IDS }) }
+                    }
+                    const result = await decide(spec, text)
+                    return { content: JSON.stringify({ ok: true, decision: id, ...result }) }
+                  }
+
+                  if (!input?.question || !input?.contrast) {
+                    return {
+                      content: JSON.stringify({
+                        ok: false,
+                        error: "provide `decision`, or both `question` and `contrast`",
+                        known: DECISION_IDS,
+                      }),
+                    }
+                  }
+                  const result = await decideAdhoc("adhoc", String(input.question), String(input.contrast), text)
+                  return { content: JSON.stringify({ ok: true, decision: "adhoc", ...result }) }
+                } catch (e) {
+                  return { content: JSON.stringify({ ok: false, error: e instanceof Error ? e.message : String(e) }) }
+                }
               },
             })
             if (MEMORY_ENABLED) {
@@ -376,8 +431,9 @@ export default {
             }
 
             // ── Decision Extraction (insight 2: preserve decisions) ─────
-            if (before && DECISION_RE.test(before)) {
-              const decisions = extractDecisions(before)
+            if (before) {
+              const extraction = await extractDecisions(before)
+              const decisions = extraction.decisions
               if (decisions.length) {
                 const existing = sessionDecisions.get(sessionID) ?? []
                 const updated = [...existing, ...decisions].slice(-10)
@@ -387,7 +443,7 @@ export default {
                   tokens: decisions.reduce((n, d) => n + d.length, 0),
                   costUsd: 0,
                   sessionID,
-                  detail: `extracted ${decisions.length} decision(s)`,
+                  detail: `extracted ${decisions.length}/${extraction.considered} candidate(s), ${extraction.vetoed} vetoed`,
                   createdAt: Date.now() / 1000,
                 })
               }

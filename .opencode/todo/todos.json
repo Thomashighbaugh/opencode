@@ -5,11 +5,6 @@
       "id": "mw5jx98m-d1laa",
       "text": "implement decisions model (hopefully onnxruntime and local) to ease the use of larger models in cases mechanical tools are too complex or fickle",
       "createdAt": "2026-11-06T22:34:00.070Z"
-    },
-    {
-      "id": "mwd37vz6-r8v4v",
-      "text": "todo menu's footer is not correctly justified and the add and list all descriptions become a huge long column when a wider todo menu would be fine and the menu should be larger in general (something responsive like 60% of the screen width wide",
-      "createdAt": "2026-11-12T05:08:32.034Z"
     }
   ]
 }

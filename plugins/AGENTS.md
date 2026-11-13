@@ -21,6 +21,7 @@ OpenCode plugin system components — hook system plugin for lifecycle events, s
 |-----------|---------|
 | `hooks/` | Hook system — V2 adapter (`index.ts`) over the V1 modules: session, modes, keywords, telemetry, cache, vectorize, goal |
 | `hubs/` | OpenCode 2 hub plugin package — router, vendored corpus, TUI picker (see `hubs/AGENTS.md`) |
+| `rio/` | Token optimization + local memory + the ONNX decision engine (see `rio/AGENTS.md`) |
 | `todo/` | V2 human todo list — `/todo` menu, store, and pure operations |
 | `toon/` | Home-rolled TOON compaction plugin (no npm dependency) |
 | `ax-guard/` | Rejects curl/wget and throwaway HTTP parsers in favour of ax |
