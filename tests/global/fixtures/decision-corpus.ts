@@ -124,31 +124,27 @@ export const CALIBRATION = {
       'Let me know which branch to take.',
       'Would you rather I split this into two commits?',
       'Shall I proceed with the rewrite?',
+      'Should we stick with Postgres for the audit log?',
+      'Do you want the changelog entry as well?',
+      'Pick one: rewrite or revert.',
+      'Can you confirm the build passes before I push?',
     ],
     neg: [
-      // 'The native API is the better choice.' is deliberately absent — see
-      // ASK_KNOWN_FALSE_POSITIVE below. The other five are clean completions.
+      // A preference statement reads like a directive but asks nothing. It is
+      // the case that forced this decision off mobilebert: at the gate's
+      // threshold it scored 0.906.
+      'The native API is the better choice.',
+      'All 47 tests pass and the type check is clean.',
       'I rewrote it and split the commits.',
       'Postgres is already in use.',
-      'All 47 tests pass and the type check is clean.',
       'Here is the diff for the todo menu rewrite.',
       'Committing and pushing now.',
+      'The branch is called main.',
+      'Both options are documented above.',
+      'We could also use Postgres here.',
+      'One option would be to cache the scores.',
+      'I ran the suite and it passed.',
+      'This module scores a premise against a hypothesis at inference time.',
     ],
   },
 } as const
-
-/**
- * A statement the `ask` decision misreads, recorded rather than hidden.
- *
- * `ask` reuses the prompt-queue gate's threshold (0.817), which was measured on
- * turn *tails* where an ask is expected. On a bare preference statement the same
- * score lands above it — measured Δ 2.27, p ≈ 0.906 — so `decide(ask, …)` says
- * "this asks the reader something" about a sentence that does not.
- *
- * It is a real false positive of the registry, and `decisions.test.ts` asserts
- * it as one. It does not reach rio's extractor: that path only consults `ask`
- * for sentences containing second-person address, which this sentence has none
- * of. Lowering the threshold would trade this case for the turn tails the gate
- * depends on, so the gap is stated instead.
- */
-export const ASK_KNOWN_FALSE_POSITIVE = 'The native API is the better choice.'

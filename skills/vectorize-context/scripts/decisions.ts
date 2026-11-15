@@ -107,12 +107,12 @@ export interface DecisionSpec {
   window?: number
 }
 
-/** The hypotheses the prompt-queue gate ships, duplicated here so this module
- *  does not import a plugin. `decisions.test.ts` asserts they still agree. */
+/** The question the prompt-queue gate ships, duplicated here so this module does
+ *  not import a plugin. `decisions.test.ts` asserts the question still agrees.
+ *  The *contrast* deliberately does not: the gate classifies whole turn tails,
+ *  this scores single sentences, and a threshold measured on one does not carry
+ *  to the other. */
 const ASK_HYPOTHESIS = 'This example is a request for the reader to answer a question.'
-const REPORT_HYPOTHESIS = 'This example is a report of completed work.'
-/** Measured on mobilebert-uncased-mnli; see `plugins/prompt-queue/classifier.ts`. */
-const ASK_THRESHOLD = 0.817
 
 const MOBILEBERT = REQUIRED_MODELS.classifier
 const DEBERTA = OPTIONAL_MODELS.nliLarge.id
@@ -122,14 +122,27 @@ const p = (delta: number) => Number(sigmoid(delta).toFixed(3))
 
 export const DECISIONS = {
   /**
-   * Does the text ask the reader a question? The one decision calibrated on the
-   * *required* model, so it answers on a stock install with no optional model.
+   * Does the text ask the reader a question?
+   *
+   * Measured on `nli-deberta-v3-xsmall` over ten asks and twelve declaratives
+   * (a preference statement, a status report, a completed action, a fact):
+   * positives Δ 4.33 .. 1.33, negatives Δ 0.15 .. -3.36. Midpoint 0.739 →
+   * p 0.677, which sits 0.14 below the closest negative ("Here is the diff …",
+   * p 0.537) and 0.11 above the weakest positive ("Pick one: rewrite or
+   * revert.", p 0.791).
+   *
+   * Mobilebert — the required model — could not separate this pair at all: ten
+   * question/contrast combinations, zero with a clean gap. Its contrast is a
+   * *report of completed work*, which fits a turn tail and does not fit a
+   * single declarative sentence, and "The native API is the better choice."
+   * scored 0.906 under it. The gate in `plugins/prompt-queue/classifier.ts` is
+   * unchanged and still calibrated on mobilebert at 0.817 for its own input.
    */
   ask: {
     id: 'ask',
     question: ASK_HYPOTHESIS,
-    contrast: REPORT_HYPOTHESIS,
-    calibrated: { [MOBILEBERT]: ASK_THRESHOLD },
+    contrast: 'This example reports a choice that was already made.',
+    calibrated: { [DEBERTA]: p(0.739) },
     defaultWhenUnavailable: false,
     window: 600,
   },

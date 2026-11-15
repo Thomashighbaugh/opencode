@@ -281,7 +281,18 @@ export default {
                       ? input.prompt.parts.filter((p: any) => p?.type === "text").map((p: any) => p.text ?? "").join(" ")
                       : ""
                   const parts = promptText.trim().split(/\s+/)
-                  const sub = parts[0]?.toLowerCase() ?? "status"
+                  // Drop the leading command name ("rio") so parts[0] is the subcommand.
+                  if (parts[0]?.toLowerCase() === "rio") parts.shift()
+                  const sub = parts[0]?.toLowerCase()
+
+                  // No subcommand → show the hub-like menu (the /rio entry point)
+                  if (!sub) {
+                    const items = buildMenuItems()
+                    const result = `rio menu:\n${formatMenu(items)}\n\nRun /rio <subcommand> to execute one.`
+                    try { await ctx.session.prompt({ sessionID, text: result, resume: false }) } catch {}
+                    return
+                  }
+
                   const result = await runMenuAction(sub, service, memory!, ctx, sessionID)
                   try { await ctx.session.prompt({ sessionID, text: result, resume: false }) } catch {}
                 } catch (e) {

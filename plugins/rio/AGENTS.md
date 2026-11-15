@@ -63,9 +63,9 @@ Pipeline per sentence, each step cheaper than the next:
 | 4 | **default** — nothing cached means no verdict |
 
 Vetoes run first because "Should we stick with Postgres?" contains "stick with". The `ask` call is
-gated on `/\b(?:you|your)\b/i` because the classifier's threshold was calibrated on turn *tails*,
-where an ask is expected, and it over-reads a bare declarative as an ask (measured 0.91 on
-"This module scores a premise against a hypothesis").
+gated on `/\b(?:you|your)\b/i` because the question classifier lives on `nli-deberta-v3-xsmall`
+(threshold 0.677), where a preference statement scores 0.289 — well below the threshold — while
+mobilebert, the gate's own model, cannot separate asks from preference statements at all.
 
 Measured cue-only on the 30/30 corpus in `tests/global/fixtures/decision-corpus.ts`:
 **96.7 % recall, 100 % precision**, one documented miss ("Right, so: rio owns memory, …").

@@ -219,13 +219,14 @@ describe('decisions: sentence segmentation', () => {
 // ─── parity with the prompt-queue gate ─────────────────────────────────────
 
 describe('decisions: hypothesis parity with the prompt-queue gate', () => {
-  it('the duplicated hypotheses and threshold still agree', () => {
-    // `decisions.ts` cannot import a plugin, so it duplicates the strings. A
+  it('the duplicated hypotheses still agree', () => {
+    // `decisions.ts` cannot import a plugin, so it duplicates the question. A
     // silent divergence would mean two "ask" classifiers with different
     // behaviour and one shared name.
     expect(spec('ask').question).toBe(cls.ASK_HYPOTHESIS)
-    expect(spec('ask').contrast).toBe(cls.REPORT_HYPOTHESIS)
-    expect(spec('ask').calibrated[rt.REQUIRED_MODELS.classifier]).toBe(cls.ASK_THRESHOLD)
+    // The contrast does not agree on purpose: the gate measures turn tails,
+    // this scores single sentences, so its threshold does not transfer here.
+    expect(spec('ask').calibrated[rt.REQUIRED_MODELS.classifier]).toBeUndefined()
   })
 })
 
@@ -267,15 +268,13 @@ describe('decisions: model-backed calibration', () => {
     }, 180_000)
   }
 
-  it.skipIf(!engine.resolveModel(spec('ask')))('the ask threshold misreads a bare preference statement', async () => {
-    // Recorded, not fixed. The threshold is the gate's (0.817), measured on turn
-    // tails; a preference statement scores above it. rio never asks the model
-    // about this sentence because it has no second-person address, which is the
-    // designed containment. Asserting it here means a future "make it stricter"
-    // change has to confront the trade instead of quietly breaking the gate.
-    const r = await engine.decide(spec('ask'), corpus.ASK_KNOWN_FALSE_POSITIVE)
+  it.skipIf(!engine.resolveModel(spec('ask')))('a bare preference statement is not an ask', async () => {
+    // The case that forced this decision off mobilebert: at the gate's old
+    // threshold "The native API is the better choice." scored 0.906. On
+    // deberta it scores 0.289, well below the 0.677 threshold.
+    const r = await engine.decide(spec('ask'), corpus.CALIBRATION.ask.neg[0])
     expect(r.source).toBe('model')
-    expect(r.value).toBe(true)
+    expect(r.value).toBe(false)
   }, 180_000)
 
   it('there is no API for inventing options at call time', () => {

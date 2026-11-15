@@ -138,17 +138,19 @@
     "timeout": 2000
   },
   "diffs": {
-    "wrap": "word"
+    "wrap": "word",
+    "view": "auto"
   },
   "session": {
-    "sidebar": "auto",
+    "sidebar": "hide",
     "scrollbar": true,
     "thinking": "hide",
     "markdown": "rendered",
     "grouping": "auto",
-    "verbosity": "medium",
+    "verbosity": "low",
     "tps": true,
-    "permissions": "autoaccept"
+    "permissions": "autoaccept",
+    "image_preview": true
   },
   "animations": true,
   "tabs": {
@@ -161,7 +163,8 @@
     "acceleration": true
   },
   "prompt": {
-    "paste": "full"
+    "paste": "full",
+    "image_preview": true
   },
   "terminal": {
     "title": true
@@ -175,6 +178,8 @@
   },
   "highlights": false,
   "attention": {
-    "sound": false
+    "sound": true,
+    "volume": 0.6,
+    "notifications": true
   }
 }

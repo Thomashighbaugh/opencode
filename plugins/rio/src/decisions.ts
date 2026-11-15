@@ -178,11 +178,12 @@ export async function extractDecisions(text: string, opts: ExtractOptions = {}):
     // A commitment cue fired and no pattern vetoed it. Only now is the sentence
     // ambiguous enough to be worth asking whether it is really a question.
     //
-    // The `ask` decision is calibrated on a turn *tail*, where a question is
-    // expected, so on a bare declarative it over-reads (measured: it scored
-    // "This module scores a premise against a hypothesis" as an ask at 0.91).
-    // Restricting the call to second-person address — the one shape that actually
-    // asks something of the reader — keeps the model on the cases it is good at.
+    // The `ask` decision is measured on single sentences on
+    // `nli-deberta-v3-xsmall` (threshold 0.677); a bare preference statement like
+    // "The native API is the better choice." scores 0.289 against it. Mobilebert
+    // — the gate's model — cannot separate this pair at all, so rio's gate keeps
+    // the `ask` call on second-person address: imperatives and second-person
+    // commitments are the one shape that actually asks something of the reader.
     if (!opts.noModel && used < budget && /\b(?:you|your)\b/i.test(sentence)) {
       const verdict = await decide(DECISIONS.ask, sentence)
       if (verdict.value === true) {

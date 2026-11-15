@@ -234,7 +234,7 @@ export class OptimizerStore {
   findCheckpointCandidates(projectID: string, days: number, limit: number): CheckpointRow[] {
     if (!this.db) return []
     try {
-      const cutoff = Date.now() - Math.max(1, days) * 86_400_000
+      const cutoff = Math.floor(Date.now() / 1000) - Math.max(1, days) * 86_400
       const rows = this.db.query(
         `SELECT * FROM checkpoints WHERE projectID = ? AND createdAt >= ? ORDER BY createdAt DESC LIMIT ?`,
       ).all(projectID, cutoff, limit) as any[]
@@ -259,7 +259,7 @@ export class OptimizerStore {
   pruneCheckpoints(retentionDays: number): void {
     if (!this.db) return
     try {
-      const cutoff = Date.now() - Math.max(1, retentionDays) * 86_400_000
+      const cutoff = Math.floor(Date.now() / 1000) - Math.max(1, retentionDays) * 86_400
       this.db.query("DELETE FROM checkpoints WHERE createdAt < ?").run(cutoff)
     } catch {}
   }
@@ -267,7 +267,7 @@ export class OptimizerStore {
   savings(days = 30): SavingsEvent[] {
     if (!this.db) return []
     try {
-      const cutoff = Date.now() - Math.max(1, days) * 86_400_000
+      const cutoff = Math.floor(Date.now() / 1000) - Math.max(1, days) * 86_400
       const rows = this.db.query(
         `SELECT * FROM savings WHERE createdAt >= ? ORDER BY createdAt DESC`,
       ).all(cutoff) as any[]

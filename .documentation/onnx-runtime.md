@@ -8,8 +8,8 @@ int8-quantized.
 | ------------------------------------ | ----------------------------------- | ------------------- |
 | `Xenova/bge-small-en-v1.5`           | Embedder (was Ollama `mxbai`)       | 384, ~58 MB         |
 | `Xenova/bge-reranker-base`           | Cross-encoder reranker              | single logit, ~279 MB |
-| `Xenova/mobilebert-uncased-mnli`     | Zero-shot classifier — gate, `ask`  | 3-way, ~27 MB       |
-| `Xenova/nli-deberta-v3-xsmall`       | Stronger head — `failure`, `asksChoice` | 3-way, ~92 MB (optional) |
+| `Xenova/mobilebert-uncased-mnli`     | Zero-shot classifier — gate only    | 3-way, ~27 MB       |
+| `Xenova/nli-deberta-v3-xsmall`       | Stronger head — `ask`, `failure`, `asksChoice` | 3-way, ~92 MB (optional) |
 
 ```bash
 npx tsx skills/vectorize-context/scripts/prefetch-models.ts          # fetch
@@ -196,7 +196,7 @@ mutually exclusive with asking, and it separates at positives 4.50..5.95 against
 | -------- | ----------- | ----------- | --------- | --- |
 | `failure` — "reports a failure or an error" vs "everything worked as expected" | 5.78..1.33 | 0.64..−2.81 | 0.728 | 1.000 |
 | `asksChoice` — "asks the reader to make a choice" vs "reports a choice already made" | 4.50..5.95 | 2.66..−1.58 | 0.973 | 1.000 |
-| `ask` — the gate's pair, on `mobilebert` | 2.30..5.51 | 0.19..−0.35 | 0.817 | 1.000 |
+| `ask` — "requests an answer" vs "reports a choice already made", on `nli-deberta-v3-xsmall` | 4.33..1.33 | 0.15..−3.36 | 0.677 | 1.000 |
 
 Two decisions were measured and **rejected**, both recorded in the module header:
 
@@ -209,9 +209,8 @@ Two decisions were measured and **rejected**, both recorded in the module header
   model only for the one thing it measures well — "is this sentence a question?".
 
 `plugins/rio/src/decisions.ts` is that extractor: veto → cue → `ask` (only for sentences with
-second-person address, because the gate's threshold over-reads bare declaratives at ~0.91) →
-default. Cue-only, it measures **96.7 % recall / 100 % precision** on the 30/30 corpus in
-`tests/global/fixtures/decision-corpus.ts`.
+second-person address) → default. Cue-only, it measures **96.7 % recall / 100 % precision** on
+the 30/30 corpus in `tests/global/fixtures/decision-corpus.ts`.
 
 ---
 
@@ -255,7 +254,8 @@ that `hooks.ts` reports the embedder without importing the vector library.
   `.opencode/state`.
 - **calibration** — every threshold names a model the runtime declares (a typo would otherwise mean
   a decision that silently always defaults), and each decision's calibration set must separate on
-  the cached head. The `ask` false positive on a bare preference statement is asserted *as* a false
-  positive, so tightening it has to confront the gate it is shared with.
+  the cached head. The `ask` decision moved to `nli-deberta-v3-xsmall` because mobilebert could not
+  separate asks from preference statements at all — the preference statement "The native API is the
+  better choice." scored 0.906 under mobilebert's threshold and 0.289 under deberta's.
 
 → [Knowledge Plane](knowledge-plane.md) · [Prompt Queue](prompt-queue.md)

@@ -4,6 +4,8 @@
  */
 import { createEffect, createSignal, onCleanup } from "solid-js"
 import { Service, config } from "./src/service.ts"
+import { MemoryService } from "./src/memory.ts"
+import { buildMenuItems, runMenuAction } from "./src/menu.ts"
 
 export default {
   id: "remote_inference_endpoint_optimizations",
@@ -11,6 +13,7 @@ export default {
     const directory: string = ctx?.location?.directory ?? process.cwd()
     const projectID: string = ctx?.location?.project?.id ?? ""
     const service = new Service(directory, projectID, config())
+    const memory = new MemoryService(directory, projectID)
     const [line, setLine] = createSignal("rio · —")
 
     ctx.ui.slot({
@@ -42,5 +45,65 @@ export default {
         )
       },
     })
+
+    // ── /rio slash command: hub-like subcommand picker ─────────────
+    ctx.keymap.layer(() => ({
+      mode: "global",
+      commands: [
+        {
+          id: "rio.menu",
+          title: "Rio",
+          group: "Rio",
+          palette: true,
+          slash: { name: "rio" },
+          run: () => void openRioMenu(),
+        },
+      ],
+    }))
+
+    const toast = (message: string, variant: "info" | "warning" | "error" = "info") =>
+      ctx.ui.toast.show({ title: "Rio", message, variant })
+
+    const submit = async (text: string) => {
+      const route = ctx.ui.router.current()
+      const sessionID = route?.type === "session" ? route.sessionID : undefined
+      if (!sessionID) {
+        toast("Open a session first", "warning")
+        return
+      }
+      try {
+        await ctx.client.session.prompt({ sessionID, text, resume: true, delivery: "steer" })
+      } catch (error) {
+        toast(`Could not submit: ${error instanceof Error ? error.message : String(error)}`, "error")
+      }
+    }
+
+    async function openRioMenu() {
+      try {
+        const items = buildMenuItems()
+        const choice = await (ctx.ui.dialog.select as any)({
+          title: `Rio — ${items.length} subcommands`,
+          placeholder: "Filter subcommands",
+          options: items.map((it) => ({
+            title: it.label,
+            value: it.id,
+            description: it.detail,
+          })),
+          search: (query: string, options: any[]) => {
+            const needle = query.trim().toLowerCase()
+            if (!needle) return options
+            return options.filter((option: any) =>
+              `${option.title} ${option.description ?? ""}`.toLowerCase().includes(needle),
+            )
+          },
+        })
+        if (!choice) return
+        const result = await runMenuAction(choice, service, memory, ctx)
+        await submit(result)
+      } catch (error) {
+        toast(`Rio menu error: ${error instanceof Error ? error.message : String(error)}`, "error")
+      }
+    }
+
   },
 }
