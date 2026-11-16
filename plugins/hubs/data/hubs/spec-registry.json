@@ -439,6 +439,36 @@
       "conventional-commit"
     ]
   },
+  "hub-setup/antislop-install": {
+    "label": "antislop-install",
+    "description": "Install antislop skills + pointer block into AGENTS.md",
+    "reminder": "Interactive skill selection, then writes the antislop pointer block into the project entry file.",
+    "inline": false,
+    "detailedDescription": "Anti-slop install wizard. Follows anti-slop's First-Run Install Wizard: an offer, not a requirement — the core antislop.md rules file alone remains a complete filter if the user declines skills.\n\n## Steps (gated, requires approval)\n\n1. **Declare the setup before doing anything.** Tell the user (a) the chosen skill(s) go in skills/<name>/ subfolders next to the core file (the user fetches them; the agent never downloads from the network), and (b) an antislop pointer block is appended at the end of the project's entry file. Get approval. Never modify the entry file silently.\n2. **Ask which skills to install** (multi-select). List only skills that exist in this version:\n   - All (recommended): every available skill\n   - antislop-ui — UI / visual\n   - antislop-copywriting — copy & text\n   - antislop-human — people / accessibility\n   - antislop-layoutmobile — mobile / responsive\n   - antislop-code — code comments\n   If the user declines or says \"core only\", stop here and use the core rules file alone as the filter. Do not install anything.\n3. **Resolve direction** (only if a UI skill was selected). Check for DESIGN.md or explicit brand/style direction. If none, be honest that antislop is a filter, not a beautifier: without direction output tends toward monotonous. Recommend a DESIGN.md, then offer: (1) user supplies direction (recommended), (2) agent supplies direction with honest warning, (3) skip direction for now → output labeled \"draft without direction\" with dials ENERGY 1 / RHYTHM 1 / MOTION 1.\n4. **Get the chosen skill(s) in place; the user does the fetching.** A SKILL.md is instructions the agent will obey, so the agent never downloads one at runtime. If a chosen skill folder is missing, tell the user which ones are missing and that they come with the release matching this core.\n5. **Append the pointer block at the END of the project's entry file** (AGENTS.md for OpenCode). Never modify existing content. Block:\n\n   ```md\n   <!-- antislop:start -->\n   ## antislop\n   For UI, copy, people, mobile layout, or code comments work, read antislop.md (core) and then the skill for the task:\n   - UI / visual: skills/antislop-ui/SKILL.md\n   - Copy & text: skills/antislop-copywriting/SKILL.md\n   - People: skills/antislop-human/SKILL.md\n   - Mobile / responsive: skills/antislop-layoutmobile/SKILL.md\n   - Code comments: skills/antislop-code/SKILL.md\n   Before starting, follow the core's \"Two Usage Modes\" section in strict order.\n   <!-- antislop:end -->\n   ```\n\n   If an older antislop block exists (even without markers), replace just that block instead of appending a duplicate.\n6. **Resolve and announce the usage mode** (see antislop-mode), then proceed with the work.\n\n## Entry file (OpenCode)\n\nAGENTS.md — the file OpenCode reads at session start. The pointer takes effect from the next session.\n\n## Examples\n\n| Input | Approach |\n|-------|----------|\n| /hub-setup antislop-install | Declares setup, asks skill selection (multi-select), resolves DESIGN.md direction, writes pointer block into AGENTS.md, resolves mode. |\n| /hub-setup antislop-install --core-only | Skips skill selection, writes core-only pointer block into AGENTS.md. |\n",
+    "tools": [
+      "read",
+      "write",
+      "edit",
+      "bash",
+      "agentContext"
+    ],
+    "rules": [
+      "anti-refusal",
+      "file-operations"
+    ],
+    "relatedSkills": [
+      "antislop-ui",
+      "antislop-copywriting",
+      "antislop-human",
+      "antislop-layoutmobile",
+      "antislop-code"
+    ],
+    "warnings": [
+      "The agent never downloads skills from the network — the user fetches skill folders. The agent only writes the pointer block.",
+      "Never modify existing entry-file content; append the pointer block at the end, or replace an older antislop block in place.",
+      "Never invent example content for DESIGN.md. The user is the author; the agent only formats their answers."
+    ]
+  },
   "hub-setup/config": {
     "label": "config",
     "description": "Create or edit opencode.jsonc, validated against the live schema",
@@ -2647,6 +2677,92 @@
         "input": "/swarm-hub subagent-driven",
         "approach": "Asks which plan (selects .opencode/state/ideation/plan.md). Read plan (5 tasks). Task 1: fresh @executor implements, @code-reviewer reviews → pass. Task 2: fresh @executor (doesn't know about task 1's mistakes), implements, reviewed → pass. ... Final: broad review of all 5 tasks together."
       }
+    ]
+  },
+  "verify-hub/antislop-audit": {
+    "label": "antislop-audit",
+    "description": "Slop audit — numbered findings list, then approved fixes",
+    "reminder": "Audit existing work: numbered findings citing R-XX rules and priorities. User approves numbers before any fix.",
+    "inline": false,
+    "detailedDescription": "Anti-slop After-mode audit. Audits work that already exists and produces a numbered findings list in anti-slop/audit-001-YYYY-MM-DD.md (numbers keep rising across audits).\n\n## Process (anti-slop After mode, exact)\n\n1. Scan the existing UI/copy/accessibility against the 40 antislop rules (rules/antislop.md) and the Liveliness Toolkit (rules/antislop-liveliness.md).\n2. Write findings to anti-slop/audit-001-YYYY-MM-DD.md. Each finding:\n   - A number (rising across audits: 001, 002, ...)\n   - The violated rule (R-XX) with tier (Hard Gate = HIGH, Purpose-Gate = MEDIUM, Quality Locks = LOW)\n   - A one-line reason\n3. Do NOT modify anything until the user approves specific numbers. Numbers not mentioned are not touched.\n4. After approval, fix the approved items and write a follow-up report.\n\n## Output\n\nanti-slop/audit-001-YYYY-MM-DD.md — numbered findings list with priorities.\n\n## When to use\n\n\"After\" mode: you already have work and want to know what slop is in it before deciding what to fix. Equivalent to antislop's audit mode.\n\n## Examples\n\n| Input | Approach |\n|-------|----------|\n| /verify-hub antislop-audit | Scans current work, writes numbered findings with R-XX citations and HIGH/MEDIUM/LOW priorities, asks user to approve numbers before fixing. |\n| /verify-hub antislop-audit --approve 003,007 | Fixes only findings 003 and 007, then writes a follow-up report. |\n",
+    "tools": [
+      "read",
+      "grep",
+      "glob",
+      "bash",
+      "taskTodos"
+    ],
+    "rules": [
+      "antislop",
+      "anti-sycophancy"
+    ],
+    "relatedSkills": [
+      "antislop-ui",
+      "antislop-copywriting",
+      "antislop-human",
+      "antislop-layoutmobile",
+      "antislop-code"
+    ],
+    "warnings": [
+      "No edits happen before user approval of specific finding numbers. This is anti-slop's After-mode contract.",
+      "Findings cite rules by number — no sycophantic softening. A slop pattern is named plainly."
+    ]
+  },
+  "verify-hub/antislop-gate": {
+    "label": "antislop-gate",
+    "description": "Slop Delivery Gate — PASS/FAIL report before shipping",
+    "reminder": "Run the 40-rule slop check + click-through smoke test. PASS/FAIL report blocks delivery.",
+    "inline": false,
+    "detailedDescription": "Anti-slop Delivery Gate. Runs the full 40-rule check (Hard Gate, Purpose-Gate, Quality Locks from rules/antislop.md) plus the Liveliness Toolkit (rules/antislop-liveliness.md), then a R-35 click-through smoke test: every interactive element exercised one at a time, per-element evidence recorded.\n\n## Output\n\nA PASS/FAIL report written to .opencode/state/verify-hub/anti-slop/gate-YYYY-MM-DD.md.\n\n- Hard Gate failures = FAIL, block delivery immediately.\n- Purpose-Gate failures = FAIL unless a written one-line purpose exists for each technique.\n- Quality Lock failures = FAIL unless each decision has a written reason.\n- R-35 click-through evidence: element-by-element results (e.g. \"Signup -> opens /signup with no console errors\", \"empty form -> shows validation\", \"mobile menu -> opens and closes\"), every theme and breakpoint exercised.\n\n## Writer/reviewer separation\n\nThe agent does not self-approve high-impact gate fixes. FAIL items are reported; the user approves which to fix. A separate pass implements approved fixes, then the gate re-runs.\n\n## When to use\n\nClose of a \"during\" build session, or before shipping any UI/copy/accessibility work. Equivalent to antislop's mandatory pre-delivery gate.\n\n## Mode\n\nResolves antislop mode (during/after/ask) via antislop-mode before running. Announces \"antislop active: during (session override.)\" once per session.\n\n## Examples\n\n| Input | Approach |\n|-------|----------|\n| /verify-hub antislop-gate | Resolves mode, loads antislop + antislop-liveliness rules, runs 40-rule check + click-through, writes gate report, reports PASS/FAIL with per-element evidence. |\n| /verify-hub antislop-gate --theme dark | Same, plus verifies both light and dark themes per R-34. |\n",
+    "tools": [
+      "read",
+      "grep",
+      "glob",
+      "bash",
+      "taskTodos"
+    ],
+    "rules": [
+      "antislop",
+      "antislop-liveliness",
+      "security"
+    ],
+    "relatedSkills": [
+      "antislop-ui",
+      "antislop-copywriting",
+      "antislop-human",
+      "antislop-layoutmobile",
+      "antislop-code"
+    ],
+    "warnings": [
+      "Gate report is evidence, not a verdict you can override silently. FAIL items block delivery until the user approves fixes.",
+      "R-35 requires the app to be runnable. Static mockups/chat-only outputs are verified by code inspection instead of clicking."
+    ]
+  },
+  "verify-hub/antislop-mode": {
+    "label": "antislop-mode",
+    "description": "During/After/ask mode resolver for antislop rules",
+    "reminder": "Resolves antislop usage mode: explicit session choice > saved preference > ask. Announces the active mode and source once.",
+    "inline": false,
+    "detailedDescription": "Anti-slop usage-mode resolver. Implements anti-slop's strict mode order on first antislop activation in each session:\n\n## Mode resolution order (strict)\n\n1. **Explicit session instruction**: the user explicitly selects \"during\" or \"after\" in this conversation. Announces \"antislop active: <mode> (session override.)\". Overrides saved preference. Does not change the saved preference.\n2. **Global preference**: read from .opencode/state/verify-hub/antislop-mode.json (mode field: during/after/ask). Announces \"antislop active: <mode> (global preference.)\". Continues without asking.\n3. **Ask if unresolved**: no settings file, missing mode field, or saved mode is \"ask\". Asks \"When do you want to use antislop? 1. DURING ... 2. AFTER ...\" and ends the response, waiting for the answer before any UI review, planning, or concept.\n\n## Notice placement\n\n- Read-only tasks: notice at the start of the final answer, before findings/concept. Never in progress messages.\n- Editing tasks: announce before the first edit; omit from the final answer.\n- Additional antislop skills reuse the resolved mode without another question or notice. Announce again only if the mode changes.\n\n## State\n\nMode preference persisted to .opencode/state/verify-hub/antislop-mode.json as {\"mode\": \"during|after|ask\", \"source\": \"session|global\"}.\n\n## When to use\n\nTo set or check the antislop mode for the current session or as a saved default. Runs automatically before antislop-gate and antislop-audit; rarely needs to be invoked directly.\n\n## Examples\n\n| Input | Approach |\n|-------|----------|\n| /verify-hub antislop-mode --set during | Saves mode=during to state, announces source. |\n| /verify-hub antislop-mode --set after | Saves mode=after to state. |\n| /verify-hub antislop-mode --set ask | Restores per-session questioning. |\n| /verify-hub antislop-mode --show | Prints current mode and source without changing it. |\n",
+    "tools": [
+      "modeState",
+      "bash",
+      "agentContext"
+    ],
+    "rules": [
+      "context-strategy",
+      "anti-refusal"
+    ],
+    "relatedSkills": [
+      "antislop-ui",
+      "antislop-copywriting",
+      "antislop-human",
+      "antislop-layoutmobile",
+      "antislop-code"
+    ],
+    "warnings": [
+      "Explicit session choice always wins over saved preference — never let the settings file replace a mode the user selected in this conversation.",
+      "When unresolved, end the response after asking; do not start UI work until the user answers."
     ]
   },
   "verify-hub/audit": {

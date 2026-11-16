@@ -1,4 +1,5 @@
 import { HubSubcommand } from "../../hub-data"
+import antislopInstall from "./antislop-install"
 import config from "./config"
 import detect from "./detect"
 import doctor from "./doctor"
@@ -14,6 +15,7 @@ import tag from "./tag"
 import verify from "./verify"
 
 export const specs = [
+  antislopInstall,
   config, detect, doctor, mapCodebase, migrateV2, provision, recommend, refresh, reset,
   setup, status, tag, verify
 ]

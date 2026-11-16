@@ -21,6 +21,9 @@ export const RULES_SECURITY: HubSubcommandSpec['rules'] = ["security"]
 export const RULES_CONTEXT_STRATEGY: HubSubcommandSpec['rules'] = ["context-strategy"]
 export const RULES_KARPAHTY_GUIDELINES: HubSubcommandSpec['rules'] = ["karpathy-guidelines"]
 export const RULES_CONTEXT_STRATEGY_SECURITY: HubSubcommandSpec['rules'] = ["context-strategy", "security"]
+export const RULES_ANTISLOP: HubSubcommandSpec['rules'] = ["antislop"]
+export const RULES_ANTISLOP_LIVELINESS: HubSubcommandSpec['rules'] = ["antislop-liveliness"]
+export const RULES_ANTISLOP_LIVELINESS_SECURITY: HubSubcommandSpec['rules'] = ["antislop", "antislop-liveliness", "security"]
 
 // ─── Shared relatedSkills arrays (appear in 2+ spec files) ───────
 export const SKILLS_VERIFY: HubSubcommandSpec['relatedSkills'] = ["verify"]

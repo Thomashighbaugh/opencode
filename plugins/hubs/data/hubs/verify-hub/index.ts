@@ -1,4 +1,7 @@
 import { HubSubcommand } from "../../hub-data"
+import antislopAudit from "./antislop-audit"
+import antislopGate from "./antislop-gate"
+import antislopMode from "./antislop-mode"
 import critic from "./critic"
 import securityReviewer from "./security-reviewer"
 import tdd from "./tdd"
@@ -15,6 +18,7 @@ import secScan from "./sec-scan"
 import tracer from "./tracer"
 
 export const specs = [
+  antislopGate, antislopAudit, antislopMode,
   critic, securityReviewer, tdd, audit, codeReview, createTests, debuggerSpec, deepBugHunt,
   qaTester, review, testEngineer, quality, secScan, tracer
 ]

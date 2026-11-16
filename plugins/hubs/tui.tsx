@@ -16,7 +16,8 @@
 import { For, Show, createEffect, createMemo, createSignal } from "solid-js"
 import type { Plugin } from "@opencode/plugin/tui"
 
-import { hub, hubNames, render, renderIndex, route } from "./src/core"
+import { hub, hubNames, render, renderIndex, route, getDelegation } from "./src/core"
+import { loadSubcommandSpecFull } from "./data/hub-data"
 import {
   extractLoadedSkills,
   formatTokenCount,
@@ -87,11 +88,103 @@ export default definePlugin({
       await submit(body)
     }
 
-    async function openHub(name: string) {
+    // ───────── full-definition popup (ctrl+s) ─────────
+
+    function formatFullDefinition(name: string, full: NonNullable<ReturnType<typeof loadSubcommandSpecFull>>): string {
+      const { spec, rulesContent, relatedSkillMeta } = full
+      if (!spec) return `No definition found for ${name}`
+
+      const lines: string[] = []
+      lines.push(`${spec.label} — ${name}`)
+      lines.push("")
+      lines.push(`Description: ${spec.description}`)
+      lines.push(`Reminder: ${spec.reminder}`)
+      if (spec.inline) lines.push(`Inline: yes`)
+      if (spec.phases) lines.push(`Phases: ${spec.phases}`)
+
+      const delegation = getDelegation(spec)
+      const delegationLabel =
+        delegation.type === "skill" ? `skill: ${delegation.target}`
+        : delegation.type === "agent" ? `agent: ${delegation.target}`
+        : delegation.type === "command" ? `command: ${delegation.target}`
+        : "inline (handled by hubs)"
+      lines.push(`Delegation: ${delegationLabel}`)
+
+      lines.push("")
+      lines.push("## Detailed Description")
+      lines.push(spec.detailedDescription || "")
+
+      if (spec.tools?.length) {
+        lines.push("")
+        lines.push(`## Tools: ${spec.tools.join(", ")}`)
+      }
+      if (spec.rules?.length) {
+        lines.push("")
+        lines.push(`## Rules: ${spec.rules.join(", ")}`)
+      }
+      if (spec.relatedSkills?.length) {
+        lines.push("")
+        lines.push(`## Related Skills: ${spec.relatedSkills.join(", ")}`)
+      }
+
+      if (rulesContent?.length) {
+        lines.push("")
+        lines.push("## Inlined Rules")
+        for (const rule of rulesContent) {
+          lines.push(`### ${rule.name}`)
+          lines.push(rule.content)
+        }
+      }
+
+      if (relatedSkillMeta?.length) {
+        lines.push("")
+        lines.push("## Related Skill Details")
+        for (const skill of relatedSkillMeta) {
+          lines.push(`### ${skill.name}`)
+          lines.push(skill.description || "")
+        }
+      }
+
+      if (spec.examples?.length) {
+        lines.push("")
+        lines.push("## Examples")
+        for (const ex of spec.examples) {
+          lines.push(`- Input: ${ex.input}`)
+          lines.push(`  Approach: ${ex.approach}`)
+        }
+      }
+
+      if (spec.warnings?.length) {
+        lines.push("")
+        lines.push("## Warnings")
+        for (const w of spec.warnings) {
+          lines.push(`- ${w}`)
+        }
+      }
+
+      return lines.join("\n")
+    }
+
+    async function showDefinitionPopup(name: string, subLabel: string) {
+      const full = loadSubcommandSpecFull(name, subLabel)
+      const body = formatFullDefinition(name, full)
+      ctx.ui.dialog.show(() => (
+        <scrollbox width="100%" height="100%" scrollY>
+          <box flexDirection="column" padding={1}>
+            <text fg={ctx.theme.text.muted}>{body}</text>
+          </box>
+        </scrollbox>
+      ))
+      ctx.ui.dialog.set({ size: "xlarge", centered: true })
+    }
+
+    // ───────── hub subcommand picker ─────────
+
+    async function openHub(name: string): Promise<"back" | void> {
       const definition = hub(name)
       if (!definition) return toast(`Unknown hub: ${name}`, "error")
 
-      const choice = await ctx.ui.dialog.select<string>({
+      const choice = await ctx.ui.dialog.select<string | "back">({
         title: `${definition.name} — ${definition.subcommands.length} subcommands`,
         placeholder: "Filter subcommands",
         options: definition.subcommands.map((sub) => ({
@@ -115,9 +208,22 @@ export default definePlugin({
             selection: "none",
             onTrigger: () => void submit(renderIndex()),
           },
+          {
+            bind: "ctrl+s",
+            title: "Full definition",
+            onTrigger: (subLabel) => void showDefinitionPopup(name, subLabel),
+          },
+          {
+            bind: "ctrl+," ,
+            title: "Back to hubs",
+            side: "right",
+            selection: "none",
+            onTrigger: () => "back" as const,
+          },
         ],
       })
-      if (!choice) return
+
+      if (choice === "back" || choice === undefined) return "back"
       await askAndSubmit(render(route(name, choice)), `${definition.name} — ${choice}`)
     }
 
@@ -221,7 +327,10 @@ export default definePlugin({
           title: `Hub: ${name}`,
           group: "Hubs",
           slash: { name },
-          run: () => void openHub(name),
+          run: async () => {
+            const result = await openHub(name)
+            if (result === "back") await openHubPicker()
+          },
         })),
         {
           id: "hubs.index",
@@ -229,10 +338,14 @@ export default definePlugin({
           group: "Hubs",
           palette: true,
           slash: { name: "hubs", arguments: true },
-          run: (input) => {
+          run: async (input) => {
             const target = input?.trim()
-            if (target && hubNames().includes(target)) void openHub(target)
-            else void openHubPicker()
+            if (target && hubNames().includes(target)) {
+              const result = await openHub(target)
+              if (result === "back") await openHubPicker()
+            } else {
+              await openHubPicker()
+            }
           },
         },
         {
@@ -255,36 +368,40 @@ export default definePlugin({
     }))
 
     async function openHubPicker() {
-      const choice = await ctx.ui.dialog.select<string>({
-        title: `Hubs — ${hubNames().length} menus`,
-        placeholder: "Filter hubs",
-        options: hubNames().map((name) => {
-          const definition = hub(name)
-          return {
-            title: `/${name}`,
-            value: name,
-            description: definition?.description ?? "",
-            category: `${definition?.subcommands.length ?? 0} subcommands`,
-          }
-        }),
-        search: (query, options) => {
-          const needle = query.trim().toLowerCase()
-          if (!needle) return options
-          return options.filter((option) =>
-            `${option.title} ${option.description ?? ""}`.toLowerCase().includes(needle),
-          )
-        },
-        actions: [
-          {
-            bind: "ctrl+l",
-            title: "Index",
-            side: "right",
-            selection: "none",
-            onTrigger: () => void submit(renderIndex()),
+      while (true) {
+        const choice = await ctx.ui.dialog.select<string>({
+          title: `Hubs — ${hubNames().length} menus`,
+          placeholder: "Filter hubs",
+          options: hubNames().map((name) => {
+            const definition = hub(name)
+            return {
+              title: `/${name}`,
+              value: name,
+              description: definition?.description ?? "",
+              category: `${definition?.subcommands.length ?? 0} subcommands`,
+            }
+          }),
+          search: (query, options) => {
+            const needle = query.trim().toLowerCase()
+            if (!needle) return options
+            return options.filter((option) =>
+              `${option.title} ${option.description ?? ""}`.toLowerCase().includes(needle),
+            )
           },
-        ],
-      })
-      if (choice) await openHub(choice)
+          actions: [
+            {
+              bind: "ctrl+l",
+              title: "Index",
+              side: "right",
+              selection: "none",
+              onTrigger: () => void submit(renderIndex()),
+            },
+          ],
+        })
+        if (!choice) return
+        const result = await openHub(choice)
+        if (result !== "back") return
+      }
     }
 
     ctx.ui.slot({
