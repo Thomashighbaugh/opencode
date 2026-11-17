@@ -201,7 +201,6 @@ See `rules/hub-routing.md` for the complete delegation table and architecture de
 ├── plugins/             # V2 plugin packages + V1 hook plugins
 │   ├── hubs/            # Hub router, vendored specs/rules/skills/agents, TUI picker
 │   ├── todo/            # Human todo list (V2 TUI + store)
-│   ├── prompt-queue/    # Deferred prompt queue (V2 server + TUI, V1 hooks)
 │   ├── hooks/           # V1 hook system (session, modes, telemetry, cache)
 │   └── command-hooks/   # V1 file-write hook runner
 ├── rules/               # Shared rules (loaded as instructions)

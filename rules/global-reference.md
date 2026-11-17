@@ -33,7 +33,7 @@
 │   ├── hubs/             # Hub router + vendored specs/skills/agents + TUI picker
 │   ├── tools/            # Registers every tools/*.ts definition via ctx.tool.transform
 │   ├── hooks/            # Session, modes, telemetry, cache, goal
-│   ├── todo/ prompt-queue/ memory-system/ token-optimizer/ toon/ ax-guard/ command-hooks/ env-protection/
+│   ├── todo/ memory-system/ token-optimizer/ toon/ ax-guard/ command-hooks/ env-protection/
 ├── rules/                # Shared agent instructions (loaded via opencode.jsonc)
 │   ├── shell_strategy.md
 │   ├── context-strategy.md

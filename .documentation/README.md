@@ -10,8 +10,7 @@ Technical documentation for this OpenCode agent harness. Start at
 2. **[Event Interception](plugins-hooks.md)** — the plugin every turn passes through.
 3. **[Memory System](memory-system.md)** — what survives a session, and what does not.
 4. **[Knowledge Plane](knowledge-plane.md)** — hybrid retrieval and its graph invariants.
-5. **[Prompt Queue](prompt-queue.md)** — the one piece of UI that changes what the model is asked next.
-6. **[Hub Library](hub-library.md)** — the captured-document store behind `hubDocs`.
+5. **[Hub Library](hub-library.md)** — the captured-document store behind `hubDocs`.
 
 ## By component
 

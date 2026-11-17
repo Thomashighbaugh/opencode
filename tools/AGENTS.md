@@ -4,7 +4,7 @@
 # tools
 
 ## Purpose
-TypeScript tool definitions (29 tools) that extend the OpenCode runtime. Tools provide structured APIs for session management, state persistence, agent listing, skill loading, hub menu routing, multi-tier prompt caching, and file editing.
+TypeScript tool definitions (28 tools) that extend the OpenCode runtime. Tools provide structured APIs for session management, state persistence, agent listing, skill loading, hub menu routing, multi-tier prompt caching, and file editing.
 
 ## OpenCode 2 contract
 

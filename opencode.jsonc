@@ -496,7 +496,6 @@
     "plugin": [
         "./plugins/hooks",
         "./plugins/command-hooks",
-        "./plugins/prompt-queue",
         "./plugins/hubs",
         "./plugins/todo",
         "./plugins/toon",

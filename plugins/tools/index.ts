@@ -48,7 +48,6 @@ import loadSkill from "../../tools/loadSkill.ts"
 import modeState from "../../tools/modeState.ts"
 import multiEdit from "../../tools/multi-edit.ts"
 import promptCompiler from "../../tools/prompt-compiler.ts"
-import promptQueue from "../../tools/prompt-queue.ts"
 import regexEdit from "../../tools/regex-edit.ts"
 import rerank from "../../tools/rerank.ts"
 import runSkillScript from "../../tools/runSkillScript.ts"
@@ -82,7 +81,6 @@ const TOOLS: ToolDefinition<any>[] = [
   modeState,
   multiEdit,
   promptCompiler,
-  promptQueue,
   regexEdit,
   rerank,
   runSkillScript,

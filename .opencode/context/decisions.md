@@ -759,3 +759,31 @@ Python/Bash scripts are skill-bundled automation, not standalone tools registere
 - `tools/tool-scaffolder.ts` extended with `generatePython()`, `generateBash()`, `validatePython()`, `validateBash()`
 - `skills/tool-creator/SKILL.md` updated with multi-language documentation, scope rules, parameter type mappings
 - Five bash escaping bugs fixed during testing (documented in `context/patterns/template-literal-bash-generation.md`)
+
+---
+
+# ADR: Remove custom prompt-queue plugin in favor of OpenCode builtin
+
+**Status:** Accepted  
+**Date:** 2026-11-17  
+
+## Context
+OpenCode 2.3.0 ships a builtin "Queue prompt" command (`prompt.queue`, `<leader>return`, palette), which duplicates the custom `plugins/prompt-queue` plugin (`/queue` slash, `prompt-queue.menu`). The two systems shared no state and both existed in the config, making the custom plugin redundant.
+
+## Decision
+Removed the custom prompt-queue plugin entirely:
+- Deleted `plugins/prompt-queue/` (index.ts, tui.tsx, queue.ts, runtime.ts, gate.ts, classifier.ts, composer.ts, AGENTS.md, package.json)
+- Removed `"./plugins/prompt-queue"` from `opencode.jsonc` plugin array
+- Removed references from README.md, `.documentation/README.md`, AGENTS.md, `rules/global-reference.md`
+- Deleted orphaned `.documentation/prompt-queue.md`
+- Users now use OpenCode's builtin "Queue prompt" instead.
+
+## Rationale
+- One less custom component to maintain (the builtin is maintained by OpenCode)
+- Eliminates duplicate queue systems with divergent state files
+- OpenCode's builtin covers the same core behavior (queue + release on idle)
+
+## Consequences
+- `plugins/prompt-queue/` no longer exists; `tools/prompt-queue.ts` and tests referencing it are stale and should be removed in a follow-up
+- Builtin keybinding is `<leader>return`, not the plugin's `/queue` slash command
+- Any state in `.opencode/state/prompt-queue/` is orphaned but harmless

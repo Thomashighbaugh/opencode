@@ -180,7 +180,7 @@ Requires Bun and Node 20+. **No daemon and no network** after a one-time model f
 npx tsx skills/vectorize-context/scripts/prefetch-models.ts   # ~340 MB, once
 ```
 
-Every model is then local: embeddings, reranking, and the prompt-queue classifier.
+Every model is then local: embeddings and reranking — no daemon and no network after a one-time model fetch.
 
 ---
 
@@ -192,7 +192,6 @@ Every model is then local: embeddings, reranking, and the prompt-queue classifie
 | [Event Interception](.documentation/plugins-hooks.md) | `plugins/hooks/` — modes, goal, telemetry, caching, vectorize |
 | [Command Hooks](.documentation/plugins-command-hooks.md) | `plugins/command-hooks/` — declarative shell hooks on events |
 | [Hub Plugin](plugins/hubs/AGENTS.md) | `plugins/hubs/` — picker, vendored corpus, sidebar, `hubDocs` |
-| [Prompt Queue](.documentation/prompt-queue.md) | `plugins/prompt-queue/` — FIFO follow-ups, released only when a turn ends without a question |
 | [ONNX Runtime](.documentation/onnx-runtime.md) | Local embedder, reranker, and gate classifier — no daemon, pooling, measured thresholds |
 | [Memory System](.documentation/memory-system.md) | Durable context, state vs context, the wiki layer |
 | [Knowledge Plane](.documentation/knowledge-plane.md) | Graph + vector retrieval, invariants, incremental rebuilds |
@@ -211,7 +210,7 @@ Every model is then local: embeddings, reranking, and the prompt-queue classifie
 ├── skills/                 127 skills (+ vectorize-context, graph-context)
 ├── rules/                  23 rules — preloaded or on demand
 ├── tools/                  29 tool definitions (registered by plugins/tools/)
-├── plugins/                hubs · tools · hooks · command-hooks · prompt-queue · todo · memory-system · token-optimizer · toon · ax-guard
+├── plugins/                hubs · tools · hooks · command-hooks · todo · memory-system · token-optimizer · toon · ax-guard
 ├── tests/                  1,350 tests across 27 files
 ├── command-hooks.jsonc     global declarative hooks
 ├── .documentation/         14 pages — architecture, plugins, memory, evals
