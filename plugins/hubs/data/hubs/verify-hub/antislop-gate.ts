@@ -37,7 +37,7 @@ Resolves antislop mode (during/after/ask) via antislop-mode before running. Anno
 | /verify-hub antislop-gate --theme dark | Same, plus verifies both light and dark themes per R-34. |
 `,
   tools: ["read", "grep", "glob", "bash", "taskTodos"],
-  rules: ["antislop", "antislop-liveliness", "security"],
+  rules: ["antislop", "antislop-liveliness", "antislop-signal-hygiene", "security"],
   relatedSkills: ["antislop-ui", "antislop-copywriting", "antislop-human", "antislop-layoutmobile", "antislop-code"],
   warnings: [
     "Gate report is evidence, not a verdict you can override silently. FAIL items block delivery until the user approves fixes.",

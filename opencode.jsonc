@@ -515,6 +515,7 @@
         "./rules/writing-style.md",
         "./rules/anti-sycophancy.md",
         "./rules/anti-refusal.md",
+        "./rules/antislop-signal-hygiene.md",
         "./rules/efficiency-first.md",
         "./rules/session-artifact-promotion.md",
         "./rules/auto-commit.md",
