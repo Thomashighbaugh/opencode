@@ -4,7 +4,7 @@ const spec: HubSubcommandSpec = {
   label: "antislop-mode",
   description: "During/After/ask mode resolver for antislop rules",
   reminder: "Resolves antislop usage mode: explicit session choice > saved preference > ask. Announces the active mode and source once.",
-  inline: false,
+  inline: true,
 
   detailedDescription: `Anti-slop usage-mode resolver. Implements anti-slop's strict mode order on first antislop activation in each session:
 

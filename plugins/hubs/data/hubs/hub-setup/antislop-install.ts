@@ -4,7 +4,7 @@ const spec: HubSubcommandSpec = {
   label: "antislop-install",
   description: "Install antislop skills + pointer block into AGENTS.md",
   reminder: "Interactive skill selection, then writes the antislop pointer block into the project entry file.",
-  inline: false,
+  inline: true,
 
   detailedDescription: `Anti-slop install wizard. Follows anti-slop's First-Run Install Wizard: an offer, not a requirement — the core antislop.md rules file alone remains a complete filter if the user declines skills.
 

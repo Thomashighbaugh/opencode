@@ -396,6 +396,7 @@ describe('feature package: agents, rules, tools', () => {
     const onDemand = [
       'global-reference.md', 'hub-routing.md', 'hub-state.md', 'resource-tags.md',
       'coding-style.md', 'git-workflow.md', 'performance.md', 'testing.md',
+      'antislop.md', 'antislop-liveliness.md',
     ]
     const real = unregistered.filter((f) => !onDemand.includes(f))
     expect(real, `rule files not in instructions and not known on-demand: ${real.join(', ')}`).toEqual([])

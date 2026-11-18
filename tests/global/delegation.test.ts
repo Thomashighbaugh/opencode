@@ -169,10 +169,10 @@ describe('scaffold-hub merged into hub-setup', () => {
     'refresh', 'reset', 'setup', 'status', 'tag', 'verify',
   ]
 
-  // hub-setup grew a thirteenth subcommand after the merge: `migrate-v2`
-  // rewrites a user project for OpenCode 2. The legacy-route assertions still
-  // use the original twelve.
-  const HUB_SETUP_LABELS = [...SCAFFOLD_LABELS, 'migrate-v2']
+  // hub-setup grew two subcommands after the merge: `migrate-v2` rewrites a user
+  // project for OpenCode 2, and `antislop-install` installs the antislop skills.
+  // The legacy-route assertions still use the original twelve.
+  const HUB_SETUP_LABELS = [...SCAFFOLD_LABELS, 'migrate-v2', 'antislop-install']
 
   it('hub-setup carries every scaffold-hub subcommand plus migrate-v2', () => {
     expect(hubSetupHub.subcommands.map(s => s.label).sort()).toEqual([...HUB_SETUP_LABELS].sort())

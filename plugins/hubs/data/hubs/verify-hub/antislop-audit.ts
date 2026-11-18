@@ -4,7 +4,7 @@ const spec: HubSubcommandSpec = {
   label: "antislop-audit",
   description: "Slop audit — numbered findings list, then approved fixes",
   reminder: "Audit existing work: numbered findings citing R-XX rules and priorities. User approves numbers before any fix.",
-  inline: false,
+  inline: true,
 
   detailedDescription: `Anti-slop After-mode audit. Audits work that already exists and produces a numbered findings list in anti-slop/audit-001-YYYY-MM-DD.md (numbers keep rising across audits).
 
