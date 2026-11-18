@@ -178,6 +178,17 @@ export class MemoryDb {
       );
       CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT NOT NULL);
       CREATE VIRTUAL TABLE IF NOT EXISTS memories_fts USING fts5(memory_id UNINDEXED, title, content, tokenize='porter unicode61 remove_diacritics 2');
+      CREATE TABLE IF NOT EXISTS memory_links (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        memory_id INTEGER NOT NULL REFERENCES memories(id) ON DELETE CASCADE,
+        node_id TEXT NOT NULL,
+        node_type TEXT NOT NULL,
+        relation TEXT NOT NULL DEFAULT 'related_to',
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        UNIQUE(memory_id, node_id, relation)
+      );
+      CREATE INDEX IF NOT EXISTS idx_memory_links_memory ON memory_links(memory_id);
+      CREATE INDEX IF NOT EXISTS idx_memory_links_node ON memory_links(node_id);
     `)
     try {
       this.db.exec(`CREATE VIRTUAL TABLE IF NOT EXISTS memories_vec USING vec0(memory_id INTEGER PRIMARY KEY, embedding float[${this.embedDim}])`)
@@ -365,6 +376,27 @@ export class MemoryDb {
         this.db.query("DELETE FROM memories_fts WHERE rowid = ?").run(id)
       } catch {}
     } catch {}
+  }
+
+  addLink(memoryId: number, nodeId: string, nodeType: string, relation = "related_to"): void {
+    if (!this.db) return
+    try {
+      this.db.query(
+        "INSERT OR IGNORE INTO memory_links (memory_id, node_id, node_type, relation) VALUES (?,?,?,?)",
+      ).run(memoryId, nodeId, nodeType, relation)
+    } catch {}
+  }
+
+  getLinks(memoryId: number): Array<{ node_id: string; node_type: string; relation: string }> {
+    if (!this.db) return []
+    try {
+      const rows = this.db.query(
+        "SELECT node_id, node_type, relation FROM memory_links WHERE memory_id = ? ORDER BY created_at",
+      ).all(memoryId) as any[]
+      return rows.map((r) => ({ node_id: String(r.node_id), node_type: String(r.node_type), relation: String(r.relation) }))
+    } catch {
+      return []
+    }
   }
 
   audit(memoryId: number, op: string, detail: string): void {

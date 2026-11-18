@@ -16,6 +16,7 @@ import { rerank } from "./rerank.ts"
 import { entailmentScores } from "../../../skills/vectorize-context/scripts/zero-shot.ts"
 import { isCached, REQUIRED_MODELS } from "../../../skills/vectorize-context/scripts/onnx-runtime.ts"
 import { inspect } from "./privacy.ts"
+import { graphRecall } from "../../../skills/graph-context/scripts/graphlib.ts"
 
 const CATEGORY_HYPOTHESES: Array<[Category, string]> = [
   ["preference", "This is a user preference or style choice."],
@@ -60,6 +61,7 @@ export class MemoryService {
 
   constructor(directory: string, project?: string) {
     this.db = new MemoryDb(directory)
+    this.directory = directory
     this.project = project || "default"
   }
 
@@ -126,6 +128,10 @@ export class MemoryService {
         }
       }
     }
+
+    // Link the memory to the graph nodes it concerns, so recall can surface the
+    // structural context (rules, skills, patterns, decisions) around a memory.
+    void this.linkToGraph(result.id, inspected.text)
 
     return { action: result.action, id: result.id, category, memory: result.memory }
   }
@@ -259,5 +265,27 @@ export class MemoryService {
       if (re.test(text)) return category
     }
     return "pattern"
+  }
+
+  // ── Graph linkage (write path) ───────────────────────────────────────
+
+  /**
+   * graph.db uses better-sqlite3, which hard-crashes under bun
+   * (NAPI FATAL ERROR). Graph linkage is Node-only; under bun we skip it.
+   * Linking is additive, never fatal.
+   */
+  private static readonly GRAPH_NODE = typeof process.versions?.bun === "undefined"
+
+  private linkToGraph(memoryId: number, content: string): void {
+    if (!MemoryService.GRAPH_NODE) return
+    let hits
+    try {
+      hits = graphRecall(this.directory, content, 5)
+    } catch {
+      hits = []
+    }
+    for (const h of hits ?? []) {
+      this.db.addLink(memoryId, h.id, h.type, "related_to")
+    }
   }
 }

@@ -27,8 +27,12 @@ import { compressShellOutput } from "./src/compress.ts"
 import { buildIntelDigest } from "./src/intel.ts"
 import { qualityNudge, verbosityNudge } from "./src/nudges.ts"
 import { MemoryService } from "./src/memory.ts"
+import { graphRecall } from "../../../skills/graph-context/scripts/graphlib.ts"
 import { extractDecisions } from "./src/decisions.ts"
 import { DECISIONS, decide, decisionStats } from "../../skills/vectorize-context/scripts/decisions.ts"
+
+/** graph.db uses better-sqlite3, which hard-crashes under bun. Node-only. */
+const GRAPH_NODE = typeof process.versions?.bun === "undefined"
 
 /** Built-in decisions `rio_decide` can answer by id. */
 const DECISION_IDS = Object.keys(DECISIONS) as Array<keyof typeof DECISIONS>
@@ -215,9 +219,20 @@ export default {
                       category: input.category, semantic: input.semantic,
                       includePrivate: input.includePrivate,
                     })
+                    // Structural context from the knowledge plane: graph nodes
+                    // relevant to the recall query, so the caller sees both the
+                    // learned memories and the rules/skills/patterns they sit in.
+                    let structure: any[] = []
+                    if (GRAPH_NODE) {
+                      try {
+                        structure = graphRecall(directory, String(input.query ?? ""), 5)
+                      } catch {}
+                    }
                     return { content: JSON.stringify({ count: hits.length, memories: hits.map((h) => ({
                       id: h.id, title: h.title, category: h.category, importance: h.importance,
                       score: Math.round(h.score * 1000) / 1000, stale: h.stale, content: h.content,
+                    })), structure: structure.map((s) => ({
+                      id: s.id, type: s.type, title: s.title, path: s.path, score: s.score, via: s.via,
                     })) }) }
                   } catch (e) {
                     return { content: `memory recall error: ${e instanceof Error ? e.message : String(e)}` }
@@ -490,6 +505,30 @@ export default {
                     "",
                   ].join("\n")
                   event.system.push({ type: "text", text: block })
+                }
+              }
+            }
+
+            // ── Graph structure injected into context ───────────────────
+            // Structural context from the knowledge plane: which rules,
+            // skills, patterns, and decisions are graph-relevant to this
+            // prompt. Pure-SQL over graph.db; degrades to nothing when the
+            // graph isn't built or the runtime can't load better-sqlite3.
+            if (MEMORY_ENABLED) {
+              const prompt = FIRST_PROMPT.get(sessionID) ?? ""
+              if (prompt) {
+                if (GRAPH_NODE) {
+                  try {
+                    const structure = graphRecall(directory, prompt, 5)
+                    if (structure.length) {
+                      const block = [
+                        "## Relevant Structure (rio)",
+                        ...structure.map((s) => `- [${s.type}] ${s.title}${s.path ? `  (${s.path})` : ""}`).join("\n"),
+                        "",
+                      ].join("\n")
+                      event.system.push({ type: "text", text: block })
+                    }
+                  } catch {}
                 }
               }
             }
