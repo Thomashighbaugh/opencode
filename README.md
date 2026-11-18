@@ -12,6 +12,44 @@ This repository is the agent's entire operating system. It is not a prompt colle
 runtime with policy enforcement, an incremental knowledge graph, a token budget, and an
 evaluation harness that fails when any of them stop working.
 
+## Getting started
+
+```bash
+# Verify the whole system
+bun run test:run                          # 1331 tests
+npx tsc --noEmit -p tsconfig.json         # config + plugins
+npx tsc --noEmit -p skills/tsconfig.json  # skills
+
+# Rebuild the knowledge plane
+npx tsx skills/graph-context/scripts/graph.ts build
+npx tsx skills/graph-context/scripts/regen-index.ts
+```
+
+Requires Bun and Node 20+. **No daemon and no network** after a one-time model fetch:
+
+```bash
+npx tsx skills/vectorize-context/scripts/prefetch-models.ts   # ~340 MB, once
+```
+
+Every model is then local: embeddings and reranking — no daemon and no network after a one-time model fetch.
+
+## Documentation
+
+| Page | Covers |
+| ---- | ------ |
+| [Architecture](.documentation/architecture.md) | Layer-by-layer design, data flow, extension points |
+| [Event Interception](.documentation/plugins-hooks.md) | `plugins/hooks/` — modes, goal, telemetry, caching, vectorize |
+| [Command Hooks](.documentation/plugins-command-hooks.md) | `plugins/command-hooks/` — declarative shell hooks on events |
+| [Hub Plugin](plugins/hubs/AGENTS.md) | `plugins/hubs/` — picker, vendored corpus, sidebar, `hubDocs` |
+| [ONNX Runtime](.documentation/onnx-runtime.md) | Local embedder, reranker, and gate classifier — no daemon, pooling, measured thresholds |
+| [Memory System](.documentation/memory-system.md) | Durable context, state vs context, the wiki layer |
+| [Knowledge Plane](.documentation/knowledge-plane.md) | Graph + vector retrieval, invariants, incremental rebuilds |
+| [Orchestration](.documentation/subagent-orchestration.md) | 31 subagents, delegation, the `task` tool |
+| [Hub Library](.documentation/hub-library.md) | `hubDocs` capture store — layout, frontmatter, actions, integration |
+| [Rules & Skills](.documentation/rules-and-skills.md) | Rule loading, 127 skills, 29 tools |
+| [Efficiency](.documentation/request-token-efficiency.md) | Request and token budgets |
+| [Testing Strategy](.documentation/testing-strategy.md) | 1,350 behavioural tests and what they protect |
+
 ---
 
 ## Why this exists
@@ -158,48 +196,6 @@ actual runtime:
 | Graph-only recall path                   | Pure SQL fallback when vectors are cold                            |
 
 → [`request-token-efficiency.md`](.documentation/request-token-efficiency.md)
-
----
-
-## Getting started
-
-```bash
-# Verify the whole system
-bun run test:run                          # 1331 tests
-npx tsc --noEmit -p tsconfig.json         # config + plugins
-npx tsc --noEmit -p skills/tsconfig.json  # skills
-
-# Rebuild the knowledge plane
-npx tsx skills/graph-context/scripts/graph.ts build
-npx tsx skills/graph-context/scripts/regen-index.ts
-```
-
-Requires Bun and Node 20+. **No daemon and no network** after a one-time model fetch:
-
-```bash
-npx tsx skills/vectorize-context/scripts/prefetch-models.ts   # ~340 MB, once
-```
-
-Every model is then local: embeddings and reranking — no daemon and no network after a one-time model fetch.
-
----
-
-## Documentation
-
-| Page | Covers |
-| ---- | ------ |
-| [Architecture](.documentation/architecture.md) | Layer-by-layer design, data flow, extension points |
-| [Event Interception](.documentation/plugins-hooks.md) | `plugins/hooks/` — modes, goal, telemetry, caching, vectorize |
-| [Command Hooks](.documentation/plugins-command-hooks.md) | `plugins/command-hooks/` — declarative shell hooks on events |
-| [Hub Plugin](plugins/hubs/AGENTS.md) | `plugins/hubs/` — picker, vendored corpus, sidebar, `hubDocs` |
-| [ONNX Runtime](.documentation/onnx-runtime.md) | Local embedder, reranker, and gate classifier — no daemon, pooling, measured thresholds |
-| [Memory System](.documentation/memory-system.md) | Durable context, state vs context, the wiki layer |
-| [Knowledge Plane](.documentation/knowledge-plane.md) | Graph + vector retrieval, invariants, incremental rebuilds |
-| [Orchestration](.documentation/subagent-orchestration.md) | 31 subagents, delegation, the `task` tool |
-| [Hub Library](.documentation/hub-library.md) | `hubDocs` capture store — layout, frontmatter, actions, integration |
-| [Rules & Skills](.documentation/rules-and-skills.md) | Rule loading, 127 skills, 29 tools |
-| [Efficiency](.documentation/request-token-efficiency.md) | Request and token budgets |
-| [Testing Strategy](.documentation/testing-strategy.md) | 1,350 behavioural tests and what they protect |
 
 ---
 
