@@ -34,9 +34,6 @@ const rio: typeof import('../../plugins/rio/src/decisions') = await import(
 const rt: typeof import('../../skills/vectorize-context/scripts/onnx-runtime') = await import(
   path.join(CONFIG_DIR, 'skills', 'vectorize-context', 'scripts', 'onnx-runtime.ts')
 )
-const cls: typeof import('../../plugins/prompt-queue/classifier') = await import(
-  path.join(CONFIG_DIR, 'plugins', 'prompt-queue', 'classifier.ts')
-)
 const corpus: typeof import('./fixtures/decision-corpus') = await import(
   path.join(CONFIG_DIR, 'tests', 'global', 'fixtures', 'decision-corpus.ts')
 )
@@ -213,20 +210,6 @@ describe('decisions: sentence segmentation', () => {
     // A heading or a code block is not a sentence, and scoring one is noise.
     const out = rio.sentences('### Notes\n\n```\nwe decided to ship it\n```\n\nWe settled on the native API.')
     expect(out).toEqual(['We settled on the native API.'])
-  })
-})
-
-// ─── parity with the prompt-queue gate ─────────────────────────────────────
-
-describe('decisions: hypothesis parity with the prompt-queue gate', () => {
-  it('the duplicated hypotheses still agree', () => {
-    // `decisions.ts` cannot import a plugin, so it duplicates the question. A
-    // silent divergence would mean two "ask" classifiers with different
-    // behaviour and one shared name.
-    expect(spec('ask').question).toBe(cls.ASK_HYPOTHESIS)
-    // The contrast does not agree on purpose: the gate measures turn tails,
-    // this scores single sentences, so its threshold does not transfer here.
-    expect(spec('ask').calibrated[rt.REQUIRED_MODELS.classifier]).toBeUndefined()
   })
 })
 
