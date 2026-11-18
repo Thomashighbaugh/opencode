@@ -16,7 +16,7 @@ import { rerank } from "./rerank.ts"
 import { entailmentScores } from "../../../skills/vectorize-context/scripts/zero-shot.ts"
 import { isCached, REQUIRED_MODELS } from "../../../skills/vectorize-context/scripts/onnx-runtime.ts"
 import { inspect } from "./privacy.ts"
-import { graphRecall } from "../../../skills/graph-context/scripts/graphlib.ts"
+import { graphRecall, type GraphRecallHit } from "../../../skills/graph-context/scripts/graphlib.ts"
 
 const CATEGORY_HYPOTHESES: Array<[Category, string]> = [
   ["preference", "This is a user preference or style choice."],
@@ -57,6 +57,7 @@ export type LearnResult = {
 
 export class MemoryService {
   readonly db: MemoryDb
+  readonly directory: string
   readonly project: string
 
   constructor(directory: string, project?: string) {
@@ -278,13 +279,13 @@ export class MemoryService {
 
   private linkToGraph(memoryId: number, content: string): void {
     if (!MemoryService.GRAPH_NODE) return
-    let hits
+    let hits: GraphRecallHit[] = []
     try {
       hits = graphRecall(this.directory, content, 5)
     } catch {
       hits = []
     }
-    for (const h of hits ?? []) {
+    for (const h of hits) {
       this.db.addLink(memoryId, h.id, h.type, "related_to")
     }
   }

@@ -27,7 +27,7 @@ import { compressShellOutput } from "./src/compress.ts"
 import { buildIntelDigest } from "./src/intel.ts"
 import { qualityNudge, verbosityNudge } from "./src/nudges.ts"
 import { MemoryService } from "./src/memory.ts"
-import { graphRecall } from "../../../skills/graph-context/scripts/graphlib.ts"
+import { graphRecall } from "../../skills/graph-context/scripts/graphlib.ts"
 import { extractDecisions } from "./src/decisions.ts"
 import { DECISIONS, decide, decisionStats } from "../../skills/vectorize-context/scripts/decisions.ts"
 
@@ -63,8 +63,8 @@ export default {
   async setup(ctx: any) {
     let service: Service | null = null
     let memory: MemoryService | null = null
+    const directory: string = ctx?.location?.directory ?? ctx?.directory ?? process.cwd()
     try {
-      const directory: string = ctx?.location?.directory ?? ctx?.directory ?? process.cwd()
       const projectID: string = ctx?.location?.project?.id ?? ""
       service = new Service(directory, projectID, config())
       memory = new MemoryService(directory, projectID)
