@@ -65,6 +65,8 @@ import {
   clearSessionGoal,
 } from "./goal"
 
+import { buildAdhdBlock, isAdhdActive, setAdhdMode, initializeAdhd } from "./adhd"
+
 import { recordTelemetry, classifyToolEvent } from "./telemetry"
 import { ChildRegistry } from "./child-registry"
 import { resolveRuntime } from "./runtime"
@@ -324,6 +326,11 @@ export async function createHooksRuntime({ directory }: { directory: string }) {
         try {
           await initializeGoal(directory, sessionId)
         } catch { /* goal plugin unavailable */ }
+
+        // ── ADHD: recover persisted adhd state ───────────────────
+        try {
+          await initializeAdhd(directory, sessionId)
+        } catch { /* adhd plugin unavailable */ }
 
         break
       }
@@ -1107,6 +1114,24 @@ Propose the mode to the user and ask before activating.
         output.system.push(goalBlock)
       }
     } catch { /* goal plugin unavailable */ }
+
+    // ── ADHD mode injection: action-first output shaping ───────────
+    try {
+      const adhdBlock = buildAdhdBlock(sessionId)
+      if (adhdBlock) {
+        output.system.push(adhdBlock)
+      }
+
+      // "stop adhd mode" / "normal mode" turns the mode off mid-session.
+      const latestUserMsg = (input.messages ?? []).slice().reverse().find((m: any) => m.role === "user")
+      const latestText = latestUserMsg ? String(latestUserMsg.content ?? latestUserMsg.text ?? "") : ""
+      if (isAdhdActive(sessionId) && /stop\s+adhd\s+mode|normal\s+mode/i.test(latestText)) {
+        await setAdhdMode(directory, sessionId, false)
+        output.system.push(
+          `<adhd_mode>\nADHD mode is off. Returning to default output style. Say /adhd on to turn it back on.\n</adhd_mode>\n`,
+        )
+      }
+    } catch { /* adhd plugin unavailable */ }
 
     // ── Efficiency reminder (every turn) ─────────────────────────────
     // The rule lives in rules/efficiency-first.md and is in the system prompt

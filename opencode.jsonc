@@ -516,6 +516,7 @@
         "./rules/anti-sycophancy.md",
         "./rules/anti-refusal.md",
         "./rules/antislop-signal-hygiene.md",
+        "./rules/adhd-mode.md",
         "./rules/efficiency-first.md",
         "./rules/session-artifact-promotion.md",
         "./rules/auto-commit.md",
