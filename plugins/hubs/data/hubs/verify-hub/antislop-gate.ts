@@ -3,10 +3,10 @@ import { HubSubcommandSpec } from "../../hub-data"
 const spec: HubSubcommandSpec = {
   label: "antislop-gate",
   description: "Slop Delivery Gate — PASS/FAIL report before shipping",
-  reminder: "Run the 40-rule slop check + click-through smoke test. PASS/FAIL report blocks delivery.",
+  reminder: "Run the slop check + click-through smoke test. PASS/FAIL report blocks delivery.",
   inline: true,
 
-  detailedDescription: `Anti-slop Delivery Gate. Runs the full 40-rule check (Hard Gate, Purpose-Gate, Quality Locks from rules/antislop.md) plus the Liveliness Toolkit (rules/antislop-liveliness.md), then a R-35 click-through smoke test: every interactive element exercised one at a time, per-element evidence recorded.
+  detailedDescription: `Anti-slop Delivery Gate. Runs the full rule check (Hard Gate, Purpose-Gate, Quality Locks, Prose Signals from rules/antislop.md) plus the Liveliness Toolkit (rules/antislop-liveliness.md), then a R-35 click-through smoke test: every interactive element exercised one at a time, per-element evidence recorded.
 
 ## Output
 

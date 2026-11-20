@@ -183,6 +183,11 @@ Each technique is allowed. FAILS only when it appears as a default without a sta
 
 ### R-16 — Copywriting & Buzzwords
 - **FORBIDDEN**: "AI Powered", "Next Generation", "Revolutionary", "Seamless", "Cutting Edge", "Intelligent", "Ultimate", "Powerful", "Effortless".
+- **FORBIDDEN**: all adverbs. No `-ly` words, no softeners, no intensifiers, no hedges ("really," "just," "literally," "genuinely," "honestly," "simply," "actually," "deeply," "truly," "fundamentally," "inherently," "inevitably," "interestingly," "importantly," "crucially"). Kill emphasis crutches too ("Full stop.", "Period.", "Let that sink in.", "Make no mistake", "Here's why that matters").
+- **FORBIDDEN**: throat-clearing openers ("Here's the thing:", "Here's what…", "Here's this…", "Here's that…", "Here's why…", "The uncomfortable truth is", "It turns out", "The real … is", "Let me be clear", "The truth is,", "I'm going to be honest", "Can we talk about"). State the point directly.
+- **FORBIDDEN**: business jargon ("navigate challenges," "unpack analysis," "lean into," "landscape," "game-changer," "double down," "deep dive," "take a step back," "moving forward," "circle back," "on the same page"). Replace with plain language.
+- **FORBIDDEN**: vague declaratives that announce importance without naming the thing ("The reasons are structural", "The implications are significant", "This is the deepest problem", "The stakes are high", "The consequences are real"). Name the specific thing.
+- **FORBIDDEN**: meta-commentary that announces the text's own structure ("Hint:", "Plot twist:", "The rest of this essay explains…", "Let me walk you through…", "In this section, we'll…", "As we'll see…"). The essay moves; it does not announce itself.
 - Use specific language explaining real benefits. Show evidence, not claims.
 
 ### R-20 — Visual Identity
@@ -205,3 +210,69 @@ Each technique is allowed. FAILS only when it appears as a default without a sta
 ### R-31 — Every Decision Must Have a Reason (Write It Down)
 - Before finishing, write a one-line reason for every major decision: why this color? layout? typography? spacing? cards? illustration? icon?
 - If the reason cannot be written in one line, the decision is not valid and must be revisited. This rule is the keystone: a technique is allowed only when its purpose is articulable.
+
+---
+
+## Group 4: Prose Signals (stop-slop)
+
+AI writing has predictable patterns: throat-clearing, binary contrasts, negative listings, dramatic fragmentation, rhetorical setups, false agency, narrator-from-a-distance voice, passive voice, Wh- openers, lazy extremes, all adverbs. These rules strip them out. Source: https://github.com/hardikpandya/stop-slop
+
+### R-41 — Passive Voice & False Agency
+- **FORBIDDEN**: passive voice that hides the actor ("X was created", "It is believed that", "Mistakes were made", "The decision was reached"). Find the actor. Put them at the front of the sentence.
+- **FORBIDDEN**: false agency — giving inanimate things human verbs ("a complaint becomes a fix", "a bet lives or dies", "the decision emerges", "the culture shifts", "the data tells us", "the market rewards"). Name the human. "The team fixed it that week" beats "the complaint becomes a fix." If no specific person fits, use "you."
+
+### R-42 — Narrator-from-a-Distance
+- **FORBIDDEN**: floating above the scene instead of putting the reader in it ("Nobody designed this.", "This happens because…", "This is why…", "People tend to…"). Put the reader in the room. "You don't sit down one day and decide to…" beats "Nobody designed this."
+
+### R-43 — Wh- Sentence Starters
+- **FORBIDDEN**: sentences starting with What, When, Where, Which, Who, Why, How ("What makes this hard is…"). Restructure to lead with the subject or verb ("The constraint is…"). Paragraphs starting with "So" — start with content. Sentences starting with "Look," — remove.
+
+### R-44 — Binary Contrasts
+- **FORBIDDEN**: formulaic reversals ("Not because X. Because Y.", "[X] isn't the problem. [Y] is.", "The answer isn't X. It's Y.", "It feels like X. It's actually Y.", "The question isn't X. It's Y.", "Not X. But Y.", "isn't X, it's Y", "stops being X and starts being Y", "doesn't mean X, but actually Y", "is about X but not Y", "not just X but also Y"). State Y directly. Drop the negation entirely.
+
+### R-45 — Negative Listings
+- **FORBIDDEN**: listing what something is *not* before revealing what it *is* ("Not a X… Not a Y… A Z.", "It wasn't X. It wasn't Y. It was Z."). State Z. The reader doesn't need the runway.
+
+### R-46 — Dramatic Fragmentation
+- **FORBIDDEN**: sentence fragments for emphasis ("[Noun]. That's it. That's the [thing].", "X. And Y. And Z.", "This unlocks something. [Word]."). Complete sentences. Trust content over presentation.
+
+### R-47 — Rhetorical Setups
+- **FORBIDDEN**: announcing insight rather than delivering it ("What if [reframe]?", "Here's what I mean:", "Think about it:", "And that's okay."). Make the point. Let readers draw conclusions.
+
+### R-48 — Lazy Extremes
+- **FORBIDDEN**: "every," "always," "never," "everyone," "everybody," "nobody" doing vague work. False authority. Use specifics instead of sweeping claims.
+
+---
+
+## Scoring (stop-slop)
+
+Rate prose 1–10 on each dimension before delivering:
+
+| Dimension | Question |
+|-----------|----------|
+| Directness | Statements or announcements? |
+| Rhythm | Varied or metronomic? |
+| Trust | Respects reader intelligence? |
+| Authenticity | Sounds human? |
+| Density | Anything cuttable? |
+
+Below 35/50: revise. These are guiderails, not a separate gate — use them to self-check the copywriting and prose rules above.
+
+---
+
+## Quick Checks (pre-send)
+
+Run these before delivering prose. Any hit = revise:
+
+- Any adverbs? Kill them.
+- Any passive voice? Find the actor, make them the subject.
+- Inanimate thing doing a human verb ("the decision emerges")? Name the person.
+- Sentence starts with a Wh- word? Restructure it.
+- Any "here's what/this/that" throat-clearing? Cut to the point.
+- Any "not X, it's Y" contrast? State Y directly.
+- Three consecutive sentences match length? Break one.
+- Paragraph ends with a punchy one-liner? Vary it.
+- Em-dash anywhere? Remove it. Use commas or periods.
+- Vague declarative ("The implications are significant")? Name the specific implication.
+- Narrator-from-a-distance ("Nobody designed this")? Put the reader in the scene.
+- Meta-joiner ("The rest of this essay…")? Delete. Let the essay move.
