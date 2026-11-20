@@ -19,7 +19,6 @@
 import { createHooksRuntime } from "./hooks.ts"
 import { queueContextMessage } from "./session.ts"
 import { blockGoal, clearGoal, completeGoal, formatGoalStatus, pauseGoal, resumeGoal, setGoal } from "./goal.ts"
-import { setAdhdMode, isAdhdActive, buildAdhdBlock } from "./adhd.ts"
 import { maybeContinueGoal } from "./goal-wire.ts"
 
 
@@ -144,50 +143,6 @@ export default {
           },
         })
       })
-
-    if (ctx.command?.transform) {
-      await ctx.command.transform((editor: any) => {
-        editor.add({
-          name: "adhd",
-          description: "ADHD output mode. /adhd on | off | status — lead with the next action, number steps, end with one concrete next step.",
-          async execute(invocation: any) {
-            const sessionID = String(invocation?.sessionID ?? invocation?.sessionId ?? "")
-            if (!sessionID) return
-            const prompt = invocation?.prompt
-            const promptTextValue = typeof prompt?.text === "string"
-              ? prompt.text
-              : Array.isArray(prompt?.parts)
-                ? prompt.parts.filter((part: any) => part?.type === "text").map((part: any) => part.text ?? "").join(" ")
-                : ""
-            const raw = String(
-              invocation?.arguments ?? invocation?.args ?? invocation?.input ?? invocation?.text ?? promptTextValue ?? "",
-            ).trim()
-            const reply = async (message: string) => {
-              try { await ctx.session.prompt({ sessionID, text: message, resume: false }) } catch {}
-            }
-            const cmd = raw.toLowerCase()
-            try {
-              if (!raw || cmd === "status") {
-                return await reply(isAdhdActive(sessionID)
-                  ? "ADHD mode is active. Output is shaped for action-first reading. /adhd off to turn it off."
-                  : "ADHD mode is off. /adhd on to turn it on.")
-              }
-              if (cmd === "on") {
-                await setAdhdMode(directory, sessionID, true)
-                return await reply("ADHD mode on. Lead with the next action, number steps, end with one concrete next step.")
-              }
-              if (cmd === "off") {
-                await setAdhdMode(directory, sessionID, false)
-                return await reply("ADHD mode off. Returning to default output style.")
-              }
-              return await reply('Usage: /adhd on | off | status')
-            } catch (error) {
-              await reply(`ADHD command failed: ${error instanceof Error ? error.message : String(error)}`)
-            }
-          },
-        })
-      })
-    }
     }
 
     if (typeof hooks?.["tool.execute.before"] === "function") {

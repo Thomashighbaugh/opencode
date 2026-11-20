@@ -30,8 +30,6 @@ import { MemoryService } from "./src/memory.ts"
 import { graphRecall } from "../../skills/graph-context/scripts/graphlib.ts"
 import { extractDecisions } from "./src/decisions.ts"
 import { DECISIONS, decide, decisionStats } from "../../skills/vectorize-context/scripts/decisions.ts"
-import { readFileSync, existsSync } from "node:fs"
-import { join } from "node:path"
 
 /** graph.db uses better-sqlite3, which hard-crashes under bun. Node-only. */
 const GRAPH_NODE = typeof process.versions?.bun === "undefined"
@@ -534,29 +532,6 @@ export default {
                 }
               }
             }
-
-            // ── ADHD mode reinforcement (rio) ────────────────────────
-            // Short reminder that ADHD output mode is active. Reads the
-            // persisted state file directly (rio imports nothing from hooks);
-            // the full <adhd_mode> block is always injected by the hooks
-            // context transform, so this is additive, not duplicative.
-            try {
-              const adhdStatePath = join(directory, ".opencode", "state", "adhd", "state.json")
-              let active = false
-              if (existsSync(adhdStatePath)) {
-                try {
-                  const parsed = JSON.parse(readFileSync(adhdStatePath, "utf8"))
-                  active = Boolean(parsed?.active)
-                } catch {}
-              }
-              if (active) {
-                event.system.push({
-                  type: "text",
-                  text:
-                    "[rio] ADHD mode active: lead with the next action, number multi-step work, end with one concrete next step.",
-                })
-              }
-            } catch {}
 
             const quality = await service.quality(sessionID)
             const previous = LAST_SCORE.get(sessionID) ?? null
