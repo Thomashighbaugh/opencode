@@ -256,7 +256,7 @@ Rate prose 1–10 on each dimension before delivering:
 | Authenticity | Sounds human? |
 | Density | Anything cuttable? |
 
-Below 35/50: revise. These are guiderails, not a separate gate — use them to self-check the copywriting and prose rules above.
+Below 42/50: revise. These are guiderails, not a separate gate — use them to self-check the copywriting and prose rules above.
 
 ---
 
