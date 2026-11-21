@@ -5,6 +5,11 @@
       "id": "mw5jx98m-d1laa",
       "text": "implement decisions model (hopefully onnxruntime and local) to ease the use of larger models in cases mechanical tools are too complex or fickle",
       "createdAt": "2026-11-06T22:34:00.070Z"
+    },
+    {
+      "id": "mwpnxaj3-zlq7i",
+      "text": "hubs menu subcommand hotkey to see the whole subcommand definition (crtl+s) does not show the subcommand definition but has an identical function to hitting escape",
+      "createdAt": "2026-11-21T00:21:23.727Z"
     }
   ]
 }

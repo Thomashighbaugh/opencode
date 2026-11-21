@@ -185,6 +185,61 @@ export const DECISIONS = {
     defaultWhenUnavailable: false,
     window: 600,
   },
+
+  /**
+   * Can a mechanical tool (regex / rule) handle this task without reasoning?
+   *
+   * Mechanical is tried first because it is deterministic and free. Clear
+   * mechanical tasks fire a cue; clear non-mechanical tasks fire a veto.
+   * Borderline tasks fall through to the local model — but only when its
+   * threshold has been measured (see the calibration rule). Uncalibrated, this
+   * defaults to false and the router escalates rather than guessing.
+   */
+  mechanicalSufficient: {
+    id: 'mechanicalSufficient',
+    question: 'This task can be handled by a simple rule or regex without reasoning.',
+    contrast: 'This task requires reasoning, judgment, or synthesis.',
+    cues: [
+      /\b(read|show|cat|grep|search|count|list|extract|what is the value|regex match)\b/i,
+      /\b(contents|contents of|file contents|line count|file has \d+ lines)\b/i,
+    ],
+    vetoes: [
+      /\?\s*$/,
+      /\b(?:should|could|would|might|may|option|alternative|approach)\b/i,
+      /\b(?:design|architect|refactor|synthesize|novel|complex|trade.?off|decide|which|best|evaluate)\b/i,
+      /\b(?:reasoning|judgment|trade.?off|novel|synthesis)\b/i,
+    ],
+    calibrated: {},
+    defaultWhenUnavailable: false,
+    window: 400,
+  },
+
+  /**
+   * Does this task need a large provider model, or is the local ONNX model enough?
+   *
+   * true  → escalate to a large model.
+   * false → the local model (or mechanical) can handle it.
+   *
+   * This is the gate that eases the use of larger models: a large model is
+   * reached only when mechanical declines and the calibrated local model agrees
+   * the task is beyond it. Uncalibrated, defaults to false (do not escalate),
+   * so the router never burns an expensive call on an invented threshold.
+   */
+  needsLargeModel: {
+    id: 'needsLargeModel',
+    question: 'This task needs complex multi-step reasoning or novel synthesis beyond classification.',
+    contrast: 'This task needs only classification, extraction, or formatting over given text.',
+    cues: [
+      /\b(?:architect|design system|refactor|trade.?off|novel|synthesize|multi.?step|complex reasoning|compare|evaluate|which is better)\b/i,
+      /\b(?:reasoning|judgment|novel|synthesis|trade.?off)\b/i,
+    ],
+    vetoes: [
+      /\b(?:classify|extract|format|summarize|regex|grep|count|list|convert|normalize|what is)\b/i,
+    ],
+    calibrated: {},
+    defaultWhenUnavailable: false,
+    window: 400,
+  },
 } as const satisfies Record<string, DecisionSpec>
 
 export type DecisionId = keyof typeof DECISIONS
