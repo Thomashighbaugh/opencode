@@ -35,6 +35,44 @@ export function formatMenu(items: MenuItem[]): string {
   return items.map((it) => `• ${it.label} — ${it.detail}`).join("\n")
 }
 
+/** Return a formatted full definition for a subcommand (the "expand" view). */
+export function expandSubcommand(id: string): string | null {
+  const item = buildMenuItems().find((it) => it.id === id)
+  if (!item) return null
+
+  const lines: string[] = []
+  lines.push(`${item.label} — ${id}`)
+  lines.push("")
+  lines.push(`Description: ${item.detail}`)
+
+  const descriptions: Record<string, string> = {
+    status: "Shows live context health, fill %, tool count, and quality grade for the current session.",
+    compact: "Triggers context compaction for the current session (checkpoint before, restore after).",
+    resume: "Finds the most recent checkpoint and shows resume information (trigger, mode, quality score).",
+    compress: "Estimates tokens savable via local compression of large tool output entries.",
+    route: "Recommends model + effort routing (standard / reasoning / high) based on session health and fill.",
+    savings: "Shows dollar and token savings report for the last 30 days of recorded events.",
+    audit: "Full context audit with guided fixes — quality score, fill %, efficiency, and actionable advice.",
+    config: "Lists all rio feature flags and their current boolean values.",
+    memory: "Browses active memories for the current session — total count, by-origin breakdown, recent hits.",
+    recall: "Performs semantic + lexical (FTS) memory recall for the current session.",
+    coach: "30-day trend analysis with specific, actionable fixes for fill, efficiency, and resource health.",
+    doctor: "Installation and health check — plugin loaded, database connection, nudge delivery mode.",
+    report: "Per-component token breakdown — stale reads, bloated results, decision density, agent efficiency, absolute waste.",
+    "memory-review": "MEMORY.md / context structural audit — lists context files, wiki index, decisions, patterns, vector DB.",
+    expand: "Retrieve archived tool result — use /rio recall <query> to search archived memories and outputs.",
+    "resume-lean": "Lean context reconstruction from the most recent checkpoint — trigger, mode, quality score, content preview.",
+  }
+
+  lines.push("")
+  lines.push("## Operation")
+  lines.push(descriptions[id] ?? "No detailed description available.")
+  lines.push("")
+  lines.push("## Type: rio built-in (local, no inference turn)")
+
+  return lines.join("\n")
+}
+
 export async function runMenuAction(
   sub: string,
   service: any,

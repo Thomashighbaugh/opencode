@@ -501,7 +501,8 @@
         "./plugins/toon",
         "./plugins/env-protection",
         "./plugins/ax-guard",
-        "./plugins/rio"
+        "./plugins/rio",
+        "./plugins/design-system"
     ],
     "instructions": [
         "AGENTS.md",

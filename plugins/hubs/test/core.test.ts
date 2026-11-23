@@ -3,15 +3,16 @@ import { describe, expect, test } from "bun:test"
 import { hubNames, hubSummaries, render, renderIndex, resume, route, status } from "../src/core"
 
 describe("registry", () => {
-  test("exposes all 14 hubs", () => {
-    expect(hubNames()).toHaveLength(14)
+  test("exposes all 13 hubs", () => {
+    expect(hubNames()).toHaveLength(13)
     expect(hubNames()).toContain("git-hub")
     expect(hubNames()).toContain("hub-setup")
+    expect(hubNames()).toContain("docs-hub")
   })
 
   test("summaries carry subcommand lists", () => {
     const summaries = hubSummaries()
-    expect(summaries).toHaveLength(14)
+    expect(summaries).toHaveLength(13)
     const git = summaries.find((entry) => entry.name === "git-hub")
     expect(git?.subcommands).toContain("commit")
   })
@@ -66,7 +67,7 @@ describe("route", () => {
   test("render is parseable JSON", () => {
     const text = render(route("git-hub", "commit"))
     expect(typeof JSON.parse(text)).toBe("object")
-    expect(JSON.parse(renderIndex()).hubs).toHaveLength(14)
+    expect(JSON.parse(renderIndex()).hubs).toHaveLength(13)
   })
 })
 

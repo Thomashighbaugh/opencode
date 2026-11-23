@@ -5,7 +5,7 @@
 import { createEffect, createSignal, onCleanup } from "solid-js"
 import { Service, config } from "./src/service.ts"
 import { MemoryService } from "./src/memory.ts"
-import { buildMenuItems, runMenuAction } from "./src/menu.ts"
+import { buildMenuItems, expandSubcommand, runMenuAction } from "./src/menu.ts"
 
 export default {
   id: "remote_inference_endpoint_optimizations",
@@ -81,6 +81,7 @@ export default {
     async function openRioMenu() {
       try {
         const items = buildMenuItems()
+        let showDefFor: string | null = null
         const choice = await (ctx.ui.dialog.select as any)({
           title: `Rio — ${items.length} subcommands`,
           placeholder: "Filter subcommands",
@@ -96,8 +97,42 @@ export default {
               `${option.title} ${option.description ?? ""}`.toLowerCase().includes(needle),
             )
           },
+          actions: [
+            {
+              bind: "ctrl+s",
+              title: "Full definition",
+              onTrigger: (subLabel) => { showDefFor = subLabel; return "back" as const },
+            },
+            {
+              bind: "ctrl+," ,
+              title: "Back to rio",
+              side: "right",
+              selection: "none",
+              onTrigger: () => "back" as const,
+            },
+          ],
         })
         if (!choice) return
+
+        if (showDefFor) {
+          const expanded = expandSubcommand(showDefFor) ?? `No definition for "${showDefFor}"`
+          ctx.ui.dialog.show(() => (
+            <scrollbox width="100%" height="100%" scrollY>
+              <box flexDirection="column" padding={1}>
+                <text fg={ctx.theme.text.muted}>{expanded}</text>
+              
+              
+            </scrollbox>
+          ))
+          ctx.ui.dialog.set({ size: "xlarge", centered: true })
+          // Reopen the menu after viewing the expanded definition
+          await openRioMenu()
+          return
+        }
+        if (choice === "back") {
+          await openRioMenu()
+          return
+        }
         const result = await runMenuAction(choice, service, memory, ctx)
         await submit(result)
       } catch (error) {

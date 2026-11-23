@@ -10,7 +10,7 @@ import hubSetupHub from '../../plugins/hubs/data/hub-hub-setup'
 import resourceHub from '../../plugins/hubs/data/hub-resource-hub'
 import memoryHub from '../../plugins/hubs/data/hub-memory-hub'
 import researchHub from '../../plugins/hubs/data/hub-research-hub'
-import designHub from '../../plugins/hubs/data/hub-design-hub'
+import docsHub from '../../plugins/hubs/data/hub-docs-hub'
 import ideateHub from '../../plugins/hubs/data/hub-ideate-hub'
 import planHub from '../../plugins/hubs/data/hub-plan-hub'
 import verifyHub from '../../plugins/hubs/data/hub-verify-hub'
@@ -22,7 +22,7 @@ import maintainHub from '../../plugins/hubs/data/hub-maintain-hub'
 
 const GLOBAL_DIR = getGlobalConfigDir()
 
-const hubs = [hubSetupHub, resourceHub, memoryHub, researchHub, designHub, ideateHub, planHub, verifyHub, swarmHub, buildHub, orchestrateHub, gitHub, maintainHub]
+const hubs = [hubSetupHub, resourceHub, memoryHub, researchHub, docsHub, ideateHub, planHub, verifyHub, swarmHub, buildHub, orchestrateHub, gitHub, maintainHub]
 
 function checkDelegation(
   label: string,
@@ -62,7 +62,7 @@ describe('hub subcommand delegation', () => {
   it('loads all 13 hub definitions', () => {
     expect(hubs.length).toBe(13)
     const names = hubs.map((h) => h.name).sort()
-    expect(names).toEqual(['build-hub', 'design-hub', 'git-hub', 'ideate-hub', 'maintain-hub', 'memory-hub', 'orchestrate-hub', 'plan-hub', 'research-hub', 'hub-setup', 'resource-hub', 'swarm-hub', 'verify-hub'].sort())
+    expect(names).toEqual(['build-hub', 'docs-hub', 'git-hub', 'ideate-hub', 'maintain-hub', 'memory-hub', 'orchestrate-hub', 'plan-hub', 'research-hub', 'hub-setup', 'resource-hub', 'swarm-hub', 'verify-hub'].sort())
   })
 
   for (const hub of hubs) {
