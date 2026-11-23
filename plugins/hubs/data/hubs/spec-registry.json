@@ -244,25 +244,32 @@
       }
     ]
   },
+  "design-hub/design-md": {
+    "label": "design-md",
+    "description": "Create a DESIGN.md describing the front end / interface of a project",
+    "reminder": "Writes DESIGN.md from project context: page type, site kind, visual direction, brand, tone.",
+    "inline": true,
+    "detailedDescription": "Creates DESIGN.md — the design brief file that the taste-skill gate reads when present. It describes the front end or interface of the project so agents and the gate know what visual standard to aim for.\n\nThe DESIGN.md contains:\n\n- **Page type & site kind** — software / gaming / tech / product / service / place, derived from what the project sells\n- **Category** — what is sold (e.g. \"SaaS dashboard\", \"coffee shop\", \"game studio\", \"AI developer tool\")\n- **Primary action** — the main user action on the page (e.g. \"sign up\", \"order\", \"book\", \"download\")\n- **Visual direction** — tone (quiet / bold / playful / technical), color strategy, typography approach, photography stance\n- **Brand** — name, real icon reference if any, edge treatment, hover micro-interaction stance\n- **Constraints** — no shader scenes on non-tech pages, real photographs over illustration, equal left/right content edges, hero enters on load, one dealt moment per page\n\nWhen DESIGN.md exists, /design-hub taste reads it automatically to set --kind, --category, and --primary for the gate. DESIGN.md is optional — the taste gate runs without it — but having it makes the gate's checks targeted instead of generic.\n\n## Examples\n\n| Input | Approach |\n|-------|----------|\n| /design-hub design-md | Interviews briefly, writes DESIGN.md in the project root |\n| /design-hub design-md --path docs/DESIGN.md | Writes DESIGN.md to a specific path |\n\n## Warnings\n\n- DESIGN.md is a design brief, not a spec. It describes intent, not implementation.\n- The taste gate reads page-type / site-kind metas from HTML pages; DESIGN.md supplies the same intent when no page yet exists.\n\n",
+    "tools": [
+      "read",
+      "write",
+      "edit",
+      "bash"
+    ],
+    "rules": [
+      "file-operations",
+      "writing-style"
+    ],
+    "relatedSkills": [
+      "taste-skill"
+    ]
+  },
   "design-hub/designer": {
     "label": "designer",
     "description": "UI/UX designer-developer — pass instructions directly to @designer",
     "reminder": "Delegating to @designer.",
     "agent": "@designer",
     "detailedDescription": "Delegates directly to the @designer agent. The remainder of your prompt will be passed as specific instructions to the agent."
-  },
-  "design-hub/docs": {
-    "label": "docs",
-    "description": "Generate hierarchical AGENTS.md documentation across the codebase",
-    "reminder": "Generate hierarchical AGENTS.md documentation.",
-    "skill": "deepinit",
-    "phases": "4",
-    "detailedDescription": "Generates hierarchical AGENTS.md documentation across the codebase using the deepinit skill. Scans each meaningful directory and writes an AGENTS.md with:\n\n- What the directory/module does\n- Key files and their purposes\n- Patterns and conventions\n- Dependencies\n- Testing approach\n\nParent AGENTS.md files summarize; child files detail. An agent reading any AGENTS.md gets context for that directory.\n\nUse to create AI-navigable documentation. Especially valuable before large refactoring or for onboarding new agents to a brownfield codebase.",
-    "tools": [
-      "loadSkill",
-      "bash"
-    ],
-    "relatedSkills": []
   },
   "design-hub/frontend-design": {
     "label": "frontend-design",
@@ -283,18 +290,480 @@
     ],
     "relatedSkills": []
   },
-  "design-hub/readme": {
-    "label": "readme",
-    "description": "Rewrite README to match the current codebase, keeping its tone",
-    "reminder": "Update README with current codebase state.",
-    "skill": "readme-updater",
-    "detailedDescription": "Updates the README to reflect the current codebase state via the readme-updater skill. Scans:\n\n- Agents, skills, tools, rules, commands, archetypes (each with agents/, rules/, skills/, tools/ subdirs), plugins.\n- Project structure and configuration.\n- Existing README content.\n\nWhen documenting archetypes, note that each contains four subdirectories (agents/, rules/, skills/, tools/) — all four must be provisioned per-project: agents/ and rules/ go in opencode.jsonc, skills/ and tools/ are copied/linked into .opencode/.\n\nPreserves the existing tone, links, and structure — it updates content, doesn't rewrite from scratch. Output is SEO-optimized and technically proficient.\n\nUse when the codebase has changed significantly and the README is stale. Not for creating a README from scratch (use /resource-hub create command or writing skills for that).",
+  "design-hub/impeccable-adapt": {
+    "label": "impeccable-adapt",
+    "description": "Adapt for devices and screen sizes (impeccable adapt)",
+    "reminder": "Runs impeccable adapt against the target.",
+    "inline": true,
+    "detailedDescription": "Runs `impeccable adapt <target>` via the impeccable skill launcher to adapt a design for different devices and screen sizes (responsive behavior). Pass a target path as the argument. See reference/adapt.md in skills/impeccable/reference/.",
     "tools": [
-      "loadSkill",
-      "bash"
+      "read",
+      "bash",
+      "agentContext"
+    ],
+    "rules": [
+      "antislop",
+      "antislop-liveliness",
+      "file-operations"
     ],
     "relatedSkills": [
-      "crafting-effective-readmes"
+      "impeccable"
+    ]
+  },
+  "design-hub/impeccable-animate": {
+    "label": "impeccable-animate",
+    "description": "Add purposeful animations (impeccable animate)",
+    "reminder": "Runs impeccable animate against the target.",
+    "inline": true,
+    "detailedDescription": "Runs `impeccable animate <target>` via the impeccable skill launcher to add purposeful animations and motion feedback. Pass a target path as the argument. See reference/animate.md in skills/impeccable/reference/.",
+    "tools": [
+      "read",
+      "bash",
+      "agentContext"
+    ],
+    "rules": [
+      "antislop",
+      "antislop-liveliness",
+      "file-operations"
+    ],
+    "relatedSkills": [
+      "impeccable"
+    ]
+  },
+  "design-hub/impeccable-audit": {
+    "label": "impeccable-audit",
+    "description": "Technical quality report: a11y, perf, responsive (impeccable audit)",
+    "reminder": "Runs impeccable audit against the target.",
+    "inline": true,
+    "detailedDescription": "Runs `impeccable audit <target>` via the impeccable skill launcher to produce a technical quality report covering accessibility, performance, theming, and responsive behavior, with findings ranked P0 (blocking) to P3 (polish). Pass a target path as the argument. See reference/audit.md in skills/impeccable/reference/.",
+    "tools": [
+      "read",
+      "bash",
+      "agentContext"
+    ],
+    "rules": [
+      "antislop",
+      "antislop-liveliness",
+      "file-operations"
+    ],
+    "relatedSkills": [
+      "impeccable"
+    ]
+  },
+  "design-hub/impeccable-bolder": {
+    "label": "impeccable-bolder",
+    "description": "Amplify safe or bland designs (impeccable bolder)",
+    "reminder": "Runs impeccable bolder against the target.",
+    "inline": true,
+    "detailedDescription": "Runs `impeccable bolder <target>` via the impeccable skill launcher to amplify safe or bland designs with a distinct point of view. Pass a target path as the argument. See reference/bolder.md in skills/impeccable/reference/.",
+    "tools": [
+      "read",
+      "bash",
+      "agentContext"
+    ],
+    "rules": [
+      "antislop",
+      "antislop-liveliness",
+      "file-operations"
+    ],
+    "relatedSkills": [
+      "impeccable"
+    ]
+  },
+  "design-hub/impeccable-clarify": {
+    "label": "impeccable-clarify",
+    "description": "Improve UX copy, labels, errors (impeccable clarify)",
+    "reminder": "Runs impeccable clarify against the target.",
+    "inline": true,
+    "detailedDescription": "Runs `impeccable clarify <target>` via the impeccable skill launcher to improve UX copy, labels, and error messages. Pass a target path as the argument. See reference/clarify.md in skills/impeccable/reference/.",
+    "tools": [
+      "read",
+      "bash",
+      "agentContext"
+    ],
+    "rules": [
+      "writing-style",
+      "file-operations"
+    ],
+    "relatedSkills": [
+      "impeccable"
+    ]
+  },
+  "design-hub/impeccable-colorize": {
+    "label": "impeccable-colorize",
+    "description": "Add strategic color to monochrome UIs (impeccable colorize)",
+    "reminder": "Runs impeccable colorize against the target.",
+    "inline": true,
+    "detailedDescription": "Runs `impeccable colorize <target>` via the impeccable skill launcher to add strategic color to monochromatic UIs. Pass a target path as the argument. See reference/colorize.md in skills/impeccable/reference/.",
+    "tools": [
+      "read",
+      "bash",
+      "agentContext"
+    ],
+    "rules": [
+      "antislop",
+      "antislop-liveliness",
+      "file-operations"
+    ],
+    "relatedSkills": [
+      "impeccable"
+    ]
+  },
+  "design-hub/impeccable-craft": {
+    "label": "impeccable-craft",
+    "description": "Ordinary new-work build (impeccable craft, deprecated)",
+    "reminder": "Runs impeccable craft — deprecated alias for ordinary new-work.",
+    "inline": true,
+    "detailedDescription": "Runs `impeccable craft <feature>` via the impeccable skill launcher. craft is a deprecated alias for an ordinary new-work build request — it adds nothing beyond what `impeccable shape` + `impeccable new-work` already do. Pass a feature description as the argument. See reference/craft.md in skills/impeccable/reference/.",
+    "tools": [
+      "read",
+      "bash",
+      "agentContext"
+    ],
+    "rules": [
+      "file-operations",
+      "writing-style"
+    ],
+    "relatedSkills": [
+      "impeccable"
+    ]
+  },
+  "design-hub/impeccable-critique": {
+    "label": "impeccable-critique",
+    "description": "Scored UX design review (impeccable critique)",
+    "reminder": "Runs impeccable critique against the target.",
+    "inline": true,
+    "detailedDescription": "Runs `impeccable critique <target>` via the impeccable skill launcher to perform a scored UX design review of a page, component, or flow. Pass a target path as the argument. Produces ranked findings. See reference/critique.md in skills/impeccable/reference/.",
+    "tools": [
+      "read",
+      "bash",
+      "agentContext"
+    ],
+    "rules": [
+      "antislop",
+      "antislop-liveliness",
+      "file-operations"
+    ],
+    "relatedSkills": [
+      "impeccable"
+    ]
+  },
+  "design-hub/impeccable-delight": {
+    "label": "impeccable-delight",
+    "description": "Add personality, memorable touches (impeccable delight)",
+    "reminder": "Runs impeccable delight against the target.",
+    "inline": true,
+    "detailedDescription": "Runs `impeccable delight <target>` via the impeccable skill launcher to add personality and memorable touches to an interface. Pass a target path as the argument. See reference/delight.md in skills/impeccable/reference/.",
+    "tools": [
+      "read",
+      "bash",
+      "agentContext"
+    ],
+    "rules": [
+      "antislop",
+      "antislop-liveliness",
+      "file-operations"
+    ],
+    "relatedSkills": [
+      "impeccable"
+    ]
+  },
+  "design-hub/impeccable-distill": {
+    "label": "impeccable-distill",
+    "description": "Strip to essence, remove complexity (impeccable distill)",
+    "reminder": "Runs impeccable distill against the target.",
+    "inline": true,
+    "detailedDescription": "Runs `impeccable distill <target>` via the impeccable skill launcher to strip a design to its essence and remove complexity. Pass a target path as the argument. See reference/distill.md in skills/impeccable/reference/.",
+    "tools": [
+      "read",
+      "bash",
+      "agentContext"
+    ],
+    "rules": [
+      "antislop",
+      "antislop-liveliness",
+      "file-operations"
+    ],
+    "relatedSkills": [
+      "impeccable"
+    ]
+  },
+  "design-hub/impeccable-document": {
+    "label": "impeccable-document",
+    "description": "Generate DESIGN.md from existing code (impeccable document)",
+    "reminder": "Runs impeccable document to write DESIGN.md.",
+    "inline": true,
+    "detailedDescription": "Runs `impeccable document` via the impeccable skill launcher to generate DESIGN.md from existing project code. Captures the visual system and design intent into DESIGN.md so changes stay on-brand. The taste-skill gate reads DESIGN.md automatically when present. See reference/document.md in skills/impeccable/reference/.",
+    "tools": [
+      "read",
+      "write",
+      "bash",
+      "agentContext"
+    ],
+    "rules": [
+      "file-operations",
+      "writing-style"
+    ],
+    "relatedSkills": [
+      "impeccable",
+      "taste-skill"
+    ]
+  },
+  "design-hub/impeccable-extract": {
+    "label": "impeccable-extract",
+    "description": "Pull tokens/components into design system (impeccable extract)",
+    "reminder": "Runs impeccable extract against the target.",
+    "inline": true,
+    "detailedDescription": "Runs `impeccable extract <target>` via the impeccable skill launcher to pull repeated patterns into the design system as tokens and components. Pass a target path as the argument. See reference/extract.md in skills/impeccable/reference/.",
+    "tools": [
+      "read",
+      "write",
+      "bash",
+      "agentContext"
+    ],
+    "rules": [
+      "file-operations",
+      "writing-style"
+    ],
+    "relatedSkills": [
+      "impeccable"
+    ]
+  },
+  "design-hub/impeccable-generate": {
+    "label": "impeccable-generate",
+    "description": "Generate element variants (impeccable generate)",
+    "reminder": "Runs impeccable generate <n> <action> <element>.",
+    "inline": true,
+    "detailedDescription": "Runs `impeccable generate <n> <action> <element>` via the impeccable skill launcher to produce variants, versions, or alternatives of a named element to choose from in the live browser, with no manual picking. See reference/generate.md in skills/impeccable/reference/.",
+    "tools": [
+      "read",
+      "bash",
+      "agentContext"
+    ],
+    "rules": [
+      "file-operations"
+    ],
+    "relatedSkills": [
+      "impeccable"
+    ]
+  },
+  "design-hub/impeccable-harden": {
+    "label": "impeccable-harden",
+    "description": "Production-ready: errors, i18n, edge cases (impeccable harden)",
+    "reminder": "Runs impeccable harden against the target.",
+    "inline": true,
+    "detailedDescription": "Runs `impeccable harden <target>` via the impeccable skill launcher to make a design production-ready: error handling, i18n, overflow, and edge cases. Pass a target path as the argument. See reference/harden.md in skills/impeccable/reference/.",
+    "tools": [
+      "read",
+      "bash",
+      "agentContext"
+    ],
+    "rules": [
+      "antislop",
+      "antislop-liveliness",
+      "file-operations"
+    ],
+    "relatedSkills": [
+      "impeccable"
+    ]
+  },
+  "design-hub/impeccable-init": {
+    "label": "impeccable-init",
+    "description": "Capture product context in PRODUCT.md (impeccable init)",
+    "reminder": "Runs impeccable init to write PRODUCT.md.",
+    "inline": true,
+    "detailedDescription": "Runs `impeccable init` via the impeccable skill launcher to capture durable product context in PRODUCT.md. Reads existing project context, asks only what it can't infer, and writes PRODUCT.md. Every later impeccable command reads it. See reference/init.md in skills/impeccable/reference/.",
+    "tools": [
+      "read",
+      "write",
+      "bash",
+      "agentContext"
+    ],
+    "rules": [
+      "file-operations",
+      "writing-style"
+    ],
+    "relatedSkills": [
+      "impeccable"
+    ]
+  },
+  "design-hub/impeccable-layout": {
+    "label": "impeccable-layout",
+    "description": "Fix spacing, rhythm, visual hierarchy (impeccable layout)",
+    "reminder": "Runs impeccable layout against the target.",
+    "inline": true,
+    "detailedDescription": "Runs `impeccable layout <target>` via the impeccable skill launcher to fix spacing, rhythm, and visual hierarchy. Pass a target path as the argument. See reference/layout.md in skills/impeccable/reference/.",
+    "tools": [
+      "read",
+      "bash",
+      "agentContext"
+    ],
+    "rules": [
+      "antislop",
+      "antislop-liveliness",
+      "file-operations"
+    ],
+    "relatedSkills": [
+      "impeccable"
+    ]
+  },
+  "design-hub/impeccable-live": {
+    "label": "impeccable-live",
+    "description": "Browser variant mode (impeccable live)",
+    "reminder": "Runs impeccable live to iterate on UI variants in the browser.",
+    "inline": true,
+    "detailedDescription": "Runs `impeccable live` via the impeccable skill launcher to open the running dev server with an overlay. Select an element, pick a direction, and iterate variants in place. Works with Vite, Next, SvelteKit, Astro, Nuxt, and plain HTML. Only edits a local checkout — never inject into a deployed site or weaken a production CSP. See reference/live.md in skills/impeccable/reference/.",
+    "tools": [
+      "read",
+      "bash",
+      "agentContext"
+    ],
+    "rules": [
+      "file-operations",
+      "security"
+    ],
+    "relatedSkills": [
+      "impeccable"
+    ]
+  },
+  "design-hub/impeccable-onboard": {
+    "label": "impeccable-onboard",
+    "description": "Design first-run flows, empty states (impeccable onboard)",
+    "reminder": "Runs impeccable onboard against the target.",
+    "inline": true,
+    "detailedDescription": "Runs `impeccable onboard <target>` via the impeccable skill launcher to design first-run flows, empty states, and activation experiences. Pass a target path as the argument. See reference/onboard.md in skills/impeccable/reference/.",
+    "tools": [
+      "read",
+      "bash",
+      "agentContext"
+    ],
+    "rules": [
+      "antislop",
+      "antislop-liveliness",
+      "file-operations"
+    ],
+    "relatedSkills": [
+      "impeccable"
+    ]
+  },
+  "design-hub/impeccable-optimize": {
+    "label": "impeccable-optimize",
+    "description": "Diagnose and fix UI performance (impeccable optimize)",
+    "reminder": "Runs impeccable optimize against the target.",
+    "inline": true,
+    "detailedDescription": "Runs `impeccable optimize <target>` via the impeccable skill launcher to diagnose and fix UI loading and rendering performance. Pass a target path as the argument. See reference/optimize.md in skills/impeccable/reference/.",
+    "tools": [
+      "read",
+      "bash",
+      "agentContext"
+    ],
+    "rules": [
+      "antislop",
+      "antislop-liveliness",
+      "file-operations"
+    ],
+    "relatedSkills": [
+      "impeccable"
+    ]
+  },
+  "design-hub/impeccable-overdrive": {
+    "label": "impeccable-overdrive",
+    "description": "Shaders, effects, scroll scenes (impeccable overdrive)",
+    "reminder": "Runs impeccable overdrive against the target.",
+    "inline": true,
+    "detailedDescription": "Runs `impeccable overdrive <target>` via the impeccable skill launcher to push past conventional limits with shaders, spring physics, and scroll-driven effects. Only appropriate for tech/gaming/software surfaces — never for cafes, bakeries, guesthouses, or shops (those get photographs per antislop rule). Pass a target path as the argument. See reference/overdrive.md in skills/impeccable/reference/.",
+    "tools": [
+      "read",
+      "bash",
+      "agentContext"
+    ],
+    "rules": [
+      "antislop",
+      "antislop-liveliness",
+      "file-operations"
+    ],
+    "relatedSkills": [
+      "impeccable",
+      "taste-skill"
+    ]
+  },
+  "design-hub/impeccable-polish": {
+    "label": "impeccable-polish",
+    "description": "Final quality pass before shipping (impeccable polish)",
+    "reminder": "Runs impeccable polish against the target.",
+    "inline": true,
+    "detailedDescription": "Runs `impeccable polish <target>` via the impeccable skill launcher for the final quality pass before shipping. Pass a target path as the argument. Runs after all other design work is complete. See reference/polish.md in skills/impeccable/reference/.",
+    "tools": [
+      "read",
+      "bash",
+      "agentContext"
+    ],
+    "rules": [
+      "antislop",
+      "antislop-liveliness",
+      "file-operations"
+    ],
+    "relatedSkills": [
+      "impeccable"
+    ]
+  },
+  "design-hub/impeccable-quieter": {
+    "label": "impeccable-quieter",
+    "description": "Tone down loud designs (impeccable quieter)",
+    "reminder": "Runs impeccable quieter against the target.",
+    "inline": true,
+    "detailedDescription": "Runs `impeccable quieter <target>` via the impeccable skill launcher to tone down aggressive or overstimulating designs. Pass a target path as the argument. See reference/quieter.md in skills/impeccable/reference/.",
+    "tools": [
+      "read",
+      "bash",
+      "agentContext"
+    ],
+    "rules": [
+      "antislop",
+      "antislop-liveliness",
+      "file-operations"
+    ],
+    "relatedSkills": [
+      "impeccable"
+    ]
+  },
+  "design-hub/impeccable-shape": {
+    "label": "impeccable-shape",
+    "description": "Plan UX/UI before code (impeccable shape)",
+    "reminder": "Runs impeccable shape against the target.",
+    "inline": true,
+    "detailedDescription": "Runs `impeccable shape <target>` via the impeccable skill launcher to plan UX/UI before writing code. Pass a target path or route as the argument. Reads PRODUCT.md and DESIGN.md (via `impeccable context`) before shaping. Writes a surface brief for the target. See reference/shape.md in skills/impeccable/reference/.",
+    "tools": [
+      "read",
+      "bash",
+      "agentContext"
+    ],
+    "rules": [
+      "file-operations",
+      "writing-style"
+    ],
+    "relatedSkills": [
+      "impeccable"
+    ]
+  },
+  "design-hub/impeccable-typeset": {
+    "label": "impeccable-typeset",
+    "description": "Improve typography hierarchy and fonts (impeccable typeset)",
+    "reminder": "Runs impeccable typeset against the target.",
+    "inline": true,
+    "detailedDescription": "Runs `impeccable typeset <target>` via the impeccable skill launcher to improve typography hierarchy and font choices. Pass a target path as the argument. See reference/typeset.md in skills/impeccable/reference/.",
+    "tools": [
+      "read",
+      "bash",
+      "agentContext"
+    ],
+    "rules": [
+      "antislop",
+      "antislop-liveliness",
+      "file-operations"
+    ],
+    "relatedSkills": [
+      "impeccable"
     ]
   },
   "design-hub/redesign": {
@@ -309,7 +778,73 @@
     ],
     "relatedSkills": []
   },
-  "design-hub/writer": {
+  "design-hub/taste": {
+    "label": "taste",
+    "description": "Run tasteskill gate checks against the current frontend",
+    "reminder": "Runs the taste-skill finish gate (consistency + layout + copy-lint).",
+    "inline": true,
+    "detailedDescription": "Runs the taste-skill finish gate against the current page/build: consistency.mjs at 1440x390 widths, assets/layout check at 1440x900x390x844, copy-lint, and kit-edited/checker-gaming static checks. Requires Node 22+ and Chrome/Edge/Chromium.\n\nUsage:\n  /design-hub taste [<page.html | url>] [--root <dist>] [--kind <kind>] [--category <what is sold>] [--primary <main action>]\n\nWith no page argument, it checks DESIGN.md presence first: if DESIGN.md exists it reads the declared page type / site kind / category from the file; otherwise it falls back to index.html or the only .html in the folder. Results print as FAIL/WARN/PASS lines; GATE: FAIL blocks delivery until fixed or waived in .taste-skill/waivers.json.\n\nThe skill itself lives at skills/taste-skill/ (linked from github.com/Leonxlnx/taste-skill). Nothing is installed into the project — the gate runs from the global skill folder. It needs no API keys; bundled Wikimedia Commons photographs work offline. Chrome/Edge/Chromium must be installed (set CHROME_PATH if non-standard). ffmpeg is optional (WebP output, hero phone crop).\n\n## Examples\n\n| Input | Approach |\n|-------|----------|\n| /design-hub taste | Checks DESIGN.md if present, else index.html; runs full gate |\n| /design-hub taste https://localhost:5173 | Checks a dev server URL |\n| /design-hub taste dist/index.html --root dist | Checks a built site |\n\n## Warnings\n\n- The gate blocks on fixable FAILs. A build may not end while FAILs remain.\n- Only local pages are checked: a file, or a URL on localhost / *.localhost / *.test.\n- kit-edited and checker-gaming findings cannot be waived.\n\n",
+    "tools": [
+      "read",
+      "bash",
+      "agentContext"
+    ],
+    "rules": [
+      "antislop",
+      "antislop-liveliness",
+      "file-operations"
+    ],
+    "relatedSkills": [
+      "taste-skill"
+    ]
+  },
+  "docs-hub/agents-md": {
+    "label": "agents-md",
+    "description": "Update root AGENTS.md and write one per directory explaining what is there",
+    "reminder": "Recursively writes AGENTS.md for the project root and every meaningful subdirectory.",
+    "skill": "deepinit",
+    "detailedDescription": "Updates the project's root AGENTS.md and recursively ensures every meaningful directory has its own AGENTS.md file that explains what lives there and why — the same role a README plays for a directory, but for the agent's navigation of the codebase.\n\nProcess:\n1. Scan the project root for meaningful directories (source, config, tests, scripts, tools, skills, agents, rules, plugins, etc.).\n2. Write or update the root AGENTS.md to describe the project as a whole and list top-level directories.\n3. For each meaningful subdirectory, write an AGENTS.md that documents:\n   - What the directory/module does\n   - Key files and their purposes\n   - Patterns and conventions used there\n   - Dependencies and relationships\n   - Testing approach (if applicable)\n4. Parent AGENTS.md files summarize; child AGENTS.md files detail. An agent reading any AGENTS.md gets context for that directory without needing to read the code.\n\nEach directory AGENTS.md serves the same purpose as a README in that location: it explains what is there and why, so anyone (human or agent) entering the directory understands its role in the project.\n\nUse when the codebase has grown enough that navigating it requires documentation at every level, or when onboarding new agents to a brownfield codebase.",
+    "tools": [
+      "loadSkill",
+      "bash"
+    ],
+    "rules": [
+      "context-strategy",
+      "file-operations"
+    ],
+    "relatedSkills": [
+      "deepinit",
+      "readme-updater"
+    ]
+  },
+  "docs-hub/docs": {
+    "label": "docs",
+    "description": "Generate hierarchical AGENTS.md documentation across the codebase",
+    "reminder": "Generate hierarchical AGENTS.md documentation.",
+    "skill": "deepinit",
+    "phases": "4",
+    "detailedDescription": "Generates hierarchical AGENTS.md documentation across the codebase using the deepinit skill. Scans each meaningful directory and writes an AGENTS.md with:\n\n- What the directory/module does\n- Key files and their purposes\n- Patterns and conventions\n- Dependencies\n- Testing approach\n\nParent AGENTS.md files summarize; child files detail. An agent reading any AGENTS.md gets context for that directory.\n\nUse to create AI-navigable documentation. Especially valuable before large refactoring or for onboarding new agents to a brownfield codebase.",
+    "tools": [
+      "loadSkill",
+      "bash"
+    ],
+    "relatedSkills": []
+  },
+  "docs-hub/readme": {
+    "label": "readme",
+    "description": "Rewrite README to match the current codebase, keeping its tone",
+    "reminder": "Update README with current codebase state.",
+    "skill": "readme-updater",
+    "detailedDescription": "Updates the README to reflect the current codebase state via the readme-updater skill. Scans:\n\n- Agents, skills, tools, rules, commands, archetypes (each with agents/, rules/, skills/, tools/ subdirs), plugins.\n- Project structure and configuration.\n- Existing README content.\n\nWhen documenting archetypes, note that each contains four subdirectories (agents/, rules/, skills/, tools/) — all four must be provisioned per-project: agents/ and rules/ go in opencode.jsonc, skills/ and tools/ are copied/linked into .opencode/.\n\nPreserves the existing tone, links, and structure — it updates content, doesn't rewrite from scratch. Output is SEO-optimized and technically proficient.\n\nUse when the codebase has changed significantly and the README is stale. Not for creating a README from scratch (use /resource-hub create command or writing skills for that).",
+    "tools": [
+      "loadSkill",
+      "bash"
+    ],
+    "relatedSkills": [
+      "crafting-effective-readmes"
+    ]
+  },
+  "docs-hub/writer": {
     "label": "writer",
     "description": "Technical documentation writer — pass instructions directly to @writer",
     "reminder": "Delegating to @writer.",
@@ -443,7 +978,7 @@
     "label": "antislop-install",
     "description": "Install antislop skills + pointer block into AGENTS.md",
     "reminder": "Interactive skill selection, then writes the antislop pointer block into the project entry file.",
-    "inline": false,
+    "inline": true,
     "detailedDescription": "Anti-slop install wizard. Follows anti-slop's First-Run Install Wizard: an offer, not a requirement — the core antislop.md rules file alone remains a complete filter if the user declines skills.\n\n## Steps (gated, requires approval)\n\n1. **Declare the setup before doing anything.** Tell the user (a) the chosen skill(s) go in skills/<name>/ subfolders next to the core file (the user fetches them; the agent never downloads from the network), and (b) an antislop pointer block is appended at the end of the project's entry file. Get approval. Never modify the entry file silently.\n2. **Ask which skills to install** (multi-select). List only skills that exist in this version:\n   - All (recommended): every available skill\n   - antislop-ui — UI / visual\n   - antislop-copywriting — copy & text\n   - antislop-human — people / accessibility\n   - antislop-layoutmobile — mobile / responsive\n   - antislop-code — code comments\n   If the user declines or says \"core only\", stop here and use the core rules file alone as the filter. Do not install anything.\n3. **Resolve direction** (only if a UI skill was selected). Check for DESIGN.md or explicit brand/style direction. If none, be honest that antislop is a filter, not a beautifier: without direction output tends toward monotonous. Recommend a DESIGN.md, then offer: (1) user supplies direction (recommended), (2) agent supplies direction with honest warning, (3) skip direction for now → output labeled \"draft without direction\" with dials ENERGY 1 / RHYTHM 1 / MOTION 1.\n4. **Get the chosen skill(s) in place; the user does the fetching.** A SKILL.md is instructions the agent will obey, so the agent never downloads one at runtime. If a chosen skill folder is missing, tell the user which ones are missing and that they come with the release matching this core.\n5. **Append the pointer block at the END of the project's entry file** (AGENTS.md for OpenCode). Never modify existing content. Block:\n\n   ```md\n   <!-- antislop:start -->\n   ## antislop\n   For UI, copy, people, mobile layout, or code comments work, read antislop.md (core) and then the skill for the task:\n   - UI / visual: skills/antislop-ui/SKILL.md\n   - Copy & text: skills/antislop-copywriting/SKILL.md\n   - People: skills/antislop-human/SKILL.md\n   - Mobile / responsive: skills/antislop-layoutmobile/SKILL.md\n   - Code comments: skills/antislop-code/SKILL.md\n   Before starting, follow the core's \"Two Usage Modes\" section in strict order.\n   <!-- antislop:end -->\n   ```\n\n   If an older antislop block exists (even without markers), replace just that block instead of appending a duplicate.\n6. **Resolve and announce the usage mode** (see antislop-mode), then proceed with the work.\n\n## Entry file (OpenCode)\n\nAGENTS.md — the file OpenCode reads at session start. The pointer takes effect from the next session.\n\n## Examples\n\n| Input | Approach |\n|-------|----------|\n| /hub-setup antislop-install | Declares setup, asks skill selection (multi-select), resolves DESIGN.md direction, writes pointer block into AGENTS.md, resolves mode. |\n| /hub-setup antislop-install --core-only | Skips skill selection, writes core-only pointer block into AGENTS.md. |\n",
     "tools": [
       "read",
@@ -604,10 +1139,10 @@
   "hub-setup/refresh": {
     "label": "refresh",
     "description": "Re-detect the stack and re-provision, preserving manual edits",
-    "reminder": "Update config preserving manual edits. On first run I'll ask: standard or full refresh.",
+    "reminder": "Defaults to full refresh (all 9 phases). Pass --standard for phases 0-5 + 8 only.",
     "skill": "init-project",
     "phases": "0-8 (merge)",
-    "detailedDescription": "Updates an existing project configuration without losing manual edits. On first run (no mode flag) it gates on a single question — **standard or full refresh?** — then runs the matching phase set.\n\n**Standard refresh**: Re-runs phases 0-5 + 8 in merge mode. Re-detects the stack, merges new recommendations, re-provisions agents/skills/tools/rules (preserving manual edits), regenerates docs, and verifies.\n\n**Full refresh**: Re-runs all 9 phases (0-8) in merge mode. In addition to the standard behavior, it re-runs Phase 6 (deep codebase mapping via parallel agents, context synthesis, agent upgrade) and Phase 7 (routing integration validation) — preserving existing context and manual edits while refreshing the deep analysis.\n\n### Gatekeeping Question (first run)\n\nWhen `refresh` is invoked without a mode flag, ask before doing any work:\n\n> **Question:** \"Refresh mode — standard or full?\"\n>\n> 1. **Standard** — phases 0-5 + 8. Re-detect stack, merge recommendations, re-provision (preserving manual edits), update docs, verify.\n> 2. **Full** — all 9 phases (0-8). Standard plus deep codebase re-mapping (Phase 6) and routing integration validation (Phase 7). Adds 5-15 minutes.\n\nPass `--full` to skip the question and force full refresh.\n\n## References Sync (always runs)\n\nAfter Phase 3 (Configuration), ensure the project's `.opencode/opencode.jsonc` has a `references` key configured per https://opencode.ai/docs/references/:\n\n1. **Context reference**: Ensure a `references.context` entry exists pointing to `./.opencode/context` (local path reference) so the durable knowledge base is accessible to agents. Example:\n   ```jsonc\n   \"references\": {\n     \"context\": {\n       \"path\": \"./.opencode/context\",\n       \"description\": \"Durable project knowledge base — decisions, patterns, research, frameworks, and theory.\"\n     }\n   }\n   ```\n\n2. **Git repository references**: Scan all files in `.opencode/context/` for GitHub repository URLs matching `github.com/owner/repo`. For each substantive project reference (not gists, not forks, not passing mentions), ensure a `references` entry exists with:\n   - `repository` set to `owner/repo` (GitHub shorthand)\n   - `description` explaining when an agent should use it\n   - Deduplicate variant names to the primary repo\n   - If `references` already exists, merge new entries without removing existing ones\n   - Only add repos that are substantive project references — skip gists, forks, and casual mentions\n\n3. **Validate**: After adding references, verify the `opencode.jsonc` still passes schema validation (the `references` key is a valid top-level key per the OpenCode config schema).\n\n## Phases (all run in merge mode)\n\n| Phase | Name | Standard | Full | Merge Behavior |\n|-------|------|---------|--------|----------------|\n| 0 | Verify Hubs | ✓ | ✓ | Check global health |\n| 1 | Detection | ✓ | ✓ | Re-detect stack, diff against last fingerprint, report changes |\n| 2 | Planning | ✓ | ✓ | Merge new recommendations with existing config |\n| 3 | Configuration | ✓ | ✓ | Merge new fields into opencode.jsonc, don't remove user-set values. Validate merged config against schema (fetch https://opencode.ai/config.json, reject invalid keys like extends/agents/project/rules/state/context/cache). **Then run References Sync (see above).** |\n| 4 | Provisioning | ✓ | ✓ | Add new agents/skills/tools/rules, preserve manually edited ones, flag stale resources. Also (re)ensure the **memory plane**: `graph-context.md` rule, `graph.db` bootstrap, `.opencode/state/` gitignore |\n| 5 | Documentation | ✓ | ✓ | Update generated AGENTS.md sections, preserve `<!-- MANUAL -->` blocks |\n| 6 | Context Capture | — | ✓ | Re-spawn parallel agents, diff context against existing, update changed sections only. Then run `graph build` to fold new/changed context into the knowledge graph |\n| 7 | Routing & Integration | — | ✓ | Validate all cross-references, fix broken ones, generate updated integration report. Validate memory-plane health (`graph stats` shows nodes/edges when context is non-empty) |\n| 8 | Verification | ✓ | ✓ | Final health check + diff report showing what changed |\n\n## What full refresh adds\n\n- **Deep codebase re-mapping**: Re-spawns @architect, @convention-extractor, @explore to analyze the current codebase state. If the codebase has evolved (new modules, refactored architecture, changed conventions), the context files are updated to reflect the new reality.\n- **Context diff**: Existing context files in .opencode/context/ are diffed against new analysis. Changed sections are updated; unchanged sections are preserved. Manual additions (marked with `<!-- MANUAL -->`) are never overwritten.\n- **Agent re-upgrade**: Phase 4 agent wrappers are re-upgraded with the refreshed deep context. If agents were manually edited since last setup, those edits are preserved in MANUAL blocks and the context sections are updated around them.\n- **Integration re-validation**: Phase 7 validates all cross-references, fixes broken extends paths, registers new skills/rules, and generates an updated integration report.\n\n## When to choose full refresh\n\n- **Codebase has evolved significantly** — new modules, major refactors, architectural changes since last init\n- **New conventions adopted** — team changed naming patterns, error handling style, testing approach\n- **New dependencies added** — want context files to reflect new libraries and their integration patterns\n- **Context feels stale** — agents are giving generic advice that doesn't match the current codebase\n- **After a merger/acquisition** — codebase absorbed another project, need to re-map the combined architecture\n\n## When standard refresh is sufficient\n\n- **Minor dependency updates** — a few new packages, no architectural changes\n- **Config drift fix** — opencode.jsonc needs syncing, no codebase changes\n- **Global resource update** — new skills/agents available, want to pull in recommendations\n- **Quick health check** — just verify everything is still valid\n\n## Merge Mode Rules\n\nAll phases run in merge mode:\n1. **Read existing** — parse current config, agents, context, AGENTS.md\n2. **Diff** — compare current state vs new analysis\n3. **Preserve manual edits** — keep `<!-- MANUAL -->` blocks in all files\n4. **Update generated sections** — refresh auto-generated content with new data\n5. **Add new resources** — new agents/skills/tools/rules from new recommendations\n6. **Flag stale resources** — resources that no longer match the detected stack are flagged (not deleted)\n7. **Report changes** — summary of what was added, updated, flagged as stale\n\nSafe to run on existing setups — it won't destroy manual work.",
+    "detailedDescription": "Updates an existing project configuration without losing manual edits. Defaults to **full refresh** (all 9 phases, merge mode). Pass `--standard` to limit to phases 0-5 + 8.\n\n**Standard refresh**: Re-runs phases 0-5 + 8 in merge mode. Re-detects the stack, merges new recommendations, re-provisions agents/skills/tools/rules (preserving manual edits), regenerates docs, and verifies.\n\n**Full refresh** (default): Re-runs all 9 phases (0-8) in merge mode. In addition to the standard behavior, it re-runs Phase 6 (deep codebase mapping via parallel agents, context synthesis, agent upgrade) and Phase 7 (routing integration validation) — preserving existing context and manual edits while refreshing the deep analysis. Adds 5-15 minutes.\n\nPass `--standard` to skip the deep mapping and integration validation phases. Pass `--force` to overwrite generated sections completely (still preserves MANUAL blocks).\n\n## References Sync (always runs)\n\nAfter Phase 3 (Configuration), ensure the project's `.opencode/opencode.jsonc` has a `references` key configured per https://opencode.ai/docs/references/:\n\n1. **Context reference**: Ensure a `references.context` entry exists pointing to `./.opencode/context` (local path reference) so the durable knowledge base is accessible to agents. Example:\n   ```jsonc\n   \"references\": {\n     \"context\": {\n       \"path\": \"./.opencode/context\",\n       \"description\": \"Durable project knowledge base — decisions, patterns, research, frameworks, and theory.\"\n     }\n   }\n   ```\n\n2. **Git repository references**: Scan all files in `.opencode/context/` for GitHub repository URLs matching `github.com/owner/repo`. For each substantive project reference (not gists, not forks, not passing mentions), ensure a `references` entry exists with:\n   - `repository` set to `owner/repo` (GitHub shorthand)\n   - `description` explaining when an agent should use it\n   - Deduplicate variant names to the primary repo\n   - If `references` already exists, merge new entries without removing existing ones\n   - Only add repos that are substantive project references — skip gists, forks, and casual mentions\n\n3. **Validate**: After adding references, verify the `opencode.jsonc` still passes schema validation (the `references` key is a valid top-level key per the OpenCode config schema).\n\n## Phases (all run in merge mode)\n\n| Phase | Name | Standard | Full | Merge Behavior |\n|-------|------|---------|--------|----------------|\n| 0 | Verify Hubs | ✓ | ✓ | Check global health |\n| 1 | Detection | ✓ | ✓ | Re-detect stack, diff against last fingerprint, report changes |\n| 2 | Planning | ✓ | ✓ | Merge new recommendations with existing config |\n| 3 | Configuration | ✓ | ✓ | Merge new fields into opencode.jsonc, don't remove user-set values. Validate merged config against schema (fetch https://opencode.ai/config.json, reject invalid keys like extends/agents/project/rules/state/context/cache). **Then run References Sync (see above).** |\n| 4 | Provisioning | ✓ | ✓ | Add new agents/skills/tools/rules, preserve manually edited ones, flag stale resources. Also (re)ensure the **memory plane**: `graph-context.md` rule, `graph.db` bootstrap, `.opencode/state/` gitignore |\n| 5 | Documentation | ✓ | ✓ | Update generated AGENTS.md sections, preserve `<!-- MANUAL -->` blocks |\n| 6 | Context Capture | — | ✓ | Re-spawn parallel agents, diff context against existing, update changed sections only. Then run `graph build` to fold new/changed context into the knowledge graph |\n| 7 | Routing & Integration | — | ✓ | Validate all cross-references, fix broken ones, generate updated integration report. Validate memory-plane health (`graph stats` shows nodes/edges when context is non-empty) |\n| 8 | Verification | ✓ | ✓ | Final health check + diff report showing what changed |\n\n## What full refresh adds\n\n- **Deep codebase re-mapping**: Re-spawns @architect, @convention-extractor, @explore to analyze the current codebase state. If the codebase has evolved (new modules, refactored architecture, changed conventions), the context files are updated to reflect the new reality.\n- **Context diff**: Existing context files in .opencode/context/ are diffed against new analysis. Changed sections are updated; unchanged sections are preserved. Manual additions (marked with `<!-- MANUAL -->`) are never overwritten.\n- **Agent re-upgrade**: Phase 4 agent wrappers are re-upgraded with the refreshed deep context. If agents were manually edited since last setup, those edits are preserved in MANUAL blocks and the context sections are updated around them.\n- **Integration re-validation**: Phase 7 validates all cross-references, fixes broken extends paths, registers new skills/rules, and generates an updated integration report.\n\n## When to choose full refresh\n\n- **Codebase has evolved significantly** — new modules, major refactors, architectural changes since last init\n- **New conventions adopted** — team changed naming patterns, error handling style, testing approach\n- **New dependencies added** — want context files to reflect new libraries and their integration patterns\n- **Context feels stale** — agents are giving generic advice that doesn't match the current codebase\n- **After a merger/acquisition** — codebase absorbed another project, need to re-map the combined architecture\n\n## When standard refresh is sufficient\n\n- **Minor dependency updates** — a few new packages, no architectural changes\n- **Config drift fix** — opencode.jsonc needs syncing, no codebase changes\n- **Global resource update** — new skills/agents available, want to pull in recommendations\n- **Quick health check** — just verify everything is still valid\n\n## Merge Mode Rules\n\nAll phases run in merge mode:\n1. **Read existing** — parse current config, agents, context, AGENTS.md\n2. **Diff** — compare current state vs new analysis\n3. **Preserve manual edits** — keep `<!-- MANUAL -->` blocks in all files\n4. **Update generated sections** — refresh auto-generated content with new data\n5. **Add new resources** — new agents/skills/tools/rules from new recommendations\n6. **Flag stale resources** — resources that no longer match the detected stack are flagged (not deleted)\n7. **Report changes** — summary of what was added, updated, flagged as stale\n\nSafe to run on existing setups — it won't destroy manual work.",
     "tools": [
       "loadSkill",
       "listAgents",
@@ -624,15 +1159,15 @@
     "examples": [
       {
         "input": "/hub-setup refresh",
-        "approach": "Gatekeeping question first: 'standard or full refresh?' User picks **Standard** → merge mode phases 0-5 + 8. Phase 0: doctor passes. Phase 1: re-detect stack, diff against last fingerprint — new dependency 'zod' found. Phase 2: merge new recommendations. Phase 3: add zod-related skills to opencode.jsonc. Phase 4: provision new agent wrapper for validation, preserve existing manually-edited agents. Phase 5: update AGENTS.md file tables. Phase 8: verify + diff report."
+        "approach": "Defaults to full refresh — merge mode, all 9 phases. Phase 0: doctor passes. Phase 1: re-detect stack, diff against last fingerprint — new dependency 'zod' found. Phase 2: merge new recommendations. Phase 3: add zod-related skills to opencode.jsonc. Phase 4: provision new agent wrapper for validation, preserve existing manually-edited agents. Phase 5: update AGENTS.md file tables. Phase 6: re-spawn @architect, @convention-extractor, @explore to re-map the codebase and diff context. Phase 7: validate all extends paths, register new skills, fix broken refs. Phase 8: verify + full integration report with change diff."
       },
       {
-        "input": "/hub-setup refresh",
-        "approach": "Gatekeeping question first. User picks **Full** → merge mode, all 9 phases. Phases 0-5 same as Standard. Phase 6: re-spawn @architect (detects new module 'payments-service' added since last init), @convention-extractor (detects team switched to functional style), @explore (maps new file tree). Diff existing context files — update architecture.md with payments-service module, update conventions.md with functional style patterns, preserve MANUAL sections. Re-upgrade agent wrappers with refreshed context. Phase 7: validate all extends paths still resolve, register any new skills, fix broken refs. Phase 8: verify + full integration report with change diff."
+        "input": "/hub-setup refresh --standard",
+        "approach": "Limits refresh to phases 0-5 + 8. Skips Phase 6 deep codebase re-mapping and Phase 7 routing integration validation. Phase 0: doctor passes. Phase 1: re-detect stack — new dependency 'zod' found. Phase 2: merge new recommendations. Phase 3: add zod-related skills to opencode.jsonc. Phase 4: provision new agent wrapper, preserve existing manually-edited agents. Phase 5: update AGENTS.md file tables. Phase 8: verify + diff report."
       },
       {
         "input": "/hub-setup refresh --full",
-        "approach": "Skips the gatekeeping question — forces full refresh (all 9 phases, merge mode). Use when the mode is already known or for scripted/repeat invocations."
+        "approach": "Explicitly forces full refresh (all 9 phases, merge mode). Same as the default, but makes the mode explicit for scripted/repeat invocations."
       },
       {
         "input": "/hub-setup refresh --force",
@@ -640,7 +1175,7 @@
       }
     ],
     "warnings": [
-      "Full refresh adds significant time (3 parallel agent dispatches + context synthesis + agent re-upgrade). Expect 5-15 minutes depending on codebase size. The gatekeeping question lets you choose standard if you don't need it.",
+      "Full refresh is now the default (all 9 phases). Expect 5-15 minutes depending on codebase size due to 3 parallel agent dispatches + context synthesis + agent re-upgrade. Pass --standard for the faster phases 0-5 + 8 path.",
       "Phase 6 in refresh mode diffs new analysis against existing context. If existing context files have no MANUAL blocks, they are fully overwritten. Add <!-- MANUAL --> tags to preserve custom sections.",
       "Agent re-upgrade in Phase 6 preserves MANUAL blocks in agent wrappers but overwrites auto-generated context sections. If you manually edited the auto-generated sections of an agent, those edits will be lost — use --force to skip all safety or add MANUAL blocks.",
       "Stale resources (agents/skills/tools that no longer match the detected stack) are flagged, NOT deleted. Review and remove manually if no longer needed."
@@ -2683,7 +3218,7 @@
     "label": "antislop-audit",
     "description": "Slop audit — numbered findings list, then approved fixes",
     "reminder": "Audit existing work: numbered findings citing R-XX rules and priorities. User approves numbers before any fix.",
-    "inline": false,
+    "inline": true,
     "detailedDescription": "Anti-slop After-mode audit. Audits work that already exists and produces a numbered findings list in anti-slop/audit-001-YYYY-MM-DD.md (numbers keep rising across audits).\n\n## Process (anti-slop After mode, exact)\n\n1. Scan the existing UI/copy/accessibility against the 40 antislop rules (rules/antislop.md) and the Liveliness Toolkit (rules/antislop-liveliness.md).\n2. Write findings to anti-slop/audit-001-YYYY-MM-DD.md. Each finding:\n   - A number (rising across audits: 001, 002, ...)\n   - The violated rule (R-XX) with tier (Hard Gate = HIGH, Purpose-Gate = MEDIUM, Quality Locks = LOW)\n   - A one-line reason\n3. Do NOT modify anything until the user approves specific numbers. Numbers not mentioned are not touched.\n4. After approval, fix the approved items and write a follow-up report.\n\n## Output\n\nanti-slop/audit-001-YYYY-MM-DD.md — numbered findings list with priorities.\n\n## When to use\n\n\"After\" mode: you already have work and want to know what slop is in it before deciding what to fix. Equivalent to antislop's audit mode.\n\n## Examples\n\n| Input | Approach |\n|-------|----------|\n| /verify-hub antislop-audit | Scans current work, writes numbered findings with R-XX citations and HIGH/MEDIUM/LOW priorities, asks user to approve numbers before fixing. |\n| /verify-hub antislop-audit --approve 003,007 | Fixes only findings 003 and 007, then writes a follow-up report. |\n",
     "tools": [
       "read",
@@ -2711,9 +3246,9 @@
   "verify-hub/antislop-gate": {
     "label": "antislop-gate",
     "description": "Slop Delivery Gate — PASS/FAIL report before shipping",
-    "reminder": "Run the 40-rule slop check + click-through smoke test. PASS/FAIL report blocks delivery.",
-    "inline": false,
-    "detailedDescription": "Anti-slop Delivery Gate. Runs the full 40-rule check (Hard Gate, Purpose-Gate, Quality Locks from rules/antislop.md) plus the Liveliness Toolkit (rules/antislop-liveliness.md), then a R-35 click-through smoke test: every interactive element exercised one at a time, per-element evidence recorded.\n\n## Output\n\nA PASS/FAIL report written to .opencode/state/verify-hub/anti-slop/gate-YYYY-MM-DD.md.\n\n- Hard Gate failures = FAIL, block delivery immediately.\n- Purpose-Gate failures = FAIL unless a written one-line purpose exists for each technique.\n- Quality Lock failures = FAIL unless each decision has a written reason.\n- R-35 click-through evidence: element-by-element results (e.g. \"Signup -> opens /signup with no console errors\", \"empty form -> shows validation\", \"mobile menu -> opens and closes\"), every theme and breakpoint exercised.\n\n## Writer/reviewer separation\n\nThe agent does not self-approve high-impact gate fixes. FAIL items are reported; the user approves which to fix. A separate pass implements approved fixes, then the gate re-runs.\n\n## When to use\n\nClose of a \"during\" build session, or before shipping any UI/copy/accessibility work. Equivalent to antislop's mandatory pre-delivery gate.\n\n## Mode\n\nResolves antislop mode (during/after/ask) via antislop-mode before running. Announces \"antislop active: during (session override.)\" once per session.\n\n## Examples\n\n| Input | Approach |\n|-------|----------|\n| /verify-hub antislop-gate | Resolves mode, loads antislop + antislop-liveliness rules, runs 40-rule check + click-through, writes gate report, reports PASS/FAIL with per-element evidence. |\n| /verify-hub antislop-gate --theme dark | Same, plus verifies both light and dark themes per R-34. |\n",
+    "reminder": "Run the slop check + click-through smoke test. PASS/FAIL report blocks delivery.",
+    "inline": true,
+    "detailedDescription": "Anti-slop Delivery Gate. Runs the full rule check (Hard Gate, Purpose-Gate, Quality Locks, Prose Signals from rules/antislop.md) plus the Liveliness Toolkit (rules/antislop-liveliness.md), then a R-35 click-through smoke test: every interactive element exercised one at a time, per-element evidence recorded.\n\n## Output\n\nA PASS/FAIL report written to .opencode/state/verify-hub/anti-slop/gate-YYYY-MM-DD.md.\n\n- Hard Gate failures = FAIL, block delivery immediately.\n- Purpose-Gate failures = FAIL unless a written one-line purpose exists for each technique.\n- Quality Lock failures = FAIL unless each decision has a written reason.\n- R-35 click-through evidence: element-by-element results (e.g. \"Signup -> opens /signup with no console errors\", \"empty form -> shows validation\", \"mobile menu -> opens and closes\"), every theme and breakpoint exercised.\n\n## Writer/reviewer separation\n\nThe agent does not self-approve high-impact gate fixes. FAIL items are reported; the user approves which to fix. A separate pass implements approved fixes, then the gate re-runs.\n\n## When to use\n\nClose of a \"during\" build session, or before shipping any UI/copy/accessibility work. Equivalent to antislop's mandatory pre-delivery gate.\n\n## Mode\n\nResolves antislop mode (during/after/ask) via antislop-mode before running. Announces \"antislop active: during (session override.)\" once per session.\n\n## Examples\n\n| Input | Approach |\n|-------|----------|\n| /verify-hub antislop-gate | Resolves mode, loads antislop + antislop-liveliness rules, runs 40-rule check + click-through, writes gate report, reports PASS/FAIL with per-element evidence. |\n| /verify-hub antislop-gate --theme dark | Same, plus verifies both light and dark themes per R-34. |\n",
     "tools": [
       "read",
       "grep",
@@ -2724,6 +3259,7 @@
     "rules": [
       "antislop",
       "antislop-liveliness",
+      "antislop-signal-hygiene",
       "security"
     ],
     "relatedSkills": [
@@ -2742,7 +3278,7 @@
     "label": "antislop-mode",
     "description": "During/After/ask mode resolver for antislop rules",
     "reminder": "Resolves antislop usage mode: explicit session choice > saved preference > ask. Announces the active mode and source once.",
-    "inline": false,
+    "inline": true,
     "detailedDescription": "Anti-slop usage-mode resolver. Implements anti-slop's strict mode order on first antislop activation in each session:\n\n## Mode resolution order (strict)\n\n1. **Explicit session instruction**: the user explicitly selects \"during\" or \"after\" in this conversation. Announces \"antislop active: <mode> (session override.)\". Overrides saved preference. Does not change the saved preference.\n2. **Global preference**: read from .opencode/state/verify-hub/antislop-mode.json (mode field: during/after/ask). Announces \"antislop active: <mode> (global preference.)\". Continues without asking.\n3. **Ask if unresolved**: no settings file, missing mode field, or saved mode is \"ask\". Asks \"When do you want to use antislop? 1. DURING ... 2. AFTER ...\" and ends the response, waiting for the answer before any UI review, planning, or concept.\n\n## Notice placement\n\n- Read-only tasks: notice at the start of the final answer, before findings/concept. Never in progress messages.\n- Editing tasks: announce before the first edit; omit from the final answer.\n- Additional antislop skills reuse the resolved mode without another question or notice. Announce again only if the mode changes.\n\n## State\n\nMode preference persisted to .opencode/state/verify-hub/antislop-mode.json as {\"mode\": \"during|after|ask\", \"source\": \"session|global\"}.\n\n## When to use\n\nTo set or check the antislop mode for the current session or as a saved default. Runs automatically before antislop-gate and antislop-audit; rarely needs to be invoked directly.\n\n## Examples\n\n| Input | Approach |\n|-------|----------|\n| /verify-hub antislop-mode --set during | Saves mode=during to state, announces source. |\n| /verify-hub antislop-mode --set after | Saves mode=after to state. |\n| /verify-hub antislop-mode --set ask | Restores per-session questioning. |\n| /verify-hub antislop-mode --show | Prints current mode and source without changing it. |\n",
     "tools": [
       "modeState",

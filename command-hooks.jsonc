@@ -31,6 +31,50 @@
 
     "tool": [
         {
+            // tasteskill gate: when DESIGN.md is written or edited, run the
+            // taste-skill finish gate so design intent is checked immediately.
+            // Only fires when DESIGN.md exists; gate.mjs auto-detects the page.
+            "id": "taste-gate-on-design-write",
+            "when": {
+                "phase": "after",
+                "tool": ["write", "edit", "patch", "regex-edit"],
+                "toolArgs": {
+                    "filePath": { "glob": "**/DESIGN.md" }
+                }
+            },
+            "run": "node \"$HOME/.config/opencode/skills/taste-skill/scripts/gate.mjs\" 2>&1 || true",
+            "injectOn": "failure",
+            "inject": "<taste-gate exit=\"{exitCode}\">\nDESIGN.md was written; the taste-skill finish gate reports issues above. Fix FAILs before shipping.\n\n```\n{stdout}{stderr}\n```\n</taste-gate>",
+            "toast": {
+                "title": "taste gate",
+                "message": "design.md changed — run /design-hub taste",
+                "variant": "warning",
+                "duration": 6000
+            }
+        },
+        {
+            // impeccable detector: after any UI file is written or edited,
+            // run the impeccable design detector to catch AI slop before it ships.
+            // Only fires on UI source files; runs silently unless findings exist.
+            "id": "impeccable-detect-on-ui-write",
+            "when": {
+                "phase": "after",
+                "tool": ["write", "edit", "patch", "regex-edit"],
+                "toolArgs": {
+                    "filePath": { "glob": "**/*.{tsx,ts,jsx,js,css,html,vue,svelte,astro}" }
+                }
+            },
+            "run": "\"$HOME/.config/opencode/skills/impeccable/scripts/impeccable\" detect . --json 2>&1 || true",
+            "injectOn": "failure",
+            "inject": "<impeccable-detect exit=\"{exitCode}\">\nA UI file was edited and the impeccable design detector found findings. Review and fix before reporting success:\n\n```\n{stdout}{stderr}\n```\n</impeccable-detect>",
+            "toast": {
+                "title": "impeccable",
+                "message": "design findings on edited UI file",
+                "variant": "warning",
+                "duration": 6000
+            }
+        },
+        {
             // Type errors after any subagent returns. The single highest-value
             // check: a subagent reports success far more often than it reports a
             // broken import, and the parent cannot see the difference.
@@ -89,6 +133,16 @@
     ],
 
     "session": [
+        {
+            // tasteskill gate: on every session start, if DESIGN.md exists,
+            // run the taste-skill finish gate so design intent is continuously
+            // verified without any installation step.
+            "id": "taste-gate-on-session-start",
+            "when": { "event": "session.start" },
+            "run": "if [ -f DESIGN.md ]; then node \"$HOME/.config/opencode/skills/taste-skill/scripts/gate.mjs\" 2>&1 || true; fi",
+            "injectOn": "always",
+            "inject": "<session-context>\n{stdout}\n</session-context>"
+        },
         {
             // A hook on session start is the cheapest place to surface state that
             // every turn would otherwise re-derive: whether the previous session
