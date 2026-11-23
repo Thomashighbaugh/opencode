@@ -191,13 +191,17 @@ export class MemoryService {
     }
 
     const hits: RecallHit[] = []
+    const now = new Date()
     for (const s of scored.slice(0, limit)) {
       const m = this.db.get(s.id)
       if (!m) continue
       if (m.isPrivate && !opts.includePrivate) continue
-      hits.push({ ...m, score: s.score, stale: Boolean(m.staleFlaggedAt) })
+      // Age-based decay weighting: older, unused memories fade toward zero.
+      const decay = MemoryDb.computeDecayScore(m, now)
+      hits.push({ ...m, score: Math.round((s.score * decay) * 1000) / 1000, stale: Boolean(m.staleFlaggedAt) })
     }
-    return hits
+    hits.sort((a, b) => b.score - a.score)
+    return hits.slice(0, limit)
   }
 
   // ── Relations ──────────────────────────────────────────────────────
@@ -247,6 +251,15 @@ export class MemoryService {
 
   stats(project: string | null) {
     return this.db.stats(project)
+  }
+
+  /**
+   * Archive memories whose age-based decay score has fallen below threshold.
+   * Runs mechanically on session idle so old, unused memories don't accumulate
+   * forever. They are marked archived (not deleted) and excluded from recall.
+   */
+  archiveStale(now: Date = new Date()): number {
+    return this.db.archiveStale(now)
   }
 
   // ── Categorize (keyword + optional NLI) ────────────────────────────

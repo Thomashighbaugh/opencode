@@ -165,7 +165,7 @@ export default definePlugin({
       return lines.join("\n")
     }
 
-    async function showDefinitionPopup(name: string, subLabel: string) {
+    function showDefinitionPopup(name: string, subLabel: string) {
       const full = loadSubcommandSpecFull(name, subLabel)
       const body = formatFullDefinition(name, full)
       ctx.ui.dialog.show(() => (
@@ -184,6 +184,7 @@ export default definePlugin({
       const definition = hub(name)
       if (!definition) return toast(`Unknown hub: ${name}`, "error")
 
+      let showDefFor: string | null = null
       const choice = await ctx.ui.dialog.select<string | "back">({
         title: `${definition.name} — ${definition.subcommands.length} subcommands`,
         placeholder: "Filter subcommands",
@@ -211,7 +212,7 @@ export default definePlugin({
           {
             bind: "ctrl+s",
             title: "Full definition",
-            onTrigger: (subLabel) => void showDefinitionPopup(name, subLabel),
+            onTrigger: (subLabel) => { showDefFor = subLabel; return "back" as const },
           },
           {
             bind: "ctrl+," ,
@@ -223,6 +224,10 @@ export default definePlugin({
         ],
       })
 
+      if (showDefFor) {
+        showDefinitionPopup(name, showDefFor)
+        return
+      }
       if (choice === "back" || choice === undefined) return "back"
       await askAndSubmit(render(route(name, choice)), `${definition.name} — ${choice}`)
     }

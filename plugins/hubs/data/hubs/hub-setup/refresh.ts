@@ -4,26 +4,17 @@ import { TOOLS_LOADSKILL_LISTAGENTS_BASH_MODESTATE, SKILLS_SETUP_REFRESH } from 
 const spec: HubSubcommandSpec = {
   label: "refresh",
   description: "Re-detect the stack and re-provision, preserving manual edits",
-  reminder: "Update config preserving manual edits. On first run I'll ask: standard or full refresh.",
+  reminder: "Defaults to full refresh (all 9 phases). Pass --standard for phases 0-5 + 8 only.",
   skill: "init-project",
   phases: "0-8 (merge)",
 
-  detailedDescription: `Updates an existing project configuration without losing manual edits. On first run (no mode flag) it gates on a single question — **standard or full refresh?** — then runs the matching phase set.
+  detailedDescription: `Updates an existing project configuration without losing manual edits. Defaults to **full refresh** (all 9 phases, merge mode). Pass \`--standard\` to limit to phases 0-5 + 8.
 
 **Standard refresh**: Re-runs phases 0-5 + 8 in merge mode. Re-detects the stack, merges new recommendations, re-provisions agents/skills/tools/rules (preserving manual edits), regenerates docs, and verifies.
 
-**Full refresh**: Re-runs all 9 phases (0-8) in merge mode. In addition to the standard behavior, it re-runs Phase 6 (deep codebase mapping via parallel agents, context synthesis, agent upgrade) and Phase 7 (routing integration validation) — preserving existing context and manual edits while refreshing the deep analysis.
+**Full refresh** (default): Re-runs all 9 phases (0-8) in merge mode. In addition to the standard behavior, it re-runs Phase 6 (deep codebase mapping via parallel agents, context synthesis, agent upgrade) and Phase 7 (routing integration validation) — preserving existing context and manual edits while refreshing the deep analysis. Adds 5-15 minutes.
 
-### Gatekeeping Question (first run)
-
-When \`refresh\` is invoked without a mode flag, ask before doing any work:
-
-> **Question:** "Refresh mode — standard or full?"
->
-> 1. **Standard** — phases 0-5 + 8. Re-detect stack, merge recommendations, re-provision (preserving manual edits), update docs, verify.
-> 2. **Full** — all 9 phases (0-8). Standard plus deep codebase re-mapping (Phase 6) and routing integration validation (Phase 7). Adds 5-15 minutes.
-
-Pass \`--full\` to skip the question and force full refresh.
+Pass \`--standard\` to skip the deep mapping and integration validation phases. Pass \`--force\` to overwrite generated sections completely (still preserves MANUAL blocks).
 
 ## References Sync (always runs)
 
@@ -103,15 +94,15 @@ Safe to run on existing setups — it won't destroy manual work.`,
   examples: [
     {
       input: "/hub-setup refresh",
-      approach: "Gatekeeping question first: 'standard or full refresh?' User picks **Standard** → merge mode phases 0-5 + 8. Phase 0: doctor passes. Phase 1: re-detect stack, diff against last fingerprint — new dependency 'zod' found. Phase 2: merge new recommendations. Phase 3: add zod-related skills to opencode.jsonc. Phase 4: provision new agent wrapper for validation, preserve existing manually-edited agents. Phase 5: update AGENTS.md file tables. Phase 8: verify + diff report."
+      approach: "Defaults to full refresh — merge mode, all 9 phases. Phase 0: doctor passes. Phase 1: re-detect stack, diff against last fingerprint — new dependency 'zod' found. Phase 2: merge new recommendations. Phase 3: add zod-related skills to opencode.jsonc. Phase 4: provision new agent wrapper for validation, preserve existing manually-edited agents. Phase 5: update AGENTS.md file tables. Phase 6: re-spawn @architect, @convention-extractor, @explore to re-map the codebase and diff context. Phase 7: validate all extends paths, register new skills, fix broken refs. Phase 8: verify + full integration report with change diff."
     },
     {
-      input: "/hub-setup refresh",
-      approach: "Gatekeeping question first. User picks **Full** → merge mode, all 9 phases. Phases 0-5 same as Standard. Phase 6: re-spawn @architect (detects new module 'payments-service' added since last init), @convention-extractor (detects team switched to functional style), @explore (maps new file tree). Diff existing context files — update architecture.md with payments-service module, update conventions.md with functional style patterns, preserve MANUAL sections. Re-upgrade agent wrappers with refreshed context. Phase 7: validate all extends paths still resolve, register any new skills, fix broken refs. Phase 8: verify + full integration report with change diff."
+      input: "/hub-setup refresh --standard",
+      approach: "Limits refresh to phases 0-5 + 8. Skips Phase 6 deep codebase re-mapping and Phase 7 routing integration validation. Phase 0: doctor passes. Phase 1: re-detect stack — new dependency 'zod' found. Phase 2: merge new recommendations. Phase 3: add zod-related skills to opencode.jsonc. Phase 4: provision new agent wrapper, preserve existing manually-edited agents. Phase 5: update AGENTS.md file tables. Phase 8: verify + diff report."
     },
     {
       input: "/hub-setup refresh --full",
-      approach: "Skips the gatekeeping question — forces full refresh (all 9 phases, merge mode). Use when the mode is already known or for scripted/repeat invocations."
+      approach: "Explicitly forces full refresh (all 9 phases, merge mode). Same as the default, but makes the mode explicit for scripted/repeat invocations."
     },
     {
       input: "/hub-setup refresh --force",
@@ -120,7 +111,7 @@ Safe to run on existing setups — it won't destroy manual work.`,
   ],
 
   warnings: [
-    "Full refresh adds significant time (3 parallel agent dispatches + context synthesis + agent re-upgrade). Expect 5-15 minutes depending on codebase size. The gatekeeping question lets you choose standard if you don't need it.",
+    "Full refresh is now the default (all 9 phases). Expect 5-15 minutes depending on codebase size due to 3 parallel agent dispatches + context synthesis + agent re-upgrade. Pass --standard for the faster phases 0-5 + 8 path.",
     "Phase 6 in refresh mode diffs new analysis against existing context. If existing context files have no MANUAL blocks, they are fully overwritten. Add <!-- MANUAL --> tags to preserve custom sections.",
     "Agent re-upgrade in Phase 6 preserves MANUAL blocks in agent wrappers but overwrites auto-generated context sections. If you manually edited the auto-generated sections of an agent, those edits will be lost — use --force to skip all safety or add MANUAL blocks.",
     "Stale resources (agents/skills/tools that no longer match the detected stack) are flagged, NOT deleted. Review and remove manually if no longer needed."

@@ -289,13 +289,14 @@ export class MemoryDb {
     }
     const result = this.db.query(
       `INSERT INTO memories
-       (content,title,category,importance,confidence,project,workspace,agent,origin,is_private,dedup_key,embedding_model)
-       VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`,
+       (content,title,category,importance,confidence,project,workspace,agent,origin,is_private,dedup_key,embedding_model,decay_score)
+       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`,
     ).run(
       content, input.title ?? null, input.category ?? "pattern",
       input.importance ?? 3, input.confidence ?? 1.0, input.project ?? null,
       input.workspace ?? null, input.agent ?? null, input.origin ?? "agent-observation",
       input.isPrivate ? 1 : 0, dedup, input.embeddingModel ?? null,
+      MemoryDb.computeDecayScore({ ...input, importance: input.importance ?? 3, confirm_count: 1, confidence: input.confidence ?? 1, last_used_at: undefined, created_at: undefined } as unknown as Memory),
     )
     const id = Number(result.lastInsertRowid ?? result.meta?.last_row_id ?? 0)
     if (input.files?.length) {
@@ -427,4 +428,38 @@ export class MemoryDb {
       return { total: 0, byOrigin: {} }
     }
   }
+
+
+  // Decay scoring (age-based weighting)
+
+  private static readonly DECAY_HALF_LIFE_DAYS = 30
+  private static readonly ARCHIVE_DECAY_THRESHOLD = 0.15
+
+  static computeDecayScore(row: any, now: Date = new Date()): number {
+    const base = Number(row.importance ?? 3) * Number(row.confirm_count ?? 1) * Number(row.confidence ?? 1)
+    const anchor = row.last_used_at ?? row.created_at
+    const ageMs = now.getTime() - new Date(anchor ?? now.toISOString()).getTime()
+    const ageDays = Math.max(0, ageMs / (1000 * 60 * 60 * 24))
+    const decay = Math.pow(0.5, ageDays / MemoryDb.DECAY_HALF_LIFE_DAYS)
+    return base * decay
+  }
+
+  archiveStale(now: Date = new Date()): number {
+    if (!this.db) return 0
+    let archived = 0
+    try {
+      const rows = this.db.query(`SELECT * FROM memories WHERE status='active'`).all() as any[]
+      for (const row of rows) {
+        const score = MemoryDb.computeDecayScore(row, now)
+        if (score < MemoryDb.ARCHIVE_DECAY_THRESHOLD) {
+          this.db.query(
+            `UPDATE memories SET status='archived', stale_flagged_at=?, stale_reason='age_decay', updated_at=datetime('now') WHERE id=?`,
+          ).run(now.toISOString(), row.id)
+          archived++
+        }
+      }
+    } catch {}
+    return archived
+  }
+
 }

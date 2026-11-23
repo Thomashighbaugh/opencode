@@ -52,7 +52,7 @@ export default {
       commands: [
         {
           id: "rio.menu",
-          title: "Rio",
+          title: "Rio — token compression & memory options",
           group: "Rio",
           palette: true,
           slash: { name: "rio" },

@@ -28,6 +28,7 @@ import { buildIntelDigest } from "./src/intel.ts"
 import { qualityNudge, verbosityNudge } from "./src/nudges.ts"
 import { MemoryService } from "./src/memory.ts"
 import { graphRecall } from "../../skills/graph-context/scripts/graphlib.ts"
+import { queryChunks } from "../../skills/vectorize-context/scripts/veclib.ts"
 import { extractDecisions } from "./src/decisions.ts"
 import { DECISIONS, decide, decisionStats } from "../../skills/vectorize-context/scripts/decisions.ts"
 
@@ -211,7 +212,7 @@ export default {
                     includePrivate: { type: "boolean" },
                   },
                 } as any,
-                description: "Hybrid memory recall over FTS5 and the local sqlite-vec store.",
+                description: "Hybrid memory recall over FTS5 and the local sqlite-vec store, plus the configuration's own context store (decisions, patterns, research, frameworks).",
                 async execute(input: any) {
                   try {
                     const hits = await memory!.recall({
@@ -220,18 +221,38 @@ export default {
                       includePrivate: input.includePrivate,
                     })
                     // Structural context from the knowledge plane: graph nodes
-                    // relevant to the recall query, so the caller sees both the
-                    // learned memories and the rules/skills/patterns they sit in.
+                    // relevant to the recall query.
                     let structure: any[] = []
                     if (GRAPH_NODE) {
                       try {
                         structure = graphRecall(directory, String(input.query ?? ""), 5)
                       } catch {}
                     }
+                    // Configuration context: surface the configuration's own
+                    // durable knowledge (decisions.md, patterns, research,
+                    // frameworks) from the vectorized context store, so "memory"
+                    // in rio means both learned memories and the config's context.
+                    let configurationContext: any[] = []
+                    const q = String(input.query ?? "").trim()
+                    if (q) {
+                      try {
+                        const ctxHits = await queryChunks(directory, q, Math.max(1, Math.min(10, input.limit ?? 10)), {
+                          skipEnsureIndex: true,
+                          useReranker: true,
+                        })
+                        configurationContext = ctxHits.map((h: any) => ({
+                          source: "configuration-context",
+                          heading: h.heading,
+                          file_path: h.file_path,
+                          score: Math.round((h.rerank_score ?? (1 - (h.distance ?? 0))) * 1000) / 1000,
+                          content: h.content,
+                        }))
+                      } catch {}
+                    }
                     return { content: JSON.stringify({ count: hits.length, memories: hits.map((h) => ({
                       id: h.id, title: h.title, category: h.category, importance: h.importance,
                       score: Math.round(h.score * 1000) / 1000, stale: h.stale, content: h.content,
-                    })), structure: structure.map((s) => ({
+                    })), configurationContext, structure: structure.map((s) => ({
                       id: s.id, type: s.type, title: s.title, path: s.path, score: s.score, via: s.via,
                     })) }) }
                   } catch (e) {
@@ -277,51 +298,6 @@ export default {
       }
     } catch (e) {
       console.error("[rio] tool.transform error:", e)
-    }
-
-    // ── Register /rio slash command (single access point) ─────────────
-    try {
-      if (ctx.command?.transform) {
-        await ctx.command.transform((editor: any) => {
-          try {
-            editor.add({
-              name: "rio",
-              description: "Rio hub-like menu: status, compact, resume, compress, route, savings, audit, config, memory, recall, coach, doctor, report, memory-review, expand, resume-lean",
-              async execute(input: any) {
-                try {
-                  const sessionID = String(input.sessionID ?? "")
-                  const promptText = typeof input.prompt?.text === "string"
-                    ? input.prompt.text
-                    : Array.isArray(input.prompt?.parts)
-                      ? input.prompt.parts.filter((p: any) => p?.type === "text").map((p: any) => p.text ?? "").join(" ")
-                      : ""
-                  const parts = promptText.trim().split(/\s+/)
-                  // Drop the leading command name ("rio") so parts[0] is the subcommand.
-                  if (parts[0]?.toLowerCase() === "rio") parts.shift()
-                  const sub = parts[0]?.toLowerCase()
-
-                  // No subcommand → show the hub-like menu (the /rio entry point)
-                  if (!sub) {
-                    const items = buildMenuItems()
-                    const result = `rio menu:\n${formatMenu(items)}\n\nRun /rio <subcommand> to execute one.`
-                    try { await ctx.session.prompt({ sessionID, text: result, resume: false }) } catch {}
-                    return
-                  }
-
-                  const result = await runMenuAction(sub, service, memory!, ctx, sessionID)
-                  try { await ctx.session.prompt({ sessionID, text: result, resume: false }) } catch {}
-                } catch (e) {
-                  console.error("[rio] command execute error:", e)
-                }
-              },
-            })
-          } catch (e) {
-            console.error("[rio] command registration error:", e)
-          }
-        })
-      }
-    } catch (e) {
-      console.error("[rio] command.transform error:", e)
     }
 
     // ── Shell hook: tag runtime ─────────────────────────────────────
@@ -616,6 +592,21 @@ export default {
                   project: service.projectID,
                 })
               } catch {}
+              // ── Mechanical save: every extracted decision becomes a memory ──
+              // Compaction extracts decisions from turn output; persist them
+              // automatically so they survive compression and are available to
+              // future recall without the user having to run memory_learn.
+              try {
+                for (const d of decs) {
+                  await memory!.learn({
+                    content: d,
+                    title: `Decision: ${d.slice(0, 60)}${d.length > 60 ? "…" : ""}`,
+                    category: "architecture",
+                    origin: "agent-observation",
+                    project: service.projectID,
+                  })
+                }
+              } catch {}
               const hits = await memory!.recall({ query: digest.slice(0, 500), limit: 5 })
               if (hits.length) {
                 instructions.push(
@@ -650,6 +641,9 @@ export default {
                 try { service.store.pruneCheckpoints(cfg.retentionDays ?? 7) } catch {}
               } else if (event?.type === "session.idle" && data.sessionID && cfg.preComputation) {
                 try { await service.quality(String(data.sessionID)) } catch {}
+                // Age-based archiving: memories whose decay score has fallen
+                // below threshold are marked archived and excluded from recall.
+                try { if (MEMORY_ENABLED) await memory!.archiveStale() } catch {}
               } else if (event?.type === "session.compaction.ended" && data.sessionID) {
                 service.invalidate(String(data.sessionID))
                 service.store.setQuality({
