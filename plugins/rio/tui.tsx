@@ -5,6 +5,7 @@
 import { createEffect, createSignal, onCleanup } from "solid-js"
 import { Service, config } from "./src/service.ts"
 import { MemoryService } from "./src/memory.ts"
+import { memorySidebarLine, readMemoryState } from "./src/inject.ts"
 import { buildMenuItems, expandSubcommand, runMenuAction } from "./src/menu.ts"
 
 export default {
@@ -15,6 +16,7 @@ export default {
     const service = new Service(directory, projectID, config())
     const memory = new MemoryService(directory, projectID)
     const [line, setLine] = createSignal("rio · —")
+    const [memLine, setMemLine] = createSignal("memory · —")
 
     ctx.ui.slot({
       prepend: "sidebar.content",
@@ -31,6 +33,13 @@ export default {
           } catch {
             setLine("rio · no data")
           }
+          try {
+            const state = readMemoryState(directory, id)
+            const total = state?.total ?? memory.stats(projectID || null).total
+            setMemLine(memorySidebarLine(state?.loaded ?? 0, total))
+          } catch {
+            setMemLine("memory · —")
+          }
         }
         createEffect(() => {
           try { ctx.data.session.message.list(sessionID()) } catch {}
@@ -41,6 +50,7 @@ export default {
         return (
           <box flexDirection="column">
             <text fg={ctx.theme.text.muted}>{line()}</text>
+            <text fg={ctx.theme.text.muted}>{memLine()}</text>
           </box>
         )
       },

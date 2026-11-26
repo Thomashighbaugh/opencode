@@ -10,6 +10,9 @@
  *   - the `/hubs` command via ctx.command.transform
  */
 
+import fs from "node:fs"
+import path from "node:path"
+
 import { hubNames, hubSummaries, render, renderIndex, resume, route, status } from "./src/core"
 import { loadVendoredSkills } from "./src/skills"
 import { installAgents, loadVendoredAgents } from "./src/agents"
@@ -31,6 +34,71 @@ function dispatcherRoster(): string {
     return `- ${a.id}: ${desc}`
   })
   return `\n\nDispatchable subagents (hidden from the @ menu, invoke by name):\n${lines.join("\n")}`
+}
+
+/** Does this tool look like the agent dispatcher? */
+function looksLikeDispatch(tool: any): boolean {
+  const id = String(tool?.id ?? tool?.name ?? "")
+  if (id === "subagent" || id === "task") return true
+  const desc = String(tool?.description ?? "")
+  if (/spawns an agent|child session|dispatch(?:es)? (?:a )?subagent|subagent/i.test(desc)) return true
+  const props = tool?.input?.properties ?? tool?.parameters?.properties ?? {}
+  return typeof props === "object" && props !== null && "agent" in props
+}
+
+/**
+ * Registry ids for the agent-dispatch tool. If the registry has none, search
+ * local tool definitions (tools/, plugins/) for a tool that matches the
+ * signature, then fall back to whatever those definitions name. This is the
+ * "search locally, then use the enumerated sources" path instead of a silent
+ * no-op.
+ */
+function resolveDispatchToolIds(editor: any): string[] {
+  const ids = new Set<string>()
+  const registered: any[] = typeof editor?.list === "function" ? Array.from(editor.list()) : []
+  for (const tool of registered) {
+    if (looksLikeDispatch(tool)) {
+      const id = String(tool?.id ?? tool?.name ?? "")
+      if (id) ids.add(id)
+    }
+  }
+  if (ids.size > 0) return [...ids]
+
+  // Local definition search: bounded scan of this repo's tool and plugin entry
+  // files for the dispatch signature, extracting a `name: "..."` if present.
+  const roots = [path.join(__dirname, "..", "..", "tools"), path.join(__dirname, "..", "..", "plugins")]
+  const sig = /spawns an agent|child session|dispatch(?:es)? (?:a )?subagent/i
+  const seen = new Set<string>()
+  const scan = (dir: string, depth: number) => {
+    if (depth > 2 || !fs.existsSync(dir)) return
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, entry.name)
+      if (entry.isDirectory()) {
+        if (entry.name === "node_modules" || entry.name === "test" || entry.name === "data") continue
+        scan(full, depth + 1)
+        continue
+      }
+      if (!entry.name.endsWith(".ts")) continue
+      let text = ""
+      try {
+        text = fs.readFileSync(full, "utf-8")
+      } catch {
+        continue
+      }
+      if (!sig.test(text)) continue
+      const name = /name:\s*["']([A-Za-z0-9_-]+)["']/.exec(text)?.[1]
+      if (name && !seen.has(name)) {
+        seen.add(name)
+        ids.add(name)
+      }
+    }
+  }
+  for (const root of roots) scan(root, 0)
+  // Only ids actually in the registry can be updated; a local name that is not
+  // registered is not updatable, so return it out and let the caller register
+  // the fallback listSubagents tool instead.
+  const available = new Set(registered.map((t: any) => String(t?.id ?? t?.name ?? "")))
+  return [...ids].filter((id) => available.has(id))
 }
 
 const HUBMENU_INPUT = {
@@ -97,20 +165,33 @@ export default {
       registerLibraryTool(editor, directory)
 
       // Make the hidden subagents visible to the dispatcher without exposing
-      // them in the user's @ autocomplete. Best-effort: the dispatch tool may
-      // live outside this registry, in which case the AGENTS.md roster covers it.
+      // them in the user's @ autocomplete. Search order: the tool registry by
+      // id, then by description/schema signature, then local tool definitions.
+      // If the dispatch tool is still not found, register a fallback
+      // `listSubagents` tool so the roster reaches the model regardless.
       try {
         const roster = dispatcherRoster()
-        if (roster && typeof editor.list === "function") {
-          for (const tool of editor.list()) {
-            const id = String(tool?.id ?? tool?.name ?? "")
-            const desc = String(tool?.description ?? "")
-            const isDispatch = id === "subagent" || id === "task" || /child session/i.test(desc) || /Spawns an agent/i.test(desc)
-            if (!isDispatch) continue
+        if (roster) {
+          const ids = resolveDispatchToolIds(editor)
+          for (const id of ids) {
             editor.update(id, (t: any) => {
               if (typeof t.description === "string" && !t.description.includes("Dispatchable subagents")) {
                 t.description += roster
               }
+            })
+          }
+          if (ids.length === 0) {
+            // Last resort: the dispatch tool lives outside this registry. Give
+            // the model the roster as its own tool, using the same vendored
+            // agent source the hubs already enumerate.
+            editor.add({
+              name: "listSubagents",
+              options: { codemode: false },
+              description: `List the dispatchable subagents.${roster}`,
+              input: { type: "object", properties: {}, additionalProperties: false },
+              async execute() {
+                return { content: roster }
+              },
             })
           }
         }

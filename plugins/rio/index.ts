@@ -27,6 +27,7 @@ import { compressShellOutput } from "./src/compress.ts"
 import { buildIntelDigest } from "./src/intel.ts"
 import { qualityNudge, verbosityNudge } from "./src/nudges.ts"
 import { MemoryService } from "./src/memory.ts"
+import { latestPrompt, memoryContextBlock, promoteDecisions, writeMemoryState } from "./src/inject.ts"
 import { graphRecall } from "../../skills/graph-context/scripts/graphlib.ts"
 import { queryChunks } from "../../skills/vectorize-context/scripts/veclib.ts"
 import { extractDecisions } from "./src/decisions.ts"
@@ -424,6 +425,7 @@ export default {
               const decisions = extraction.decisions
               if (decisions.length) {
                 const existing = sessionDecisions.get(sessionID) ?? []
+                const fresh = decisions.filter((d) => !existing.includes(d))
                 const updated = [...existing, ...decisions].slice(-10)
                 sessionDecisions.set(sessionID, updated)
                 service.store.logSavings({
@@ -434,6 +436,11 @@ export default {
                   detail: `extracted ${decisions.length}/${extraction.considered} candidate(s), ${extraction.vetoed} vetoed`,
                   createdAt: Date.now() / 1000,
                 })
+                // Promote as they happen, not only at compaction, so durable
+                // decisions are recallable in later turns and sessions.
+                if (fresh.length && MEMORY_ENABLED) {
+                  await promoteDecisions(memory!, fresh, service.projectID)
+                }
               }
             }
           } catch (e) {
@@ -470,19 +477,14 @@ export default {
             const sessionID = String(event.sessionID)
 
             // ── Memory recall injected into context ───────────────────
+            // Recall against THIS turn's prompt, so the embedded + reranked
+            // memories are relevant to the current inference instead of the
+            // first message of the session.
             if (MEMORY_ENABLED) {
-              const prompt = FIRST_PROMPT.get(sessionID) ?? ""
-              if (prompt) {
-                const hits = await memory!.recall({ query: prompt, limit: 5 })
-                if (hits.length) {
-                  const block = [
-                    "## Active Memories (rio)",
-                    ...hits.map((h) => `- [${h.category}] ${h.content.slice(0, 200)}`).join("\n"),
-                    "",
-                  ].join("\n")
-                  event.system.push({ type: "text", text: block })
-                }
-              }
+              const prompt = latestPrompt(RECENT_PROMPTS.get(sessionID)) || FIRST_PROMPT.get(sessionID) || ""
+              const { text, loaded, total } = await memoryContextBlock(memory!, prompt, { limit: 5 })
+              if (text) event.system.push({ type: "text", text })
+              writeMemoryState(directory, { sessionID, loaded, total, at: Date.now() })
             }
 
             // ── Graph structure injected into context ───────────────────
@@ -491,7 +493,7 @@ export default {
             // prompt. Pure-SQL over graph.db; degrades to nothing when the
             // graph isn't built or the runtime can't load better-sqlite3.
             if (MEMORY_ENABLED) {
-              const prompt = FIRST_PROMPT.get(sessionID) ?? ""
+              const prompt = latestPrompt(RECENT_PROMPTS.get(sessionID)) || FIRST_PROMPT.get(sessionID) || ""
               if (prompt) {
                 if (GRAPH_NODE) {
                   try {
