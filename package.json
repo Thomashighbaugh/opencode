@@ -17,12 +17,12 @@
     "@huggingface/transformers": "^4.3.2",
     "@modelcontextprotocol/sdk": "^1.32.2",
     "@opencode/plugin": "^2.1.0",
-    "@opentui/react": "^0.5.17",
-    "@opentui/solid": "^0.5.17",
+    "@opentui/react": "^0.9.9",
+    "@opentui/solid": "^0.9.9",
     "better-sqlite3": "^13.0.3",
-    "fast-xml-parser": "^5.11.2",
+    "fast-xml-parser": "^5.12.0",
     "fs-extra": "^11.4.1",
-    "glob": "^13.0.6",
+    "glob": "^14.0.2",
     "js-yaml": "^5.5.0",
     "jsonc-parser": "^3.3.1",
     "jsonpath-plus": "^10.4.0",
@@ -36,15 +36,17 @@
     "unpdf": "^1.9.1",
     "vscode-langservers-extracted": "^4.10.0",
     "word-extractor": "^1.0.4",
-    "zod": "^3.25.76"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^25.9.9",
     "@types/turndown": "^5.0.6",
-    "vitest": "^4.1.12"
+    "vitest": "^4.1.12",
+    "solid-js": "^1.9.12"
   },
   "overrides": {
-    "minimatch": "^10.0.1"
+    "minimatch": "^11.0.1",
+    "zod": "^4.6.7"
   }
 }
