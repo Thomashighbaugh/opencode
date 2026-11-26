@@ -11,12 +11,13 @@
  * Exit code: 0 for LOW risk, 1 for HIGH/MEDIUM/UNCERTAIN.
  */
 
-import fs from 'fs';
+import fs from "fs"
 
 const patterns = {
   // API keys and tokens
   apiKey: /(?:sk|pk|sk-live|sk-test|pk-live|pk-test)[-_][a-zA-Z0-9]{20,}/gi,
-  apiKeyGeneric: /(?:api[-_]?(?:key|secret|token)|access[-_]?(?:key|secret|token))\s*[:=]\s*['"][a-zA-Z0-9_\-\.\/+]{16,}['"]/gi,
+  apiKeyGeneric:
+    /(?:api[-_]?(?:key|secret|token)|access[-_]?(?:key|secret|token))\s*[:=]\s*['"][a-zA-Z0-9_\-\.\/+]{16,}['"]/gi,
   bearerToken: /bearer\s+[a-zA-Z0-9_\-\.]{20,}/gi,
   authToken: /(?:auth[-_]?token|jwt|refresh[-_]?token)\s*[:=]\s*['"][a-zA-Z0-9_\-\.]{20,}['"]/gi,
 
@@ -44,8 +45,8 @@ const patterns = {
 
   // Session/chat indicators in paths
   sessionPath: /\.opencode\/(?:state\/sessions|chat-history|chat|state\/.*session)/i,
-  transcriptPath: /(?:session|transcript|chat-history|conversation)\.(?:md|json|txt|log)/i,
-};
+  transcriptPath: /(?:session|transcript|chat-history|conversation)\.(?:md|json|txt|log)/i
+}
 
 const derivedKnowledgeIndicators = [
   /^# (?:Architecture Decision|ADR|Decision|Pattern|Lesson|Summary)/im,
@@ -54,34 +55,34 @@ const derivedKnowledgeIndicators = [
   /^(?:Pattern|Anti-pattern|Best practice|Recommendation):/im,
   /^## (?:Key Findings|Results|Conclusion|Next Steps)/im,
   /^> \*\*Decision\*\*/im,
-  /^### Context$/im,
-];
+  /^### Context$/im
+]
 
 const rawDataIndicators = [
   /^## (?:Full Session|Transcript|Raw Output|Debug Log)/im,
   /^(?:User:|Assistant:|Human:|AI:)/im,
   /^\[(?:START|END)\s+(?:SESSION|CONVERSATION|CHAT)\]/im,
-  /^### (?:Raw|Unfiltered|Complete)\s+(?:Log|Output|Dump)/im,
-];
+  /^### (?:Raw|Unfiltered|Complete)\s+(?:Log|Output|Dump)/im
+]
 
 function scanContent(content, filePath) {
-  const findings = [];
-  let maxRisk = 'low';
+  const findings = []
+  let maxRisk = "low"
 
   // Determine if this is derived knowledge (safe) or raw data (risky)
-  const isDerived = derivedKnowledgeIndicators.some((re) => re.test(content));
-  const isRawData = rawDataIndicators.some((re) => re.test(content));
+  const isDerived = derivedKnowledgeIndicators.some((re) => re.test(content))
+  const isRawData = rawDataIndicators.some((re) => re.test(content))
 
   // Check file path for session/chat indicators
   if (filePath) {
     for (const [name, re] of Object.entries(patterns)) {
-      if (name === 'sessionPath' && re.test(filePath)) {
-        findings.push(`File path suggests session/chat content: ${filePath}`);
-        maxRisk = escalate(maxRisk, 'high');
+      if (name === "sessionPath" && re.test(filePath)) {
+        findings.push(`File path suggests session/chat content: ${filePath}`)
+        maxRisk = escalate(maxRisk, "high")
       }
-      if (name === 'transcriptPath' && re.test(filePath)) {
-        findings.push(`File path suggests transcript content: ${filePath}`);
-        maxRisk = escalate(maxRisk, 'high');
+      if (name === "transcriptPath" && re.test(filePath)) {
+        findings.push(`File path suggests transcript content: ${filePath}`)
+        maxRisk = escalate(maxRisk, "high")
       }
     }
   }
@@ -91,87 +92,100 @@ function scanContent(content, filePath) {
   if (isDerived && !isRawData) {
     // Still do a light scan for obvious secrets
     for (const [name, re] of Object.entries(patterns)) {
-      if (['sessionPath', 'transcriptPath', 'email', 'ipAddress', 'phone', 'ssn'].includes(name)) {
-        continue; // Skip PII and path checks for derived knowledge
+      if (["sessionPath", "transcriptPath", "email", "ipAddress", "phone", "ssn"].includes(name)) {
+        continue // Skip PII and path checks for derived knowledge
       }
-      const matches = content.match(re);
+      const matches = content.match(re)
       if (matches) {
-        findings.push(`[${name}] Found ${matches.length} potential match(es)`);
-        maxRisk = escalate(maxRisk, 'medium');
+        findings.push(`[${name}] Found ${matches.length} potential match(es)`)
+        maxRisk = escalate(maxRisk, "medium")
       }
     }
     if (findings.length === 0) {
       return {
-        risk: 'low',
-        findings: ['Content appears to be derived knowledge (ADRs, patterns, decisions) — no raw secrets detected'],
-        recommendation: 'commit',
-        details: 'Derived knowledge is safe to commit. No raw secrets or PII detected.',
-      };
+        risk: "low",
+        findings: ["Content appears to be derived knowledge (ADRs, patterns, decisions) — no raw secrets detected"],
+        recommendation: "commit",
+        details: "Derived knowledge is safe to commit. No raw secrets or PII detected."
+      }
     }
     // If we found something even in derived knowledge, flag it
     return {
       risk: maxRisk,
       findings,
-      recommendation: maxRisk === 'high' ? 'gitignore' : 'review',
-      details: `Content appears to be derived knowledge but ${maxRisk}-risk patterns were detected.`,
-    };
+      recommendation: maxRisk === "high" ? "gitignore" : "review",
+      details: `Content appears to be derived knowledge but ${maxRisk}-risk patterns were detected.`
+    }
   }
 
   // Full scan for raw/unknown content
   for (const [name, re] of Object.entries(patterns)) {
-    if (['sessionPath', 'transcriptPath'].includes(name)) {
-      continue; // Already checked above
+    if (["sessionPath", "transcriptPath"].includes(name)) {
+      continue // Already checked above
     }
-    const matches = content.match(re);
+    const matches = content.match(re)
     if (matches) {
       // Filter out common false positives
       const filtered = matches.filter((m) => {
         // Skip example.com, test@test.com, etc.
-        if (name === 'email' && /example\.com|test@|@localhost/i.test(m)) return false;
+        if (name === "email" && /example\.com|test@|@localhost/i.test(m)) return false
         // Skip 0.0.0.0, 127.0.0.1, etc.
-        if (name === 'ipAddress' && /^0\.|^127\.|^255\.|\.0$|\.255$/.test(m)) return false;
+        if (name === "ipAddress" && /^0\.|^127\.|^255\.|\.0$|\.255$/.test(m)) return false
         // Skip placeholder passwords
-        if (name === 'password' && /password|secret|changeme|placeholder/i.test(m) && m.length < 20) return false;
-        return true;
-      });
+        if (name === "password" && /password|secret|changeme|placeholder/i.test(m) && m.length < 20) return false
+        return true
+      })
 
       if (filtered.length > 0) {
-        const risk = ['privateKey', 'apiKey', 'apiKeyGeneric', 'bearerToken', 'authToken', 'mongoUri', 'postgresUri', 'mysqlUri', 'redisUri', 'sessionPath', 'transcriptPath'].includes(name)
-          ? 'high'
-          : ['password', 'credential', 'ssn'].includes(name)
-            ? 'high'
-            : 'medium';
-        findings.push(`[${name}] Found ${filtered.length} potential match(es) (risk: ${risk})`);
-        maxRisk = escalate(maxRisk, risk);
+        const risk = [
+          "privateKey",
+          "apiKey",
+          "apiKeyGeneric",
+          "bearerToken",
+          "authToken",
+          "mongoUri",
+          "postgresUri",
+          "mysqlUri",
+          "redisUri",
+          "sessionPath",
+          "transcriptPath"
+        ].includes(name)
+          ? "high"
+          : ["password", "credential", "ssn"].includes(name)
+            ? "high"
+            : "medium"
+        findings.push(`[${name}] Found ${filtered.length} potential match(es) (risk: ${risk})`)
+        maxRisk = escalate(maxRisk, risk)
       }
     }
   }
 
   // Determine recommendation
-  let recommendation;
-  if (maxRisk === 'high') {
-    recommendation = 'gitignore';
-  } else if (maxRisk === 'medium') {
-    recommendation = 'sanitize';
-  } else if (maxRisk === 'uncertain') {
-    recommendation = 'review';
+  let recommendation
+  if (maxRisk === "high") {
+    recommendation = "gitignore"
+  } else if (maxRisk === "medium") {
+    recommendation = "sanitize"
+  } else if (maxRisk === "uncertain") {
+    recommendation = "review"
   } else {
-    recommendation = 'commit';
+    recommendation = "commit"
   }
 
   return {
     risk: maxRisk,
-    findings: findings.length > 0 ? findings : ['No secrets or PII detected'],
+    findings: findings.length > 0 ? findings : ["No secrets or PII detected"],
     recommendation,
-    details: findings.length > 0
-      ? `Found ${findings.length} potential issue(s). Risk level: ${maxRisk.toUpperCase()}.`
-      : 'Content appears safe to commit.',
-  };
+    details:
+      findings.length > 0
+        ? `Found ${findings.length} potential issue(s). Risk level: ${maxRisk.toUpperCase()}.`
+        : "Content appears safe to commit."
+  }
 }
 
 function escalate(current, candidate) {
-  const levels = ['low', 'medium', 'high', 'uncertain'];
-  return levels.indexOf(candidate) > levels.indexOf(current) ? candidate : current;
+  const levels = ["low", "medium", "high", "uncertain"]
+  return levels.indexOf(candidate) > levels.indexOf(current) ? candidate : current
 }
 
 /**
@@ -188,74 +202,74 @@ function escalate(current, candidate) {
  * vectorize-context skill still gets a working pattern scan.
  */
 export async function escalateWithClassifier(result, content) {
-  if (result.risk === 'high') return result;
+  if (result.risk === "high") return result
   try {
-    const mod = await import('../../vectorize-context/scripts/classifiers.ts');
-    const sensitive = mod.sensitiveSpans(await mod.extractEntities(content));
-    if (!sensitive.length) return result;
-    const sample = sensitive.slice(0, 3).map((s) => s.entity).join(', ');
+    const mod = await import("../../vectorize-context/scripts/classifiers.ts")
+    const sensitive = mod.sensitiveSpans(await mod.extractEntities(content))
+    if (!sensitive.length) return result
+    const sample = sensitive
+      .slice(0, 3)
+      .map((s) => s.entity)
+      .join(", ")
     return {
       ...result,
-      risk: escalate(result.risk, 'uncertain'),
-      recommendation: 'review',
+      risk: escalate(result.risk, "uncertain"),
+      recommendation: "review",
       findings: [...result.findings, `[pii-classifier] ${sensitive.length} sensitive span(s): ${sample}`],
-      details: `${result.details} A local PII classifier flagged ${sensitive.length} credential/identity span(s) the pattern scan did not.`,
-    };
+      details: `${result.details} A local PII classifier flagged ${sensitive.length} credential/identity span(s) the pattern scan did not.`
+    }
   } catch {
-    return result;
+    return result
   }
 }
 
 /** Print the verdict and exit with the code the contract promises. */
 function emit(result) {
-  process.stdout.write(JSON.stringify(result, null, 2) + '\n');
-  process.exit(result.risk === 'low' ? 0 : 1);
+  process.stdout.write(JSON.stringify(result, null, 2) + "\n")
+  process.exit(result.risk === "low" ? 0 : 1)
 }
 
 // CLI entry point
 async function main() {
-  const args = process.argv.slice(2);
-  let content = '';
-  let filePath = '';
+  const args = process.argv.slice(2)
+  let content = ""
+  let filePath = ""
 
-  if (args.includes('--file')) {
-    const idx = args.indexOf('--file');
-    filePath = args[idx + 1];
-    content = fs.readFileSync(filePath, 'utf-8');
-  } else if (args.includes('--stdin')) {
-    let input = '';
-    process.stdin.on('data', (chunk) => (input += chunk));
-    process.stdin.on('end', async () => {
+  if (args.includes("--file")) {
+    const idx = args.indexOf("--file")
+    filePath = args[idx + 1]
+    content = fs.readFileSync(filePath, "utf-8")
+  } else if (args.includes("--stdin")) {
+    let input = ""
+    process.stdin.on("data", (chunk) => (input += chunk))
+    process.stdin.on("end", async () => {
       try {
-        const parsed = JSON.parse(input);
-        content = parsed.content || '';
-        filePath = parsed.filePath || '';
+        const parsed = JSON.parse(input)
+        content = parsed.content || ""
+        filePath = parsed.filePath || ""
       } catch {
-        content = input;
+        content = input
       }
-      emit(await escalateWithClassifier(scanContent(content, filePath), content));
-    });
-    return;
-  } else if (args.length > 0 && !args[0].startsWith('--')) {
+      emit(await escalateWithClassifier(scanContent(content, filePath), content))
+    })
+    return
+  } else if (args.length > 0 && !args[0].startsWith("--")) {
     // Treat first non-flag arg as file path
-    filePath = args[0];
-    content = fs.readFileSync(filePath, 'utf-8');
+    filePath = args[0]
+    content = fs.readFileSync(filePath, "utf-8")
   } else {
-    process.stderr.write('Usage: node scan-privacy.ts [--file <path> | --stdin | <path>]\n');
-    process.exit(1);
+    process.stderr.write("Usage: node scan-privacy.ts [--file <path> | --stdin | <path>]\n")
+    process.exit(1)
   }
 
-  emit(await escalateWithClassifier(scanContent(content, filePath), content));
+  emit(await escalateWithClassifier(scanContent(content, filePath), content))
 }
 
 // Check if this is the main module
-const isMain = process.argv[1] && (
-  process.argv[1] === import.meta.url ||
-  process.argv[1].endsWith('scan-privacy.ts')
-);
+const isMain = process.argv[1] && (process.argv[1] === import.meta.url || process.argv[1].endsWith("scan-privacy.ts"))
 
 if (isMain) {
-  main();
+  main()
 }
 
-export { scanContent };
+export { scanContent }

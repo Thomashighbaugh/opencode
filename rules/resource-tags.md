@@ -1,3 +1,8 @@
+---
+name: resource-tags
+description: Resource tagging convention for metadata-based filtering of skills, agents, rules, and commands.
+---
+
 # Resource Tagging Convention
 
 Tags provide metadata-based filtering for OpenCode global resources. They enable per-project configs to selectively activate only relevant skills, agents, rules, and commands — reducing context pollution.

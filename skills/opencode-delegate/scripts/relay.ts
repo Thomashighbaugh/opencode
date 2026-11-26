@@ -68,65 +68,65 @@
  * file must therefore also treat a non-zero exit with no file as a usage error.
  */
 
-import {spawn, execFileSync, spawnSync } from "node:child_process";
-import { mkdirSync, writeFileSync, renameSync, readFileSync, existsSync, appendFileSync } from "node:fs";
-import {join, resolve, basename, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
-import { constants, tmpdir, homedir } from "node:os";
-import { createRequire } from "node:module";
-import { StringDecoder } from "node:string_decoder";
+import { spawn, execFileSync, spawnSync } from "node:child_process"
+import { mkdirSync, writeFileSync, renameSync, readFileSync, existsSync, appendFileSync } from "node:fs"
+import { join, resolve, basename, dirname } from "node:path"
+import { fileURLToPath } from "node:url"
+import { constants, tmpdir, homedir } from "node:os"
+import { createRequire } from "node:module"
+import { StringDecoder } from "node:string_decoder"
 
-const VERSION_PROBE_TIMEOUT_MS = 10_000;
-const MAX_TIMER_MS = 2_147_483_647;
+const VERSION_PROBE_TIMEOUT_MS = 10_000
+const MAX_TIMER_MS = 2_147_483_647
 // model/variant reach cmd.exe on win32 (shell:true for the opencode.cmd shim).
 // Keep in lockstep with delegate-setup MODEL_TOKEN.shellSafe.
-const SAFE_TOKEN = /^[A-Za-z0-9][A-Za-z0-9._:/-]*$/;
+const SAFE_TOKEN = /^[A-Za-z0-9][A-Za-z0-9._:/-]*$/
 
-const IMPLEMENTER_KEY = "opencode";
+const IMPLEMENTER_KEY = "opencode"
 
 function applyFleetLane(opts, flagged) {
-  if (!opts.lane) return;
-  const script = join(dirname(fileURLToPath(import.meta.url)), "../../delegate-setup/scripts/lane.mjs");
+  if (!opts.lane) return
+  const script = join(dirname(fileURLToPath(import.meta.url)), "../../delegate-setup/scripts/lane.mjs")
   if (!existsSync(script)) {
-    fail("--lane requires the delegate-setup skill installed beside this relay");
+    fail("--lane requires the delegate-setup skill installed beside this relay")
   }
   const r = spawnSync(
     process.execPath,
     [script, "resolve", "--cwd", opts.cd, "--lane", opts.lane, "--implementer", IMPLEMENTER_KEY],
-    { encoding: "utf8", env: process.env },
-  );
-  if (r.error) fail(`lane resolve failed: ${r.error.message}`);
+    { encoding: "utf8", env: process.env }
+  )
+  if (r.error) fail(`lane resolve failed: ${r.error.message}`)
   if (r.status !== 0) {
-    fail((r.stderr || "lane resolve failed").trim().replace(/^lane\.mjs:\s*/, ""));
+    fail((r.stderr || "lane resolve failed").trim().replace(/^lane\.mjs:\s*/, ""))
   }
-  let resolved;
+  let resolved
   try {
-    const lines = (r.stdout || "").trim().split("\n").filter(Boolean);
-    resolved = JSON.parse(lines[lines.length - 1]);
+    const lines = (r.stdout || "").trim().split("\n").filter(Boolean)
+    resolved = JSON.parse(lines[lines.length - 1])
   } catch {
-    fail("lane resolve returned invalid JSON");
+    fail("lane resolve returned invalid JSON")
   }
-  opts.laneSource = resolved.source;
+  opts.laneSource = resolved.source
   for (const [field, value] of Object.entries(resolved.dials || {})) {
-    if (flagged.has(field)) continue;
-    if (field === "autonomy" && (flagged.has("autonomy") || flagged.has("sandbox") || flagged.has("readOnly"))) continue;
-    if (field === "agent" && (flagged.has("agent") || flagged.has("readOnly"))) continue;
-    if (field === "sandbox" && (flagged.has("sandbox") || flagged.has("readOnly"))) continue;
-    if (field === "permissionMode" && (flagged.has("permissionMode") || flagged.has("readOnly"))) continue;
-    if (field === "planOnly" && (flagged.has("planOnly") || flagged.has("readOnly"))) continue;
-    if (field === "readOnly" && flagged.has("readOnly")) continue;
-    if (field === "force" && flagged.has("force")) continue;
-    opts[field] = value;
+    if (flagged.has(field)) continue
+    if (field === "autonomy" && (flagged.has("autonomy") || flagged.has("sandbox") || flagged.has("readOnly"))) continue
+    if (field === "agent" && (flagged.has("agent") || flagged.has("readOnly"))) continue
+    if (field === "sandbox" && (flagged.has("sandbox") || flagged.has("readOnly"))) continue
+    if (field === "permissionMode" && (flagged.has("permissionMode") || flagged.has("readOnly"))) continue
+    if (field === "planOnly" && (flagged.has("planOnly") || flagged.has("readOnly"))) continue
+    if (field === "readOnly" && flagged.has("readOnly")) continue
+    if (field === "force" && flagged.has("force")) continue
+    opts[field] = value
   }
 }
 
 function fail(message, code = 2) {
-  process.stderr.write(`relay: ${message}\n`);
-  process.exit(code);
+  process.stderr.write(`relay: ${message}\n`)
+  process.exit(code)
 }
 
 function parseArgs(argv) {
-  const flagged = new Set();
+  const flagged = new Set()
   const opts = {
     lane: null,
     laneSource: null,
@@ -140,89 +140,122 @@ function parseArgs(argv) {
     session: null,
     pure: false,
     timeout: null,
-    outDir: null,
-  };
+    outDir: null
+  }
   for (let i = 0; i < argv.length; i += 1) {
-    const arg = argv[i];
+    const arg = argv[i]
     const next = () => {
-      const value = argv[i + 1];
-      if (value === undefined) fail(`${arg} requires a value`);
-      i += 1;
-      return value;
-    };
+      const value = argv[i + 1]
+      if (value === undefined) fail(`${arg} requires a value`)
+      i += 1
+      return value
+    }
     switch (arg) {
       case "-h":
       case "--help":
-        process.stdout.write(headerComment());
-        process.exit(0);
-        break;
-      case "--brief": opts.brief = next(); break;
-      case "--cd": opts.cd = resolve(next()); break;
-      case "--lane": opts.lane = next(); break;
-      case "--model": opts.model = next(); flagged.add("model"); break;
-      case "--agent": opts.agent = next(); flagged.add("agent"); break;
-      case "--read-only": opts.agent = "plan"; flagged.add("agent"); flagged.add("readOnly"); break;
-      case "--variant": opts.variant = next(); flagged.add("variant"); break;
-      case "--auto": opts.auto = true; break;
-      case "--no-auto": opts.auto = false; break;
-      case "--resume-last": opts.resumeLast = true; break;
-      case "--session": opts.session = next(); break;
-      case "--pure": opts.pure = true; break;
-      case "--timeout": opts.timeout = next(); flagged.add("timeout"); break;
-      case "--out-dir": opts.outDir = resolve(next()); break;
+        process.stdout.write(headerComment())
+        process.exit(0)
+        break
+      case "--brief":
+        opts.brief = next()
+        break
+      case "--cd":
+        opts.cd = resolve(next())
+        break
+      case "--lane":
+        opts.lane = next()
+        break
+      case "--model":
+        opts.model = next()
+        flagged.add("model")
+        break
+      case "--agent":
+        opts.agent = next()
+        flagged.add("agent")
+        break
+      case "--read-only":
+        opts.agent = "plan"
+        flagged.add("agent")
+        flagged.add("readOnly")
+        break
+      case "--variant":
+        opts.variant = next()
+        flagged.add("variant")
+        break
+      case "--auto":
+        opts.auto = true
+        break
+      case "--no-auto":
+        opts.auto = false
+        break
+      case "--resume-last":
+        opts.resumeLast = true
+        break
+      case "--session":
+        opts.session = next()
+        break
+      case "--pure":
+        opts.pure = true
+        break
+      case "--timeout":
+        opts.timeout = next()
+        flagged.add("timeout")
+        break
+      case "--out-dir":
+        opts.outDir = resolve(next())
+        break
       default:
-        fail(`unknown option: ${arg}`);
+        fail(`unknown option: ${arg}`)
     }
   }
-  applyFleetLane(opts, flagged);
+  applyFleetLane(opts, flagged)
   if (opts.model !== null && !SAFE_TOKEN.test(opts.model)) {
-    fail("--model contains unsupported characters (allowed: letters, digits, . _ : / -)");
+    fail("--model contains unsupported characters (allowed: letters, digits, . _ : / -)")
   }
   if (opts.variant !== null && !SAFE_TOKEN.test(opts.variant)) {
-    fail("--variant contains unsupported characters (allowed: letters, digits, . _ : / -)");
+    fail("--variant contains unsupported characters (allowed: letters, digits, . _ : / -)")
   }
   // The watchdog is relay-only (the opencode launch has no timeout flag), so a malformed
   // --timeout must fail loudly here - a silent no-watchdog fallback would be wrong.
   if (opts.timeout !== null && parseDuration(opts.timeout) === null) {
-    fail(`--timeout "${opts.timeout}" is invalid or too long; use a positive h/m/s duration no longer than about 24 days`);
+    fail(
+      `--timeout "${opts.timeout}" is invalid or too long; use a positive h/m/s duration no longer than about 24 days`
+    )
   }
-  return opts;
+  return opts
 }
 
 function parseDuration(duration) {
-  const match = /^(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?$/.exec(duration);
-  if (!match || (!match[1] && !match[2] && !match[3])) return null;
+  const match = /^(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?$/.exec(duration)
+  if (!match || (!match[1] && !match[2] && !match[3])) return null
   try {
-    const seconds =
-      BigInt(match[1] || 0) * 3600n +
-      BigInt(match[2] || 0) * 60n +
-      BigInt(match[3] || 0);
-    const milliseconds = seconds * 1000n;
-    if (milliseconds <= 0n || milliseconds > BigInt(MAX_TIMER_MS)) return null;
-    return Number(milliseconds);
+    const seconds = BigInt(match[1] || 0) * 3600n + BigInt(match[2] || 0) * 60n + BigInt(match[3] || 0)
+    const milliseconds = seconds * 1000n
+    if (milliseconds <= 0n || milliseconds > BigInt(MAX_TIMER_MS)) return null
+    return Number(milliseconds)
   } catch {
-    return null;
+    return null
   }
 }
 
 function killChild(child, signal = "SIGTERM") {
-  if (!child || !child.pid) return;
+  if (!child || !child.pid) return
   if (process.platform === "win32") {
-    if (signal !== "SIGTERM") return;
+    if (signal !== "SIGTERM") return
     try {
       execFileSync("taskkill", ["/pid", String(child.pid), "/t", "/f"], {
-        stdio: ["ignore", "ignore", "inherit"],
-      });
+        stdio: ["ignore", "ignore", "inherit"]
+      })
     } catch {
       // The process tree already exited.
     }
-    return;
+    return
   }
   try {
-    process.kill(-child.pid, signal);
+    process.kill(-child.pid, signal)
   } catch {
     try {
-      child.kill(signal);
+      child.kill(signal)
     } catch {
       // The process group already exited.
     }
@@ -231,36 +264,36 @@ function killChild(child, signal = "SIGTERM") {
 
 function headerComment() {
   // The leading block comment doubles as --help text.
-  const src = readFileSync(new URL(import.meta.url), "utf8");
-  const match = src.match(/\/\*\*([\s\S]*?)\*\//);
-  if (!match) return "relay.ts — dispatch a brief to opencode run\n";
-  return match[1].replace(/^\s*\* ?/gm, "").trim() + "\n";
+  const src = readFileSync(new URL(import.meta.url), "utf8")
+  const match = src.match(/\/\*\*([\s\S]*?)\*\//)
+  if (!match) return "relay.ts — dispatch a brief to opencode run\n"
+  return match[1].replace(/^\s*\* ?/gm, "").trim() + "\n"
 }
 
 function readBrief(opts) {
   if (opts.brief) {
-    if (!existsSync(opts.brief)) fail(`brief file not found: ${opts.brief}`);
-    return readFileSync(opts.brief, "utf8");
+    if (!existsSync(opts.brief)) fail(`brief file not found: ${opts.brief}`)
+    return readFileSync(opts.brief, "utf8")
   }
   // No --brief: read from stdin (fd 0). Empty stdin is an error.
   if (process.stdin.isTTY) {
-    fail("no --brief given and stdin is a TTY; pass --brief <file> or pipe the brief on stdin");
+    fail("no --brief given and stdin is a TTY; pass --brief <file> or pipe the brief on stdin")
   }
-  let stdin = "";
+  let stdin = ""
   try {
-    stdin = readFileSync(0, "utf8");
+    stdin = readFileSync(0, "utf8")
   } catch {
-    stdin = "";
+    stdin = ""
   }
-  return stdin;
+  return stdin
 }
 
 function versionProbeTimeout(opts) {
   // The watchdog is only armed once opencode is running, so the preflight needs a bound of
   // its own: an `opencode --version` that never returns would wedge the relay here, before
   // any result.json exists, and --timeout could not reach it.
-  const timeoutMs = opts.timeout === null ? null : parseDuration(opts.timeout);
-  return timeoutMs === null ? VERSION_PROBE_TIMEOUT_MS : Math.min(timeoutMs, VERSION_PROBE_TIMEOUT_MS);
+  const timeoutMs = opts.timeout === null ? null : parseDuration(opts.timeout)
+  return timeoutMs === null ? VERSION_PROBE_TIMEOUT_MS : Math.min(timeoutMs, VERSION_PROBE_TIMEOUT_MS)
 }
 
 function opencodeVersion(probeTimeoutMs) {
@@ -273,21 +306,23 @@ function opencodeVersion(probeTimeoutMs) {
       encoding: "utf8",
       shell: process.platform === "win32",
       timeout: probeTimeoutMs,
-      killSignal: "SIGKILL",
-    }).trim();
-    return { version: version || "unknown", error: null };
+      killSignal: "SIGKILL"
+    }).trim()
+    return { version: version || "unknown", error: null }
   } catch (error) {
-    if (error?.code === "ENOENT") return { version: null, error: null };
+    if (error?.code === "ENOENT") return { version: null, error: null }
     // shell:true routes a missing binary through cmd.exe, which reports it as a non-zero
     // exit rather than ENOENT; that is still "not installed", not a broken install.
-    if (process.platform === "win32" &&
-        /not recognized as an internal or external command/i.test(String(error?.stderr || ""))) {
-      return { version: null, error: null };
+    if (
+      process.platform === "win32" &&
+      /not recognized as an internal or external command/i.test(String(error?.stderr || ""))
+    ) {
+      return { version: null, error: null }
     }
     // Anything else — a hung probe we killed, or a real non-zero exit — means opencode is
     // installed but not usable. Reporting that as "unavailable" would send the caller
     // off to reinstall a binary that is already there.
-    return { version: null, error };
+    return { version: null, error }
   }
 }
 
@@ -299,42 +334,45 @@ function gitTouchedFiles(cwd) {
       timeout: 10_000,
       killSignal: "SIGKILL",
       stdio: ["ignore", "pipe", "ignore"],
-      maxBuffer: 64 * 1024 * 1024,
-    });
-    return output.split("\n").map((line) => line.trimEnd()).filter(Boolean);
+      maxBuffer: 64 * 1024 * 1024
+    })
+    return output
+      .split("\n")
+      .map((line) => line.trimEnd())
+      .filter(Boolean)
   } catch {
-    return null;
+    return null
   }
 }
 
 function timestamp() {
   // Local script (not a workflow): Date is available and fine here.
-  return new Date().toISOString().replace(/[:.]/g, "-");
+  return new Date().toISOString().replace(/[:.]/g, "-")
 }
 
 function buildArgv(opts) {
-  const argv = ["run", "--format", "json"];
-  if (opts.pure) argv.push("--pure");
+  const argv = ["run", "--format", "json"]
+  if (opts.pure) argv.push("--pure")
   // Resume continues an existing session; --session pins a specific id, otherwise
   // --continue picks up the most recent one. OpenCode selects the agent for each
   // prompt, so preserve the relay's requested autonomy on resumed turns too.
   if (opts.session) {
-    argv.push("--session", opts.session);
+    argv.push("--session", opts.session)
   } else if (opts.resumeLast) {
-    argv.push("--continue");
+    argv.push("--continue")
   }
-  argv.push("--agent", opts.agent);
-  if (opts.model) argv.push("--model", opts.model);
-  if (opts.variant) argv.push("--variant", opts.variant);
+  argv.push("--agent", opts.agent)
+  if (opts.model) argv.push("--model", opts.model)
+  if (opts.variant) argv.push("--variant", opts.variant)
   // --auto (on by default) auto-approves permissions so a headless build run doesn't
   // block on a prompt no one can answer; --no-auto honors the agent's own config.
   // Never on a plan (read-only) run: --auto would approve the plan agent's ask-gated
   // edit/bash permissions and let a "read-only" review modify the tree. A plan run
   // only reads, so it doesn't need auto-approval anyway.
-  if (opts.auto && opts.agent !== "plan") argv.push("--auto");
+  if (opts.auto && opts.agent !== "plan") argv.push("--auto")
   // No message argument: the brief is piped on stdin (see dispatchToOpenCode),
   // which avoids all argv-quoting issues with multi-line, XML-tagged briefs.
-  return argv;
+  return argv
 }
 
 function makeEventScanner(onObject) {
@@ -345,35 +383,42 @@ function makeEventScanner(onObject) {
   // a top-level object, and emits each complete `{...}` it closes — robust to junk
   // prefixes and concatenated objects alike. String/escape state is tracked so
   // braces inside string values never throw off the depth count.
-  let buf = "";
-  let depth = 0;
-  let start = -1;
-  let inString = false;
-  let escaped = false;
+  let buf = ""
+  let depth = 0
+  let start = -1
+  let inString = false
+  let escaped = false
   return (chunk) => {
-    buf += chunk;
+    buf += chunk
     for (let i = 0; i < buf.length; i += 1) {
-      const ch = buf[i];
+      const ch = buf[i]
       if (inString) {
-        if (escaped) escaped = false;
-        else if (ch === "\\") escaped = true;
-        else if (ch === '"') inString = false;
-        continue;
+        if (escaped) escaped = false
+        else if (ch === "\\") escaped = true
+        else if (ch === '"') inString = false
+        continue
       }
       // Only track strings inside an object (depth > 0). At depth 0 we're skipping a
       // junk prefix (e.g. a terminal-notify escape), and an unmatched `"` there must
       // not swallow the real `{...}` that follows in the same chunk.
-      if (ch === '"') { if (depth > 0) inString = true; continue; }
+      if (ch === '"') {
+        if (depth > 0) inString = true
+        continue
+      }
       if (ch === "{") {
-        if (depth === 0) start = i;
-        depth += 1;
+        if (depth === 0) start = i
+        depth += 1
       } else if (ch === "}") {
         if (depth > 0) {
-          depth -= 1;
+          depth -= 1
           if (depth === 0 && start !== -1) {
-            const slice = buf.slice(start, i + 1);
-            try { onObject(JSON.parse(slice)); } catch { /* not a JSON object we care about */ }
-            start = -1;
+            const slice = buf.slice(start, i + 1)
+            try {
+              onObject(JSON.parse(slice))
+            } catch {
+              /* not a JSON object we care about */
+            }
+            start = -1
           }
         }
       }
@@ -387,30 +432,30 @@ function makeEventScanner(onObject) {
     // ponytail: O(n^2) if a single object spans many chunks (each re-scans the
     // retained prefix); fine for OpenCode's event sizes — switch to a suffix-only
     // scan if it ever bites.
-    buf = depth > 0 && start !== -1 ? buf.slice(start) : "";
-    start = -1;
-    depth = 0;
-    inString = false;
-    escaped = false;
-  };
+    buf = depth > 0 && start !== -1 ? buf.slice(start) : ""
+    start = -1
+    depth = 0
+    inString = false
+    escaped = false
+  }
 }
 
 function prepareRunDir(opts, brief) {
-  const startedAt = new Date().toISOString();
+  const startedAt = new Date().toISOString()
   // Default the run dir to system temp so the repo under review stays pristine —
   // the touched-files report must show only OpenCode's edits, not relay's artifacts.
-  const outDir = opts.outDir || join(tmpdir(), "delegate-relay", `${basename(opts.cd) || "repo"}-${timestamp()}`);
-  mkdirSync(outDir, { recursive: true });
+  const outDir = opts.outDir || join(tmpdir(), "delegate-relay", `${basename(opts.cd) || "repo"}-${timestamp()}`)
+  mkdirSync(outDir, { recursive: true })
   const run = {
     startedAt,
     eventsPath: join(outDir, "events.jsonl"),
     finalPath: join(outDir, "final.txt"),
     briefPath: join(outDir, "brief.txt"),
-    resultPath: join(outDir, "result.json"),
-  };
-  writeFileSync(run.briefPath, brief, "utf8");
-  writeFileSync(run.eventsPath, "", "utf8");
-  return run;
+    resultPath: join(outDir, "result.json")
+  }
+  writeFileSync(run.briefPath, brief, "utf8")
+  writeFileSync(run.eventsPath, "", "utf8")
+  return run
 }
 
 function makeResultWriter(opts, version, run) {
@@ -418,7 +463,7 @@ function makeResultWriter(opts, version, run) {
   // standing metadata, persists result.json, and returns the object it just
   // wrote so the caller can hand it straight to printSummary.
   return (extra) => {
-    const resuming = Boolean(opts.session || opts.resumeLast);
+    const resuming = Boolean(opts.session || opts.resumeLast)
     const result = {
       schema: "delegate-relay.result.v1",
       lane: opts.lane,
@@ -437,30 +482,40 @@ function makeResultWriter(opts, version, run) {
       briefPath: run.briefPath,
       eventsPath: run.eventsPath,
       finalPath: existsSync(run.finalPath) ? run.finalPath : null,
-      ...extra,
-    };
+      ...extra
+    }
     // Publish atomically so a polling orchestrator never reads a half-written file
     // (same idiom as claude-delegate's writeJsonAtomic and qoder-delegate).
-    const temporary = `${run.resultPath}.${process.pid}.tmp`;
-    writeFileSync(temporary, `${JSON.stringify(result, null, 2)}\n`, "utf8");
-    renameSync(temporary, run.resultPath);
-    return result;
-  };
+    const temporary = `${run.resultPath}.${process.pid}.tmp`
+    writeFileSync(temporary, `${JSON.stringify(result, null, 2)}\n`, "utf8")
+    renameSync(temporary, run.resultPath)
+    return result
+  }
 }
 
 function reportUnavailable(writeResult, resultPath) {
-  const result = writeResult({ status: "opencode_unavailable", exitCode: 127, signal: null, sessionId: null, finalMessage: "", touchedFiles: null, cost: null });
-  printSummary(result, resultPath);
-  process.stderr.write("relay: `opencode` not found on PATH. Install it (npm i -g opencode-ai) and run `opencode auth login`.\n");
-  process.exit(127);
+  const result = writeResult({
+    status: "opencode_unavailable",
+    exitCode: 127,
+    signal: null,
+    sessionId: null,
+    finalMessage: "",
+    touchedFiles: null,
+    cost: null
+  })
+  printSummary(result, resultPath)
+  process.stderr.write(
+    "relay: `opencode` not found on PATH. Install it (npm i -g opencode-ai) and run `opencode auth login`.\n"
+  )
+  process.exit(127)
 }
 
 function reportVersionFailure(opts, writeResult, run, error, probeTimeoutMs) {
-  const timedOut = error?.code === "ETIMEDOUT";
-  const stderr = String(error?.stderr || "").trim();
+  const timedOut = error?.code === "ETIMEDOUT"
+  const stderr = String(error?.stderr || "").trim()
   const message = timedOut
     ? `opencode --version preflight timed out after ${probeTimeoutMs}ms; OpenCode was not dispatched`
-    : `opencode --version preflight failed${Number.isInteger(error?.status) ? ` with exit ${error.status}` : ""}; OpenCode was not dispatched`;
+    : `opencode --version preflight failed${Number.isInteger(error?.status) ? ` with exit ${error.status}` : ""}; OpenCode was not dispatched`
   const result = writeResult({
     status: timedOut ? "timeout" : "failed",
     exitCode: timedOut ? 124 : Number.isInteger(error?.status) ? error.status : 1,
@@ -470,15 +525,15 @@ function reportVersionFailure(opts, writeResult, run, error, probeTimeoutMs) {
     touchedFiles: gitTouchedFiles(opts.cd),
     cost: null,
     stderrTail: stderr ? stderr.split("\n").slice(-20) : [],
-    error: message,
-  });
-  printSummary(result, run.resultPath);
-  process.stderr.write(`relay: ${message}\n`);
-  process.exit(result.exitCode);
+    error: message
+  })
+  printSummary(result, run.resultPath)
+  process.stderr.write(`relay: ${message}\n`)
+  process.exit(result.exitCode)
 }
 
 function dispatchToOpenCode(opts, brief, run, writeResult) {
-  const argv = buildArgv(opts);
+  const argv = buildArgv(opts)
   // Pin the working root two ways: `cwd` sets the child's real directory, and PWD
   // is set explicitly because OpenCode can resolve its project root from the
   // inherited PWD env — which spawn does NOT rewrite — so without it a run could
@@ -494,83 +549,86 @@ function dispatchToOpenCode(opts, brief, run, writeResult) {
     env: { ...process.env, PWD: opts.cd },
     stdio: ["pipe", "pipe", "pipe"],
     shell: process.platform === "win32",
-    detached: process.platform !== "win32", // POSIX: lead a new process group so killChild can fell the whole tree
-  });
+    detached: process.platform !== "win32" // POSIX: lead a new process group so killChild can fell the whole tree
+  })
 
-  let sessionId = opts.session || null;
-  let totalCost = 0;
-  let sawCost = false;
-  const textParts = new Map(); // part.id -> latest text
-  const textOrder = []; // part.ids in first-seen order
-  const stderrTail = [];
+  let sessionId = opts.session || null
+  let totalCost = 0
+  let sawCost = false
+  const textParts = new Map() // part.id -> latest text
+  const textOrder = [] // part.ids in first-seen order
+  const stderrTail = []
 
   const scan = makeEventScanner((event) => {
     // Session id: real events carry `sessionID` (camelCase); plugin notify objects
     // carry `session_id` (snake_case). Accept either.
-    const sid = event.sessionID || event.session_id;
-    if (sid) sessionId = sid;
+    const sid = event.sessionID || event.session_id
+    if (sid) sessionId = sid
     // Assistant text lives in `type:"text"` events under part.text. Key by part.id
     // so streamed updates to the same part replace rather than duplicate; preserve
     // first-seen order so multi-segment messages assemble correctly.
     if (event.type === "text" && event.part && event.part.type === "text") {
-      const id = event.part.id || `anon-${textOrder.length}`;
-      if (!textParts.has(id)) textOrder.push(id);
-      textParts.set(id, event.part.text ?? "");
+      const id = event.part.id || `anon-${textOrder.length}`
+      if (!textParts.has(id)) textOrder.push(id)
+      textParts.set(id, event.part.text ?? "")
     }
     if (event.type === "step_finish" && event.part && typeof event.part.cost === "number") {
-      totalCost += event.part.cost;
-      sawCost = true;
+      totalCost += event.part.cost
+      sawCost = true
     }
-  });
+  })
 
   // Decode across chunk boundaries: a multibyte UTF-8 character split between
   // two data events would otherwise decode as U+FFFD and corrupt the report.
-  const stdoutDecoder = new StringDecoder("utf8");
-  const stderrDecoder = new StringDecoder("utf8");
+  const stdoutDecoder = new StringDecoder("utf8")
+  const stderrDecoder = new StringDecoder("utf8")
 
   child.stdout.on("data", (chunk) => {
-    appendFileSync(run.eventsPath, chunk); // faithful raw record of the event stream
-    scan(stdoutDecoder.write(chunk));
-  });
+    appendFileSync(run.eventsPath, chunk) // faithful raw record of the event stream
+    scan(stdoutDecoder.write(chunk))
+  })
 
   child.stderr.on("data", (chunk) => {
-    process.stderr.write(chunk); // surface OpenCode progress live for the orchestrator
-    const text = stderrDecoder.write(chunk);
+    process.stderr.write(chunk) // surface OpenCode progress live for the orchestrator
+    const text = stderrDecoder.write(chunk)
     for (const line of text.split("\n")) {
-      if (line.trim()) stderrTail.push(line.trimEnd());
+      if (line.trim()) stderrTail.push(line.trimEnd())
     }
-    while (stderrTail.length > 20) stderrTail.shift();
-  });
+    while (stderrTail.length > 20) stderrTail.shift()
+  })
 
   const assembleFinal = () => {
-    const message = textOrder.map((id) => textParts.get(id)).join("").trim();
-    if (message) writeFileSync(run.finalPath, message, "utf8");
-    return message;
-  };
+    const message = textOrder
+      .map((id) => textParts.get(id))
+      .join("")
+      .trim()
+    if (message) writeFileSync(run.finalPath, message, "utf8")
+    return message
+  }
 
-  let settled = false;
-  let watchdogFired = false;
-  let watchdogTimer = null;
-  let sigkillTimer = null;
-  const timeoutMs = opts.timeout === null ? null : parseDuration(opts.timeout);
+  let settled = false
+  let watchdogFired = false
+  let watchdogTimer = null
+  let sigkillTimer = null
+  const timeoutMs = opts.timeout === null ? null : parseDuration(opts.timeout)
   if (timeoutMs !== null) {
     watchdogTimer = setTimeout(() => {
-      watchdogFired = true;
+      watchdogFired = true
       child.once("exit", () => {
-        child.stdout.destroy();
-        child.stderr.destroy();
-      });
-      killChild(child);
+        child.stdout.destroy()
+        child.stderr.destroy()
+      })
+      killChild(child)
       sigkillTimer = setTimeout(() => {
-        if (!settled) killChild(child, "SIGKILL");
-      }, 10_000);
-    }, timeoutMs);
+        if (!settled) killChild(child, "SIGKILL")
+      }, 10_000)
+    }, timeoutMs)
   }
 
   const clearWatchdog = () => {
-    if (watchdogTimer) clearTimeout(watchdogTimer);
-    if (sigkillTimer) clearTimeout(sigkillTimer);
-  };
+    if (watchdogTimer) clearTimeout(watchdogTimer)
+    if (sigkillTimer) clearTimeout(sigkillTimer)
+  }
 
   // The relay's own death must still produce a result: without this, a kill from the
   // orchestrator's side (its command timeout, a stopped task, a closed terminal) writes
@@ -578,9 +636,9 @@ function dispatchToOpenCode(opts, brief, run, writeResult) {
   // recording why. SIGTERM/SIGHUP registration is a no-op on Windows; SIGINT works there.
   for (const sig of ["SIGTERM", "SIGINT", "SIGHUP"]) {
     process.on(sig, () => {
-      if (settled) return;
-      settled = true;
-      clearWatchdog();
+      if (settled) return
+      settled = true
+      clearWatchdog()
       const abortedFields = {
         status: "aborted",
         exitCode: 128 + (constants.signals[sig] || 15),
@@ -590,42 +648,51 @@ function dispatchToOpenCode(opts, brief, run, writeResult) {
         touchedFiles: gitTouchedFiles(opts.cd),
         cost: sawCost ? Number(totalCost.toFixed(6)) : null,
         stderrTail: stderrTail.slice(-20),
-        error: `the relay was killed by ${sig}; opencode was terminated with it — inspect the working tree before re-dispatching`,
-      };
-      const result = writeResult(abortedFields);
-      printSummary(result, run.resultPath);
-      killChild(child);
+        error: `the relay was killed by ${sig}; opencode was terminated with it — inspect the working tree before re-dispatching`
+      }
+      const result = writeResult(abortedFields)
+      printSummary(result, run.resultPath)
+      killChild(child)
       setTimeout(() => {
-        killChild(child, "SIGKILL");
+        killChild(child, "SIGKILL")
         // the child may flush files during the grace window; refresh the snapshot so the
         // artifact matches the tree the orchestrator will actually find
-        writeResult({ ...abortedFields, touchedFiles: gitTouchedFiles(opts.cd) });
-        process.exit(result.exitCode);
-      }, 2000);
-    });
+        writeResult({ ...abortedFields, touchedFiles: gitTouchedFiles(opts.cd) })
+        process.exit(result.exitCode)
+      }, 2000)
+    })
   }
 
   child.on("error", (err) => {
-    if (settled) return;
-    settled = true;
-    clearWatchdog();
-    const result = writeResult({ status: "failed", exitCode: 1, signal: null, sessionId, finalMessage: assembleFinal(), touchedFiles: gitTouchedFiles(opts.cd), cost: sawCost ? totalCost : null, error: String(err && err.message ? err.message : err) });
-    printSummary(result, run.resultPath);
-    process.exit(1);
-  });
+    if (settled) return
+    settled = true
+    clearWatchdog()
+    const result = writeResult({
+      status: "failed",
+      exitCode: 1,
+      signal: null,
+      sessionId,
+      finalMessage: assembleFinal(),
+      touchedFiles: gitTouchedFiles(opts.cd),
+      cost: sawCost ? totalCost : null,
+      error: String(err && err.message ? err.message : err)
+    })
+    printSummary(result, run.resultPath)
+    process.exit(1)
+  })
 
   child.on("close", (code, signal) => {
-    if (settled) return;
-    settled = true;
-    clearWatchdog();
+    if (settled) return
+    settled = true
+    clearWatchdog()
     // a descendant that ignored SIGTERM must not outlive the timeout report: once the
     // parent is down, sweep the group (no-op where taskkill already felled the tree)
-    if (watchdogFired) killChild(child, "SIGKILL");
-    const finalMessage = assembleFinal();
+    if (watchdogFired) killChild(child, "SIGKILL")
+    const finalMessage = assembleFinal()
     // A timed-out run is never a success even if opencode handles SIGTERM by exiting 0 -
     // orchestrators key off status and the relay exit code.
-    const succeeded = code === 0 && !watchdogFired;
-    const mapped = code ?? (constants.signals[signal] ? 128 + constants.signals[signal] : 1);
+    const succeeded = code === 0 && !watchdogFired
+    const mapped = code ?? (constants.signals[signal] ? 128 + constants.signals[signal] : 1)
     const result = writeResult({
       status: succeeded ? "completed" : watchdogFired ? "timeout" : "failed",
       exitCode: succeeded ? 0 : mapped === 0 ? 1 : mapped,
@@ -635,17 +702,19 @@ function dispatchToOpenCode(opts, brief, run, writeResult) {
       touchedFiles: gitTouchedFiles(opts.cd),
       cost: sawCost ? Number(totalCost.toFixed(6)) : null,
       ...(succeeded ? {} : { stderrTail: stderrTail.slice(-20) }),
-      ...(watchdogFired ? { error: `opencode did not finish within --timeout ${opts.timeout}; killed by the relay watchdog` } : {}),
-    });
-    printSummary(result, run.resultPath);
-    process.exit(result.exitCode);
-  });
+      ...(watchdogFired
+        ? { error: `opencode did not finish within --timeout ${opts.timeout}; killed by the relay watchdog` }
+        : {})
+    })
+    printSummary(result, run.resultPath)
+    process.exit(result.exitCode)
+  })
 
   // If the child failed to launch, writing to its stdin can emit a stray 'error'
   // on the pipe; the 'error' handler above owns that outcome, so swallow it here.
-  child.stdin.on("error", () => {});
-  child.stdin.write(brief);
-  child.stdin.end();
+  child.stdin.on("error", () => {})
+  child.stdin.write(brief)
+  child.stdin.end()
 }
 
 /**
@@ -660,129 +729,139 @@ function dispatchToOpenCode(opts, brief, run, writeResult) {
  * network, no credentials, no writes. Returns "provider/id".
  */
 function resolveInheritedModel(opts) {
-  if (opts.model) return opts.model; // explicit flag always wins
-  let db;
+  if (opts.model) return opts.model // explicit flag always wins
+  let db
   try {
     // node:sqlite is a Node built-in (>=22.5). createRequire keeps this ESM module able to
     // load it lazily, so an older Node degrades to "could not inherit" instead of crashing.
-    const { DatabaseSync } = createRequire(import.meta.url)("node:sqlite");
-    const dataDir = process.env.OPENCODE_DATA || join(homedir(), ".local", "share", "opencode");
-    const dbPath = join(dataDir, "opencode.db");
-    if (!existsSync(dbPath)) return null;
-    db = new DatabaseSync(dbPath, { readOnly: true });
+    const { DatabaseSync } = createRequire(import.meta.url)("node:sqlite")
+    const dataDir = process.env.OPENCODE_DATA || join(homedir(), ".local", "share", "opencode")
+    const dbPath = join(dataDir, "opencode.db")
+    if (!existsSync(dbPath)) return null
+    db = new DatabaseSync(dbPath, { readOnly: true })
   } catch {
-    return null; // node:sqlite unavailable or db unreadable — caller falls back to erroring
+    return null // node:sqlite unavailable or db unreadable — caller falls back to erroring
   }
 
   const toModelId = (raw) => {
-    if (!raw) return null;
+    if (!raw) return null
     try {
-      const parsed = typeof raw === "string" ? JSON.parse(raw) : raw;
-      if (parsed && parsed.providerID && parsed.id) return `${parsed.providerID}/${parsed.id}`;
+      const parsed = typeof raw === "string" ? JSON.parse(raw) : raw
+      if (parsed && parsed.providerID && parsed.id) return `${parsed.providerID}/${parsed.id}`
     } catch {
       // Older/alternate shape: already a "provider/id" string.
     }
-    return typeof raw === "string" && raw.includes("/") ? raw : null;
-  };
+    return typeof raw === "string" && raw.includes("/") ? raw : null
+  }
 
   try {
     // 1. A pinned session: use exactly that session's model.
     if (opts.session) {
-      const row = db.prepare("SELECT model FROM session WHERE id = ?").get(opts.session);
-      return toModelId(row && row.model);
+      const row = db.prepare("SELECT model FROM session WHERE id = ?").get(opts.session)
+      return toModelId(row && row.model)
     }
     // 2. A resumed run already inherits; no need to pin a model ourselves.
-    if (opts.resumeLast) return null;
+    if (opts.resumeLast) return null
     // 3. Most recently updated top-level session in the target directory. Restrict to
     //    parent_id IS NULL so a subagent's own session isn't mistaken for the caller's.
     let row = db
-      .prepare(
-        "SELECT model FROM session WHERE directory = ? AND parent_id IS NULL ORDER BY time_updated DESC LIMIT 1",
-      )
-      .get(opts.cd);
+      .prepare("SELECT model FROM session WHERE directory = ? AND parent_id IS NULL ORDER BY time_updated DESC LIMIT 1")
+      .get(opts.cd)
     // 4. Fall back to the newest top-level session anywhere, then any session.
     if (!row) {
-      row = db
-        .prepare("SELECT model FROM session WHERE parent_id IS NULL ORDER BY time_updated DESC LIMIT 1")
-        .get();
+      row = db.prepare("SELECT model FROM session WHERE parent_id IS NULL ORDER BY time_updated DESC LIMIT 1").get()
     }
-    if (!row) row = db.prepare("SELECT model FROM session ORDER BY time_updated DESC LIMIT 1").get();
-    return toModelId(row && row.model);
+    if (!row) row = db.prepare("SELECT model FROM session ORDER BY time_updated DESC LIMIT 1").get()
+    return toModelId(row && row.model)
   } catch {
-    return null;
+    return null
   } finally {
-    try { db.close(); } catch { /* nothing useful to do */ }
+    try {
+      db.close()
+    } catch {
+      /* nothing useful to do */
+    }
   }
 }
 
 function main() {
-  const opts = parseArgs(process.argv.slice(2));
-  const brief = readBrief(opts);
-  if (!brief.trim()) fail("empty brief (pass --brief <file> or pipe the brief on stdin)");
+  const opts = parseArgs(process.argv.slice(2))
+  const brief = readBrief(opts)
+  if (!brief.trim()) fail("empty brief (pass --brief <file> or pipe the brief on stdin)")
   // --session pins a specific session and --resume-last picks the most recent; passing both is a
   // contradiction, and buildArgv would silently prefer --session. Reject it rather than guess.
   if (opts.session && opts.resumeLast) {
-    fail("--session and --resume-last are mutually exclusive; pass only one");
+    fail("--session and --resume-last are mutually exclusive; pass only one")
   }
   // No --model: inherit the invoking session's model rather than making the caller restate it.
   // This is inheritance of the user's own choice, not model selection. If it can't be resolved,
   // fall through to the hard error below rather than guessing at a provider.
   if (!opts.model && !opts.resumeLast && !opts.session) {
-    const inherited = resolveInheritedModel(opts);
-    if (inherited) opts.model = inherited;
+    const inherited = resolveInheritedModel(opts)
+    if (inherited) opts.model = inherited
   }
   if (!opts.model && !opts.resumeLast && !opts.session) {
-    fail("no model given and could not inherit one from the current session: pass --model provider/model explicitly");
+    fail("no model given and could not inherit one from the current session: pass --model provider/model explicitly")
   }
 
   // Prepare the run dir before probing, so a preflight that times out or fails still has
   // somewhere to publish result.json rather than exiting silently.
-  const run = prepareRunDir(opts, brief);
-  const probeTimeoutMs = versionProbeTimeout(opts);
-  const probe = opencodeVersion(probeTimeoutMs);
-  const writeResult = makeResultWriter(opts, probe.version, run);
+  const run = prepareRunDir(opts, brief)
+  const probeTimeoutMs = versionProbeTimeout(opts)
+  const probe = opencodeVersion(probeTimeoutMs)
+  const writeResult = makeResultWriter(opts, probe.version, run)
 
   if (!probe.version && !probe.error) {
-    reportUnavailable(writeResult, run.resultPath);
-    return;
+    reportUnavailable(writeResult, run.resultPath)
+    return
   }
   if (probe.error) {
-    reportVersionFailure(opts, writeResult, run, probe.error, probeTimeoutMs);
-    return;
+    reportVersionFailure(opts, writeResult, run, probe.error, probeTimeoutMs)
+    return
   }
 
-  dispatchToOpenCode(opts, brief, run, writeResult);
+  dispatchToOpenCode(opts, brief, run, writeResult)
 }
 
 function printSummary(result, resultPath) {
-  const lines = [];
-  lines.push("");
-  lines.push(`relay: ${result.status} (exit ${result.exitCode}${result.signal ? `, killed by ${result.signal}` : ""})  ·  opencode ${result.opencodeVersion ?? "?"}`);
-  if (result.signal === "SIGKILL" && result.status === "failed") lines.push("hint: the host killed the process (commonly the OOM killer or a supervisor timeout) — this is not an opencode error; check host memory and re-dispatch, or split the task into smaller briefs.");
-  if (result.signal === "SIGTERM" && result.status === "failed") lines.push("hint: something outside the relay terminated opencode (a supervisor, the session ending, or a manual kill) — when the relay itself does the killing it reports status \"timeout\" or \"aborted\" instead; inspect the working tree before re-dispatching.");
-  if (result.resumed) lines.push("mode: resumed existing session");
-  if (result.sessionId) lines.push(`session id (resume with: --session ${result.sessionId}): ${result.sessionId}`);
-  if (typeof result.cost === "number") lines.push(`cost: $${result.cost}`);
-  const touched = result.touchedFiles;
+  const lines = []
+  lines.push("")
+  lines.push(
+    `relay: ${result.status} (exit ${result.exitCode}${result.signal ? `, killed by ${result.signal}` : ""})  ·  opencode ${result.opencodeVersion ?? "?"}`
+  )
+  if (result.signal === "SIGKILL" && result.status === "failed")
+    lines.push(
+      "hint: the host killed the process (commonly the OOM killer or a supervisor timeout) — this is not an opencode error; check host memory and re-dispatch, or split the task into smaller briefs."
+    )
+  if (result.signal === "SIGTERM" && result.status === "failed")
+    lines.push(
+      'hint: something outside the relay terminated opencode (a supervisor, the session ending, or a manual kill) — when the relay itself does the killing it reports status "timeout" or "aborted" instead; inspect the working tree before re-dispatching.'
+    )
+  if (result.resumed) lines.push("mode: resumed existing session")
+  if (result.sessionId) lines.push(`session id (resume with: --session ${result.sessionId}): ${result.sessionId}`)
+  if (typeof result.cost === "number") lines.push(`cost: $${result.cost}`)
+  const touched = result.touchedFiles
   if (touched === null) {
-    lines.push("touched files: git unavailable — inspect the working tree directly");
+    lines.push("touched files: git unavailable — inspect the working tree directly")
   } else {
-    lines.push(`touched files: ${touched.length}`);
-    for (const file of touched.slice(0, 40)) lines.push(`  ${file}`);
-    if (touched.length > 40) lines.push(`  … and ${touched.length - 40} more`);
+    lines.push(`touched files: ${touched.length}`)
+    for (const file of touched.slice(0, 40)) lines.push(`  ${file}`)
+    if (touched.length > 40) lines.push(`  … and ${touched.length - 40} more`)
   }
   if (result.stderrTail && result.stderrTail.length) {
-    lines.push("last stderr:");
-    for (const line of result.stderrTail.slice(-8)) lines.push(`  ${line}`);
+    lines.push("last stderr:")
+    for (const line of result.stderrTail.slice(-8)) lines.push(`  ${line}`)
   }
-  lines.push("");
-  lines.push("--- opencode final report ---");
-  lines.push(result.finalMessage || "(no final message captured)");
-  lines.push("--- end report ---");
-  lines.push("");
-  lines.push(`result: ${resultPath}`);
-  lines.push("relay does not commit. Review the diff, re-run the project gates yourself, then commit from the orchestrator.");
-  process.stdout.write(`${lines.join("\n")}\n`);
+  lines.push("")
+  lines.push("--- opencode final report ---")
+  lines.push(result.finalMessage || "(no final message captured)")
+  lines.push("--- end report ---")
+  lines.push("")
+  lines.push(`result: ${resultPath}`)
+  lines.push(
+    "relay does not commit. Review the diff, re-run the project gates yourself, then commit from the orchestrator."
+  )
+  process.stdout.write(`${lines.join("\n")}\n`)
 }
 
-main();
+main()

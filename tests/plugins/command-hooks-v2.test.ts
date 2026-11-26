@@ -17,13 +17,13 @@ describe("command-hooks v2 registration", () => {
       tool: {
         hook: async (name: string, fn: unknown) => {
           registered.set(name, fn)
-        },
+        }
       },
       event: {
         subscribe: async function* () {
           subscribed = true
-        },
-      },
+        }
+      }
     }
 
     const cleanup = await (CommandHooks as any).setup(ctx)

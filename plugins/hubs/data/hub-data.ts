@@ -188,19 +188,18 @@ export const HUB_FILE_MAP: Record<string, string> = {
   // The project-config front door: set up and refresh a project's .opencode/.
   // First, because it is where a new project starts. Renamed from `scaffold-hub`
   // — "scaffold" named one phase of the job and hid the other eleven.
+  // 8 menus after the 2026-11-24 consolidation. Merged: hub-setup+resource-hub,
+  // memory-hub+docs-hub→knowledge-hub, ideate-hub+plan-hub→think-hub,
+  // verify-hub+maintain-hub, orchestrate-hub+swarm-hub. Legacy names resolve
+  // through LEGACY_ROUTE_MAP.
   "hub-setup": "./hub-hub-setup",
-  "resource-hub": "./hub-resource-hub",
-  "memory-hub": "./hub-memory-hub",
+  "knowledge-hub": "./hub-knowledge-hub",
   "research-hub": "./hub-research-hub",
-  "docs-hub": "./hub-docs-hub",
-  "ideate-hub": "./hub-ideate-hub",
-  "plan-hub": "./hub-plan-hub",
-  "verify-hub": "./hub-verify-hub",
-  "swarm-hub": "./hub-swarm-hub",
+  "think-hub": "./hub-think-hub",
   "build-hub": "./hub-build-hub",
+  "verify-hub": "./hub-verify-hub",
   "orchestrate-hub": "./hub-orchestrate-hub",
   "git-hub": "./hub-git-hub",
-  "maintain-hub": "./hub-maintain-hub",
 }
 
 export function loadHub(name: string): HubDefinition | null {
@@ -232,18 +231,13 @@ export function loadAllHubs(): HubDefinition[] {
 
 const SUBCOMMAND_DIR_MAP: Record<string, string> = {
   "hub-setup": "hub-setup",
-  "resource-hub": "resource-hub",
-  "memory-hub": "memory-hub",
+  "knowledge-hub": "knowledge-hub",
   "research-hub": "research-hub",
-  "docs-hub": "docs-hub",
-  "ideate-hub": "ideate-hub",
-  "plan-hub": "plan-hub",
-  "verify-hub": "verify-hub",
-  "swarm-hub": "swarm-hub",
+  "think-hub": "think-hub",
   "build-hub": "build-hub",
+  "verify-hub": "verify-hub",
   "orchestrate-hub": "orchestrate-hub",
   "git-hub": "git-hub",
-  "maintain-hub": "maintain-hub",
 }
 
 // ─── Legacy Route Map ──────────────────────────────────────────────────
@@ -400,6 +394,47 @@ export const LEGACY_ROUTE_MAP: Record<string, string> = {
   "resource-hub/find-skills": "resource-hub/find",  "resource-hub/find-tools": "resource-hub/find",
 }
 
+// ─── 2026-11-24 menu consolidation aliases ────────────────────────────
+// AFL menus merged: hub-setup absorbed resource-hub; knowledge-hub = memory +
+// docs; think-hub = ideate + plan; verify-hub absorbed maintain-hub;
+// orchestrate-hub absorbed swarm-hub. Old hub names and renamed labels still
+// resolve through here so saved invocations keep working.
+const HUB_ALIAS: Record<string, string> = {
+  "resource-hub": "hub-setup",
+  "memory-hub": "knowledge-hub",
+  "docs-hub": "knowledge-hub",
+  "ideate-hub": "think-hub",
+  "plan-hub": "think-hub",
+  "maintain-hub": "verify-hub",
+  "swarm-hub": "orchestrate-hub",
+}
+
+const SUB_ALIAS: Record<string, string> = {
+  "resource-hub/graph": "knowledge-hub/graph",
+  "resource-hub/knowledge-graph": "knowledge-hub/graph",
+  "resource-hub/setup": "hub-setup/init-resources",
+  "resource-hub/search": "hub-setup/find-assets",
+  "memory-hub/search": "knowledge-hub/search-context",
+  "hub-setup/status": "hub-setup/setup-status",
+  "plan-hub/status": "think-hub/plan-status",
+  "orchestrate-hub/status": "orchestrate-hub/run-status",
+  "ideate-hub/resume": "think-hub/ideation-resume",
+  "orchestrate-hub/resume": "orchestrate-hub/orchestration-resume",
+  "research-hub/docs": "research-hub/library-docs",
+  "build-hub/simplify-code": "build-hub/simplify",
+  "verify-hub/quality": "verify-hub/audit",
+}
+
+/** Normalize a (possibly legacy) hub/subcommand pair to its post-merge target. */
+export function normalizeRoute(hubName: string, subLabel: string): [string, string] {
+  const full = SUB_ALIAS[`${hubName}/${subLabel}`]
+  if (full) {
+    const slash = full.indexOf("/")
+    return [full.slice(0, slash), full.slice(slash + 1)]
+  }
+  return [HUB_ALIAS[hubName] ?? hubName, subLabel]
+}
+
 // ─── Pre-compiled Spec Registry ───────────────────────────────────────
 // Loads from tools/hubs/spec-registry.json (built by build-spec-registry.ts).
 // Falls back to individual require() if registry is missing/stale.
@@ -433,9 +468,9 @@ export function invalidateSpecRegistry(): void {
  */
 function resolveLegacyRoute(hubName: string, subLabel: string): [string, string] {
   const mapped = LEGACY_ROUTE_MAP[`${hubName}/${subLabel}`]
-  if (!mapped) return [hubName, subLabel]
+  if (!mapped) return normalizeRoute(hubName, subLabel)
   const slash = mapped.indexOf("/")
-  return [mapped.slice(0, slash), mapped.slice(slash + 1)]
+  return normalizeRoute(mapped.slice(0, slash), mapped.slice(slash + 1))
 }
 
 export function loadSubcommandSpec(hubName: string, subLabel: string): HubSubcommandSpec | null {

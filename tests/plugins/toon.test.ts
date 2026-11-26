@@ -6,8 +6,8 @@ const tabular = {
   issues: [
     { id: 1, title: "Found a bug", state: "open" },
     { id: 2, title: "Docs update", state: "open" },
-    { id: 3, title: "Ship release", state: "closed" },
-  ],
+    { id: 3, title: "Ship release", state: "closed" }
+  ]
 }
 
 describe("encode", () => {
@@ -17,8 +17,8 @@ describe("encode", () => {
         "issues[3]{id\ttitle\tstate}:",
         "  1\tFound a bug\topen",
         "  2\tDocs update\topen",
-        "  3\tShip release\tclosed",
-      ].join("\n"),
+        "  3\tShip release\tclosed"
+      ].join("\n")
     )
   })
 
@@ -31,9 +31,7 @@ describe("encode", () => {
   })
 
   test("uses list form for heterogeneous arrays", () => {
-    expect(encode({ mix: [1, { a: 2 }, [3]] })).toBe(
-      ["mix[3]:", "  - 1", "  -", "    a: 2", "  - [3]"].join("\n"),
-    )
+    expect(encode({ mix: [1, { a: 2 }, [3]] })).toBe(["mix[3]:", "  - 1", "  -", "    a: 2", "  - [3]"].join("\n"))
   })
 
   test("quotes scalars that would be misread", () => {
@@ -65,10 +63,13 @@ describe("decode", () => {
       { tags: ["a", "b"] },
       { a: { b: { c: [1, 2, 3] } } },
       { mix: [1, "two", null, true, { deep: 1 }] },
-      [[1, 2], [3, 4]],
+      [
+        [1, 2],
+        [3, 4]
+      ],
       [],
       {},
-      { unicode: "héllo — 世界", quote: 'he said "hi"', backslash: "a\\b" },
+      { unicode: "héllo — 世界", quote: 'he said "hi"', backslash: "a\\b" }
     ]
     for (const value of values) {
       expect(roundTrips(value), JSON.stringify(value)).toBe(true)
@@ -141,7 +142,11 @@ describe("toonify", () => {
 
   test("returns TOON when it is shorter", () => {
     const json = JSON.stringify(
-      Array.from({ length: 50 }, (_, index) => ({ id: index, name: `row-${index}`, state: index % 2 ? "open" : "closed" })),
+      Array.from({ length: 50 }, (_, index) => ({
+        id: index,
+        name: `row-${index}`,
+        state: index % 2 ? "open" : "closed"
+      }))
     )
     const toon = toonify(json)
     expect(toon).not.toBeNull()

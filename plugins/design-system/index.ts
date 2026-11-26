@@ -123,6 +123,7 @@ export default {
           try {
             if (!cfg.tasteGate) return
             const fs = await import("fs")
+            const path = await import("path")
             const designMdPath = path.join(directory, "DESIGN.md")
             if (fs.existsSync(designMdPath)) {
               const result = executeSubcommand("taste")

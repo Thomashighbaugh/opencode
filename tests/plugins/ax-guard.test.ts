@@ -12,7 +12,9 @@ describe("axGuard", () => {
 
   test("rejects throwaway HTTP parsers", () => {
     expect(axGuard(`python3 -c "import requests; print(requests.get('https://x').text)"`)).toContain("Use ax")
-    expect(axGuard(`python3 - <<'PY'\nimport urllib.request\nurllib.request.urlopen('https://x')\nPY`)).toContain("Use ax")
+    expect(axGuard(`python3 - <<'PY'\nimport urllib.request\nurllib.request.urlopen('https://x')\nPY`)).toContain(
+      "Use ax"
+    )
     expect(axGuard(`node -e "fetch('https://x').then(r=>r.text()).then(console.log)"`)).toContain("Use ax")
   })
 
@@ -38,8 +40,8 @@ describe("ax-guard wiring", () => {
       tool: {
         hook: async (name: string, fn: (event: any) => unknown) => {
           hooks.set(name, fn)
-        },
-      },
+        }
+      }
     }
     await (AxGuard as any).setup(ctx)
     const before = hooks.get("execute.before")!

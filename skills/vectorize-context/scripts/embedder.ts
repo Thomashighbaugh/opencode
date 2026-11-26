@@ -20,7 +20,7 @@
  * `embedding_model`/`embedding_dim`.
  */
 
-import { clsPool, isCached, loadModel, REQUIRED_MODELS } from './onnx-runtime.ts'
+import { clsPool, isCached, loadModel, REQUIRED_MODELS } from "./onnx-runtime.ts"
 
 export const EMBED_MODEL_ID = process.env.EMBED_ONNX_MODEL || REQUIRED_MODELS.embedder
 export const EMBED_DIM = 384
@@ -73,12 +73,12 @@ export function embeddedCount(): number {
 
 export function embedderInfo() {
   return {
-    backend: 'onnx',
+    backend: "onnx",
     model: EMBED_MODEL_ID,
     key: EMBED_MODEL_KEY,
     dim: EMBED_DIM,
     cached: isCached(EMBED_MODEL_ID),
-    embedded: counter,
+    embedded: counter
   }
 }
 

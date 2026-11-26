@@ -23,10 +23,10 @@
  *     documented fallback.
  */
 
-import * as path from 'node:path'
-import * as fs from 'node:fs'
-import { createRequire } from 'node:module'
-import { fileURLToPath } from 'node:url'
+import * as path from "node:path"
+import * as fs from "node:fs"
+import { createRequire } from "node:module"
+import { fileURLToPath } from "node:url"
 
 /**
  * ESM-safe `require`.
@@ -55,7 +55,7 @@ let envApplied = false
 export function applyRuntimeEnv(): void {
   if (envApplied) return
   envApplied = true
-  const { env } = req('@huggingface/transformers')
+  const { env } = req("@huggingface/transformers")
   env.cacheDir = cacheRoot()
   env.allowLocalModels = true
   env.useBrowserCache = false
@@ -71,12 +71,12 @@ export function applyRuntimeEnv(): void {
  */
 export function cacheRoot(): string {
   const here = path.dirname(fileURLToPath(import.meta.url))
-  return path.join(here, '..', '..', '..', 'node_modules', '@huggingface', 'transformers', '.cache')
+  return path.join(here, "..", "..", "..", "node_modules", "@huggingface", "transformers", ".cache")
 }
 
 /** Model directory inside the cache, matching transformers.js's layout. */
 export function modelDir(modelId: string): string {
-  return path.join(cacheRoot(), modelId.replace('/', path.sep))
+  return path.join(cacheRoot(), modelId.replace("/", path.sep))
 }
 
 /**
@@ -85,15 +85,15 @@ export function modelDir(modelId: string): string {
  * Checked with `existsSync` rather than by attempting a load, because "is it
  * cached" has to be answerable without paying for a session.
  */
-export function isCached(modelId: string, file = 'onnx/model_quantized.onnx'): boolean {
+export function isCached(modelId: string, file = "onnx/model_quantized.onnx"): boolean {
   return fs.existsSync(path.join(modelDir(modelId), file))
 }
 
 /** Every model this harness depends on, for the prefetch script and diagnostics. */
 export const REQUIRED_MODELS = {
-  embedder: 'Xenova/bge-small-en-v1.5',
-  reranker: 'Xenova/bge-reranker-base',
-  classifier: 'Xenova/mobilebert-uncased-mnli',
+  embedder: "Xenova/bge-small-en-v1.5",
+  reranker: "Xenova/bge-reranker-base",
+  classifier: "Xenova/mobilebert-uncased-mnli"
 } as const
 
 /**
@@ -118,15 +118,23 @@ export const OPTIONAL_MODELS = {
    * `_quantized` to the filename it resolves.
    */
   injection: {
-    id: 'protectai/deberta-v3-base-prompt-injection-v2',
-    task: 'text-classification',
-    cachedFile: 'onnx/model.onnx',
-    dtype: 'fp32',
+    id: "protectai/deberta-v3-base-prompt-injection-v2",
+    task: "text-classification",
+    cachedFile: "onnx/model.onnx",
+    dtype: "fp32"
   },
   /** PII / secret token classifier (bert-small, Apache-2.0). */
-  pii: { id: 'rtrigoso/bert-small-pii-detection-ONNX', task: 'token-classification', cachedFile: 'onnx/model_quantized.onnx' },
+  pii: {
+    id: "rtrigoso/bert-small-pii-detection-ONNX",
+    task: "token-classification",
+    cachedFile: "onnx/model_quantized.onnx"
+  },
   /** Stronger NLI head, opt-in — switching invalidates the gate's measured threshold. */
-  nliLarge: { id: 'Xenova/nli-deberta-v3-xsmall', task: 'zero-shot-classification', cachedFile: 'onnx/model_quantized.onnx' },
+  nliLarge: {
+    id: "Xenova/nli-deberta-v3-xsmall",
+    task: "zero-shot-classification",
+    cachedFile: "onnx/model_quantized.onnx"
+  }
 } as const
 
 export interface LoadedModel {
@@ -147,7 +155,7 @@ const inflight = new Map<string, Promise<LoadedModel>>()
  */
 export function loadModel(
   modelId: string,
-  opts: { allowDownload?: boolean; dtype?: 'q8' | 'fp16' | 'fp32' } = {},
+  opts: { allowDownload?: boolean; dtype?: "q8" | "fp16" | "fp32" } = {}
 ): Promise<LoadedModel> {
   applyRuntimeEnv()
   const allowDownload = opts.allowDownload !== false
@@ -158,12 +166,12 @@ export function loadModel(
     if (!allowDownload && !isCached(modelId)) {
       throw new Error(
         `${modelId} is not cached locally (${modelDir(modelId)}). ` +
-          `Run "npx tsx skills/vectorize-context/scripts/prefetch-models.ts" first.`,
+          `Run "npx tsx skills/vectorize-context/scripts/prefetch-models.ts" first.`
       )
     }
-    const { AutoTokenizer, AutoModel } = await import('@huggingface/transformers')
+    const { AutoTokenizer, AutoModel } = await import("@huggingface/transformers")
     const tokenizer = await AutoTokenizer.from_pretrained(modelId)
-    const model = await AutoModel.from_pretrained(modelId, { dtype: opts.dtype ?? 'q8' })
+    const model = await AutoModel.from_pretrained(modelId, { dtype: opts.dtype ?? "q8" })
     return { tokenizer, model }
   })()
 
@@ -197,24 +205,24 @@ export function loadPipeline(
   modelId: string,
   opts: {
     allowDownload?: boolean
-    dtype?: 'q8' | 'fp16' | 'fp32' | 'int8' | 'uint8'
+    dtype?: "q8" | "fp16" | "fp32" | "int8" | "uint8"
     cachedFile?: string
-  } = {},
+  } = {}
 ): Promise<any> {
   applyRuntimeEnv()
-  const dtype = opts.dtype ?? 'q8'
+  const dtype = opts.dtype ?? "q8"
   const key = `${task}:${modelId}:${dtype}`
   const existing = pipelines.get(key)
   if (existing) return existing
 
   const p = (async () => {
-    if (opts.allowDownload === false && !isCached(modelId, opts.cachedFile ?? 'onnx/model_quantized.onnx')) {
+    if (opts.allowDownload === false && !isCached(modelId, opts.cachedFile ?? "onnx/model_quantized.onnx")) {
       throw new Error(
         `${modelId} is not cached locally (${modelDir(modelId)}). ` +
-          `Run "npx tsx skills/vectorize-context/scripts/prefetch-models.ts" first.`,
+          `Run "npx tsx skills/vectorize-context/scripts/prefetch-models.ts" first.`
       )
     }
-    const { pipeline } = req('@huggingface/transformers')
+    const { pipeline } = req("@huggingface/transformers")
     return await pipeline(task, modelId, { dtype })
   })()
 
@@ -258,9 +266,15 @@ export function meanPool(lastHiddenState: any, attentionMask?: any): number[][] 
       for (let h = 0; h < hidden; h++) vec[h] += Number(data[base + h])
       count++
     }
-    if (count === 0) { out.push(new Array<number>(hidden).fill(0)); continue }
+    if (count === 0) {
+      out.push(new Array<number>(hidden).fill(0))
+      continue
+    }
     let norm = 0
-    for (let h = 0; h < hidden; h++) { vec[h] /= count; norm += vec[h] * vec[h] }
+    for (let h = 0; h < hidden; h++) {
+      vec[h] /= count
+      norm += vec[h] * vec[h]
+    }
     norm = Math.sqrt(norm)
     if (norm > 0) for (let h = 0; h < hidden; h++) vec[h] /= norm
     out.push(vec)

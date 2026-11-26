@@ -1,5 +1,5 @@
 ---
-description: UI/UX Designer-Developer for stunning interfaces (Sonnet)
+description: UI/UX Designer-Developer for stunning interfaces
 mode: subagent
 hidden: true
 ---

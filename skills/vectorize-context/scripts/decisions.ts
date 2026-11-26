@@ -70,10 +70,10 @@
  * model-backed. Its callers use cues plus the `ask` veto instead.
  */
 
-import { OPTIONAL_MODELS, REQUIRED_MODELS, isCached } from './onnx-runtime.ts'
-import { entailmentScores, sigmoid } from './zero-shot.ts'
+import { OPTIONAL_MODELS, REQUIRED_MODELS, isCached } from "./onnx-runtime.ts"
+import { entailmentScores, sigmoid } from "./zero-shot.ts"
 
-export type DecisionSource = 'cue' | 'veto' | 'model' | 'default' | 'empty'
+export type DecisionSource = "cue" | "veto" | "model" | "default" | "empty"
 
 export interface DecisionResult {
   /** `null` only for empty input. A boolean is always an answer. */
@@ -112,7 +112,7 @@ export interface DecisionSpec {
  *  The *contrast* deliberately does not: the gate classifies whole turn tails,
  *  this scores single sentences, and a threshold measured on one does not carry
  *  to the other. */
-const ASK_HYPOTHESIS = 'This example is a request for the reader to answer a question.'
+const ASK_HYPOTHESIS = "This example is a request for the reader to answer a question."
 
 const MOBILEBERT = REQUIRED_MODELS.classifier
 const DEBERTA = OPTIONAL_MODELS.nliLarge.id
@@ -139,12 +139,12 @@ export const DECISIONS = {
    * unchanged and still calibrated on mobilebert at 0.817 for its own input.
    */
   ask: {
-    id: 'ask',
+    id: "ask",
     question: ASK_HYPOTHESIS,
-    contrast: 'This example reports a choice that was already made.',
+    contrast: "This example reports a choice that was already made.",
     calibrated: { [DEBERTA]: p(0.739) },
     defaultWhenUnavailable: false,
-    window: 600,
+    window: 600
   },
 
   /**
@@ -158,12 +158,12 @@ export const DECISIONS = {
    * with the classes interleaved.
    */
   failure: {
-    id: 'failure',
-    question: 'This text reports a failure or an error.',
-    contrast: 'This text reports that everything worked as expected.',
+    id: "failure",
+    question: "This text reports a failure or an error.",
+    contrast: "This text reports that everything worked as expected.",
     calibrated: { [DEBERTA]: p(0.987) },
     defaultWhenUnavailable: false,
-    window: 600,
+    window: 600
   },
 
   /**
@@ -178,12 +178,12 @@ export const DECISIONS = {
    * p 0.973.
    */
   asksChoice: {
-    id: 'asksChoice',
-    question: 'This text asks the reader to make a choice.',
-    contrast: 'This text reports a choice that was already made.',
+    id: "asksChoice",
+    question: "This text asks the reader to make a choice.",
+    contrast: "This text reports a choice that was already made.",
     calibrated: { [DEBERTA]: 0.973 },
     defaultWhenUnavailable: false,
-    window: 600,
+    window: 600
   },
 
   /**
@@ -196,22 +196,22 @@ export const DECISIONS = {
    * defaults to false and the router escalates rather than guessing.
    */
   mechanicalSufficient: {
-    id: 'mechanicalSufficient',
-    question: 'This task can be handled by a simple rule or regex without reasoning.',
-    contrast: 'This task requires reasoning, judgment, or synthesis.',
+    id: "mechanicalSufficient",
+    question: "This task can be handled by a simple rule or regex without reasoning.",
+    contrast: "This task requires reasoning, judgment, or synthesis.",
     cues: [
       /\b(read|show|cat|grep|search|count|list|extract|what is the value|regex match)\b/i,
-      /\b(contents|contents of|file contents|line count|file has \d+ lines)\b/i,
+      /\b(contents|contents of|file contents|line count|file has \d+ lines)\b/i
     ],
     vetoes: [
       /\?\s*$/,
       /\b(?:should|could|would|might|may|option|alternative|approach)\b/i,
       /\b(?:design|architect|refactor|synthesize|novel|complex|trade.?off|decide|which|best|evaluate)\b/i,
-      /\b(?:reasoning|judgment|trade.?off|novel|synthesis)\b/i,
+      /\b(?:reasoning|judgment|trade.?off|novel|synthesis)\b/i
     ],
     calibrated: {},
     defaultWhenUnavailable: false,
-    window: 400,
+    window: 400
   },
 
   /**
@@ -226,20 +226,18 @@ export const DECISIONS = {
    * so the router never burns an expensive call on an invented threshold.
    */
   needsLargeModel: {
-    id: 'needsLargeModel',
-    question: 'This task needs complex multi-step reasoning or novel synthesis beyond classification.',
-    contrast: 'This task needs only classification, extraction, or formatting over given text.',
+    id: "needsLargeModel",
+    question: "This task needs complex multi-step reasoning or novel synthesis beyond classification.",
+    contrast: "This task needs only classification, extraction, or formatting over given text.",
     cues: [
       /\b(?:architect|design system|refactor|trade.?off|novel|synthesize|multi.?step|complex reasoning|compare|evaluate|which is better)\b/i,
-      /\b(?:reasoning|judgment|novel|synthesis|trade.?off)\b/i,
+      /\b(?:reasoning|judgment|novel|synthesis|trade.?off)\b/i
     ],
-    vetoes: [
-      /\b(?:classify|extract|format|summarize|regex|grep|count|list|convert|normalize|what is)\b/i,
-    ],
+    vetoes: [/\b(?:classify|extract|format|summarize|regex|grep|count|list|convert|normalize|what is)\b/i],
     calibrated: {},
     defaultWhenUnavailable: false,
-    window: 400,
-  },
+    window: 400
+  }
 } as const satisfies Record<string, DecisionSpec>
 
 export type DecisionId = keyof typeof DECISIONS
@@ -295,27 +293,23 @@ export interface DecideOptions {
  * Vetoes run before cues because "Should we stick with Postgres?" contains a
  * commitment cue and is not a decision.
  */
-export async function decide(
-  spec: DecisionSpec,
-  text: string,
-  opts: DecideOptions = {},
-): Promise<DecisionResult> {
+export async function decide(spec: DecisionSpec, text: string, opts: DecideOptions = {}): Promise<DecisionResult> {
   stats.calls++
-  const raw = String(text ?? '').trim()
-  if (!raw) return { value: null, source: 'empty', probability: null }
+  const raw = String(text ?? "").trim()
+  if (!raw) return { value: null, source: "empty", probability: null }
 
   const body = raw.length <= (spec.window ?? 600) ? raw : raw.slice(-(spec.window ?? 600))
 
   const veto = firstMatch(spec.vetoes, body)
   if (veto) {
     stats.vetoes++
-    return { value: false, source: 'veto', probability: null, evidence: veto }
+    return { value: false, source: "veto", probability: null, evidence: veto }
   }
 
   const cue = firstMatch(spec.cues, body)
   if (cue) {
     stats.cues++
-    return { value: true, source: 'cue', probability: null, evidence: cue }
+    return { value: true, source: "cue", probability: null, evidence: cue }
   }
 
   const modelId = opts.noModel ? null : resolveModel(spec)
@@ -323,9 +317,9 @@ export async function decide(
     stats.defaults++
     return {
       value: spec.defaultWhenUnavailable,
-      source: 'default',
+      source: "default",
       probability: null,
-      evidence: opts.noModel ? 'model disabled by caller' : 'no calibrated model cached',
+      evidence: opts.noModel ? "model disabled by caller" : "no calibrated model cached"
     }
   }
 
@@ -339,16 +333,16 @@ export async function decide(
   const scores = await entailmentScores(body, [spec.question, spec.contrast], { modelId })
   if (!scores) {
     stats.defaults++
-    return { value: spec.defaultWhenUnavailable, source: 'default', probability: null, evidence: 'model unavailable' }
+    return { value: spec.defaultWhenUnavailable, source: "default", probability: null, evidence: "model unavailable" }
   }
 
   stats.model++
   const probability = sigmoid(scores[0] - scores[1])
   const result: DecisionResult = {
     value: probability >= spec.calibrated[modelId],
-    source: 'model',
+    source: "model",
     probability,
-    evidence: `${modelId} ≥ ${spec.calibrated[modelId]}`,
+    evidence: `${modelId} ≥ ${spec.calibrated[modelId]}`
   }
 
   if (cache.size >= CACHE_LIMIT) cache.delete(cache.keys().next().value as string)

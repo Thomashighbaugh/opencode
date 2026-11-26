@@ -40,10 +40,22 @@ export default definePlugin({
 
     /** Hand a todo to the agent. Returns false when it could not be submitted. */
     async function sendToAgent(text: string): Promise<boolean> {
-      const route = ctx.ui.router.current()
-      const sessionID = route?.type === "session" ? route.sessionID : undefined
+      let route = ctx.ui.router.current()
+      let sessionID = route?.type === "session" ? route.sessionID : undefined
       if (!sessionID) {
-        toast("No active session — open one, then send again", "warning")
+        try {
+          const created = await (ctx.client.session.create as any)({ directory: directory(), title: "todo" })
+          sessionID = (created as any)?.data?.id ?? (created as any)?.id
+          if (sessionID && typeof (ctx.ui.router as any).navigate === "function") {
+            try { (ctx.ui.router as any).navigate({ type: "session", sessionID }) } catch {}
+          }
+        } catch (error) {
+          toast(`Could not create session: ${error instanceof Error ? error.message : String(error)}`, "error")
+          return false
+        }
+      }
+      if (!sessionID) {
+        toast("No active session: open one, then send again", "warning")
         return false
       }
       try {

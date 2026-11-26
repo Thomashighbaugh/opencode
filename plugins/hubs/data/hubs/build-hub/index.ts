@@ -1,23 +1,19 @@
 import { HubSubcommand } from "../../hub-data"
-import overhaul from "./overhaul"
-import brownfield from "./brownfield"
-import archPrep from "./arch-prep"
-import architecture from "./architecture"
-import modularity from "./modularity"
-import pipeline from "./pipeline"
-import vibeCode from "./vibe-code"
-import cleanup from "./cleanup"
-import executor from "./executor"
-import modernize from "./modernize"
-import optimize from "./optimize"
-import refactor from "./refactor"
-import simplify from "./simplify"
-import simplifyCode from "./simplify-code"
+import s0 from "./arch-prep"
+import s1 from "./architecture"
+import s2 from "./brownfield"
+import s3 from "./cleanup"
+import s4 from "./executor"
+import s5 from "./modernize"
+import s6 from "./modularity"
+import s7 from "./optimize"
+import s8 from "./overhaul"
+import s9 from "./pipeline"
+import s10 from "./refactor"
+import s11 from "./simplify"
+import s12 from "./vibe-code"
 
-export const specs = [
-  overhaul, brownfield, archPrep, architecture, modularity, pipeline, vibeCode,
-  cleanup, executor, modernize, optimize, refactor, simplify, simplifyCode
-]
+export const specs = [s0, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12]
 
 export const subcommands: HubSubcommand[] = specs.map(s => ({
   label: s.label, description: s.description, reminder: s.reminder,

@@ -1,8 +1,8 @@
-import { describe, it, expect } from 'vitest'
-import * as fs from 'fs'
-import * as path from 'path'
-import * as glob from 'glob'
-import { loadConfig } from '../helpers/load-config'
+import { describe, it, expect } from "vitest"
+import * as fs from "fs"
+import * as path from "path"
+import * as glob from "glob"
+import { loadConfig } from "../helpers/load-config"
 
 /**
  * feature-package.test.ts — inventory integrity.
@@ -20,16 +20,16 @@ import { loadConfig } from '../helpers/load-config'
  *   3. it is internally consistent (its own declared references resolve).
  */
 
-const CONFIG_DIR = path.resolve(__dirname, '..', '..')
+const CONFIG_DIR = path.resolve(__dirname, "..", "..")
 const root = loadConfig(CONFIG_DIR)!
 const { config } = root
 
-const readJson = <T = any>(p: string): T => JSON.parse(fs.readFileSync(p, 'utf-8'))
-const registry = readJson(path.join(CONFIG_DIR, 'plugins', 'hubs', 'data', 'hubs', 'spec-registry.json'))
+const readJson = <T = any>(p: string): T => JSON.parse(fs.readFileSync(p, "utf-8"))
+const registry = readJson(path.join(CONFIG_DIR, "plugins", "hubs", "data", "hubs", "spec-registry.json"))
 
 const HUB_DIRS = fs
-  .readdirSync(path.join(CONFIG_DIR, 'plugins', 'hubs', 'data', 'hubs'), { withFileTypes: true })
-  .filter((d) => d.isDirectory() && d.name !== 'spec-registry.json')
+  .readdirSync(path.join(CONFIG_DIR, "plugins", "hubs", "data", "hubs"), { withFileTypes: true })
+  .filter((d) => d.isDirectory() && d.name !== "spec-registry.json")
   .map((d) => d.name)
   .sort()
 
@@ -45,35 +45,35 @@ const HUB_DIRS = fs
  * prevent. Removing the directories is the cleaner fix and is left as a
  * deliberate decision rather than taken unilaterally.
  */
-const FRONTMATTER_LESS_ALLOWLIST = ['harvest-context', 'ideation', 'orchestrate', 'project']
+const FRONTMATTER_LESS_ALLOWLIST = ["harvest-context", "ideation", "orchestrate", "project"]
 
-describe('feature package: hubs', () => {
-  it('has hub directories', () => {
+describe("feature package: hubs", () => {
+  it("has hub directories", () => {
     expect(HUB_DIRS.length).toBeGreaterThan(0)
   })
 
-  it.each(HUB_DIRS)('%s has an index.ts exporting an identity slice', (hub) => {
-    const idx = path.join(CONFIG_DIR, 'plugins', 'hubs', 'data', 'hubs', hub, 'index.ts')
+  it.each(HUB_DIRS)("%s has an index.ts exporting an identity slice", (hub) => {
+    const idx = path.join(CONFIG_DIR, "plugins", "hubs", "data", "hubs", hub, "index.ts")
     expect(fs.existsSync(idx), `missing ${idx}`).toBe(true)
-    const src = fs.readFileSync(idx, 'utf-8')
+    const src = fs.readFileSync(idx, "utf-8")
     expect(src).toMatch(/export\s+(const|default)/)
   })
 
-  it.each(HUB_DIRS)('%s thin manifest exists in plugins/hubs/data/hub-<name>.ts', (hub) => {
-    const manifest = path.join(CONFIG_DIR, 'plugins', 'hubs', 'data', `hub-${hub}.ts`)
+  it.each(HUB_DIRS)("%s thin manifest exists in plugins/hubs/data/hub-<name>.ts", (hub) => {
+    const manifest = path.join(CONFIG_DIR, "plugins", "hubs", "data", `hub-${hub}.ts`)
     expect(fs.existsSync(manifest), `missing ${manifest} for hub dir ${hub}`).toBe(true)
   })
 
-  it('every spec-registry entry belongs to a real hub directory', () => {
+  it("every spec-registry entry belongs to a real hub directory", () => {
     const bad: string[] = []
     for (const key of Object.keys(registry)) {
-      const hub = key.split('/')[0]
+      const hub = key.split("/")[0]
       if (!HUB_DIRS.includes(hub)) bad.push(`${key} -> ${hub}`)
     }
-    expect(bad, `orphan registry keys:\n${bad.join('\n')}`).toEqual([])
+    expect(bad, `orphan registry keys:\n${bad.join("\n")}`).toEqual([])
   })
 
-  it('every spec-registry entry has the fields the TUI needs', () => {
+  it("every spec-registry entry has the fields the TUI needs", () => {
     const bad: string[] = []
     for (const [key, spec] of Object.entries<any>(registry)) {
       if (!spec.label) bad.push(`${key}: no label`)
@@ -83,14 +83,14 @@ describe('feature package: hubs', () => {
     expect(bad.slice(0, 10), `${bad.length} malformed specs`).toEqual([])
   })
 
-  it('TUI descriptions fit the dialog and are distinguishable', () => {
+  it("TUI descriptions fit the dialog and are distinguishable", () => {
     // The hub name is not visible in the TUI list, so a description must be
     // self-contained. Two subcommands with the same description are
     // indistinguishable to a user choosing between them.
     const byHub = new Map<string, Map<string, string>>()
     const bad: string[] = []
     for (const [key, spec] of Object.entries<any>(registry)) {
-      const hub = key.split('/')[0]
+      const hub = key.split("/")[0]
       if (!byHub.has(hub)) byHub.set(hub, new Map())
       const m = byHub.get(hub)!
       const prev = m.get(spec.description)
@@ -104,11 +104,19 @@ describe('feature package: hubs', () => {
     expect(bad.slice(0, 10), `${bad.length} indistinguishable descriptions`).toEqual([])
   })
 
-  it('every on-demand rule is named by something that can load it', () => {
+  it("every on-demand rule is named by something that can load it", () => {
     // The orphan problem in one assertion: a rule nobody references is a file
     // no agent will ever read, however good its advice.
-    const onDemand = ['coding-style.md', 'git-workflow.md', 'performance.md', 'testing.md',
-      'global-reference.md', 'hub-routing.md', 'hub-state.md', 'resource-tags.md']
+    const onDemand = [
+      "coding-style.md",
+      "git-workflow.md",
+      "performance.md",
+      "testing.md",
+      "global-reference.md",
+      "hub-routing.md",
+      "hub-state.md",
+      "resource-tags.md"
+    ]
     // Referrers live in more than skills: the on-demand hub rules are named from
     // the hub specs and from rules/AGENTS.md, and `hub-state`/`resource-tags` are
     // reached through `global-reference`. Scanning only skills reported three
@@ -119,27 +127,27 @@ describe('feature package: hubs', () => {
     // prefix reported rules that are referenced three times as dead. A rule
     // naming itself is excluded: self-reference is not wiring.
     const consumerFiles = [
-      ...glob.sync(path.join(CONFIG_DIR, 'skills', '*', 'SKILL.md')),
-      ...glob.sync(path.join(CONFIG_DIR, 'skills', '*', 'references', '*.md')),
-      ...glob.sync(path.join(CONFIG_DIR, 'agents', '*.md')),
-      ...glob.sync(path.join(CONFIG_DIR, 'rules', '*.md')),
-      ...glob.sync(path.join(CONFIG_DIR, 'plugins', 'hubs', 'data', 'hubs', '*', '*.ts')),
+      ...glob.sync(path.join(CONFIG_DIR, "skills", "*", "SKILL.md")),
+      ...glob.sync(path.join(CONFIG_DIR, "skills", "*", "references", "*.md")),
+      ...glob.sync(path.join(CONFIG_DIR, "agents", "*.md")),
+      ...glob.sync(path.join(CONFIG_DIR, "rules", "*.md")),
+      ...glob.sync(path.join(CONFIG_DIR, "plugins", "hubs", "data", "hubs", "*", "*.ts"))
     ]
     const orphans = onDemand.filter((rule) => {
-      const self = path.join(CONFIG_DIR, 'rules', rule)
-      return !consumerFiles.some((f) => f !== self && fs.readFileSync(f, 'utf-8').includes(rule))
+      const self = path.join(CONFIG_DIR, "rules", rule)
+      return !consumerFiles.some((f) => f !== self && fs.readFileSync(f, "utf-8").includes(rule))
     })
-    expect(orphans, `on-demand rules with no referrer: ${orphans.join(', ')}`).toEqual([])
+    expect(orphans, `on-demand rules with no referrer: ${orphans.join(", ")}`).toEqual([])
   })
 
-  it('the on-demand rules are documented where a reader will look', () => {
-    const doc = fs.readFileSync(path.join(CONFIG_DIR, 'rules', 'AGENTS.md'), 'utf-8')
-    for (const r of ['coding-style.md', 'git-workflow.md', 'performance.md', 'testing.md']) {
+  it("the on-demand rules are documented where a reader will look", () => {
+    const doc = fs.readFileSync(path.join(CONFIG_DIR, "rules", "AGENTS.md"), "utf-8")
+    for (const r of ["coding-style.md", "git-workflow.md", "performance.md", "testing.md"]) {
       expect(doc, `${r} is not in the on-demand table`).toContain(r)
     }
   })
 
-  it('every subcommand description fits the dialog and is self-contained', () => {
+  it("every subcommand description fits the dialog and is self-contained", () => {
     // Was: 95 of 183 over the 80-char target, 70 of them over 100, the longest
     // 243. rules/hub-description-directive.md set the limit and the TUI truncated
     // past it, so the descriptions that were supposed to help a user choose were
@@ -149,23 +157,23 @@ describe('feature package: hubs', () => {
     const over = Object.entries<any>(registry)
       .filter(([, v]) => String(v.description).length > 80)
       .map(([k, v]) => `${k} (${String(v.description).length})`)
-    expect(over, `${over.length} description(s) exceed 80 chars: ${over.slice(0, 5).join(', ')}`).toEqual([])
+    expect(over, `${over.length} description(s) exceed 80 chars: ${over.slice(0, 5).join(", ")}`).toEqual([])
   })
 
-  it('a description does not lean on the hub name being visible', () => {
+  it("a description does not lean on the hub name being visible", () => {
     // The dialog shows the subcommand name in a flat list; "Configure X" is
     // ambiguous when three hubs have a configure.
     const leaning = Object.entries<any>(registry)
       .filter(([key, v]) => {
         const text = String(v.description).toLowerCase()
-        const hub = key.split('/')[0]
+        const hub = key.split("/")[0]
         return new RegExp(`^\\s*${hub}\\b`).test(text) || new RegExp(`\\b${hub}\\b`).test(text)
       })
       .map(([k, v]) => `${k}: ${v.description}`)
     expect(leaning.slice(0, 5), `${leaning.length} description(s) assume the hub name is visible`).toEqual([])
   })
 
-  it('every registered subcommand has a spec file, a menu entry, and a registry entry', () => {
+  it("every registered subcommand has a spec file, a menu entry, and a registry entry", () => {
     // The V2 TUI has no generated bundle: the picker reads the identity slice
     // from `hubs/<hub>/index.ts` and the full spec from `spec-registry.json`.
     // What can still go stale is the pair — a spec file that was never added
@@ -175,13 +183,13 @@ describe('feature package: hubs', () => {
     const missing: string[] = []
 
     for (const hub of HUB_DIRS) {
-      const hubDir = path.join(CONFIG_DIR, 'plugins', 'hubs', 'data', 'hubs', hub)
+      const hubDir = path.join(CONFIG_DIR, "plugins", "hubs", "data", "hubs", hub)
       const specFiles = fs
         .readdirSync(hubDir)
-        .filter((f) => f.endsWith('.ts') && f !== 'index.ts')
-        .map((f) => f.replace(/\.ts$/, ''))
+        .filter((f) => f.endsWith(".ts") && f !== "index.ts")
+        .map((f) => f.replace(/\.ts$/, ""))
 
-      const idx = fs.readFileSync(path.join(hubDir, 'index.ts'), 'utf-8')
+      const idx = fs.readFileSync(path.join(hubDir, "index.ts"), "utf-8")
       const imported = new Set([...idx.matchAll(/from\s+"\.\/([^"]+)"/g)].map((m) => m[1]))
 
       for (const spec of specFiles) {
@@ -190,20 +198,22 @@ describe('feature package: hubs', () => {
       }
     }
 
-    expect(missing.slice(0, 15), `hub specs are stale — ${missing.length} problem(s):\n${missing.join('\n')}`).toEqual([])
+    expect(missing.slice(0, 15), `hub specs are stale — ${missing.length} problem(s):\n${missing.join("\n")}`).toEqual(
+      []
+    )
   })
 
-  it('every subcommand label is unique within its hub', () => {
+  it("every subcommand label is unique within its hub", () => {
     // The label is the token the user types after the hub name, so two
     // subcommands sharing one is an ambiguous command. Distinctness matters far
     // more than whether the label happens to match the source filename — which
     // it usually does, and should.
     const byHub = new Map<string, Map<string, string[]>>()
     for (const key of Object.keys(registry)) {
-      const [hub, file] = key.split('/')
-      const specFile = path.join(CONFIG_DIR, 'plugins', 'hubs', 'data', 'hubs', hub, `${file}.ts`)
+      const [hub, file] = key.split("/")
+      const specFile = path.join(CONFIG_DIR, "plugins", "hubs", "data", "hubs", hub, `${file}.ts`)
       if (!fs.existsSync(specFile)) continue
-      const label = fs.readFileSync(specFile, 'utf-8').match(/label:\s*["']([^"']+)["']/)?.[1]
+      const label = fs.readFileSync(specFile, "utf-8").match(/label:\s*["']([^"']+)["']/)?.[1]
       if (!label) continue
       if (!byHub.has(hub)) byHub.set(hub, new Map())
       const m = byHub.get(hub)!
@@ -211,71 +221,74 @@ describe('feature package: hubs', () => {
     }
     const clashes: string[] = []
     for (const [hub, m] of byHub) {
-      for (const [label, keys] of m) if (keys.length > 1) clashes.push(`${hub}: "${label}" -> ${keys.join(', ')}`)
+      for (const [label, keys] of m) if (keys.length > 1) clashes.push(`${hub}: "${label}" -> ${keys.join(", ")}`)
     }
-    expect(clashes, `ambiguous subcommand labels: ${clashes.join('; ')}`).toEqual([])
+    expect(clashes, `ambiguous subcommand labels: ${clashes.join("; ")}`).toEqual([])
   })
 })
 
-describe('feature package: skills', () => {
+describe("feature package: skills", () => {
   const skillDirs = fs
-    .readdirSync(path.join(CONFIG_DIR, 'skills'), { withFileTypes: true })
+    .readdirSync(path.join(CONFIG_DIR, "skills"), { withFileTypes: true })
     .filter((d) => d.isDirectory())
     .map((d) => d.name)
     .sort()
 
-  it('has skills', () => {
+  it("has skills", () => {
     expect(skillDirs.length).toBeGreaterThan(0)
   })
 
   it.each(skillDirs.filter((s) => FRONTMATTER_LESS_ALLOWLIST.includes(s)))(
-    '%s is a known legacy skill with no frontmatter',
+    "%s is a known legacy skill with no frontmatter",
     (skill) => {
-      const raw = fs.readFileSync(path.join(CONFIG_DIR, 'skills', skill, 'SKILL.md'), 'utf-8')
-      expect(raw, `${skill} is on the legacy allowlist but now has frontmatter — remove it from the list`)
-        .not.toMatch(/^---\r?\n/)
-    },
+      const raw = fs.readFileSync(path.join(CONFIG_DIR, "skills", skill, "SKILL.md"), "utf-8")
+      expect(raw, `${skill} is on the legacy allowlist but now has frontmatter — remove it from the list`).not.toMatch(
+        /^---\r?\n/
+      )
+    }
   )
 
-  it('every skill has frontmatter unless it is on the legacy allowlist', () => {
+  it("every skill has frontmatter unless it is on the legacy allowlist", () => {
     // The skill loader derives name/description from frontmatter, so a skill
     // without it is INVISIBLE: it never appears in the system prompt and cannot
     // be loaded by name. That is only acceptable for a skill nothing routes to.
     // init-project had no frontmatter while four hub specs delegated to it.
     const noFrontmatter = skillDirs.filter((s) => {
-      const f = path.join(CONFIG_DIR, 'skills', s, 'SKILL.md')
+      const f = path.join(CONFIG_DIR, "skills", s, "SKILL.md")
       if (!fs.existsSync(f)) return false
-      return !/^---\r?\n/.test(fs.readFileSync(f, 'utf-8'))
+      return !/^---\r?\n/.test(fs.readFileSync(f, "utf-8"))
     })
     const unexpected = noFrontmatter.filter((s) => !FRONTMATTER_LESS_ALLOWLIST.includes(s))
-    expect(unexpected, `skills with no frontmatter and not on the legacy allowlist: ${unexpected.join(', ')}`).toEqual([])
+    expect(unexpected, `skills with no frontmatter and not on the legacy allowlist: ${unexpected.join(", ")}`).toEqual(
+      []
+    )
   })
 
-  it('no hub spec delegates to a skill the loader cannot see', () => {
+  it("no hub spec delegates to a skill the loader cannot see", () => {
     // The concrete failure this catches: a delegation pointing at a skill with
     // no frontmatter is a dead reference the resolver cannot catch, because the
     // directory exists.
     const noFrontmatter = new Set(
       skillDirs.filter((s) => {
-        const f = path.join(CONFIG_DIR, 'skills', s, 'SKILL.md')
+        const f = path.join(CONFIG_DIR, "skills", s, "SKILL.md")
         if (!fs.existsSync(f)) return false
-        return !/^---\r?\n/.test(fs.readFileSync(f, 'utf-8'))
-      }),
+        return !/^---\r?\n/.test(fs.readFileSync(f, "utf-8"))
+      })
     )
     const dead: string[] = []
     for (const hub of HUB_DIRS) {
-      const dir = path.join(CONFIG_DIR, 'plugins', 'hubs', 'data', 'hubs', hub)
-      for (const f of fs.readdirSync(dir).filter((x) => x.endsWith('.ts') && x !== 'index.ts')) {
-        const src = fs.readFileSync(path.join(dir, f), 'utf-8')
+      const dir = path.join(CONFIG_DIR, "plugins", "hubs", "data", "hubs", hub)
+      for (const f of fs.readdirSync(dir).filter((x) => x.endsWith(".ts") && x !== "index.ts")) {
+        const src = fs.readFileSync(path.join(dir, f), "utf-8")
         for (const m of src.matchAll(/skill:\s*["']([\w.-]+)["']/g)) {
-          if (noFrontmatter.has(m[1])) dead.push(`${hub}/${f.replace(/\.ts$/, '')} -> ${m[1]}`)
+          if (noFrontmatter.has(m[1])) dead.push(`${hub}/${f.replace(/\.ts$/, "")} -> ${m[1]}`)
         }
       }
     }
-    expect(dead, `hub specs delegating to skills the loader cannot see:\n${dead.join('\n')}`).toEqual([])
+    expect(dead, `hub specs delegating to skills the loader cannot see:\n${dead.join("\n")}`).toEqual([])
   })
 
-  it('every skill frontmatter name, when present, matches its directory', () => {
+  it("every skill frontmatter name, when present, matches its directory", () => {
     // A name that disagrees with the directory is a live hazard: the system
     // prompt advertises `plan` (directory) while the file says `omc-plan`, so
     // anything that resolves a skill by directory and looks it up by name — or
@@ -283,70 +296,77 @@ describe('feature package: skills', () => {
     const mismatched: string[] = []
     const missing: string[] = []
     for (const skill of skillDirs) {
-      const file = path.join(CONFIG_DIR, 'skills', skill, 'SKILL.md')
+      const file = path.join(CONFIG_DIR, "skills", skill, "SKILL.md")
       if (!fs.existsSync(file)) continue
-      const m = fs.readFileSync(file, 'utf-8').match(/^---\r?\n([\s\S]*?)\r?\n---/)!
+      const m = fs.readFileSync(file, "utf-8").match(/^---\r?\n([\s\S]*?)\r?\n---/)!
       if (!m) continue
       const nm = m[1].match(/^name:\s*(.+)$/m)?.[1]?.trim()
-      if (!nm) { missing.push(skill); continue }
+      if (!nm) {
+        missing.push(skill)
+        continue
+      }
       if (nm !== skill) mismatched.push(`${skill} -> "${nm}"`)
     }
-    expect(mismatched, `frontmatter name != directory: ${mismatched.join(', ')}`).toEqual([])
-    expect(missing, `skills with no frontmatter name: ${missing.join(', ')}`).toEqual([])
+    expect(mismatched, `frontmatter name != directory: ${mismatched.join(", ")}`).toEqual([])
+    expect(missing, `skills with no frontmatter name: ${missing.join(", ")}`).toEqual([])
   })
 
-  it('every script a SKILL.md names actually exists', () => {
+  it("every script a SKILL.md names actually exists", () => {
     // The .mjs -> .ts conversion moved 22 files. A doc naming the old
     // extension is a silently broken instruction to the agent reading it.
     const bad: string[] = []
     for (const skill of skillDirs) {
-      const file = path.join(CONFIG_DIR, 'skills', skill, 'SKILL.md')
+      const file = path.join(CONFIG_DIR, "skills", skill, "SKILL.md")
       if (!fs.existsSync(file)) continue
-      const raw = fs.readFileSync(file, 'utf-8')
-      for (const m of raw.matchAll(new RegExp(`skills/${skill}/scripts/([\\w.-]+\\.[a-z]+)`, 'g'))) {
+      const raw = fs.readFileSync(file, "utf-8")
+      for (const m of raw.matchAll(new RegExp(`skills/${skill}/scripts/([\\w.-]+\\.[a-z]+)`, "g"))) {
         const rel = `skills/${skill}/scripts/${m[1]}`
         if (!fs.existsSync(path.join(CONFIG_DIR, rel))) bad.push(`${skill}/SKILL.md -> ${rel}`)
       }
     }
-    expect(bad.slice(0, 20), `${bad.length} SKILL.md script references do not resolve:\n${bad.join('\n')}`).toEqual([])
+    expect(bad.slice(0, 20), `${bad.length} SKILL.md script references do not resolve:\n${bad.join("\n")}`).toEqual([])
   })
 
-  it('no SKILL.md names a .mjs script from its OWN scripts/ dir (tree was converted)', () => {
+  it("no SKILL.md names a .mjs script from its OWN scripts/ dir (tree was converted)", () => {
     // Scoped to `skills/<name>/scripts/`: a skill may legitimately reference an
     // external plugin's .mjs (team/cancel reference cleanup-orphans.mjs from
     // OPENCODE_PLUGIN_ROOT, which is not ours).
     const offenders: string[] = []
     for (const skill of skillDirs) {
-      const file = path.join(CONFIG_DIR, 'skills', skill, 'SKILL.md')
+      const file = path.join(CONFIG_DIR, "skills", skill, "SKILL.md")
       if (!fs.existsSync(file)) continue
-      for (const m of fs.readFileSync(file, 'utf-8').matchAll(new RegExp(`skills/${skill}/scripts/[\\w.-]*\\.mjs`, 'g'))) {
+      for (const m of fs
+        .readFileSync(file, "utf-8")
+        .matchAll(new RegExp(`skills/${skill}/scripts/[\\w.-]*\\.mjs`, "g"))) {
         offenders.push(`${skill}: ${m[0]}`)
       }
     }
-    expect(offenders, `stale .mjs references: ${offenders.join(', ')}`).toEqual([])
+    expect(offenders, `stale .mjs references: ${offenders.join(", ")}`).toEqual([])
   })
 
-  it('every skill with a scripts/ dir has at least one script', () => {
+  it("every skill with a scripts/ dir has at least one script", () => {
     const empty: string[] = []
     for (const skill of skillDirs) {
-      const dir = path.join(CONFIG_DIR, 'skills', skill, 'scripts')
+      const dir = path.join(CONFIG_DIR, "skills", skill, "scripts")
       if (!fs.existsSync(dir)) continue
-      const files = fs.readdirSync(dir).filter((f) => !['package.json', 'bun.lock', 'node_modules', 'tsconfig.json'].includes(f))
+      const files = fs
+        .readdirSync(dir)
+        .filter((f) => !["package.json", "bun.lock", "node_modules", "tsconfig.json"].includes(f))
       if (files.length === 0) empty.push(skill)
     }
-    expect(empty, `empty scripts/ dirs: ${empty.join(', ')}`).toEqual([])
+    expect(empty, `empty scripts/ dirs: ${empty.join(", ")}`).toEqual([])
   })
 })
 
-describe('feature package: agents, rules, tools', () => {
-  const agentFiles = fs.readdirSync(path.join(CONFIG_DIR, 'agents')).filter((f) => f.endsWith('.md'))
+describe("feature package: agents, rules, tools", () => {
+  const agentFiles = fs.readdirSync(path.join(CONFIG_DIR, "agents")).filter((f) => f.endsWith(".md"))
 
-  it('has agents', () => {
+  it("has agents", () => {
     expect(agentFiles.length).toBeGreaterThan(0)
   })
 
-  it.each(agentFiles)('%s has frontmatter with name, description, mode', (file) => {
-    const raw = fs.readFileSync(path.join(CONFIG_DIR, 'agents', file), 'utf-8')
+  it.each(agentFiles)("%s has frontmatter with name, description, mode", (file) => {
+    const raw = fs.readFileSync(path.join(CONFIG_DIR, "agents", file), "utf-8")
     const m = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/)
     expect(m, `${file}: no frontmatter`).toBeTruthy()
     // `name` is derived from the filename by OpenCode, so it is optional. What
@@ -356,35 +376,33 @@ describe('feature package: agents, rules, tools', () => {
     expect(m![1], `${file}: no mode`).toMatch(/^mode:/m)
   })
 
-  it('exactly one agent is a primary; the rest are subagents', () => {
+  it("exactly one agent is a primary; the rest are subagents", () => {
     const primaries: string[] = []
     for (const file of agentFiles) {
-      const raw = fs.readFileSync(path.join(CONFIG_DIR, 'agents', file), 'utf-8')
+      const raw = fs.readFileSync(path.join(CONFIG_DIR, "agents", file), "utf-8")
       const m = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/)!
       const mode = m[1].match(/^mode:\s*(.+)$/m)?.[1].trim()
-      if (mode !== 'subagent') primaries.push(`${file} (mode: ${mode})`)
+      if (mode !== "subagent") primaries.push(`${file} (mode: ${mode})`)
     }
     // Model policy: one primary (hubs) is the sole entry point.
-    expect(primaries, `non-subagent agents: ${primaries.join(', ')}`).toEqual(['hubs.md (mode: primary)'])
+    expect(primaries, `non-subagent agents: ${primaries.join(", ")}`).toEqual(["hubs.md (mode: primary)"])
   })
 
-  it('no agent or profile hardcodes a model (model policy)', () => {
+  it("no agent or profile hardcodes a model (model policy)", () => {
     const offenders: string[] = []
     for (const file of agentFiles) {
-      const raw = fs.readFileSync(path.join(CONFIG_DIR, 'agents', file), 'utf-8')
+      const raw = fs.readFileSync(path.join(CONFIG_DIR, "agents", file), "utf-8")
       const m = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/)!
       if (/^\s*model:/m.test(m[1])) offenders.push(file)
     }
-    expect(offenders, `agents pinning a model: ${offenders.join(', ')}`).toEqual([])
+    expect(offenders, `agents pinning a model: ${offenders.join(", ")}`).toEqual([])
   })
 
-  it('every instruction file is registered in opencode.jsonc', () => {
-    const rulesDir = path.join(CONFIG_DIR, 'rules')
+  it("every instruction file is registered in opencode.jsonc", () => {
+    const rulesDir = path.join(CONFIG_DIR, "rules")
     if (!fs.existsSync(rulesDir)) return
     const registered = new Set(((config.instructions as string[]) ?? []).map((i) => path.basename(i)))
-    const unregistered = fs
-      .readdirSync(rulesDir)
-      .filter((f) => f.endsWith('.md') && !registered.has(f))
+    const unregistered = fs.readdirSync(rulesDir).filter((f) => f.endsWith(".md") && !registered.has(f))
     // Rules reachable ON DEMAND: not in `instructions`, but named by a skill,
     // agent, or tool that needs them, and documented in the On-demand rules
     // table in rules/AGENTS.md.
@@ -394,41 +412,48 @@ describe('feature package: agents, rules, tools', () => {
     // (five more files on every turn is a permanent cost for content only some
     // workflows need); they are reachable because the consumers name them.
     const onDemand = [
-      'global-reference.md', 'hub-routing.md', 'hub-state.md', 'resource-tags.md',
-      'coding-style.md', 'git-workflow.md', 'performance.md', 'testing.md',
-      'antislop.md', 'antislop-liveliness.md',
+      "global-reference.md",
+      "hub-routing.md",
+      "hub-state.md",
+      "resource-tags.md",
+      "coding-style.md",
+      "git-workflow.md",
+      "performance.md",
+      "testing.md",
+      "antislop.md",
+      "antislop-liveliness.md"
     ]
     const real = unregistered.filter((f) => !onDemand.includes(f))
-    expect(real, `rule files not in instructions and not known on-demand: ${real.join(', ')}`).toEqual([])
+    expect(real, `rule files not in instructions and not known on-demand: ${real.join(", ")}`).toEqual([])
   })
 
-  it('every tool file exports a default tool definition', () => {
-    const toolsDir = path.join(CONFIG_DIR, 'tools')
+  it("every tool file exports a default tool definition", () => {
+    const toolsDir = path.join(CONFIG_DIR, "tools")
     const bad: string[] = []
     for (const f of fs.readdirSync(toolsDir)) {
-      if (!f.endsWith('.ts')) continue
+      if (!f.endsWith(".ts")) continue
       // cache-utils.ts is a shared library; types.ts holds the tool contract.
-      if (['cache-utils.ts', 'types.ts'].includes(f)) continue
-      const src = fs.readFileSync(path.join(toolsDir, f), 'utf-8')
+      if (["cache-utils.ts", "types.ts"].includes(f)) continue
+      const src = fs.readFileSync(path.join(toolsDir, f), "utf-8")
       // OpenCode 2 removed file-based tool discovery: a tool is a plain object
       // with `{ name, description, input, execute }` that plugins/tools/index.ts
       // registers through `ctx.tool.transform`. The V1 shape was
       // `export default tool({ ... })`.
       if (!/export\s+default\s*\{/.test(src) || !/satisfies\s+ToolDefinition/.test(src)) bad.push(f)
     }
-    expect(bad, `tools without a default tool definition: ${bad.join(', ')}`).toEqual([])
+    expect(bad, `tools without a default tool definition: ${bad.join(", ")}`).toEqual([])
   })
 
-  it('every tool declares an input schema (no unvalidated args)', () => {
-    const toolsDir = path.join(CONFIG_DIR, 'tools')
+  it("every tool declares an input schema (no unvalidated args)", () => {
+    const toolsDir = path.join(CONFIG_DIR, "tools")
     const bad: string[] = []
     for (const f of fs.readdirSync(toolsDir)) {
-      if (!f.endsWith('.ts') || ['cache-utils.ts', 'types.ts'].includes(f)) continue
-      const src = fs.readFileSync(path.join(toolsDir, f), 'utf-8')
+      if (!f.endsWith(".ts") || ["cache-utils.ts", "types.ts"].includes(f)) continue
+      const src = fs.readFileSync(path.join(toolsDir, f), "utf-8")
       if (!/export\s+default\s*\{/.test(src)) continue
       // V1 declared `args: { ... }`; V2 declares a zod schema named `input`.
       if (!/const\s+input\s*=/.test(src) || !/^\s*input,\s*$/m.test(src)) bad.push(f)
     }
-    expect(bad, `tools with no input schema: ${bad.join(', ')}`).toEqual([])
+    expect(bad, `tools with no input schema: ${bad.join(", ")}`).toEqual([])
   })
 })

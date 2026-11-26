@@ -1,3 +1,8 @@
+---
+name: adhd-mode
+description: Output shaping for action-first reading: lead with the next action, number steps, restate state, and drop preamble and closers.
+---
+
 # ADHD mode — output shaping for action-first reading
 
 **Source:** i-have-adhd (https://github.com/ayghri/i-have-adhd) — 10 rules, adapted to this harness.

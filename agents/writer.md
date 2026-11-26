@@ -1,5 +1,5 @@
 ---
-description: Technical documentation writer for README, API docs, and comments (Haiku)
+description: Technical documentation writer for README, API docs, and comments
 hidden: true
 mode: subagent
 ---

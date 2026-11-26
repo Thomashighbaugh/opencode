@@ -1,10 +1,10 @@
 ---
 description: Analyze feature requirements. Use when starting new features, reviewing specs, or breaking down tasks.
 hidden: true
-permissions: 
-    bash: deny
-    write: deny
-    edit: deny
+permission:
+  bash: deny
+  write: deny
+  edit: deny
 mode: subagent
 ---
 

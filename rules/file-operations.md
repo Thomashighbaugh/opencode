@@ -1,3 +1,8 @@
+---
+name: file-operations
+description: Artifact placement and file editing: no root-level scripts, use dedicated edit tools, no inline file-editing scripts.
+---
+
 # Artifact Placement Rule
 
 **Never create standalone scripts at the project root or any top-level directory.**

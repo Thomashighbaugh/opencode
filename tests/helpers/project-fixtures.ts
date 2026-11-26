@@ -1,12 +1,12 @@
-import * as fs from 'fs'
-import * as path from 'path'
-import { loadConfig, parseJsonc, type ConfigRoot } from './load-config'
+import * as fs from "fs"
+import * as path from "path"
+import { loadConfig, parseJsonc, type ConfigRoot } from "./load-config"
 
 /** Root of the tests directory */
-const TESTS_ROOT = path.resolve(__dirname, '..')
+const TESTS_ROOT = path.resolve(__dirname, "..")
 
 /** Fixtures directory */
-export const FIXTURES_DIR = path.join(TESTS_ROOT, 'project', 'fixtures')
+export const FIXTURES_DIR = path.join(TESTS_ROOT, "project", "fixtures")
 
 /**
  * Get the path to a named fixture.

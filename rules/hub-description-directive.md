@@ -1,3 +1,8 @@
+---
+name: hub-description-directive
+description: Two-tier hub subcommand descriptions: short menu-facing text and detailed route payload.
+---
+
 # Hub Subcommand Description Directive
 
 ## The Problem

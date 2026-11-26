@@ -1,40 +1,40 @@
-import * as fs from 'fs'
-import * as path from 'path'
-import { getGlobalConfigDir } from './load-config'
+import * as fs from "fs"
+import * as path from "path"
+import { getGlobalConfigDir } from "./load-config"
 
-export type RefType = 'agent' | 'skill' | 'tool' | 'command' | 'rule' | 'plugin'
+export type RefType = "agent" | "skill" | "tool" | "command" | "rule" | "plugin"
 
 /** Maps ref type to relative path under config root */
 function refTypeToPath(type: RefType): string {
   switch (type) {
-    case 'agent':
-      return 'agents'
-    case 'skill':
-      return 'skills'
-    case 'tool':
-      return 'tools'
-    case 'command':
-      return 'commands'
-    case 'rule':
-      return 'rules'
-    case 'plugin':
-      return ''
+    case "agent":
+      return "agents"
+    case "skill":
+      return "skills"
+    case "tool":
+      return "tools"
+    case "command":
+      return "commands"
+    case "rule":
+      return "rules"
+    case "plugin":
+      return ""
   }
 }
 
 /** Expected file extension for a given ref type */
 function refTypeExtension(type: RefType): string {
   switch (type) {
-    case 'agent':
-    case 'rule':
-      return '.md'
-    case 'skill':
-      return '/SKILL.md'
-    case 'tool':
-    case 'plugin':
-      return ''
-    case 'command':
-      return '.md'
+    case "agent":
+    case "rule":
+      return ".md"
+    case "skill":
+      return "/SKILL.md"
+    case "tool":
+    case "plugin":
+      return ""
+    case "command":
+      return ".md"
   }
 }
 
@@ -55,20 +55,15 @@ export function pathExistsInConfigRoot(configRoot: string, relativePath: string)
  * @param projectRoot - The project root directory (with .opencode/)
  * @param globalConfigDir - Override global config dir (defaults to getGlobalConfigDir())
  */
-export function resolveRef(
-  type: RefType,
-  name: string,
-  projectRoot: string,
-  globalConfigDir?: string,
-): string | null {
+export function resolveRef(type: RefType, name: string, projectRoot: string, globalConfigDir?: string): string | null {
   const baseDir = refTypeToPath(type)
   const ext = refTypeExtension(type)
 
   // For skills and commands, the name IS the file path
   let relative: string
-  if (type === 'skill') {
-    relative = path.join(baseDir, name, 'SKILL.md')
-  } else if (type === 'tool') {
+  if (type === "skill") {
+    relative = path.join(baseDir, name, "SKILL.md")
+  } else if (type === "tool") {
     relative = path.join(baseDir, `${name}.ts`)
   } else {
     relative = path.join(baseDir, `${name}${ext}`)
@@ -77,7 +72,7 @@ export function resolveRef(
   const global = globalConfigDir || getGlobalConfigDir()
 
   // Check project-level .opencode/ first
-  const projectPath = path.join(projectRoot, '.opencode', relative)
+  const projectPath = path.join(projectRoot, ".opencode", relative)
   if (fs.existsSync(projectPath)) {
     return projectPath
   }
@@ -120,7 +115,7 @@ export function resolvePlugin(pluginPath: string, configDir: string, globalDir?:
   const global = globalDir || getGlobalConfigDir()
 
   // If it's an npm package starting with @, skip file check
-  if (pluginPath.startsWith('@')) {
+  if (pluginPath.startsWith("@")) {
     return pluginPath // treat as resolved
   }
 
@@ -143,10 +138,7 @@ export function resolvePlugin(pluginPath: string, configDir: string, globalDir?:
  * Scan a directory for all entity files of a given type.
  * Returns an array of { name, path } pairs.
  */
-export function scanEntities(
-  type: RefType,
-  configRoot: string,
-): Array<{ name: string; path: string }> {
+export function scanEntities(type: RefType, configRoot: string): Array<{ name: string; path: string }> {
   const baseDir = refTypeToPath(type)
   const dir = path.join(configRoot, baseDir)
 
@@ -156,13 +148,13 @@ export function scanEntities(
   const results: Array<{ name: string; path: string }> = []
 
   for (const entry of entries) {
-    if (type === 'skill' && entry.isDirectory()) {
-      const skillPath = path.join(dir, entry.name, 'SKILL.md')
+    if (type === "skill" && entry.isDirectory()) {
+      const skillPath = path.join(dir, entry.name, "SKILL.md")
       if (fs.existsSync(skillPath)) {
         results.push({ name: entry.name, path: skillPath })
       }
-    } else if (type !== 'skill' && entry.isFile() && entry.name.endsWith('.md')) {
-      const name = entry.name.replace(/\.md$/, '')
+    } else if (type !== "skill" && entry.isFile() && entry.name.endsWith(".md")) {
+      const name = entry.name.replace(/\.md$/, "")
       results.push({ name, path: path.join(dir, entry.name) })
     }
   }

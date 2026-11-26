@@ -108,7 +108,7 @@ describe("menu items", () => {
     expect(ids.has("frontend-design")).toBe(true)
   })
 
-  test("no docs commands (docs/readme/writer/agents-md live in docs-hub)", () => {
+  test("no docs commands (docs/readme/writer/agents-md live in knowledge-hub)", () => {
     const ids = new Set(buildMenuItems().map((it) => it.id))
     expect(ids.has("docs")).toBe(false)
     expect(ids.has("readme")).toBe(false)
@@ -163,7 +163,7 @@ describe("formatMenu", () => {
   test("lists every item as a bullet", () => {
     const out = formatMenu(buildMenuItems())
     for (const it of buildMenuItems()) {
-      expect(out).toContain(`• ${it.label} —`)
+      expect(out).toContain(`• ${it.label} -`)
     }
   })
 })
@@ -249,7 +249,7 @@ describe("expandSubcommand", () => {
     for (const it of buildMenuItems()) {
       const def = expandSubcommand(it.id)
       expect(def).not.toBeNull()
-      expect(def!).toContain(`${it.label} — ${it.id}`)
+      expect(def!).toContain(`${it.label} - ${it.id}`)
       expect(def!).toContain(`Category: ${it.category}`)
       expect(def!).toContain(`Description: ${it.detail}`)
       expect(def!).toContain("## Action")
@@ -332,16 +332,11 @@ describe("executeSubcommand", () => {
     expect(result.error).toContain("Unknown inline command")
   })
 
-  test("impeccable command attempts to run (launcher found) or reports not-found", () => {
+  test("impeccable command dispatches to the skill", () => {
     const result = executeSubcommand("shape")
-    // Result is always a structured response
-    expect(typeof result.ok).toBe("boolean")
-    expect(typeof result.output).toBe("string")
-    if (!result.ok) {
-      // Either launcher missing, or impeccable rejected the command
-      expect(typeof result.error).toBe("string")
-      expect(result.error.length).toBeGreaterThan(0)
-    }
+    expect(result.ok).toBe(true)
+    expect(result.output).toContain("impeccable")
+    expect(result.output).toContain("shape")
   })
 
   test("taste attempts to run (gate found) or reports not-found", () => {
@@ -350,14 +345,14 @@ describe("executeSubcommand", () => {
     expect(typeof result.output).toBe("string")
     if (!result.ok) {
       expect(typeof result.error).toBe("string")
-      expect(result.error.length).toBeGreaterThan(0)
+      expect(result.error!.length).toBeGreaterThan(0)
     }
   })
 
-  test("skill returns not-found error when script missing", () => {
+  test("skill with a bundled script runs it", () => {
     const result = executeSubcommand("redesign")
-    expect(result.ok).toBe(false)
-    expect(result.error).toContain("Skill script not found")
+    expect(result.ok).toBe(true)
+    expect(result.output).toContain("Redesign audit")
   })
 })
 

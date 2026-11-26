@@ -1,3 +1,8 @@
+---
+name: global-reference
+description: Authoritative reference for the OpenCode Hubs global configuration structure.
+---
+
 # Global Config Reference
 
 **Purpose:** Single authoritative reference for the OpenCode Hubs global configuration structure. Agents modifying the global config MUST consult this rule before creating or modifying files.

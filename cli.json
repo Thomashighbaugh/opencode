@@ -180,6 +180,6 @@
   "attention": {
     "sound": true,
     "volume": 0.6,
-    "notifications": true
+    "notifications": false
   }
 }

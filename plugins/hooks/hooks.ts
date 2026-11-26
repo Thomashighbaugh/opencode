@@ -306,9 +306,9 @@ export async function createHooksRuntime({ directory }: { directory: string }) {
           }
 
           // Pre-load hub routing table
-          const hubToolsDir = join(directory, 'tools', 'hubs')
+          const hubToolsDir = join(directory, 'plugins', 'hubs', 'data', 'hubs')
           if (existsSync(hubToolsDir)) {
-            const hubs = ['init-project', 'ideation', 'orchestrate', 'harvest-context', 'project', 'skills']
+            const hubs = ['hub-setup', 'knowledge-hub', 'research-hub', 'think-hub', 'build-hub', 'verify-hub', 'orchestrate-hub', 'git-hub']
             for (const hub of hubs) {
               const hubDir = join(hubToolsDir, hub)
               if (existsSync(hubDir)) {

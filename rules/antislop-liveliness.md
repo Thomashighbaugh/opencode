@@ -1,3 +1,8 @@
+---
+name: antislop-liveliness
+description: Positive liveliness requirements (ENERGY/RHYTHM/MOTION dials) that complement the anti-slop filter.
+---
+
 # Anti-slop Liveliness Toolkit
 
 **Scope:** Positive requirements for adding energy after slop is removed. A filter removes slop; it cannot add energy. Removing slop leaves a void the model fills with its most generic output. Liveliness must be added deliberately.

@@ -65,8 +65,20 @@ export default {
       ctx.ui.toast.show({ title: "Rio", message, variant })
 
     const submit = async (text: string) => {
-      const route = ctx.ui.router.current()
-      const sessionID = route?.type === "session" ? route.sessionID : undefined
+      let route = ctx.ui.router.current()
+      let sessionID = route?.type === "session" ? route.sessionID : undefined
+      if (!sessionID) {
+        try {
+          const created = await (ctx.client.session.create as any)({ directory, title: "rio" })
+          sessionID = (created as any)?.data?.id ?? (created as any)?.id
+          if (sessionID && typeof (ctx.ui.router as any).navigate === "function") {
+            try { (ctx.ui.router as any).navigate({ type: "session", sessionID }) } catch {}
+          }
+        } catch (error) {
+          toast(`Could not create session: ${error instanceof Error ? error.message : String(error)}`, "error")
+          return
+        }
+      }
       if (!sessionID) {
         toast("Open a session first", "warning")
         return
@@ -101,7 +113,7 @@ export default {
             {
               bind: "ctrl+s",
               title: "Full definition",
-              onTrigger: (subLabel) => { showDefFor = subLabel; return "back" as const },
+              onTrigger: (subLabel: any) => { showDefFor = subLabel; return "back" as const },
             },
             {
               bind: "ctrl+," ,
@@ -120,8 +132,7 @@ export default {
             <scrollbox width="100%" height="100%" scrollY>
               <box flexDirection="column" padding={1}>
                 <text fg={ctx.theme.text.muted}>{expanded}</text>
-              
-              
+              </box>
             </scrollbox>
           ))
           ctx.ui.dialog.set({ size: "xlarge", centered: true })

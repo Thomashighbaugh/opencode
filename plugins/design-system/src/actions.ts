@@ -2,7 +2,7 @@
  * Design-system action implementations.
  *
  * Each subcommand maps to an action type:
- *   impeccable  → run skills/impeccable/scripts/impeccable <cmd> [target]
+ *   impeccable  → bundled playbook (self-contained, no binary)
  *   taste       → run node skills/taste-skill/scripts/gate.mjs [target]
  *   skill       → run skill script via bash
  *   agent       → return dispatch instructions for the agent
@@ -19,6 +19,7 @@ import { homedir } from "os"
 import { actionFor, buildMenuItems, MenuItem } from "./menu"
 
 const USER_CONFIG_DIR = process.env.OPENCODE_CONFIG_DIR || path.join(homedir(), ".config", "opencode")
+const PLUGIN_DIR = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..")
 
 // Resolve the project root from the plugin context (directory injected at registration)
 let PROJECT_ROOT = process.cwd()
@@ -47,13 +48,14 @@ function findSkillScript(skillName: string, scriptName?: string): { path: string
   return null
 }
 
-/** Run a bash command synchronously, returning stdout. */
+/** Run a command synchronously, returning stdout. No shell is spawned, so caller-supplied arguments cannot be injected. */
 function bash(cmd: string, args: string[] = []): { ok: boolean; output: string; error?: string } {
   try {
-    const output = execFileSync("bash", ["-c", `${cmd} ${args.join(" ")}`], {
+    const output = execFileSync(cmd, args, {
       encoding: "utf-8",
       timeout: 120000,
       cwd: PROJECT_ROOT,
+      shell: false,
     })
     return { ok: true, output: output.trim() }
   } catch (e: any) {
@@ -68,27 +70,18 @@ function bash(cmd: string, args: string[] = []): { ok: boolean; output: string; 
 
 /** Run the impeccable launcher for a given subcommand. */
 function runImpeccable(cmd: string, target?: string): { ok: boolean; output: string; error?: string } {
-  const launcher = path.join(USER_CONFIG_DIR, "skills", "impeccable", "scripts", "impeccable")
+  const launcher = path.join(PLUGIN_DIR, "scripts", "impeccable", "impeccable")
   if (!fs.existsSync(launcher)) {
-    // Try project-level
-    const projLauncher = path.join(PROJECT_ROOT, ".opencode", "skills", "impeccable", "scripts", "impeccable")
-    if (fs.existsSync(projLauncher)) {
-      return bash(projLauncher, [cmd, target || ""])
-    }
-    return { ok: false, output: "", error: "impeccable launcher not found at skills/impeccable/scripts/impeccable" }
+    return { ok: false, output: "", error: "impeccable launcher not found in plugin scripts" }
   }
   return bash(launcher, [cmd, target || ""])
 }
 
 /** Run the taste-skill gate. */
 function runTasteGate(target?: string): { ok: boolean; output: string; error?: string } {
-  const gate = path.join(USER_CONFIG_DIR, "skills", "taste-skill", "scripts", "gate.mjs")
+  const gate = path.join(PLUGIN_DIR, "scripts", "taste-skill", "gate.mjs")
   if (!fs.existsSync(gate)) {
-    const projGate = path.join(PROJECT_ROOT, ".opencode", "skills", "taste-skill", "scripts", "gate.mjs")
-    if (fs.existsSync(projGate)) {
-      return bash("node", [projGate, target || ""])
-    }
-    return { ok: false, output: "", error: "taste-skill gate.mjs not found" }
+    return { ok: false, output: "", error: "taste-skill gate.mjs not found in plugin scripts" }
   }
   return bash("node", [gate, target || ""])
 }
@@ -111,8 +104,8 @@ function createDesignMd(target?: string): { ok: boolean; output: string; error?:
 ## Page Type & Site Kind
 - Page type: software
 - Site kind: software
-- Category: (fill in — what is sold)
-- Primary action: (fill in — main user action)
+- Category: (fill in: what is sold)
+- Primary action: (fill in: main user action)
 
 ## Visual Direction
 - Tone: (quiet / bold / playful / technical)
@@ -124,7 +117,7 @@ function createDesignMd(target?: string): { ok: boolean; output: string; error?:
 - Name: (fill in)
 - Real icon reference: (if any)
 - Edge treatment: equal left/right content edges
-- Hover micro-interactions: lift 2px cards, photo zoom 1.02–1.03, button step on hover
+- Hover micro-interactions: lift 2px cards, photo zoom 1.02-1.03, button step on hover
 
 ## Constraints
 - No shader scenes on non-tech pages
@@ -140,6 +133,43 @@ function createDesignMd(target?: string): { ok: boolean; output: string; error?:
     return { ok: true, output: `Wrote DESIGN.md to ${dest}` }
   } catch (e: any) {
     return { ok: false, output: "", error: e.message }
+  }
+}
+
+/** Dispatch instructions for skill-based subcommands that have no runnable script. */
+function skillDispatch(skillName: string, subcommand: string, target?: string): { ok: boolean; output: string; error?: string } {
+  if (skillName === "impeccable") {
+    // Self-contained: the impeccable playbook is bundled in this plugin so
+    // /design-system is the single entry point (no separate /impeccable command).
+    let playbook = ""
+    try {
+      const skillPath = path.join(path.dirname(new URL(import.meta.url).pathname), "impeccable-skill.md")
+      playbook = fs.readFileSync(skillPath, "utf-8")
+    } catch {
+      playbook = "(bundled playbook unavailable)"
+    }
+    // Inline the command-specific reference when available so the agent has
+    // concrete, codebase-examining instructions (init/document were missing
+    // their reference files before, causing inference-only output).
+    let reference = ""
+    const refName = subcommand === "document" ? "document" : subcommand === "init" ? "init" : null
+    if (refName) {
+      try {
+        const refPath = path.join(path.dirname(new URL(import.meta.url).pathname), "impeccable-reference", `${refName}.md`)
+        reference = fs.readFileSync(refPath, "utf-8")
+      } catch {
+        reference = ""
+      }
+    }
+    const refBlock = reference ? `\n\n===== COMMAND REFERENCE (${refName}) =====\n${reference}\n===== END REFERENCE =====` : ""
+    return {
+      ok: true,
+      output: `Design-system command: ${subcommand}\nTarget: ${target || "(user-specified)"}\n\nFollow the bundled impeccable playbook below for the "${subcommand}" command. Proceed with the work as it directs.${refBlock}\n\n===== PLAYBOOK =====\n${playbook}\n===== END PLAYBOOK =====`,
+    }
+  }
+  return {
+    ok: true,
+    output: `Dispatch to skill: ${skillName}\n\nSubcommand: ${subcommand}\nTarget: ${target || "(user-specified)"}\n\nLoad and follow skills/${skillName}/SKILL.md. Proceed with the work as that skill directs.`,
   }
 }
 
@@ -167,17 +197,40 @@ export function executeSubcommand(
       if (!action.target) {
         return { ok: false, output: "", error: `No impeccable command for ${subcommand}` }
       }
-      return runImpeccable(action.target, target)
+      // Impeccable design commands are skill playbooks, not CLI verbs.
+      // The impeccable binary only supports meta commands (detect, install, ...);
+      // the design verbs (shape, init, polish, ...) are executed by the AI
+      // agent following the impeccable skill's reference for that command.
+      return skillDispatch("impeccable", action.target, target)
 
     case "taste":
       return runTasteGate(target)
 
-    case "skill":
+    case "skill": {
       if (!action.skill) {
         return { ok: false, output: "", error: `No skill for ${subcommand}` }
       }
-      // For redesign, the skill takes a target directory
-      return runSkill(action.skill, undefined, target ? [target] : [])
+      // Plugin-local (self-contained) script directories take precedence so
+      // the plugin does not depend on the global skills repo.
+      const pluginScriptDir: Record<string, string> = {
+        "redesign-existing-projects": path.join(PLUGIN_DIR, "scripts", "redesign"),
+        "icon-generator": path.join(PLUGIN_DIR, "scripts", "icon"),
+      }
+      const localDir = pluginScriptDir[action.skill]
+      if (localDir && fs.existsSync(localDir)) {
+        const files = fs.readdirSync(localDir).filter((f) => f.endsWith(".sh") || f.endsWith(".ts"))
+        if (files.length > 0) {
+          const scriptPath = path.join(localDir, files[0])
+          const runner = scriptPath.endsWith(".ts") ? "bun" : "bash"
+          return bash(runner, [scriptPath, ...(target ? [target] : [])])
+        }
+      }
+      const found = findSkillScript(action.skill)
+      if (found) {
+        return runSkill(action.skill, undefined, target ? [target] : [])
+      }
+      return skillDispatch(action.skill, subcommand, target)
+    }
 
     case "agent":
       if (!action.agent) {

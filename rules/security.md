@@ -1,3 +1,8 @@
+---
+name: security
+description: Mandatory security checks, secret management, and the security response protocol.
+---
+
 # Security Rules
 
 ## Mandatory Security Checks

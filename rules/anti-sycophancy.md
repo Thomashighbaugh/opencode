@@ -1,3 +1,8 @@
+---
+name: anti-sycophancy
+description: Eliminate sycophantic agreement: assess claims independently and respond conclusion-first.
+---
+
 # Anti-Sycophancy Rules
 
 **Purpose:** Eliminate sycophantic agreement patterns — reflexive agreement with the user's claims regardless of their accuracy. Applies to ALL responses, including code reviews, planning feedback, and design discussions.

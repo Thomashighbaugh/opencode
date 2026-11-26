@@ -22,8 +22,8 @@
  * `available: false` without it.
  */
 
-import fs from 'fs'
-import { classifySequence, isInjection } from '../../vectorize-context/scripts/classifiers.ts'
+import fs from "fs"
+import { classifySequence, isInjection } from "../../vectorize-context/scripts/classifiers.ts"
 
 export interface InjectionScanResult {
   available: boolean
@@ -41,52 +41,52 @@ export async function scanInjection(content: string, source: string | null = nul
     injection: isInjection(verdict),
     label: verdict.label,
     score: verdict.score,
-    source,
+    source
   }
 }
 
 async function main(): Promise<void> {
   const args = process.argv.slice(2)
-  let content = ''
+  let content = ""
   let source: string | null = null
 
-  if (args.includes('--file')) {
-    const idx = args.indexOf('--file')
+  if (args.includes("--file")) {
+    const idx = args.indexOf("--file")
     const file = args[idx + 1]
     if (!file) {
-      process.stderr.write('Usage: node scan-injection.ts --file <path> | --stdin\n')
+      process.stderr.write("Usage: node scan-injection.ts --file <path> | --stdin\n")
       process.exit(2)
     }
-    content = fs.readFileSync(file, 'utf-8')
+    content = fs.readFileSync(file, "utf-8")
     source = file
-  } else if (args.includes('--stdin')) {
-    let input = ''
-    process.stdin.on('data', (c) => (input += c))
-    process.stdin.on('end', async () => {
+  } else if (args.includes("--stdin")) {
+    let input = ""
+    process.stdin.on("data", (c) => (input += c))
+    process.stdin.on("end", async () => {
       try {
         const parsed = JSON.parse(input)
-        content = parsed.content || ''
+        content = parsed.content || ""
         source = parsed.source || null
       } catch {
         content = input
       }
       const result = await scanInjection(content, source)
-      process.stdout.write(JSON.stringify(result, null, 2) + '\n')
+      process.stdout.write(JSON.stringify(result, null, 2) + "\n")
       process.exit(result.injection ? 1 : 0)
     })
     return
-  } else if (args.length && !args[0].startsWith('--')) {
-    content = fs.readFileSync(args[0], 'utf-8')
+  } else if (args.length && !args[0].startsWith("--")) {
+    content = fs.readFileSync(args[0], "utf-8")
     source = args[0]
   } else {
-    process.stderr.write('Usage: node scan-injection.ts --file <path> | --stdin | <path>\n')
+    process.stderr.write("Usage: node scan-injection.ts --file <path> | --stdin | <path>\n")
     process.exit(2)
   }
 
   const result = await scanInjection(content, source)
-  process.stdout.write(JSON.stringify(result, null, 2) + '\n')
+  process.stdout.write(JSON.stringify(result, null, 2) + "\n")
   process.exit(result.injection ? 1 : 0)
 }
 
-const isMain = process.argv[1] && process.argv[1].endsWith('scan-injection.ts')
+const isMain = process.argv[1] && process.argv[1].endsWith("scan-injection.ts")
 if (isMain) void main()

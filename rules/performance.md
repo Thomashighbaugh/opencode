@@ -1,3 +1,8 @@
+---
+name: performance
+description: Performance and model-selection rules for this configuration.
+---
+
 # Performance Rules
 
 ## Model Selection Strategy

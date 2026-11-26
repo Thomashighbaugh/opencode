@@ -12,8 +12,26 @@
 
 import { hubNames, hubSummaries, render, renderIndex, resume, route, status } from "./src/core"
 import { loadVendoredSkills } from "./src/skills"
-import { installAgents } from "./src/agents"
+import { installAgents, loadVendoredAgents } from "./src/agents"
 import { registerLibraryTool } from "./tools/library/index.ts"
+
+/**
+ * Roster for the agent-dispatch tool description. The subagents are deliberately
+ * `hidden: true` so the user's @ menu stays uncluttered, but the model must still
+ * know they exist: a hidden subagent is omitted from the dispatcher description
+ * even though it stays dispatchable by name. Appending the roster here keeps the
+ * model aware without exposing 30 names in the user's autocomplete.
+ */
+function dispatcherRoster(): string {
+  const agents = loadVendoredAgents().filter((a) => a.id !== "hubs")
+  if (agents.length === 0) return ""
+  const lines = agents.map((a) => {
+    const fm = /^---\r?\n([\s\S]*?)\r?\n---/.exec(a.content)
+    const desc = fm ? (/^description:\s*(.+)$/m.exec(fm[1]!)?.[1] ?? "") : ""
+    return `- ${a.id}: ${desc}`
+  })
+  return `\n\nDispatchable subagents (hidden from the @ menu, invoke by name):\n${lines.join("\n")}`
+}
 
 const HUBMENU_INPUT = {
   type: "object",
@@ -77,6 +95,28 @@ export default {
       })
 
       registerLibraryTool(editor, directory)
+
+      // Make the hidden subagents visible to the dispatcher without exposing
+      // them in the user's @ autocomplete. Best-effort: the dispatch tool may
+      // live outside this registry, in which case the AGENTS.md roster covers it.
+      try {
+        const roster = dispatcherRoster()
+        if (roster && typeof editor.list === "function") {
+          for (const tool of editor.list()) {
+            const id = String(tool?.id ?? tool?.name ?? "")
+            const desc = String(tool?.description ?? "")
+            const isDispatch = id === "subagent" || id === "task" || /child session/i.test(desc) || /Spawns an agent/i.test(desc)
+            if (!isDispatch) continue
+            editor.update(id, (t: any) => {
+              if (typeof t.description === "string" && !t.description.includes("Dispatchable subagents")) {
+                t.description += roster
+              }
+            })
+          }
+        }
+      } catch {
+        // Tool registry shape varies by host version; never block setup on it.
+      }
     })
 
     await ctx.command.transform((editor: any) => {

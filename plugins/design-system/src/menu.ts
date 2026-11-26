@@ -80,7 +80,7 @@ const IMPECCABLE_CMDS = [
 const DESIGN_SYSTEM_MENU_ITEMS: MenuItem[] = [
   // Steer
   { id: "shape", label: "Shape", detail: "Plan UX/UI before writing code (impeccable)", category: "Steer" },
-  { id: "init", label: "Init", detail: "Capture product context in PRODUCT.md (impeccable)", category: "Steer" },
+  { id: "init", label: "Init", detail: "Capture product + design context (DESIGN.md primary) (impeccable)", category: "Steer" },
   { id: "document", label: "Document", detail: "Generate DESIGN.md from existing code (impeccable)", category: "Steer" },
   { id: "extract", label: "Extract", detail: "Pull tokens/components into design system (impeccable)", category: "Steer" },
 
@@ -126,7 +126,7 @@ const DESIGN_SYSTEM_MENU_ITEMS: MenuItem[] = [
   { id: "designer", label: "Designer", detail: "UI/UX designer-developer (@designer agent)", category: "Delegation" },
   { id: "frontend-design", label: "Frontend Design", detail: "Hand production frontend work (@frontend-design agent)", category: "Delegation" },
 
-  // Docs commands live in docs-hub (part of hubs), not in design-system
+  // Docs commands live in knowledge-hub (part of hubs), not in design-system
 ]
 
 export function isImpeccableCmd(id: string): id is (typeof IMPECCABLE_CMDS)[number] {
@@ -157,7 +157,7 @@ export function formatMenu(items: MenuItem[]): string {
   for (const [cat, catItems] of byCat) {
     lines.push(`\n## ${cat}`)
     for (const it of catItems) {
-      lines.push(`• ${it.label} — ${it.detail}`)
+      lines.push(`• ${it.label} - ${it.detail}`)
     }
   }
   return lines.join("\n")
@@ -171,7 +171,7 @@ export function expandSubcommand(id: string): string | null {
   const action = actionFor(id)
 
   const lines: string[] = []
-  lines.push(`${item.label} — ${id}`)
+  lines.push(`${item.label} - ${id}`)
   lines.push("")
   lines.push(`Category: ${item.category}`)
   lines.push(`Description: ${item.detail}`)

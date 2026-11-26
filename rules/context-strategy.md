@@ -1,3 +1,8 @@
+---
+name: context-strategy
+description: Durable project memory: state vs context separation, hub state paths, and manual-only context operations.
+---
+
 # Context Strategy — Durable Project Memory & Hub State
 
 **Inspired by StackMemory's operating theory**: context windows vanish, but disk doesn't. This system ensures knowledge compounds across sessions.

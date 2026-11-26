@@ -141,7 +141,7 @@ export default {
         changed = true
       } else {
         const resolved = resolveOrCreate(data, segments)
-        prevValue = clone(resolved.value)
+        prevValue = resolved.value === undefined ? undefined : clone(resolved.value)
         resolved.parent[resolved.key] = value
         changed = true
       }
@@ -197,9 +197,15 @@ export default {
       changed = true
     } else if (actionName === "arrayInsert") {
       if (index === undefined) return err("index is required for arrayInsert")
+      if (!Number.isInteger(index) || index < 0) {
+        return err(`Index must be a non-negative integer, got ${index}`)
+      }
       const resolved = resolvePath(data, segments)
       if (!resolved || !Array.isArray(resolved.value)) {
         return err(`Path "${dotPath}" must resolve to an array for arrayInsert`)
+      }
+      if (index > resolved.value.length) {
+        return err(`Index ${index} out of bounds (array length: ${resolved.value.length})`)
       }
       prevValue = clone(resolved.value)
       resolved.value.splice(index, 0, value)

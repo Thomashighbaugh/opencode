@@ -8,11 +8,14 @@
  *   pnpx tsx init-skill.ts my-new-skill --path skills/public
  *   pnpx tsx init-skill.ts my-api-helper --path skills/private
  */
-import { existsSync, mkdirSync, writeFileSync, chmodSync } from "node:fs";
-import { resolve, join } from "node:path";
+import { existsSync, mkdirSync, writeFileSync, chmodSync } from "node:fs"
+import { resolve, join } from "node:path"
 
 const titleCase = (name: string): string =>
-  name.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+  name
+    .split("-")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ")
 
 const skillTemplate = (skillName: string, skillTitle: string): string => `---
 name: ${skillName}
@@ -99,7 +102,7 @@ Files not intended to be loaded into context, but rather used within the output 
 ---
 
 **Any unneeded directories can be deleted.** Not every skill requires all three types of resources.
-`;
+`
 
 const exampleScript = (skillName: string): string => `#!/usr/bin/env bash
 # Example helper script for ${skillName}
@@ -110,7 +113,7 @@ set -euo pipefail
 
 echo "This is an example script for ${skillName}"
 # TODO: Add actual script logic here (data processing, file conversion, shelling out, etc.)
-`;
+`
 
 const exampleReference = (skillTitle: string): string => `# Reference Documentation for ${skillTitle}
 
@@ -141,7 +144,7 @@ Reference docs are ideal for:
 - Common patterns
 - Troubleshooting
 - Best practices
-`;
+`
 
 const exampleAsset = `# Example Asset File
 
@@ -161,80 +164,80 @@ the output the AI produces.
 - Data files: .csv, .json, .xml, .yaml
 
 Note: This is a text placeholder. Actual assets can be any file type.
-`;
+`
 
 function initSkill(skillName: string, path: string): string | null {
-  const skillDir = join(resolve(path), skillName);
+  const skillDir = join(resolve(path), skillName)
 
   if (existsSync(skillDir)) {
-    console.log(`❌ Error: Skill directory already exists: ${skillDir}`);
-    return null;
+    console.log(`❌ Error: Skill directory already exists: ${skillDir}`)
+    return null
   }
 
   try {
-    mkdirSync(skillDir, { recursive: true });
-    console.log(`✅ Created skill directory: ${skillDir}`);
+    mkdirSync(skillDir, { recursive: true })
+    console.log(`✅ Created skill directory: ${skillDir}`)
   } catch (e) {
-    console.log(`❌ Error creating directory: ${e}`);
-    return null;
+    console.log(`❌ Error creating directory: ${e}`)
+    return null
   }
 
-  const skillTitle = titleCase(skillName);
+  const skillTitle = titleCase(skillName)
   try {
-    writeFileSync(join(skillDir, "SKILL.md"), skillTemplate(skillName, skillTitle));
-    console.log("✅ Created SKILL.md");
+    writeFileSync(join(skillDir, "SKILL.md"), skillTemplate(skillName, skillTitle))
+    console.log("✅ Created SKILL.md")
   } catch (e) {
-    console.log(`❌ Error creating SKILL.md: ${e}`);
-    return null;
+    console.log(`❌ Error creating SKILL.md: ${e}`)
+    return null
   }
 
   try {
-    mkdirSync(join(skillDir, "scripts"));
-    const script = join(skillDir, "scripts", "example.sh");
-    writeFileSync(script, exampleScript(skillName));
-    chmodSync(script, 0o755);
-    console.log("✅ Created scripts/example.sh");
+    mkdirSync(join(skillDir, "scripts"))
+    const script = join(skillDir, "scripts", "example.sh")
+    writeFileSync(script, exampleScript(skillName))
+    chmodSync(script, 0o755)
+    console.log("✅ Created scripts/example.sh")
 
-    mkdirSync(join(skillDir, "references"));
-    writeFileSync(join(skillDir, "references", "api_reference.md"), exampleReference(skillTitle));
-    console.log("✅ Created references/api_reference.md");
+    mkdirSync(join(skillDir, "references"))
+    writeFileSync(join(skillDir, "references", "api_reference.md"), exampleReference(skillTitle))
+    console.log("✅ Created references/api_reference.md")
 
-    mkdirSync(join(skillDir, "assets"));
-    writeFileSync(join(skillDir, "assets", "example_asset.txt"), exampleAsset);
-    console.log("✅ Created assets/example_asset.txt");
+    mkdirSync(join(skillDir, "assets"))
+    writeFileSync(join(skillDir, "assets", "example_asset.txt"), exampleAsset)
+    console.log("✅ Created assets/example_asset.txt")
   } catch (e) {
-    console.log(`❌ Error creating resource directories: ${e}`);
-    return null;
+    console.log(`❌ Error creating resource directories: ${e}`)
+    return null
   }
 
-  console.log(`\n✅ Skill '${skillName}' initialized successfully at ${skillDir}`);
-  console.log("\nNext steps:");
-  console.log("1. Edit SKILL.md to complete the TODO items and update the description");
-  console.log("2. Customize or delete the example files in scripts/, references/, and assets/");
-  console.log("3. Run the validator when ready to check the skill structure");
-  return skillDir;
+  console.log(`\n✅ Skill '${skillName}' initialized successfully at ${skillDir}`)
+  console.log("\nNext steps:")
+  console.log("1. Edit SKILL.md to complete the TODO items and update the description")
+  console.log("2. Customize or delete the example files in scripts/, references/, and assets/")
+  console.log("3. Run the validator when ready to check the skill structure")
+  return skillDir
 }
 
 function main(): void {
-  const args = process.argv.slice(2);
+  const args = process.argv.slice(2)
   if (args.length < 3 || args[1] !== "--path") {
-    console.log("Usage: pnpx tsx init-skill.ts <skill-name> --path <path>");
-    console.log("\nSkill name requirements:");
-    console.log("  - Hyphen-case identifier (e.g., 'data-analyzer')");
-    console.log("  - Lowercase letters, digits, and hyphens only");
-    console.log("  - Max 40 characters");
-    console.log("  - Must match directory name exactly");
-    process.exit(1);
+    console.log("Usage: pnpx tsx init-skill.ts <skill-name> --path <path>")
+    console.log("\nSkill name requirements:")
+    console.log("  - Hyphen-case identifier (e.g., 'data-analyzer')")
+    console.log("  - Lowercase letters, digits, and hyphens only")
+    console.log("  - Max 40 characters")
+    console.log("  - Must match directory name exactly")
+    process.exit(1)
   }
 
-  const skillName = args[0];
-  const path = args[2];
+  const skillName = args[0]
+  const path = args[2]
 
-  console.log(`🚀 Initializing skill: ${skillName}`);
-  console.log(`   Location: ${path}`);
-  console.log();
+  console.log(`🚀 Initializing skill: ${skillName}`)
+  console.log(`   Location: ${path}`)
+  console.log()
 
-  process.exit(initSkill(skillName, path) ? 0 : 1);
+  process.exit(initSkill(skillName, path) ? 0 : 1)
 }
 
-main();
+main()

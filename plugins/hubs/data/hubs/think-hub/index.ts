@@ -1,0 +1,41 @@
+import { HubSubcommand } from "../../hub-data"
+import s0 from "./adversarial-debate"
+import s1 from "./bottom-up"
+import s2 from "./brainstorm"
+import s3 from "./cleanroom"
+import s4 from "./constitution"
+import s5 from "./ddd"
+import s6 from "./decomposition"
+import s7 from "./deep-dive"
+import s8 from "./deep-thinker"
+import s9 from "./double-diamond"
+import s10 from "./effort-estimator"
+import s11 from "./event-storming"
+import s12 from "./grill"
+import s13 from "./ideation-resume"
+import s14 from "./impact-mapping"
+import s15 from "./improvements"
+import s16 from "./interview"
+import s17 from "./jtbd"
+import s18 from "./lean-canvas"
+import s19 from "./opro"
+import s20 from "./plan-execute"
+import s21 from "./plan-status"
+import s22 from "./plan"
+import s23 from "./pwf"
+import s24 from "./ralplan"
+import s25 from "./refine"
+import s26 from "./requirements-analyzer"
+import s27 from "./rpikit"
+import s28 from "./spark"
+import s29 from "./spiral"
+import s30 from "./story-mapping"
+import s31 from "./top-down"
+import s32 from "./tree-of-thoughts"
+
+export const specs = [s0, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13, s14, s15, s16, s17, s18, s19, s20, s21, s22, s23, s24, s25, s26, s27, s28, s29, s30, s31, s32]
+
+export const subcommands: HubSubcommand[] = specs.map(s => ({
+  label: s.label, description: s.description, reminder: s.reminder,
+  skill: s.skill, agent: s.agent, command: s.command, inline: s.inline, phases: s.phases
+}))

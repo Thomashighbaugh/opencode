@@ -1,3 +1,8 @@
+---
+name: hub-routing
+description: Hub routing model and the menu-to-subcommand delegation table.
+---
+
 # Hub Routing Model
 
 > Regenerate with `npx tsx tools/gen-routing-docs.ts` (NOTE: that generator is currently broken

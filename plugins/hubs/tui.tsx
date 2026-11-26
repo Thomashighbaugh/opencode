@@ -66,8 +66,20 @@ export default definePlugin({
       ctx.ui.toast.show({ title: "Hubs", message, variant })
 
     const submit = async (text: string) => {
-      const route = ctx.ui.router.current()
-      const sessionID = route?.type === "session" ? route.sessionID : undefined
+      let route = ctx.ui.router.current()
+      let sessionID = route?.type === "session" ? route.sessionID : undefined
+      if (!sessionID) {
+        try {
+          const created = await (ctx.client.session.create as any)({ directory, title: "hubs" })
+          sessionID = (created as any)?.data?.id ?? (created as any)?.id
+          if (sessionID && typeof (ctx.ui.router as any).navigate === "function") {
+            try { (ctx.ui.router as any).navigate({ type: "session", sessionID }) } catch {}
+          }
+        } catch (error) {
+          toast(`Could not create session: ${error instanceof Error ? error.message : String(error)}`, "error")
+          return
+        }
+      }
       if (!sessionID) return toast("Open a session first", "warning")
       try {
         await ctx.client.session.prompt({ sessionID, text, resume: true, delivery: "steer" })
@@ -427,7 +439,11 @@ export default definePlugin({
               <text fg={themeColor(ctx.theme.current?.text, "#ffffff")}>{`Hubs · ${menus().length} menus · /hubs`}</text>
               <For each={menus()}>
                 {(menu: { name: string; subs: string[] }) => {
-                  const isExpanded = expanded().has(menu.name)
+                  // Read the signal inside reactive positions (JSX expressions /
+                  // Show accessor) so a left click on the row actually expands
+                  // the inline subcommand list. A plain `const isExpanded = ...`
+                  // snapshot is evaluated once and never updates.
+                  const isExpanded = () => expanded().has(menu.name)
                   return (
                     <box flexDirection="column">
                       <text
@@ -437,9 +453,9 @@ export default definePlugin({
                           else toggleMenu(menu.name)
                         }}
                       >
-                        {`${isExpanded ? "▾" : "▸"} /${menu.name} (${menu.subs.length})`}
+                        {`${isExpanded() ? "▾" : "▸"} /${menu.name} (${menu.subs.length})`}
                       </text>
-                      <Show when={isExpanded}>
+                      <Show when={isExpanded()}>
                         <For each={menu.subs}>
                           {(sub: string) => <text fg={themeColor(ctx.theme.current?.textMuted, "#888888")}>{`    ${sub}`}</text>}
                         </For>

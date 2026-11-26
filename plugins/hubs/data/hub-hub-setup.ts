@@ -14,7 +14,7 @@ import { subcommands } from "./hubs/hub-setup"
 //   /scaffold-hub <sub>  →  hub-setup/<sub>   (the immediately-previous name)
 const hub: HubDefinition = {
   name: "hub-setup",
-  description: "Set up and refresh a project's OpenCode configuration",
+  description: "Configure OpenCode — project setup and config asset authoring",
   // Unchanged from scaffold-hub, so existing checkpoints in .opencode/state/init/
   // are still found by /hub-setup resume and /hub-setup status.
   stateDir: "init",

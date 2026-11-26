@@ -3,7 +3,7 @@ import { subcommands } from "./hubs/verify-hub"
 
 const hub: HubDefinition = {
   name: "verify-hub",
-  description: "Review, test, and debug — proving the work is correct",
+  description: "Quality and health — review, test, debug, hygiene, insights",
   stateDir: "",
   subcommands
 }

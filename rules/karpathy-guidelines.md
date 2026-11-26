@@ -1,3 +1,8 @@
+---
+name: karpathy-guidelines
+description: Coding guidelines: think before coding, simplicity first, surgical changes, goal-driven execution.
+---
+
 # Karpathy Coding Guidelines
 
 - **Think before coding**: Understand the problem, consider alternatives, plan the approach before writing code.

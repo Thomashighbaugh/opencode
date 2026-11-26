@@ -112,6 +112,14 @@ review, research, design, and workflow, each with its own `<Agent_Prompt>`.
 (`default_agent: "hubs"`). It handles work directly by default and proposes subagent patterns
 rather than deploying them unprompted.
 
+**Prefer the specialist.** Every subagent is dispatchable by name (`executor`, `convention-extractor`,
+`code-reviewer`, ...). When a task matches a specialist, dispatch to it directly instead of `general`
+with a hand-written brief: the specialist carries the tuned prompt, so the general fallback costs
+extra requests and tokens. The specialists are `hidden: true` so they do not crowd the user's `@`
+menu; hidden does not make them undispatchable, only unlisted. The hubs plugin appends the full
+hidden roster to the agent-dispatch tool description so the model sees them; if that description
+still lists only `general`/`web-search`, dispatch the specialist by name anyway.
+
 ### Model selection is not a dispatch concern
 
 Do not choose, pin, or fail over between models when dispatching a subagent — this config pins none
@@ -144,23 +152,20 @@ keep working: `/init-project <sub>` and `/scaffold-hub <sub>` both route to `/hu
 
 | Command | # | Subcommands |
 |--------|--:|-------------|
-| `/hub-setup` | 13 | config, detect, doctor, map-codebase, migrate-v2, provision, recommend, refresh, reset, setup, status, tag, verify |
-| `/resource-hub` | 18 | add, config-orchestrator, create, edit, find, graph, info, knowledge-graph, list, package, prompt-simplifier, remove, scan, search, setup, sync, update, validate |
-| `/memory-hub` | 14 | capture, compress, consolidate-telemetry, consume, context, diff, export, memory, prune, search, secondbrain, session, vectorize, yt-transcript |
-| `/research-hub` | 14 | analyst, analyze-patterns, compare, competitive-analysis, convention-extractor, document-specialist, explore, extract-standards, library-docs, research, scientist, sciomc, tech-eval, web-research |
-| `/design-hub` | 7 | designer, docs, frontend-design, icon, readme, redesign, writer |
-| `/ideate-hub` | 17 | adversarial-debate, brainstorm, cleanroom, ddd, deep-dive, deep-thinker, double-diamond, event-storming, grill, interview, opro, pwf, refine, resume, rpikit, spark, tree-of-thoughts |
-| `/plan-hub` | 16 | bottom-up, constitution, decomposition, effort-estimator, impact-mapping, improvements, jtbd, lean-canvas, plan, plan-execute, ralplan, requirements-analyzer, spiral, status, story-mapping, top-down |
-| `/verify-hub` | 14 | audit, code-review, create-tests, critic, debugger, deep-bug-hunt, qa-tester, quality, review, sec-scan, security-reviewer, tdd, test-engineer, tracer |
-| `/swarm-hub` | 17 | cc10x, delegate, devin, gastown, gsd, harden, hive, hive-plan, maestro, metaswarm, pair, react, remediate, ruflo, self-assess, spec-driven, subagent-driven |
-| `/build-hub` | 14 | arch-prep, architecture, brownfield, cleanup, executor, modernize, modularity, optimize, overhaul, pipeline, refactor, simplify, simplify-code, vibe-code |
-| `/orchestrate-hub` | 12 | autopilot, ccg, consensus, evolutionary, journal, ralph, resume, state-machine, status, swarm, team, ultrawork |
+| `/hub-setup` | 29 | add, config, config-orchestrator, create, detect, doctor, edit, find, find-assets, info, init-resources, list, map-codebase, migrate-v2, package, prompt-simplifier, provision, recommend, refresh, remove, reset, scan, setup, setup-status, sync, tag, update, validate, verify |
+| `/knowledge-hub` | 19 | agents-md, capture, compress, consolidate-telemetry, consume, context, diff, docs, export, graph, memory, prune, readme, search-context, secondbrain, session, vectorize, writer, yt-transcript |
+| `/research-hub` | 15 | analyst, analyze-patterns, compare, competitive-analysis, convention-extractor, deep-research, document-specialist, explore, extract-standards, library-docs, research, scientist, sciomc, tech-eval, web-research |
+| `/think-hub` | 33 | adversarial-debate, bottom-up, brainstorm, cleanroom, constitution, ddd, decomposition, deep, deep-dive, deep-thinker, double-diamond, effort-estimator, event-storming, grill, ideation-resume, impact-mapping, improvements, jtbd, lean-canvas, opro, plan, plan-execute, plan-status, pwf, ralplan, refine, requirements-analyzer, rpikit, spark, spiral, story-mapping, top-down, tree-of-thoughts |
+| `/build-hub` | 13 | arch-prep, architecture, brownfield, cleanup, executor, modernize, modularity, optimize, overhaul, pipeline, refactor, simplify, vibe-code |
+| `/verify-hub` | 23 | antislop-audit, audit, code-review, converge, create-tests, critic, debugger, deep-bug-hunt, insights, organize, purge, qa-tester, retrospect, review, sandbox, sec-scan, security-reviewer, self-improve, sweep, tdd, test-engineer, tracer, workspace |
+| `/orchestrate-hub` | 29 | autopilot, cc10x, ccg, consensus, delegate, devin, evolutionary, gastown, gsd, harden, hive, hive-plan, journal, maestro, metaswarm, orchestration-resume, pair, ralph, react, remediate, ruflo, run-status, self-assess, spec-driven, state-machine, subagent-driven, swarm, team, ultrawork |
 | `/git-hub` | 10 | archive, changelog, commit, commit-drafter, gh, git-cleanup, git-master, git-stage-thread, pr, release |
-| `/maintain-hub` | 9 | converge, insights, organize, purge, retrospect, sandbox, self-improve, sweep, workspace |
+
+The 2026-11-24 consolidation cut 13 menus to 8: `hub-setup` absorbed `resource-hub`, `knowledge-hub` merged `memory-hub`+`docs-hub`, `think-hub` merged `ideate-hub`+`plan-hub`, `verify-hub` absorbed `maintain-hub`, and `orchestrate-hub` absorbed `swarm-hub`. Design lives in the separate `design-system` plugin. Old hub names and renamed labels still resolve through `normalizeRoute` (e.g. `memory-hub/search` routes to `knowledge-hub/search-context`).
 
 ### Two-Tier Subcommand Routing
 
-Each of the 173 hub subcommands has a dedicated spec file in `plugins/hubs/data/hubs/<hub>/<subcommand>.ts` containing the full `HubSubcommandSpec` — `detailedDescription`, `tools`, `rules`, `relatedSkills`, `examples`, `warnings`. The V2 plugin in `plugins/hubs/` serves them; `tools/hubs/**` no longer exists.
+Each of the 171 hub subcommands has a dedicated spec file in `plugins/hubs/data/hubs/<hub>/<subcommand>.ts` containing the full `HubSubcommandSpec` — `detailedDescription`, `tools`, `rules`, `relatedSkills`, `examples`, `warnings`. The V2 plugin in `plugins/hubs/` serves them; `tools/hubs/**` no longer exists.
 
 **Direct selection** (`/orchestrate-hub ralph`): `hubMenu route` returns the full spec in one response (detailedDescription + inlined rules + related skill pointers + examples). No follow-up `loadSkill` or rule-read calls needed.
 

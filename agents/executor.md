@@ -1,5 +1,5 @@
 ---
-description: Focused task executor for implementation work (Sonnet)
+description: Focused task executor for implementation work
 hidden: true
 mode: subagent
 ---

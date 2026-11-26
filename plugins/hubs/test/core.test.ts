@@ -3,16 +3,16 @@ import { describe, expect, test } from "bun:test"
 import { hubNames, hubSummaries, render, renderIndex, resume, route, status } from "../src/core"
 
 describe("registry", () => {
-  test("exposes all 13 hubs", () => {
-    expect(hubNames()).toHaveLength(13)
+  test("exposes all 8 hubs", () => {
+    expect(hubNames()).toHaveLength(8)
     expect(hubNames()).toContain("git-hub")
     expect(hubNames()).toContain("hub-setup")
-    expect(hubNames()).toContain("docs-hub")
+    expect(hubNames()).toContain("knowledge-hub")
   })
 
   test("summaries carry subcommand lists", () => {
     const summaries = hubSummaries()
-    expect(summaries).toHaveLength(13)
+    expect(summaries).toHaveLength(8)
     const git = summaries.find((entry) => entry.name === "git-hub")
     expect(git?.subcommands).toContain("commit")
   })
@@ -40,7 +40,7 @@ describe("route", () => {
   })
 
   test("exposes the yt-transcript memory subcommand", () => {
-    const result = route("memory-hub", "yt-transcript")
+    const result = route("knowledge-hub", "yt-transcript")
     expect(result.ok).toBe(true)
     if (!result.ok) return
     expect(result.payload.reminder).toContain("tgrab")
@@ -53,7 +53,7 @@ describe("route", () => {
     const result = route("skills-hub", "add")
     expect(result.ok).toBe(true)
     if (!result.ok) return
-    expect(result.payload.hub).toBe("resource-hub")
+    expect(result.payload.hub).toBe("hub-setup")
   })
 
   test("reports unknown hubs and subcommands without throwing", () => {
@@ -67,7 +67,7 @@ describe("route", () => {
   test("render is parseable JSON", () => {
     const text = render(route("git-hub", "commit"))
     expect(typeof JSON.parse(text)).toBe("object")
-    expect(JSON.parse(renderIndex()).hubs).toHaveLength(13)
+    expect(JSON.parse(renderIndex()).hubs).toHaveLength(8)
   })
 })
 

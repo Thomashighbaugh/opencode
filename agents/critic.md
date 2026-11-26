@@ -1,5 +1,5 @@
 ---
-description: Work plan and code review expert — thorough, structured, multi-perspective (Opus)
+description: Work plan and code review expert: thorough, structured, multi-perspective
 hidden: true
 disallowedTools: Write, Edit
 mode: subagent

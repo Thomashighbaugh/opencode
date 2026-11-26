@@ -10,8 +10,8 @@ async function hooks() {
     tool: {
       hook: async (name: string, fn: Hook) => {
         registered.set(name, fn)
-      },
-    },
+      }
+    }
   }
   await (ToonPlugin as any).setup(ctx)
   return registered
@@ -22,8 +22,8 @@ function payload(rows = 40) {
     Array.from({ length: rows }, (_, index) => ({
       id: index,
       title: `item-${index}`,
-      state: index % 2 ? "open" : "closed",
-    })),
+      state: index % 2 ? "open" : "closed"
+    }))
   )
 }
 
@@ -109,7 +109,11 @@ describe("ax integration", () => {
       redirected: false,
       ms: 142,
       headers: { "content-type": "application/json" },
-      body: Array.from({ length: 40 }, (_, index) => ({ id: index, name: `row-${index}`, state: index % 2 ? "open" : "closed" })),
+      body: Array.from({ length: 40 }, (_, index) => ({
+        id: index,
+        name: `row-${index}`,
+        state: index % 2 ? "open" : "closed"
+      }))
     })
     const output = await after("bash", envelope)
     expect(output).toContain("[40]")
@@ -118,7 +122,7 @@ describe("ax integration", () => {
 
   test("compacts an ax --body JSON payload", async () => {
     const body = JSON.stringify(
-      Array.from({ length: 30 }, (_, index) => ({ id: index, label: `entry-${index}`, value: index * 3 })),
+      Array.from({ length: 30 }, (_, index) => ({ id: index, label: `entry-${index}`, value: index * 3 }))
     )
     const output = await after("bash", body)
     expect(output).toContain("[30]")

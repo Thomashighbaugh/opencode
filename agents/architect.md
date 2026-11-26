@@ -1,5 +1,5 @@
 ---
-description: Strategic Architecture & Debugging Advisor (Opus, READ-ONLY)
+description: Strategic Architecture & Debugging Advisor (READ-ONLY)
 hidden: true
 disallowedTools: Write, Edit
 mode: subagent

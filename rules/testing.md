@@ -1,3 +1,8 @@
+---
+name: testing
+description: Testing requirements and conventions for this project.
+---
+
 # Testing Rules
 
 ## Minimum Test Coverage: 80%

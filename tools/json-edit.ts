@@ -174,10 +174,16 @@ export default {
 
         case "arrayInsert": {
           if (index === undefined) return err("index is required for arrayInsert")
+          if (!Number.isInteger(index) || index < 0) {
+            return err(`Index must be a non-negative integer, got ${index}`)
+          }
           if (matches.length === 0) return err(`Path "${jsonPath}" not found`)
           const { parent, parentProperty } = matches[0]
           const arr = (parent as any)[parentProperty] as unknown[]
           if (!Array.isArray(arr)) return err("Path does not resolve to an array")
+          if (index > arr.length) {
+            return err(`Index ${index} out of bounds (array length: ${arr.length})`)
+          }
           arr.splice(index, 0, value)
           break
         }

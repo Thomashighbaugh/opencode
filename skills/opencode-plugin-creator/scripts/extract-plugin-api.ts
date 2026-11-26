@@ -70,7 +70,7 @@ async function extractEvents(): Promise<EventInfo[]> {
         events.push({
           name: typeName,
           type: typeStringMatch[1],
-          fullType: `export type ${typeName} = {${typeMatch[1]}\n}`,
+          fullType: `export type ${typeName} = {${typeMatch[1]}\n}`
         })
       }
     }
@@ -277,7 +277,7 @@ async function main() {
     extractAuthHook(),
     extractEvents(),
     extractEventUnion(),
-    extractToolDefinition(),
+    extractToolDefinition()
   ])
 
   console.log(`Found ${events.length} events, ${eventTypes.length} in union`)
@@ -289,7 +289,7 @@ async function main() {
   await Promise.all([
     Bun.write(join(REFERENCES_DIR, "hooks.md"), hooksRef),
     Bun.write(join(REFERENCES_DIR, "events.md"), eventsRef),
-    Bun.write(join(REFERENCES_DIR, "tool-helper.md"), toolRef),
+    Bun.write(join(REFERENCES_DIR, "tool-helper.md"), toolRef)
   ])
 
   console.log("Generated references:")

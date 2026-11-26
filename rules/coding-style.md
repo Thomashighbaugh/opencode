@@ -1,3 +1,8 @@
+---
+name: coding-style
+description: Immutability, small functions, and style constraints for code this agent writes.
+---
+
 # Coding Style Rules
 
 ## Immutability (CRITICAL)

@@ -34,7 +34,7 @@
  * to add a hold, never to remove one.
  */
 
-import { loadModel, REQUIRED_MODELS } from './onnx-runtime.ts'
+import { loadModel, REQUIRED_MODELS } from "./onnx-runtime.ts"
 
 /**
  * Model id for the classifier.
@@ -53,7 +53,7 @@ export interface ZeroShotOptions {
   allowDownload?: boolean
   /** Tokenizer truncation length. 256 is enough for a title + lead or a turn tail. */
   maxLength?: number
-  dtype?: 'q8' | 'fp16' | 'fp32'
+  dtype?: "q8" | "fp16" | "fp32"
 }
 
 /**
@@ -68,15 +68,15 @@ export interface ZeroShotOptions {
 export async function entailmentScores(
   text: string,
   hypotheses: string[],
-  opts: ZeroShotOptions = {},
+  opts: ZeroShotOptions = {}
 ): Promise<number[] | null> {
-  const premise = String(text ?? '').trim()
+  const premise = String(text ?? "").trim()
   if (!premise || !hypotheses.length) return null
 
   try {
     const { tokenizer, model } = await loadModel(opts.modelId || ZERO_SHOT_MODEL_ID, {
       allowDownload: opts.allowDownload ?? false,
-      dtype: opts.dtype,
+      dtype: opts.dtype
     })
     const idx = entailmentIndex(model)
     const maxLength = opts.maxLength ?? 256
@@ -92,7 +92,7 @@ export async function entailmentScores(
         text_pair: [hypothesis],
         padding: true,
         truncation: true,
-        max_length: maxLength,
+        max_length: maxLength
       })
       const { logits } = await model(enc)
       const dims = logits.dims as number[]
@@ -117,7 +117,7 @@ export async function entailmentScores(
 export async function classify(
   text: string,
   hypotheses: string[],
-  opts: ZeroShotOptions = {},
+  opts: ZeroShotOptions = {}
 ): Promise<Record<string, number> | null> {
   const scores = await entailmentScores(text, hypotheses, opts)
   if (!scores) return null
@@ -138,7 +138,7 @@ export async function classify(
 export async function bestHypothesis(
   text: string,
   hypotheses: string[],
-  opts: ZeroShotOptions = {},
+  opts: ZeroShotOptions = {}
 ): Promise<{ label: string; score: number; margin: number } | null> {
   const scores = await entailmentScores(text, hypotheses, opts)
   if (!scores) return null

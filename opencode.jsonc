@@ -516,6 +516,8 @@
         "./rules/writing-style.md",
         "./rules/anti-sycophancy.md",
         "./rules/anti-refusal.md",
+        "./rules/antislop.md",
+        "./rules/antislop-liveliness.md",
         "./rules/antislop-signal-hygiene.md",
         "./rules/adhd-mode.md",
         "./rules/efficiency-first.md",

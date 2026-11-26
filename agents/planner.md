@@ -1,5 +1,5 @@
 ---
-description: Strategic planning consultant with interview workflow (Opus)
+description: Strategic planning consultant with interview workflow
 hidden: true
 mode: subagent
 ---

@@ -10,6 +10,7 @@
 import {
   HUB_FILE_MAP,
   LEGACY_ROUTE_MAP,
+  normalizeRoute,
   getDelegation,
   getLatestCheckpoint,
   getStateDir,
@@ -54,9 +55,9 @@ export function hub(name: string): HubDefinition | null {
 
 function resolveLegacy(hubName: string, subcommand: string): [string, string] {
   const mapped = LEGACY_ROUTE_MAP[`${hubName}/${subcommand}`]
-  if (!mapped) return [hubName, subcommand]
+  if (!mapped) return normalizeRoute(hubName, subcommand)
   const slash = mapped.indexOf("/")
-  return [mapped.slice(0, slash), mapped.slice(slash + 1)]
+  return normalizeRoute(mapped.slice(0, slash), mapped.slice(slash + 1))
 }
 
 /** Same payload as the V1 `hubMenu` route action, including state and checkpoint. */

@@ -19,11 +19,11 @@ import {
   loadModel,
   loadPipeline,
   REQUIRED_MODELS,
-  OPTIONAL_MODELS,
-} from './onnx-runtime.ts'
+  OPTIONAL_MODELS
+} from "./onnx-runtime.ts"
 
-const CHECK_ONLY = process.argv.includes('--check')
-const REQUIRED_ONLY = process.argv.includes('--required-only')
+const CHECK_ONLY = process.argv.includes("--check")
+const REQUIRED_ONLY = process.argv.includes("--required-only")
 
 interface Target {
   role: string
@@ -37,7 +37,7 @@ function targets(): Target[] {
   const required: Target[] = Object.entries(REQUIRED_MODELS).map(([role, id]) => ({
     role,
     id,
-    file: 'onnx/model_quantized.onnx',
+    file: "onnx/model_quantized.onnx"
   }))
   if (REQUIRED_ONLY) return required
   const optional: Target[] = Object.entries(OPTIONAL_MODELS).map(([role, m]) => ({
@@ -45,7 +45,7 @@ function targets(): Target[] {
     id: m.id,
     file: m.cachedFile,
     task: m.task,
-    dtype: m.dtype,
+    dtype: m.dtype
   }))
   return [...required, ...optional]
 }
@@ -84,7 +84,7 @@ async function main(): Promise<number> {
 
   console.log(`\ncache: ${cacheRoot()}`)
   if (CHECK_ONLY) {
-    console.log(missing ? `${missing} model(s) missing — run without --check to fetch` : 'all models cached')
+    console.log(missing ? `${missing} model(s) missing — run without --check to fetch` : "all models cached")
     return missing ? 1 : 0
   }
   console.log(`${fetched} fetched, ${list.length - missing} already present`)
@@ -96,5 +96,5 @@ main().then(
   (err) => {
     console.error(err)
     process.exit(1)
-  },
+  }
 )

@@ -41,7 +41,7 @@ describe("ingest and get", () => {
       markdown: DOC,
       collection: "example",
       source_type: "official",
-      tags: ["widgets", "api"],
+      tags: ["widgets", "api"]
     })
 
     expect(result.deduped).toBe(false)
@@ -71,7 +71,12 @@ describe("ingest and get", () => {
     expect(again.deduped).toBe(true)
     expect(again.revision).toBe(1)
 
-    const changed = ingest({ directory: dir, url: "https://x/1", markdown: `${DOC}\n## Extra\n\nMore.\n`, collection: "x" })
+    const changed = ingest({
+      directory: dir,
+      url: "https://x/1",
+      markdown: `${DOC}\n## Extra\n\nMore.\n`,
+      collection: "x"
+    })
     expect(changed.deduped).toBe(false)
     expect(changed.revision).toBe(2)
   })
@@ -79,7 +84,13 @@ describe("ingest and get", () => {
   test("stores operational content unchanged — no content gate", () => {
     const dir = temp()
     const payload = "# Pentest notes\n\n## Bypass\n\ncurl-style payload: ' OR 1=1 -- ; rm -rf /tmp/nothing\n"
-    const result = ingest({ directory: dir, url: "https://internal/pentest", markdown: payload, collection: "internal", source_type: "first-party" })
+    const result = ingest({
+      directory: dir,
+      url: "https://internal/pentest",
+      markdown: payload,
+      collection: "internal",
+      source_type: "first-party"
+    })
     const page = get(dir, { id: result.id })
     expect(page.body).toContain("' OR 1=1 --")
     expect(page.body).toContain("rm -rf /tmp/nothing")
@@ -136,7 +147,13 @@ describe("list, search, prune", () => {
 
   test("prune archives stale pages and dry-run changes nothing", () => {
     const dir = temp()
-    const result = ingest({ directory: dir, url: "https://x/old", markdown: DOC, collection: "x", retrieved_at: "2020-01-01" })
+    const result = ingest({
+      directory: dir,
+      url: "https://x/old",
+      markdown: DOC,
+      collection: "x",
+      retrieved_at: "2020-01-01"
+    })
     const dry = prune(dir, { dry_run: true })
     expect(dry.stale).toContain(result.id)
     expect(list(dir)).toHaveLength(1)
@@ -153,7 +170,10 @@ describe("migrate", () => {
     const dir = temp()
     const page = path.join(dir, ".opencode/context/research/example.md")
     fs.mkdirSync(path.dirname(page), { recursive: true })
-    fs.writeFileSync(page, `---\ntitle: "Example"\ntype: source-summary\ntags: [a]\nsources: ["https://docs.example.com/x"]\nstatus: active\n---\n\n# Example\n\nBody.\n`)
+    fs.writeFileSync(
+      page,
+      `---\ntitle: "Example"\ntype: source-summary\ntags: [a]\nsources: ["https://docs.example.com/x"]\nstatus: active\n---\n\n# Example\n\nBody.\n`
+    )
 
     const dry = migrate(dir, { dry_run: true })
     expect(dry.changes).toHaveLength(1)

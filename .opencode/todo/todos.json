@@ -2,19 +2,24 @@
   "version": 1,
   "items": [
     {
-      "id": "mwpnxaj3-zlq7i",
-      "text": "hubs menu subcommand hotkey to see the whole subcommand definition (crtl+s) does not show the subcommand definition but has an identical function to hitting escape",
-      "createdAt": "2026-11-21T00:21:23.727Z"
-    },
-    {
       "id": "mwpr73mn-7wxj0",
       "text": "re-label and re-balance the hubs menus, deduplicating the duplicate options, propose determine a better taxonomy for its categories with a list of which options will go in which menu, no longer packing unrelated options like design and documentation together etc",
       "createdAt": "2026-11-21T01:53:00.191Z"
     },
     {
-      "id": "mwpr9nwe-nz15i",
-      "text": "why is there any need for an anti-slop installation command when it should be scoped to the user-scoped configuration thus trickle down naturally to per-project configurations naturally and any need for any sort of local caching would be in the local .opencode/ BUT THERE SHOULD BE NO NEED TO REPLICATE THOSE FUCKING SKILLS IN PER-PROJECT CONFIGURATIONS!",
-      "createdAt": "2026-11-21T01:54:59.774Z"
+      "id": "mwuu53at-ih9qh",
+      "text": "there are still two /hubs commands, only one (that runs a menu not one that prints the index) should be listed",
+      "createdAt": "2026-11-24T15:14:16.181Z"
+    },
+    {
+      "id": "mwuzkcg6-red0n",
+      "text": "resource-hub setup functionality should be handled within the hubs-setup running through the potentially useful resources based on the codebase during installs, refreshes or other hubs-setup tooling",
+      "createdAt": "2026-11-24T17:46:05.958Z"
+    },
+    {
+      "id": "mwuzlptq-rqnpn",
+      "text": "There should only be a single setup+install related setup for the hubs menus in hubs-setup, where all the scattered tooling for the hubs menus must be gathered",
+      "createdAt": "2026-11-24T17:47:09.950Z"
     }
   ]
 }

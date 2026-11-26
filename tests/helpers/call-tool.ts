@@ -32,7 +32,7 @@ export interface ToolResultEnvelope {
 export async function callTool(
   mod: unknown,
   args: Record<string, unknown> = {},
-  context: ToolCallContext = {},
+  context: ToolCallContext = {}
 ): Promise<any> {
   const module = mod as { default?: { execute?: Function }; execute?: Function }
   const handler = module.default?.execute ?? module.execute

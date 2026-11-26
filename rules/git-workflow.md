@@ -1,3 +1,8 @@
+---
+name: git-workflow
+description: Git workflow: conventional commit format and review conventions.
+---
+
 # Git Workflow Rules
 
 ## Commit Message Format

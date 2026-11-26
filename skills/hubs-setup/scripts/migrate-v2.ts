@@ -78,7 +78,7 @@ function parseArgs(argv: string[]): Options {
     dryRun: false,
     v2Native: false,
     force: false,
-    json: false,
+    json: false
   }
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i]
@@ -97,8 +97,8 @@ function parseArgs(argv: string[]): Options {
           "  --dry-run        report what would change, write nothing",
           "  --v2-native      also rewrite config keys to the native V2 shape",
           "  --force          overwrite existing plugin directories",
-          "  --json           machine-readable report on stdout",
-        ].join("\n"),
+          "  --json           machine-readable report on stdout"
+        ].join("\n")
       )
       process.exit(0)
     }
@@ -368,7 +368,7 @@ function parseTool(source: string, fallbackName: string): ParsedTool | null {
     args,
     executeBody,
     imports,
-    usesZod: !!args && /\bz\.(object|record|union|strictObject)\b/.test(args),
+    usesZod: !!args && /\bz\.(object|record|union|strictObject)\b/.test(args)
   }
 }
 
@@ -384,11 +384,11 @@ function buildInputSchema(parsed: ParsedTool, warnings: Warning[], target: strin
     warnings.push({
       target,
       message:
-        "args used a zod schema; the generated plugin converts it with `z.toJSONSchema` from `zod/v4`, which needs zod >= 3.25",
+        "args used a zod schema; the generated plugin converts it with `z.toJSONSchema` from `zod/v4`, which needs zod >= 3.25"
     })
     return [
       `const argsSchema = ${args}`,
-      `const input = z.toJSONSchema(argsSchema, { io: "input", unrepresentable: "any" }) as Record<string, unknown>`,
+      `const input = z.toJSONSchema(argsSchema, { io: "input", unrepresentable: "any" }) as Record<string, unknown>`
     ].join("\n")
   }
 
@@ -401,7 +401,7 @@ function buildInputSchema(parsed: ParsedTool, warnings: Warning[], target: strin
 
   warnings.push({
     target,
-    message: `args (${args.slice(0, 60)}) is neither JSON Schema nor a zod schema — emitted an empty object schema; fill it in by hand`,
+    message: `args (${args.slice(0, 60)}) is neither JSON Schema nor a zod schema — emitted an empty object schema; fill it in by hand`
   })
   return `const input = { type: "object", properties: {} }`
 }
@@ -419,7 +419,7 @@ function buildPluginSource(parsed: ParsedTool, original: string, target: string,
     " * that plugin — OpenCode 2 auto-discovers every directory under",
     " * `.opencode/plugins/` and loads its `index.ts`.",
     " */",
-    "",
+    ""
   ].join("\n")
 
   const importBlock = [...imports]
@@ -430,26 +430,25 @@ function buildPluginSource(parsed: ParsedTool, original: string, target: string,
 
   const body = parsed.executeBody
   const executeText = body
-    ? [
-        "const originalExecute = async function (args: any, context: any) {",
-        indent(body.trim(), "  "),
-        "}",
-      ].join("\n")
+    ? ["const originalExecute = async function (args: any, context: any) {", indent(body.trim(), "  "), "}"].join("\n")
     : [
         "const originalExecute = async function (_args: any, _context: any) {",
         '  return "This tool had no execute handler in the V1 source — implement it."',
-        "}",
+        "}"
       ].join("\n")
 
   if (!body) {
-    warnings.push({ target, message: "no execute handler was found in the V1 source — the stub needs an implementation" })
+    warnings.push({
+      target,
+      message: "no execute handler was found in the V1 source — the stub needs an implementation"
+    })
   }
 
   const plugin = [
     "export default {",
     `  id: ${JSON.stringify(parsed.name)},`,
     "  setup(ctx: any) {",
-    '    const directory: string = ctx?.location?.directory ?? process.cwd()',
+    "    const directory: string = ctx?.location?.directory ?? process.cwd()",
     "",
     "    ctx.tool.transform((editor: any) => {",
     "      editor.add({",
@@ -466,7 +465,7 @@ function buildPluginSource(parsed: ParsedTool, original: string, target: string,
     "      })",
     "    })",
     "  },",
-    "}",
+    "}"
   ].join("\n")
 
   return `${header}${importText}${inputText}\n\n${executeText}\n\n${plugin}\n`
@@ -504,11 +503,10 @@ function findProperty(node: Node | undefined, key: string): PropertyNodes | unde
 }
 
 /** Apply a list of text replacements, right to left so offsets stay valid. */
-function applyReplacements(
-  text: string,
-  edits: Array<{ start: number; length: number; replacement: string }>,
-): string {
-  return [...edits].sort((a, b) => b.start - a.start).reduce((acc, edit) => replaceSpan(acc, edit.start, edit.length, edit.replacement), text)
+function applyReplacements(text: string, edits: Array<{ start: number; length: number; replacement: string }>): string {
+  return [...edits]
+    .sort((a, b) => b.start - a.start)
+    .reduce((acc, edit) => replaceSpan(acc, edit.start, edit.length, edit.replacement), text)
 }
 
 function normalizeAction(action: string): string {
@@ -562,9 +560,12 @@ function migratePermissions(text: string, changes: ConfigChange[]): string {
     .join("\n")
   const out = applyReplacements(text, [
     { start: found.key.offset, length: found.key.length, replacement: '"permissions"' },
-    { start: found.value.offset, length: found.value.length, replacement: serialized },
+    { start: found.value.offset, length: found.value.length, replacement: serialized }
   ])
-  changes.push({ change: "permission → permissions", detail: `${rules.length} rule(s) converted to the V2 array shape` })
+  changes.push({
+    change: "permission → permissions",
+    detail: `${rules.length} rule(s) converted to the V2 array shape`
+  })
   return out
 }
 
@@ -590,7 +591,7 @@ function migrateMcp(text: string, changes: ConfigChange[]): string {
       edits.push({
         start: enabled.property.offset,
         length: enabled.property.length,
-        replacement: `"disabled": ${enabledValue ? "false" : "true"}`,
+        replacement: `"disabled": ${enabledValue ? "false" : "true"}`
       })
       touched++
     }
@@ -600,7 +601,7 @@ function migrateMcp(text: string, changes: ConfigChange[]): string {
       edits.push({
         start: serverValue.offset,
         length: 1,
-        replacement: '{ "type": "local",',
+        replacement: '{ "type": "local",'
       })
       touched++
     }
@@ -614,10 +615,17 @@ function migrateMcp(text: string, changes: ConfigChange[]): string {
     .split("\n")
     .map((line) => (line.trim().length ? "    " + line : line))
     .join("\n")
-  out = replaceSpan(out, found.value.offset, innerEnd + 1 - found.value.offset, `{\n  "servers": {\n${indented}\n  }\n}`)
+  out = replaceSpan(
+    out,
+    found.value.offset,
+    innerEnd + 1 - found.value.offset,
+    `{\n  "servers": {\n${indented}\n  }\n}`
+  )
   changes.push({
     change: "mcp → mcp.servers",
-    detail: touched ? `servers moved under the V2 \`servers\` key (${touched} field(s) adjusted)` : "servers moved under the V2 `servers` key",
+    detail: touched
+      ? `servers moved under the V2 \`servers\` key (${touched} field(s) adjusted)`
+      : "servers moved under the V2 `servers` key"
   })
   return out
 }
@@ -680,7 +688,11 @@ function stripFilePluginEntries(text: string, configDir: string, report: Report,
       const alreadyV2 = /export\s+default\s*\{[^}]*\bid\s*:/.test(source) && /\bsetup\s*\(/.test(source)
       if (alreadyV2) {
         const target = path.join(configDir, "plugins", name, "index.ts")
-        report.plugins.push({ source: path.relative(report.project, resolved), target: path.relative(report.project, target), name })
+        report.plugins.push({
+          source: path.relative(report.project, resolved),
+          target: path.relative(report.project, target),
+          name
+        })
         if (!opts.dryRun) {
           fs.mkdirSync(path.dirname(target), { recursive: true })
           fs.copyFileSync(resolved, target)
@@ -689,7 +701,7 @@ function stripFilePluginEntries(text: string, configDir: string, report: Report,
         report.warnings.push({
           target: path.relative(report.project, resolved),
           message:
-            "a V1 plugin file was found in the config. V2 rejects config plugin entries that point at a file, and a V1 plugin body needs a manual port — see the V1 → V2 hook mapping in plugins/hooks/index.ts",
+            "a V1 plugin file was found in the config. V2 rejects config plugin entries that point at a file, and a V1 plugin body needs a manual port — see the V1 → V2 hook mapping in plugins/hooks/index.ts"
         })
       }
     }
@@ -701,7 +713,7 @@ function stripFilePluginEntries(text: string, configDir: string, report: Report,
     out = replaceSpan(out, found.value.offset, found.value.length, serialized)
     report.config.push({
       change: `${key}[]`,
-      detail: `${removed} file entry/entries removed — V2 only accepts plugin directories`,
+      detail: `${removed} file entry/entries removed — V2 only accepts plugin directories`
     })
   }
   return out
@@ -743,7 +755,7 @@ function migrateTools(root: string, report: Report, opts: Options): void {
       report.warnings.push({
         target: relativeSource,
         message:
-          "not a V1 `tool({ ... })` definition — OpenCode 2 will not load this file; port it by hand into .opencode/plugins/<name>/index.ts",
+          "not a V1 `tool({ ... })` definition — OpenCode 2 will not load this file; port it by hand into .opencode/plugins/<name>/index.ts"
       })
       continue
     }
@@ -752,7 +764,7 @@ function migrateTools(root: string, report: Report, opts: Options): void {
     if (fs.existsSync(target) && !opts.force) {
       report.warnings.push({
         target: path.relative(root, target),
-        message: "a plugin with this name already exists — rerun with --force to overwrite",
+        message: "a plugin with this name already exists — rerun with --force to overwrite"
       })
       continue
     }
@@ -763,7 +775,7 @@ function migrateTools(root: string, report: Report, opts: Options): void {
       source: relativeSource,
       target: path.relative(root, target),
       name: parsed.name,
-      warnings: warnings.map((w) => w.message),
+      warnings: warnings.map((w) => w.message)
     })
     report.warnings.push(...warnings)
 
@@ -780,7 +792,7 @@ function migrateConfig(root: string, report: Report, opts: Options): void {
     path.join(root, ".opencode", "opencode.jsonc"),
     path.join(root, ".opencode", "opencode.json"),
     path.join(root, "opencode.jsonc"),
-    path.join(root, "opencode.json"),
+    path.join(root, "opencode.json")
   ]
   for (const configPath of candidates) {
     if (!fs.existsSync(configPath)) continue
@@ -852,7 +864,7 @@ function main(): void {
     tools: [],
     plugins: [],
     config: [],
-    warnings: [],
+    warnings: []
   }
 
   migrateTools(root, report, opts)

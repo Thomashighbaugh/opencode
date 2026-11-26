@@ -20,113 +20,113 @@
  * a cue or a threshold is always argued against the same 30/30 examples.
  */
 
-import { describe, it, expect } from 'vitest'
-import * as path from 'node:path'
+import { describe, it, expect } from "vitest"
+import * as path from "node:path"
 
-const CONFIG_DIR = path.resolve(__dirname, '..', '..')
+const CONFIG_DIR = path.resolve(__dirname, "..", "..")
 
-const engine: typeof import('../../skills/vectorize-context/scripts/decisions') = await import(
-  path.join(CONFIG_DIR, 'skills', 'vectorize-context', 'scripts', 'decisions.ts')
+const engine: typeof import("../../skills/vectorize-context/scripts/decisions") = await import(
+  path.join(CONFIG_DIR, "skills", "vectorize-context", "scripts", "decisions.ts")
 )
-const rio: typeof import('../../plugins/rio/src/decisions') = await import(
-  path.join(CONFIG_DIR, 'plugins', 'rio', 'src', 'decisions.ts')
+const rio: typeof import("../../plugins/rio/src/decisions") = await import(
+  path.join(CONFIG_DIR, "plugins", "rio", "src", "decisions.ts")
 )
-const rt: typeof import('../../skills/vectorize-context/scripts/onnx-runtime') = await import(
-  path.join(CONFIG_DIR, 'skills', 'vectorize-context', 'scripts', 'onnx-runtime.ts')
+const rt: typeof import("../../skills/vectorize-context/scripts/onnx-runtime") = await import(
+  path.join(CONFIG_DIR, "skills", "vectorize-context", "scripts", "onnx-runtime.ts")
 )
-const corpus: typeof import('./fixtures/decision-corpus') = await import(
-  path.join(CONFIG_DIR, 'tests', 'global', 'fixtures', 'decision-corpus.ts')
+const corpus: typeof import("./fixtures/decision-corpus") = await import(
+  path.join(CONFIG_DIR, "tests", "global", "fixtures", "decision-corpus.ts")
 )
 
 const spec = (id: string): any => (engine.DECISIONS as unknown as Record<string, any>)[id]
 
 // ─── degrade contract ──────────────────────────────────────────────────────
 
-describe('decisions: degrade contract', () => {
-  it('empty input is no opinion, not a false verdict', async () => {
-    for (const text of ['', '   ', '\n\t']) {
-      const r = await engine.decide(spec('failure'), text)
+describe("decisions: degrade contract", () => {
+  it("empty input is no opinion, not a false verdict", async () => {
+    for (const text of ["", "   ", "\n\t"]) {
+      const r = await engine.decide(spec("failure"), text)
       expect(r.value).toBeNull()
-      expect(r.source).toBe('empty')
+      expect(r.source).toBe("empty")
       expect(r.probability).toBeNull()
     }
   })
 
-  it('no cue and no model answers the declared default', async () => {
+  it("no cue and no model answers the declared default", async () => {
     // Every shipping decision defaults to `false`, but the contract is that the
     // default is *declared*, not inferred from a null.
-    const r = await engine.decide(spec('failure'), 'All the work is going well.', { noModel: true })
-    expect(r.source).toBe('default')
-    expect(r.value).toBe(spec('failure').defaultWhenUnavailable)
+    const r = await engine.decide(spec("failure"), "All the work is going well.", { noModel: true })
+    expect(r.source).toBe("default")
+    expect(r.value).toBe(spec("failure").defaultWhenUnavailable)
     expect(r.probability).toBeNull()
   })
 
-  it('a spec whose calibrated model is not cached is never consulted', async () => {
+  it("a spec whose calibrated model is not cached is never consulted", async () => {
     // The rule that stops this becoming another fickle heuristic: a threshold
     // measured on one NLI head is not portable to another, so an unlisted model
     // gets no vote at all.
     const orphan = {
-      ...spec('failure'),
-      id: 'orphan',
-      calibrated: { 'Xenova/definitely-not-a-real-model-xyz': 0.5 },
+      ...spec("failure"),
+      id: "orphan",
+      calibrated: { "Xenova/definitely-not-a-real-model-xyz": 0.5 }
     }
-    const r = await engine.decide(orphan, 'TypeError: cannot read properties of undefined at line 42.')
-    expect(r.source).toBe('default')
+    const r = await engine.decide(orphan, "TypeError: cannot read properties of undefined at line 42.")
+    expect(r.source).toBe("default")
     expect(r.value).toBe(orphan.defaultWhenUnavailable)
     expect(r.probability).toBeNull()
   })
 
-  it('resolveModel returns null rather than a substitute', () => {
-    expect(engine.resolveModel({ ...spec('failure'), calibrated: {} })).toBeNull()
+  it("resolveModel returns null rather than a substitute", () => {
+    expect(engine.resolveModel({ ...spec("failure"), calibrated: {} })).toBeNull()
   })
 })
 
 // ─── precedence ────────────────────────────────────────────────────────────
 
-describe('decisions: precedence', () => {
+describe("decisions: precedence", () => {
   const both = {
-    id: 'precedence',
-    question: 'This text reports that a build succeeded.',
-    contrast: 'This text reports that a build failed.',
+    id: "precedence",
+    question: "This text reports that a build succeeded.",
+    contrast: "This text reports that a build failed.",
     cues: [/\bdecided\b/i],
     vetoes: [/\?\s*$/],
     calibrated: {},
-    defaultWhenUnavailable: false,
+    defaultWhenUnavailable: false
   }
 
-  it('a veto answers false even when a cue also fires', async () => {
+  it("a veto answers false even when a cue also fires", async () => {
     // "Have we decided?" contains a commitment cue and is not a commitment.
-    const r = await engine.decide(both, 'Have we decided?')
-    expect(r.source).toBe('veto')
+    const r = await engine.decide(both, "Have we decided?")
+    expect(r.source).toBe("veto")
     expect(r.value).toBe(false)
   })
 
-  it('a cue answers true without touching the model', async () => {
-    const r = await engine.decide(both, 'We decided to keep the native API.')
-    expect(r.source).toBe('cue')
+  it("a cue answers true without touching the model", async () => {
+    const r = await engine.decide(both, "We decided to keep the native API.")
+    expect(r.source).toBe("cue")
     expect(r.value).toBe(true)
     expect(r.probability).toBeNull()
   })
 
-  it('the extractor rejects a question that contains a commitment cue', async () => {
+  it("the extractor rejects a question that contains a commitment cue", async () => {
     // The exact sentence the old one-line regex got wrong: "stick with" is a
     // commitment cue and this is a question. Measured with no model at all.
-    const r = await rio.extractDecisions('Should we stick with Postgres for the audit log?', { noModel: true })
+    const r = await rio.extractDecisions("Should we stick with Postgres for the audit log?", { noModel: true })
     expect(r.decisions).toEqual([])
     expect(r.vetoed).toBe(1)
   })
 
-  it('the extractor keeps an option-free commitment', async () => {
-    const r = await rio.extractDecisions('We settled on SQLite for the audit log.', { noModel: true })
-    expect(r.decisions).toEqual(['We settled on SQLite for the audit log.'])
+  it("the extractor keeps an option-free commitment", async () => {
+    const r = await rio.extractDecisions("We settled on SQLite for the audit log.", { noModel: true })
+    expect(r.decisions).toEqual(["We settled on SQLite for the audit log."])
     expect(r.cues).toBe(1)
   })
 })
 
 // ─── extraction corpus ─────────────────────────────────────────────────────
 
-describe('decisions: extraction corpus', () => {
-  it('cue-only extraction keeps almost every decision and invents none', async () => {
+describe("decisions: extraction corpus", () => {
+  it("cue-only extraction keeps almost every decision and invents none", async () => {
     const opts = { noModel: true, limit: 99 }
 
     const fn: string[] = []
@@ -146,18 +146,18 @@ describe('decisions: extraction corpus', () => {
     // The asymmetry is deliberate. A missed decision is dropped at compaction and
     // is never recoverable; a false positive costs a wasted line in the prompt.
     // So recall is high and precision is absolute.
-    expect(fp, `false positives: ${fp.join(' | ')}`).toEqual([])
+    expect(fp, `false positives: ${fp.join(" | ")}`).toEqual([])
     expect(recall).toBeGreaterThanOrEqual(0.9)
     expect(tp).toBe(corpus.DECISIONS.length - 1) // one documented miss, below
-    expect(fn).toEqual(['Right, so: rio owns memory, memory-hub reads the same DB.'])
+    expect(fn).toEqual(["Right, so: rio owns memory, memory-hub reads the same DB."])
   }, 60_000)
 
-  it('the ask veto does not remove a real decision', async () => {
+  it("the ask veto does not remove a real decision", async () => {
     // The extractor only consults `ask` for second-person sentences, and no
     // corpus decision is one. This guards the gate: if it widened, recall would
     // drop and this fails before the corpus test above (which skips the model)
     // would notice.
-    const documented = new Set(['Right, so: rio owns memory, memory-hub reads the same DB.'])
+    const documented = new Set(["Right, so: rio owns memory, memory-hub reads the same DB."])
     for (const text of corpus.DECISIONS) {
       if (documented.has(text)) continue
       const r = await rio.extractDecisions(text, { limit: 99 })
@@ -165,24 +165,24 @@ describe('decisions: extraction corpus', () => {
     }
   }, 120_000)
 
-  it('a realistic turn yields exactly its decisions', async () => {
+  it("a realistic turn yields exactly its decisions", async () => {
     const turn = [
-      'I read the three files and the gate logic is in `gate.ts`.',
-      'The footer vanished because the scrollbox wrapped the whole column.',
-      'We settled on the native dialog.select API for this menu.',
-      'Should we also drop the custom JSX?',
-      'From now on the menu keeps its footer inside the dialog.',
-      'All 47 tests pass.',
-      'We could also cache the verdicts.',
-      'Final call: no new dependency, use the existing embedder.',
-    ].join(' ')
+      "I read the three files and the gate logic is in `gate.ts`.",
+      "The footer vanished because the scrollbox wrapped the whole column.",
+      "We settled on the native dialog.select API for this menu.",
+      "Should we also drop the custom JSX?",
+      "From now on the menu keeps its footer inside the dialog.",
+      "All 47 tests pass.",
+      "We could also cache the verdicts.",
+      "Final call: no new dependency, use the existing embedder."
+    ].join(" ")
 
     const r = await rio.extractDecisions(turn, { noModel: true })
     expect(r.considered).toBe(8)
     expect(r.decisions).toEqual([
-      'We settled on the native dialog.select API for this menu.',
-      'From now on the menu keeps its footer inside the dialog.',
-      'Final call: no new dependency, use the existing embedder.',
+      "We settled on the native dialog.select API for this menu.",
+      "From now on the menu keeps its footer inside the dialog.",
+      "Final call: no new dependency, use the existing embedder."
     ])
     // the question and the option were rejected, not silently missed
     expect(r.vetoed).toBe(2)
@@ -191,39 +191,39 @@ describe('decisions: extraction corpus', () => {
 
 // ─── sentence segmentation ─────────────────────────────────────────────────
 
-describe('decisions: sentence segmentation', () => {
-  it('does not split on a filename, a decimal, or a dotted path', () => {
+describe("decisions: sentence segmentation", () => {
+  it("does not split on a filename, a decimal, or a dotted path", () => {
     // Splitting on /[.!?]+/ used to shred these into fragments, each of which
     // could match a cue by accident.
-    const one = 'Edit tui.tsx and keep 0.82 for the threshold, then write .opencode/state/keep.json now.'
+    const one = "Edit tui.tsx and keep 0.82 for the threshold, then write .opencode/state/keep.json now."
     expect(rio.sentences(one)).toEqual([one])
   })
 
-  it('does split two real sentences', () => {
-    const out = rio.sentences('We shipped the rewrite. All 47 tests pass.')
+  it("does split two real sentences", () => {
+    const out = rio.sentences("We shipped the rewrite. All 47 tests pass.")
     expect(out).toHaveLength(2)
-    expect(out[0]).toBe('We shipped the rewrite.')
-    expect(out[1]).toBe('All 47 tests pass.')
+    expect(out[0]).toBe("We shipped the rewrite.")
+    expect(out[1]).toBe("All 47 tests pass.")
   })
 
-  it('drops short fragments and fenced code', () => {
+  it("drops short fragments and fenced code", () => {
     // A heading or a code block is not a sentence, and scoring one is noise.
-    const out = rio.sentences('### Notes\n\n```\nwe decided to ship it\n```\n\nWe settled on the native API.')
-    expect(out).toEqual(['We settled on the native API.'])
+    const out = rio.sentences("### Notes\n\n```\nwe decided to ship it\n```\n\nWe settled on the native API.")
+    expect(out).toEqual(["We settled on the native API."])
   })
 })
 
 // ─── calibration ───────────────────────────────────────────────────────────
 
-const calibrationIds = ['failure', 'asksChoice', 'ask'] as const
+const calibrationIds = ["failure", "asksChoice", "ask"] as const
 
-describe('decisions: model-backed calibration', () => {
-  it('every calibrated threshold names a model the runtime declares', () => {
+describe("decisions: model-backed calibration", () => {
+  it("every calibrated threshold names a model the runtime declares", () => {
     // A threshold keyed by a typo is a decision that silently never consults the
     // model and always returns its default — the worst kind of passing test.
     const known = new Set<string>([
       ...Object.values(rt.REQUIRED_MODELS),
-      ...Object.values(rt.OPTIONAL_MODELS).map((m: any) => m.id),
+      ...Object.values(rt.OPTIONAL_MODELS).map((m: any) => m.id)
     ])
     for (const id of calibrationIds) {
       const models = Object.keys(spec(id).calibrated)
@@ -234,33 +234,41 @@ describe('decisions: model-backed calibration', () => {
 
   for (const id of calibrationIds) {
     const model = engine.resolveModel(spec(id))
-    it.skipIf(!model)(`${id} separates its calibration set on ${model ?? 'the cached model'}`, async () => {
-      const set = (corpus.CALIBRATION as Record<string, { pos: readonly string[]; neg: readonly string[] }>)[id]
-      const threshold = spec(id).calibrated[model!]
+    it.skipIf(!model)(
+      `${id} separates its calibration set on ${model ?? "the cached model"}`,
+      async () => {
+        const set = (corpus.CALIBRATION as Record<string, { pos: readonly string[]; neg: readonly string[] }>)[id]
+        const threshold = spec(id).calibrated[model!]
 
-      for (const text of set.pos) {
-        const r = await engine.decide(spec(id), text)
-        expect(r.source, `pos: ${text}`).toBe('model')
-        expect(r.value, `pos: ${text} p=${r.probability?.toFixed(3)} thr=${threshold}`).toBe(true)
-      }
-      for (const text of set.neg) {
-        const r = await engine.decide(spec(id), text)
-        expect(r.source, `neg: ${text}`).toBe('model')
-        expect(r.value, `neg: ${text} p=${r.probability?.toFixed(3)} thr=${threshold}`).toBe(false)
-      }
-    }, 180_000)
+        for (const text of set.pos) {
+          const r = await engine.decide(spec(id), text)
+          expect(r.source, `pos: ${text}`).toBe("model")
+          expect(r.value, `pos: ${text} p=${r.probability?.toFixed(3)} thr=${threshold}`).toBe(true)
+        }
+        for (const text of set.neg) {
+          const r = await engine.decide(spec(id), text)
+          expect(r.source, `neg: ${text}`).toBe("model")
+          expect(r.value, `neg: ${text} p=${r.probability?.toFixed(3)} thr=${threshold}`).toBe(false)
+        }
+      },
+      180_000
+    )
   }
 
-  it.skipIf(!engine.resolveModel(spec('ask')))('a bare preference statement is not an ask', async () => {
-    // The case that forced this decision off mobilebert: at the gate's old
-    // threshold "The native API is the better choice." scored 0.906. On
-    // deberta it scores 0.289, well below the 0.677 threshold.
-    const r = await engine.decide(spec('ask'), corpus.CALIBRATION.ask.neg[0])
-    expect(r.source).toBe('model')
-    expect(r.value).toBe(false)
-  }, 180_000)
+  it.skipIf(!engine.resolveModel(spec("ask")))(
+    "a bare preference statement is not an ask",
+    async () => {
+      // The case that forced this decision off mobilebert: at the gate's old
+      // threshold "The native API is the better choice." scored 0.906. On
+      // deberta it scores 0.289, well below the 0.677 threshold.
+      const r = await engine.decide(spec("ask"), corpus.CALIBRATION.ask.neg[0])
+      expect(r.source).toBe("model")
+      expect(r.value).toBe(false)
+    },
+    180_000
+  )
 
-  it('there is no API for inventing options at call time', () => {
+  it("there is no API for inventing options at call time", () => {
     // The option set is closed. A caller-supplied hypothesis pair has no fixed
     // membership and no corpus, so its threshold would be invented — `model`
     // would then mean "a coin flip with a measured-looking label". A new
@@ -271,24 +279,26 @@ describe('decisions: model-backed calibration', () => {
 
 // ─── integration with rio ──────────────────────────────────────────────────
 
-describe('decisions: rio integration', () => {
-  it('the extractor returns the accounting the caller logs', async () => {
+describe("decisions: rio integration", () => {
+  it("the extractor returns the accounting the caller logs", async () => {
     // `index.ts` writes `considered` / `vetoed` into the savings log; a mismatch
     // between what it reports and what happened makes the log useless.
-    const r = await rio.extractDecisions('We could switch. Should we switch? We settled on q8.', {
-      noModel: true,
+    const r = await rio.extractDecisions("We could switch. Should we switch? We settled on q8.", {
+      noModel: true
     })
-    expect(r.decisions).toEqual(['We settled on q8.'])
+    expect(r.decisions).toEqual(["We settled on q8."])
     expect(r.considered).toBe(3)
     expect(r.askConsulted).toBe(false)
     expect(r.cues + r.vetoed).toBeLessThanOrEqual(r.considered)
   })
 
-  it('the model budget bounds how many ask calls a turn can make', async () => {
+  it("the model budget bounds how many ask calls a turn can make", async () => {
     // These sentences carry a commitment cue *and* second-person address — the
     // only shape that reaches the `ask` call. With the budget at zero the model
     // must not be consulted at all, and the decisions must still be extracted.
-    const many = Array.from({ length: 8 }, (_, i) => `We decided that you should keep option ${i} as the plan.`).join(' ')
+    const many = Array.from({ length: 8 }, (_, i) => `We decided that you should keep option ${i} as the plan.`).join(
+      " "
+    )
     const r = await rio.extractDecisions(many, { modelBudget: 0 })
     expect(r.askConsulted).toBe(false)
     expect(r.decisions.length).toBeGreaterThan(0)

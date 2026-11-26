@@ -2,7 +2,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 
 import { TOOLS_BASH, SKILLS_CONTEXT7_DOCS } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
-  label: "docs",
+  label: "library-docs",
   description: "Official library docs via Context7 — React, Next, Tailwind, any",
   reminder: "Fetch library docs via Context7 MCP API.",
   inline: true,

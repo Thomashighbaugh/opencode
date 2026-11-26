@@ -1,3 +1,8 @@
+---
+name: hub-state
+description: Hub state conventions: which menus track state, where it lives, and how resume works.
+---
+
 # Hub State Conventions
 
 OpenCode Hubs has 14 menus — 13 named `<topic>-hub` plus `/hub-setup`, which keeps the same 12 subcommands and the same `stateDir` that `/scaffold-hub` used. Five track state (`/hub-setup`, `/ideate-hub` +
