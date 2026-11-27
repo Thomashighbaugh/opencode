@@ -79,6 +79,7 @@ export async function runMenuAction(
   memory: any,
   ctx: any,
   sessionID?: string,
+  query?: string,
 ): Promise<string> {
   const id = sessionID ?? String(ctx.data.session.message.list?.()?.sessionID ?? ctx.ui.router.current()?.sessionID ?? "")
 
@@ -172,20 +173,9 @@ export async function runMenuAction(
         `keepWarm: ${service.cfg.keepWarm}`,
       ].join("\n")
     }
-    case "memory": {
-      if (!id) return "No active session"
-      const stats = memory.db.stats(id)
-      const hits = memory.db.fts("", id, 10)
-      return [
-        `rio · Memory for ${id.slice(0, 12)}`,
-        `Total active: ${stats.total}`,
-        `By origin: ${Object.entries(stats.byOrigin).map(([k, v]) => `${k}:${v}`).join(", ")}`,
-        `Recent: ${hits.length} memories`,
-      ].join("\n")
-    }
     case "recall": {
       if (!id) return "No active session"
-      const hits = memory.db.fts("", id, 5)
+      const hits = await memory.recall({ query: query?.trim() || undefined, limit: 10 })
       if (!hits.length) return "No memories found"
       return hits.map((h: any) => `- [${h.category}] ${h.content.slice(0, 200)}`).join("\n")
     }

@@ -89,6 +89,43 @@ export async function promoteDecisions(
   return stored
 }
 
+/**
+ * Store a compressed tool result in the decaying artifact pool. Artifacts get
+ * the lowest importance and the `artifact` category, so age-based decay and
+ * archiveStale retire them without deleting the session's only copy first.
+ */
+export async function promoteArtifact(
+  memory: MemoryService,
+  content: string,
+  tool: string,
+  project?: string | null,
+): Promise<number | null> {
+  const text = String(content ?? "").slice(0, 200_000)
+  if (!text.trim()) return null
+  try {
+    const r = await memory.learn({
+      content: text,
+      title: `Tool result: ${tool || "unknown"}`.slice(0, 60),
+      category: "artifact",
+      importance: 1,
+      origin: "agent-observation",
+      project: project === undefined ? undefined : project,
+    })
+    return r.id
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Token-interval sweep: returns true when accumulated output tokens cross the
+ * interval. Tool-call count is deliberately not part of this: more mechanical
+ * calls usually mean fewer tokens, so a high call count must not trigger a sweep.
+ */
+export function sweepDue(accumulatedTokens: number, interval = 50_000): boolean {
+  return accumulatedTokens >= Math.max(1, interval)
+}
+
 /** Sidebar row text for the memory system. */
 export function memorySidebarLine(loaded: number, total: number): string {
   const l = Math.max(0, Math.floor(loaded))

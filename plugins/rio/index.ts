@@ -20,14 +20,14 @@
  */
 
 import { Service, config } from "./src/service.ts"
-import { buildMenuItems, formatMenu, runMenuAction } from "./src/menu.ts"
+import { runMenuAction } from "./src/menu.ts"
 import { contextWindowForModel, costOf } from "./src/pricing/table.ts"
 import { compactModeInstructions, computeQuality, deriveSignals, resumeIntent } from "./src/analyze.ts"
 import { compressShellOutput } from "./src/compress.ts"
 import { buildIntelDigest } from "./src/intel.ts"
 import { qualityNudge, verbosityNudge } from "./src/nudges.ts"
 import { MemoryService } from "./src/memory.ts"
-import { latestPrompt, memoryContextBlock, promoteDecisions, writeMemoryState } from "./src/inject.ts"
+import { latestPrompt, memoryContextBlock, promoteArtifact, promoteDecisions, sweepDue, writeMemoryState } from "./src/inject.ts"
 import { graphRecall } from "../../skills/graph-context/scripts/graphlib.ts"
 import { queryChunks } from "../../skills/vectorize-context/scripts/veclib.ts"
 import { extractDecisions } from "./src/decisions.ts"
@@ -40,6 +40,7 @@ const GRAPH_NODE = typeof process.versions?.bun === "undefined"
 const DECISION_IDS = Object.keys(DECISIONS) as Array<keyof typeof DECISIONS>
 
 const sessionDecisions = new Map<string, string[]>()
+const SWEEP_TOKENS = new Map<string, number>()
 
 function detectLoop(texts: string[]): string | null {
   if (texts.length < 3) return null
@@ -87,7 +88,7 @@ export default {
         await ctx.tool.transform((editor: any) => {
           try {
             editor.add({
-              name: "rio_status",
+              name: "runtime-status",
               input: { type: "object", additionalProperties: false } as any,
               description: "Live context health, fill %, tool count, quality grade",
               async execute(input: any, context: any) {
@@ -115,16 +116,7 @@ export default {
               },
             })
             editor.add({
-              name: "rio_menu",
-              input: { type: "object", additionalProperties: false } as any,
-              description: "Open the rio hub-like menu (single access point)",
-              async execute() {
-                const items = buildMenuItems()
-                return { content: `rio menu:\n${formatMenu(items)}\n\nRun /rio <subcommand> to execute one.` }
-              },
-            })
-            editor.add({
-              name: "rio_decide",
+              name: "runtime-decide",
               input: {
                 type: "object",
                 properties: {
@@ -164,6 +156,46 @@ export default {
                   return { content: JSON.stringify({ ok: true, decision: id, ...result }) }
                 } catch (e) {
                   return { content: JSON.stringify({ ok: false, error: e instanceof Error ? e.message : String(e) }) }
+                }
+              },
+            })
+            // Single mechanical dispatcher for the rio runtime actions. The
+            // hubs menus call this (knowledge-hub memory/context commands,
+            // runtime-hub token-use commands) so the user never types /rio.
+            editor.add({
+              name: "runtime",
+              input: {
+                type: "object",
+                properties: {
+                  action: {
+                    type: "string",
+                    enum: [
+                      "status", "compact", "resume", "compress", "route", "savings",
+                      "audit", "config", "recall", "coach", "doctor", "report",
+                      "memory-review", "expand", "resume-lean",
+                    ],
+                    description: "rio runtime/token-use action to run",
+                  },
+                  query: { type: "string", description: "Optional query for recall or expand" },
+                },
+                required: ["action"],
+              } as any,
+              description:
+                "Run a rio runtime or token-use action mechanically, with no inference request. Backs the hubs knowledge and runtime subcommands.",
+              async execute(input: any, context: any) {
+                try {
+                  return {
+                    content: await runMenuAction(
+                      String(input?.action ?? ""),
+                      service,
+                      memory,
+                      ctx,
+                      String(context?.sessionID ?? ""),
+                      typeof input?.query === "string" ? input.query : undefined,
+                    ),
+                  }
+                } catch (e) {
+                  return { content: `runtime error: ${e instanceof Error ? e.message : String(e)}` }
                 }
               },
             })
@@ -346,8 +378,12 @@ export default {
             })
             if (!cfg.mechanicalAlternatives || event.status !== "completed") return
 
-            // ── Bash/shell compression ────────────────────────────────
-            if ((tool === "bash" || tool === "shell") && before) {
+            // ── Ambient output compression (all tools) ────────────────
+            // Not a command: every large tool result is compressed, and the
+            // full output lands in the decaying artifact pool so expand or
+            // recall can recover it. read/file_read keep their delta path.
+            if (before && tool !== "read" && tool !== "file_read" && before.length > 8192) {
+              const artifactId = await promoteArtifact(memory!, before, tool, service.projectID)
               const { text, savedChars } = compressShellOutput(before)
               if (savedChars > 0 && result) {
                 if (typeof result.content === "string") result.content = text
@@ -358,9 +394,26 @@ export default {
                   tokens,
                   costUsd: costOf(model, { input: tokens, output: 0, cacheRead: 0, cacheWrite: 0 }),
                   sessionID,
-                  detail: `bash output ${before.length} -> ${text.length} chars`,
+                  detail: `output ${before.length} -> ${text.length} chars (artifact ${artifactId ?? "-"})`,
                   createdAt: Date.now() / 1000,
                 })
+              }
+              // Token-interval sweep. Tool-call count is not a trigger: more
+              // mechanical calls usually mean fewer tokens, not more.
+              const accum = (SWEEP_TOKENS.get(sessionID) ?? 0) + Math.floor(before.length / 4)
+              if (sweepDue(accum)) {
+                SWEEP_TOKENS.set(sessionID, 0)
+                try { await memory!.archiveStale() } catch {}
+                service.store.logSavings({
+                  type: "artifact_sweep",
+                  tokens: 0,
+                  costUsd: 0,
+                  sessionID,
+                  detail: "token-interval artifact pool sweep",
+                  createdAt: Date.now() / 1000,
+                })
+              } else {
+                SWEEP_TOKENS.set(sessionID, accum)
               }
             }
 

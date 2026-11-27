@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// @ts-nocheck - standalone runtime script (bun/tsx); see FEAT-20261126-000001
 /**
  * graphlib.ts — Shared per-project knowledge graph library.
  *

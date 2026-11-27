@@ -106,3 +106,69 @@ Corrections, knowledge gaps, best practices, and stale knowledge found in this p
   this one file: **if a test could pass while the product is broken, it is testing a copy**.
   Import the thing; if it cannot be imported, that is the bug.
 - **See Also**: ERR-20261003-000001, ERR-20261003-000002
+
+---
+
+## LRN-20261126-000001 - expose hidden subagents to the dispatcher, do not un-hide them
+- **Type**: correction
+- **Pattern-Key**: `dispatcher-omits-hidden-subagents`
+- **Recurrence-Count**: 1
+- **Status**: fixed
+- **Priority**: high
+- **Source**: user_feedback
+- **Area**: plugins/hubs/index.ts, agents/, runtime subagent dispatcher
+- **Logged**: 2026-11-26
+- **Why it will matter later**: when the model cannot see the specialists, every delegation falls back to `general` with a hand-written brief, which costs extra requests and tokens. The failure is silent: the specialists stay invocable by name, so nothing errors.
+- **Summary**: I un-hid all 30 subagents to make them dispatchable; the user corrected that hidden is intentional to keep the @ menu clean and that the dispatcher should include them without crowding the user. Verified root cause: `opencode2 debug agents` showed the only non-hidden subagents are `general` and `web-search`, exactly the two the dispatcher description lists. The specialists were invocable by name but unlisted. Fix: keep `hidden: true`, append the roster to the dispatch tool description where reachable, register a `listSubagents` fallback, and state in AGENTS.md that hidden specialists are dispatchable by name.
+- **Reproduce clues**: `opencode2 debug agents` -> non-hidden subagents = {general, web-search}; the `subagent` tool description lists only those two, yet `subagent({ agent: "convention-extractor" })` runs.
+- **Fix direction**: modify the exposure layer (tool description or a roster tool), never the user-facing visibility.
+
+---
+
+## LRN-20261126-000002 - compression is ambient, not a subcommand
+- **Type**: correction
+- **Pattern-Key**: `compression-as-command-vs-ambient`
+- **Recurrence-Count**: 1
+- **Status**: fixed
+- **Priority**: medium
+- **Source**: user_feedback
+- **Area**: rules/output-compression.md, plugins/rio/index.ts, plugins/rio/src/inject.ts
+- **Logged**: 2026-11-26
+- **Why it will matter later**: a compress command is the one optimization the user must remember to run; compression as a default hook saves tokens on every large tool result without a prompt, and the artifact pool means nothing is lost.
+- **Summary**: output compression was exposed as a menu subcommand. The user required it be the de facto output convention applied always (applied at user direction, not a recurrence promotion). Implemented: a rule section stating tool-output compression is standing behavior; a hook that compresses every tool result over 8192 chars; storage of the full output in a decaying `artifact` memory category; a token-interval sweep (accumulated output tokens, fill backstop; tool-call count is not a trigger because mechanical calls mean fewer tokens).
+- **Reproduce clues**: previously the compress action only ran on `/rio compress`; a large non-bash tool result was never compressed and never stored.
+- **Fix direction**: compress by default, store the full artifact, sweep at token intervals.
+- **Promoted into**: rules/output-compression.md "Tool-output compression is always on"; plugins/rio hooks.
+
+---
+
+## LRN-20261126-000003 - prefix resume labels to disambiguate
+- **Type**: best_practice
+- **Pattern-Key**: `ambiguous-resume-label`
+- **Recurrence-Count**: 1
+- **Status**: fixed
+- **Priority**: low
+- **Source**: user_feedback
+- **Area**: plugins/hubs/data/hubs/*/resume*.ts
+- **Logged**: 2026-11-26
+- **Why it will matter later**: three different menus resume different things; a bare `resume` makes the user guess which state is restored.
+- **Summary**: thinking already had a resume, so rio's `resume` and `resume-lean` collided conceptually. Renamed to `resume-memory`, `resume-memory-lean`, `resume-thinking`, `resume-orchestration`, and added normalizeRoute aliases so old labels still resolve (applied at user direction).
+- **Reproduce clues**: `hubNames()` listed multiple menus whose subcommands included `resume` or a variant.
+- **Fix direction**: prefix every resume label with what it resumes.
+- **Promoted into**: hub spec labels and normalizeRoute aliases.
+
+---
+
+## LRN-20261126-000004 - rio command names must share one prefix per domain
+- **Type**: best_practice
+- **Pattern-Key**: `rio-command-prefix-collisions`
+- **Recurrence-Count**: 1
+- **Status**: fixed
+- **Priority**: low
+- **Source**: user_feedback
+- **Area**: plugins/hubs/data/hubs/runtime-hub/, plugins/hubs/data/hubs/knowledge-hub/
+- **Logged**: 2026-11-26
+- **Why it will matter later**: rio's `status`, `audit`, `config`, `doctor`, `report`, `coach`, `savings`, and `route` collided with existing hub labels; without prefixes the user cannot tell `audit` (code health) from `audit` (session efficiency) from `audit` (antislop).
+- **Summary**: adopted three prefixes: `runtime-*` for status, flags, health; `token-use-*` for audit, report, coach, savings, route; `resume-*` for anything that resumes. Tools renamed to match (`runtime-status`, `runtime-decide`, `runtime` dispatcher).
+- **Reproduce clues**: duplicate-label check across menus flagged `status`, `audit`, `config`, `doctor` before the rename.
+- **Fix direction**: one prefix per domain; keep the bare word for the canonical command only.

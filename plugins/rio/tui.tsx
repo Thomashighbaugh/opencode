@@ -56,17 +56,22 @@ export default {
       },
     })
 
-    // ── /rio slash command: hub-like subcommand picker ─────────────
+    // ── /rio retired: commands live in the hubs menus ──────────────
+    // Keep a one-line pointer so muscle memory resolves, and the sidebar
+    // (quality + memory rows) above stays as the runtime indicator.
     ctx.keymap.layer(() => ({
       mode: "global",
       commands: [
         {
           id: "rio.menu",
-          title: "Rio — token compression & memory options",
+          title: "Rio (retired) — use /runtime-hub or /knowledge-hub",
           group: "Rio",
           palette: true,
-          slash: { name: "rio" },
-          run: () => void openRioMenu(),
+          slash: { name: "rio", arguments: true },
+          run: () =>
+            void submit(
+              "The /rio menu is retired. Use /runtime-hub for status, flags, health, and token use; /knowledge-hub for memory, recall, context, checkpoints, and resume.",
+            ),
         },
       ],
     }))

@@ -2,7 +2,7 @@ import { HubSubcommandSpec } from "../../hub-data"
 
 import { TOOLS_BASH } from "../shared-spec-fragments"
 const spec: HubSubcommandSpec = {
-  label: "ideation-resume",
+  label: "resume-thinking",
   description: "Resume last ideation session",
   reminder: "Resume last ideation session.",
   inline: true,

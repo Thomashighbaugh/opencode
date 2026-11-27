@@ -273,3 +273,35 @@ Entry format per `self-improvement` skill. Dedupe by **Pattern-Key**; increment 
 - **Design note**: every one of these refuses to fall back to a bulk action on a bad
   selector — an unmatched id removes nothing, `fire-one` with no match fires nothing,
   and `drainIds([])` drains nothing rather than everything.
+
+---
+
+## ERR-20261126-000001 - rio memory recall silently returned zero
+- **Type**: config
+- **Pattern-Key**: `memory-recall-project-scope`
+- **Recurrence-Count**: 1
+- **Status**: fixed
+- **Priority**: high
+- **Source**: error
+- **Area**: plugins/rio/src/memory.ts, plugins/rio/src/inject.ts, plugins/rio/src/menu.ts
+- **Logged**: 2026-11-26
+- **Why it will matter later**: Memory recall is the only path that injects learned knowledge into inference. A project-scope mismatch makes it return zero while session summaries still appear in context, so the system looks alive but learns nothing new.
+- **Summary**: `MemoryService` defaulted the recall project to "default" while memories were stored under the real project id (or NULL/empty); the rio menu `recall` case called `memory.db.fts("", sessionID, 5)`, passing the session id as the project. Both returned nothing. Fixed: `memoryContextBlock` defaults recall to global (project null); the menu `recall` case uses `memory.recall({ query })`; the `runtime` tool accepts a `query` field.
+- **Reproduce clues**: `memoryContextBlock(ms, "session summary", {})` returned `loaded: 0` with 7 memories stored; after the fix it returned `loaded: 1`. Any query under a project id that differs from the stored one returned zero.
+- **Fix direction**: never rely on the service's default project for recall; pass an explicit project or null, and assert loaded > 0 against a known store in tests.
+
+---
+
+## ERR-20261126-000002 - dependency bump blocked by @opentui peer and missing solid-js
+- **Type**: environmental
+- **Pattern-Key**: `opentui-peer-solidjs-missing`
+- **Recurrence-Count**: 1
+- **Status**: fixed
+- **Priority**: medium
+- **Source**: error
+- **Area**: package.json, package-lock.json, plugins/*/tui.tsx
+- **Logged**: 2026-11-26
+- **Why it will matter later**: `npm audit fix` aborts with ERESOLVE whenever the @opentui peer and the installed copy disagree, and a later bump silently removes the `solid-js` types the TUI compiles against.
+- **Summary**: `@opencode/plugin@2.4.2` peers on `@opentui/solid >=0.8.0` while the root pinned `0.5.17`, so audit fix failed ERESOLVE. Bumping `@opentui/solid` and `@opentui/react` to `0.9.9` then removed the transitive `solid-js`, breaking `tsc` on every `tui.tsx` (TS2307 Cannot find module 'solid-js'). Fixed by adding `solid-js ^1.9.12` to devDependencies and reinstalling with `--legacy-peer-deps`.
+- **Reproduce clues**: `npm audit fix` -> `ERESOLVE could not resolve` naming `@opentui/solid`; after the bump, `tsc` -> `plugins/rio/tui.tsx(5,55): Cannot find module 'solid-js'`.
+- **Fix direction**: pin @opentui and @opencode/plugin to compatible majors together, and add solid-js to devDependencies in the same change that bumps @opentui.

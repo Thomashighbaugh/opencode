@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// @ts-nocheck - standalone runtime script (bun/tsx); see FEAT-20261126-000001
 /**
  * veclib.ts — Shared vector DB library for OpenCode per-project vectorization
  *

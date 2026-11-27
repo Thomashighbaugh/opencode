@@ -22,6 +22,8 @@ import {
   latestPrompt,
   memoryContextBlock,
   promoteDecisions,
+  promoteArtifact,
+  sweepDue,
   memorySidebarLine,
   readMemoryState,
   writeMemoryState,
@@ -142,6 +144,51 @@ describe("promoteDecisions", () => {
     const before = ms.stats("proj").total
     expect(await promoteDecisions(ms, ["  ", ""], "proj")).toBe(0)
     expect(ms.stats("proj").total).toBe(before)
+  })
+})
+
+describe("artifact pool", () => {
+  let ms: MemoryService
+  let dir: string
+
+  beforeAll(() => {
+    process.env.MEMORY_EMBED = "0"
+    process.env.MEMORY_CLASSIFY = "0"
+    dir = tempDir("rio-artifact-")
+    ms = new MemoryService(dir, "proj")
+  })
+
+  afterAll(() => {
+    ms.close()
+    rmSync(dir, { recursive: true, force: true })
+    if (ENV.MEMORY_EMBED === undefined) delete process.env.MEMORY_EMBED
+    else process.env.MEMORY_EMBED = ENV.MEMORY_EMBED
+    if (ENV.MEMORY_CLASSIFY === undefined) delete process.env.MEMORY_CLASSIFY
+    else process.env.MEMORY_CLASSIFY = ENV.MEMORY_CLASSIFY
+  })
+
+  test("a large tool result is stored as a low-importance artifact", async () => {
+    const id = await promoteArtifact(ms, "x".repeat(9000), "bash", "proj")
+    expect(id).not.toBeNull()
+    const m = ms.get(id!)
+    expect(m?.category).toBe("artifact")
+    expect(m?.importance).toBe(1)
+  })
+
+  test("an empty artifact is not stored", async () => {
+    expect(await promoteArtifact(ms, "   ", "bash", "proj")).toBeNull()
+  })
+
+  test("artifacts are recallable from the pool", async () => {
+    await promoteArtifact(ms, "unique artifact marker zzz-nine-thousand", "bash", "proj")
+    const hits = await ms.recall({ query: "artifact marker zzz", limit: 5, project: "proj" })
+    expect(hits.some((h) => h.content.includes("zzz-nine-thousand"))).toBe(true)
+  })
+
+  test("token-interval sweep triggers at the interval, not on call count", () => {
+    expect(sweepDue(49_999, 50_000)).toBe(false)
+    expect(sweepDue(50_000, 50_000)).toBe(true)
+    expect(sweepDue(500, 50_000)).toBe(false)
   })
 })
 

@@ -1,7 +1,7 @@
 import { HubSubcommandSpec } from "../../hub-data"
 
 const spec: HubSubcommandSpec = {
-  label: "orchestration-resume",
+  label: "resume-orchestration",
   description: "Resume last orchestration session",
   reminder: "Resume last orchestration session.",
   inline: true,

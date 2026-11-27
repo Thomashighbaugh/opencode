@@ -2,6 +2,7 @@ import { HubSubcommandSpec } from "../hub-data"
 
 // ─── Shared tool arrays (appear in 2+ spec files) ────────────────
 export const TOOLS_BASH: HubSubcommandSpec['tools'] = ["bash"]
+export const TOOLS_RUNTIME: HubSubcommandSpec['tools'] = ["bash", "runtime"]
 export const TOOLS_LOADSKILL_BASH: HubSubcommandSpec['tools'] = ["loadSkill", "bash"]
 export const TOOLS_LISTAGENTS_BASH: HubSubcommandSpec['tools'] = ["listAgents", "bash"]
 export const TOOLS_BASH_TASKTODOS: HubSubcommandSpec['tools'] = ["bash", "taskTodos"]

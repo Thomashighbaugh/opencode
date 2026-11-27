@@ -200,6 +200,7 @@ export const HUB_FILE_MAP: Record<string, string> = {
   "verify-hub": "./hub-verify-hub",
   "orchestrate-hub": "./hub-orchestrate-hub",
   "git-hub": "./hub-git-hub",
+  "runtime-hub": "./hub-runtime-hub",
 }
 
 export function loadHub(name: string): HubDefinition | null {
@@ -238,6 +239,7 @@ const SUBCOMMAND_DIR_MAP: Record<string, string> = {
   "verify-hub": "verify-hub",
   "orchestrate-hub": "orchestrate-hub",
   "git-hub": "git-hub",
+  "runtime-hub": "runtime-hub",
 }
 
 // ─── Legacy Route Map ──────────────────────────────────────────────────
@@ -394,6 +396,28 @@ export const LEGACY_ROUTE_MAP: Record<string, string> = {
   "resource-hub/find-skills": "resource-hub/find",  "resource-hub/find-tools": "resource-hub/find",
 }
 
+// ─── rio menu retirement aliases ──────────────────────────────────────
+// The /rio menu is retired; its commands live in the hubs menus now. Old
+// /rio <sub> invocations resolve to the new homes.
+Object.assign(LEGACY_ROUTE_MAP, {
+  "rio/status": "runtime-hub/runtime-status",
+  "rio/config": "runtime-hub/runtime-flags",
+  "rio/doctor": "runtime-hub/runtime-doctor",
+  "rio/audit": "runtime-hub/token-use-audit",
+  "rio/report": "runtime-hub/token-use-report",
+  "rio/coach": "runtime-hub/token-use-coach",
+  "rio/savings": "runtime-hub/token-use-savings",
+  "rio/route": "runtime-hub/token-use-route",
+  "rio/memory": "knowledge-hub/recall",
+  "rio/recall": "knowledge-hub/recall",
+  "rio/memory-review": "knowledge-hub/context-audit",
+  "rio/compact": "knowledge-hub/compact",
+  "rio/expand": "knowledge-hub/expand",
+  "rio/resume": "knowledge-hub/resume-memory",
+  "rio/resume-lean": "knowledge-hub/resume-memory-lean",
+  "rio/compress": "knowledge-hub/compress",
+})
+
 // ─── 2026-11-24 menu consolidation aliases ────────────────────────────
 // AFL menus merged: hub-setup absorbed resource-hub; knowledge-hub = memory +
 // docs; think-hub = ideate + plan; verify-hub absorbed maintain-hub;
@@ -414,12 +438,15 @@ const SUB_ALIAS: Record<string, string> = {
   "resource-hub/knowledge-graph": "knowledge-hub/graph",
   "resource-hub/setup": "hub-setup/init-resources",
   "resource-hub/search": "hub-setup/find-assets",
-  "memory-hub/search": "knowledge-hub/search-context",
+  "memory-hub/search": "knowledge-hub/recall",
+  "knowledge-hub/search-context": "knowledge-hub/recall",
   "hub-setup/status": "hub-setup/setup-status",
   "plan-hub/status": "think-hub/plan-status",
   "orchestrate-hub/status": "orchestrate-hub/run-status",
-  "ideate-hub/resume": "think-hub/ideation-resume",
-  "orchestrate-hub/resume": "orchestrate-hub/orchestration-resume",
+  "ideate-hub/resume": "think-hub/resume-thinking",
+  "think-hub/ideation-resume": "think-hub/resume-thinking",
+  "orchestrate-hub/resume": "orchestrate-hub/resume-orchestration",
+  "orchestrate-hub/orchestration-resume": "orchestrate-hub/resume-orchestration",
   "research-hub/docs": "research-hub/library-docs",
   "build-hub/simplify-code": "build-hub/simplify",
   "verify-hub/quality": "verify-hub/audit",

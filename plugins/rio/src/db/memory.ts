@@ -13,7 +13,7 @@ import { createHash } from "node:crypto"
 import { existsSync, mkdirSync } from "node:fs"
 import { dirname, join } from "node:path"
 
-export const CATEGORIES = ["preference", "architecture", "gotcha", "pattern", "workflow", "constraint"] as const
+export const CATEGORIES = ["preference", "architecture", "gotcha", "pattern", "workflow", "constraint", "artifact"] as const
 export type Category = (typeof CATEGORIES)[number]
 export type Origin = "owner-statement" | "agent-observation" | "external-source" | "proposal" | "historical-approval"
 

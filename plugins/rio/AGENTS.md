@@ -25,19 +25,20 @@ with `memory-hub` so the two are always compatible, but it imports nothing from 
 
 | Tool | Purpose |
 | --- | --- |
-| `rio_status` | Live context health, fill %, tool count, quality grade |
-| `rio_menu` | Open the hub-like menu |
-| `rio_decide` | Pick one label from a registered option set with a **local ONNX model** — no inference request |
-| `rio` | Menu dispatch by subcommand id |
+| `runtime-status` | Live context health, fill %, tool count, quality grade |
+| `runtime-decide` | Pick one label from a registered option set with a **local ONNX model** — no inference request |
+| `runtime` | Dispatch a runtime/token-use action by id (backs the hubs knowledge and runtime subcommands) |
 | `memory_learn` / `memory_recall` / `memory_get` / `memory_forget` | Local memory CRUD and hybrid recall |
 
-`rio_decide` is the "don't escalate to a bigger model for a mechanical choice" surface. It takes a
+The `/rio` menu is retired. Its commands live in `/runtime-hub` (status, flags, health, token use) and `/knowledge-hub` (memory, recall, context, checkpoints, resume); `/rio` is a one-line pointer.
+
+`runtime-decide` is the "don't escalate to a bigger model for a mechanical choice" surface. It takes a
 **registered** decision id and a piece of text, and returns one label from that decision's fixed
 option set. It cannot be given new options:
 
 ```
-rio_decide { decision: "asksChoice", text: "Pick one: rewrite or revert." }
-rio_decide { stats: true }
+runtime-decide { decision: "asksChoice", text: "Pick one: rewrite or revert." }
+runtime-decide { stats: true }
 ```
 
 There is deliberately no free-form `question` + `contrast` path. Options typed at call time have no

@@ -34,6 +34,10 @@ const KEYWORDS: Record<Category, RegExp> = {
   pattern: /\b(pattern|approach|implement|idiom|template|reuse)\b/i,
   workflow: /\b(workflow|command|script|deploy|build|test|run)\b/i,
   constraint: /\b(must|required|cannot|limit|constraint|only|mandatory)\b/i,
+  // Artifacts are never auto-categorized; this entry exists only to satisfy the
+  // Record<Category, RegExp> shape. Artifacts are written explicitly by the
+  // compression hook with a short decay.
+  artifact: /$^/,
 }
 
 const RELATION_HYPOTHESES = [
