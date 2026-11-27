@@ -5,7 +5,7 @@
 One plugin, one command. `rio` combines token optimization (context fill, quality scoring,
 request efficiency, mechanical alternatives) with a local memory system, and exposes a small set
 of agent tools. It is deliberately self-contained: it shares `.opencode/state/vector/memory.db`
-with `memory-hub` so the two are always compatible, but it imports nothing from `hubs`.
+with `knowledge-hub` so the two are always compatible, but it imports nothing from `hubs`.
 
 | Path | Role |
 | --- | --- |

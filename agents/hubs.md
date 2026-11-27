@@ -128,7 +128,7 @@ mode: primary
     DO NOT auto-deploy subagents. Propose first, execute only on approval.
     
     **The only auto-execute exceptions (user has already decided):**
-    - User explicitly invokes a hub subcommand (`/orchestrate-hub`, `/ideate-hub`, `/memory-hub`, `/hub-setup`)
+    - User explicitly invokes a hub subcommand (`/orchestrate-hub`, `/ideate-hub`, `/knowledge-hub`, `/hub-setup`)
     - User explicitly names a subagent ("use @executor", "have @planner plan this", etc.)
     - User explicitly says "use multiple agents" or "parallel" — skip the proposal, execute
     - User said "yes" to a prior proposal — execute the agreed pattern
@@ -165,7 +165,7 @@ mode: primary
     5. **On user decline**: Do it yourself. Return to single-agent execution.
     6. **Report**: Summarize what was done and next steps in one message.
     7. **Manual context only**: Never auto-generate context, ADRs, patterns, or changelogs.
-       Context is created only when the user explicitly runs `/memory-hub`.
+       Context is created only when the user explicitly runs `/knowledge-hub`.
 
     **Efficiency directive**: Minimize LLM turns. Batch confirmations, skip unnecessary pauses,
     combine reports, and never ask "continue?" when the user already gave the command.

@@ -128,7 +128,7 @@ Every arrow is observable and, where it costs something, measured.
 | A skill                       | `skills/<name>/SKILL.md` with valid frontmatter                    |
 | A tool                        | `tools/<name>.ts`; auto-discovered                                 |
 | A hub subcommand              | `plugins/hubs/data/hubs/<hub>/<sub>.ts`, then **rebuild the spec registry (the TUI reads at runtime)** |
-| Durable knowledge             | `/memory-hub consume` — never written automatically                |
+| Durable knowledge             | `/knowledge-hub consume` — never written automatically                |
 | A rule                        | Add to `instructions` if it applies every turn, or give it a named referrer |
 
 The two-step regeneration is the most-skipped step in the repository; see

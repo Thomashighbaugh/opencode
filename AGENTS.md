@@ -162,7 +162,7 @@ keep working: `/init-project <sub>` and `/scaffold-hub <sub>` both route to `/hu
 | `/git-hub` | 10 | archive, changelog, commit, commit-drafter, gh, git-cleanup, git-master, git-stage-thread, pr, release |
 | `/runtime-hub` | 8 | runtime-status, runtime-flags, runtime-doctor, token-use-audit, token-use-report, token-use-coach, token-use-savings, token-use-route |
 
-The 2026-11-24 consolidation cut 13 menus to 8, then added `runtime-hub` for rio's efficiency and observability commands: `hub-setup` absorbed `resource-hub`, `knowledge-hub` merged `memory-hub`+`docs-hub`, `think-hub` merged `ideate-hub`+`plan-hub`, `verify-hub` absorbed `maintain-hub`, and `orchestrate-hub` absorbed `swarm-hub`. Design lives in the separate `design-system` plugin. Old hub names and renamed labels still resolve through `normalizeRoute` (e.g. `memory-hub/search` routes to `knowledge-hub/recall`).
+The 2026-11-24 consolidation cut 13 menus to 8, then added `runtime-hub` for rio's efficiency and observability commands: `hub-setup` absorbed `resource-hub`, `knowledge-hub` merged the former memory and docs menus, `think-hub` merged `ideate-hub`+`plan-hub`, `verify-hub` absorbed `maintain-hub`, and `orchestrate-hub` absorbed `swarm-hub`. Design lives in the separate `design-system` plugin. Old hub names and renamed labels still resolve through `normalizeRoute`.
 
 ### Two-Tier Subcommand Routing
 

@@ -245,7 +245,7 @@ export function detectKeywords(prompt: string): KeywordMatch[] {
   }
 
   if (hasActionableKeyword(cleanPrompt, KEYWORD_PATTERNS.harvestSession)) {
-    matches.push({ name: '/memory-hub session', args: '' })
+    matches.push({ name: '/knowledge-hub session', args: '' })
   }
 
   return matches
@@ -273,7 +273,7 @@ export function resolveConflicts(matches: KeywordMatch[]): KeywordMatch[] {
     'autopilot', 'ultrawork', 'ralplan',
     'deep-interview', 'ai-slop-cleaner', 'tdd', 'code-review',
     'security-review', 'ultrathink', 'deepsearch', 'analyze', 'new-agent',
-    '/git-hub commit', '/memory-hub session'
+    '/git-hub commit', '/knowledge-hub session'
   ]
 
   const resolved = [...matches]

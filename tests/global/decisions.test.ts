@@ -149,7 +149,7 @@ describe("decisions: extraction corpus", () => {
     expect(fp, `false positives: ${fp.join(" | ")}`).toEqual([])
     expect(recall).toBeGreaterThanOrEqual(0.9)
     expect(tp).toBe(corpus.DECISIONS.length - 1) // one documented miss, below
-    expect(fn).toEqual(["Right, so: rio owns memory, memory-hub reads the same DB."])
+    expect(fn).toEqual(["Right, so: rio owns memory, knowledge-hub reads the same DB."])
   }, 60_000)
 
   it("the ask veto does not remove a real decision", async () => {
@@ -157,7 +157,7 @@ describe("decisions: extraction corpus", () => {
     // corpus decision is one. This guards the gate: if it widened, recall would
     // drop and this fails before the corpus test above (which skips the model)
     // would notice.
-    const documented = new Set(["Right, so: rio owns memory, memory-hub reads the same DB."])
+    const documented = new Set(["Right, so: rio owns memory, knowledge-hub reads the same DB."])
     for (const text of corpus.DECISIONS) {
       if (documented.has(text)) continue
       const r = await rio.extractDecisions(text, { limit: 99 })

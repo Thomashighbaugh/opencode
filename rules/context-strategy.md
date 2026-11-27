@@ -25,7 +25,7 @@ paths were not, so existing checkpoints and resume state keep resolving.
 | `/hub-setup` | — | `.opencode/state/init/` | `.opencode/state/init/init-checkpoint.json` |
 | `/ideate-hub`, `/plan-hub` | `.opencode/state/ideation/work-products/` | `.opencode/state/ideation/` | — |
 | `/orchestrate-hub`, `/swarm-hub` | `.opencode/state/orchestration/progress/` | `.opencode/state/orchestration/` | `.opencode/state/orchestration/checkpoints/` |
-| `/memory-hub` | — | `.opencode/context/` (durable) / `.opencode/state/harvest/` (session/PII) | — |
+| `/knowledge-hub` | — | `.opencode/context/` (durable) / `.opencode/state/harvest/` (session/PII) | — |
 | all other menus | — (stateless) | — | — |
 
 ## Durable Context Paths

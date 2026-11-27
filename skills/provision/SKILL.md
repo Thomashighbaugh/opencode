@@ -951,7 +951,7 @@ fi
 ## Cross-Hub Hand-Off
 
 - `/hub-setup detect` → `/hub-setup provision` — detection provides the codebase intelligence needed for generation
-- `/hub-setup provision` → `/memory-hub session` — capture generated artifacts as durable context
+- `/hub-setup provision` → `/knowledge-hub session` — capture generated artifacts as durable context
 - `/hub-setup provision` → `/hub-setup verify` — validate the full setup
 - `/ideation` plans reference generated rules for project-specific context
 - `/orchestrate` subagents load project wrappers for deep context injection

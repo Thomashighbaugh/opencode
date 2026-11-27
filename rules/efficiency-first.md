@@ -106,7 +106,7 @@ rule — a fact you looked up once should never be looked up twice.
 | Snippets | `.opencode/context/research/code-snippets/{slug}.md` | You pulled real code from the wild | Before paying for another `gh_grep` |
 | Vector index | `graphQuery` (`.opencode/state/vector/`) | After a write, via the vectorize hook | Recall you can't route by path |
 
-`/memory-hub` is the manual, user-invoked path for all of the above. **All context operations stay
+`/knowledge-hub` is the manual, user-invoked path for all of the above. **All context operations stay
 manual** (see `context-strategy.md`) — this rule tells you to *check* durable memory before
 re-deriving, and to *offer* to persist a finding. It does not authorise unprompted harvesting.
 

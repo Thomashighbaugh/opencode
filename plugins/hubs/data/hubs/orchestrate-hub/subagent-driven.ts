@@ -17,7 +17,7 @@ Per-task flow:
 
 After all tasks: a broad final review covers cross-task integration, not just per-task correctness.
 
-Hub-to-hub handoff protocol: this pattern includes a bridge protocol for passing plans from /ideate-hub → /orchestrate-hub → /memory-hub. The plan document is the handoff artifact — it survives context switches because it's on disk, not in a context window.
+Hub-to-hub handoff protocol: this pattern includes a bridge protocol for passing plans from /ideate-hub → /orchestrate-hub → /knowledge-hub. The plan document is the handoff artifact — it survives context switches because it's on disk, not in a context window.
 
 Use for executing plans produced by /ideate-hub (plan, ralplan, decomposition, etc.) where you want per-task isolation + automated review. The fresh-context-per-task design prevents earlier tasks' mistakes from contaminating later tasks' context.
 

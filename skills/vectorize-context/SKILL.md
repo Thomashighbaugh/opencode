@@ -1,6 +1,6 @@
 ---
 name: vectorize-context
-description: Vector DB for semantic retrieval over context, rules, docs, AGENTS.md AND project source code — local ONNX embeddings + ONNX rerank, no daemon, injected via hooks, maintained by /memory-hub vectorize
+description: Vector DB for semantic retrieval over context, rules, docs, AGENTS.md AND project source code — local ONNX embeddings + ONNX rerank, no daemon, injected via hooks, maintained by /knowledge-hub vectorize
 relatedSkills: graph-context, self-improvement, wiki, harvest-context
 level: 2
 license: MIT
@@ -165,13 +165,13 @@ The plugin (`plugins/hooks/hooks.ts` + `vectorize-hook.ts`) provides automatic c
    - 5-min session cache per store on prompt hash — repeat queries hit cache, no child spawn
    - Clears the stored prompt after use (no stale injection)
    - Any failure → silent skip (try/catch), zero impact on the turn
-3. `vectorize-hook.ts` keeps stores fresh: every 10s spawns `sync-hook.ts` (maintenance mode — **skips stores that don't exist yet**; the full build is `/memory-hub vectorize`), one child at a time, SIGKILL after 90s. A fresh install can never trigger a first-run index storm.
+3. `vectorize-hook.ts` keeps stores fresh: every 10s spawns `sync-hook.ts` (maintenance mode — **skips stores that don't exist yet**; the full build is `/knowledge-hub vectorize`), one child at a time, SIGKILL after 90s. A fresh install can never trigger a first-run index storm.
 
-### Manual Trigger (`/memory-hub search`)
+### Manual Trigger (`/knowledge-hub search`)
 
 After any hub subcommand writes to scoped dirs:
 1. Write the file (existing behavior)
-2. Run `/memory-hub search` to index and query — no automatic indexing required (but the hook watcher does it anyway)
+2. Run `/knowledge-hub search` to index and query — no automatic indexing required (but the hook watcher does it anyway)
 
 ### Agent Integration
 

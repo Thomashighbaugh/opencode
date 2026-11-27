@@ -181,7 +181,7 @@ Init state lives in `.opencode/state/init/` (gitignored).
 
 ### Cross-Hub Hand-Off
 
-- `/hub-setup setup` (full mode) completion can trigger a `/memory-hub` offer
+- `/hub-setup setup` (full mode) completion can trigger a `/knowledge-hub` offer
 - `/design-hub docs` output feeds into `/ideate-hub` as project context
 - `/hub-setup verify` results can inform `/project` operations
 - `/ideate-hub` final plans may reference `/hub-setup` detection results
@@ -275,8 +275,8 @@ Save checkpoint after each phase to `.opencode/state/init/init-checkpoint.json`.
 
 On completion, display summary and offer next step:
 - If minimal mode: offer `/design-hub docs`
-- If default: Offer `/memory-hub capture` to add deep context, or `/hub-setup verify` to validate
-- If full mode: offer `/memory-hub` to extract more context, or `/maintain-hub workspace` to manage the new setup
+- If default: Offer `/knowledge-hub capture` to add deep context, or `/hub-setup verify` to validate
+- If full mode: offer `/knowledge-hub` to extract more context, or `/maintain-hub workspace` to manage the new setup
 
 ## Subcommand: detect
 
@@ -328,7 +328,7 @@ When AGENTS.md files already exist:
 5. Preserve all `<!-- MANUAL -->` annotations
 6. Update timestamps
 
-On completion, offer next step: `/memory-hub capture` or `/hub-setup verify`
+On completion, offer next step: `/knowledge-hub capture` or `/hub-setup verify`
 
 ## Subcommand: context
 
@@ -353,7 +353,7 @@ Deep codebase mapping and context capture. Phase 6 only (same as full-mode Phase
 - `.opencode/state/project-memory.json` — durable cross-session facts
 - Upgraded `.opencode/agents/*.md` — agents now contain deep project context
 
-On completion, offer next step: `/hub-setup verify` or `/memory-hub`
+On completion, offer next step: `/hub-setup verify` or `/knowledge-hub`
 
 ## Subcommand: verify
 
@@ -526,4 +526,4 @@ Resume with `/hub-setup setup --force` or `/hub-setup refresh`.
 - `hubs-doctor` skill — Diagnose installation issues
 - `/plan-hub` hub — Planning and research
 - `/orchestrate` hub — Execution patterns
-- `/memory-hub` hub — Context and artifact extraction
+- `/knowledge-hub` hub — Context and artifact extraction

@@ -70,7 +70,7 @@ When an orchestration run completes:
 
 1. **Extract decisions** — From task reviews and the final review
 2. **Save progress ledger** — `.opencode/state/orchestration/progress/ledger-{timestamp}.md`
-3. **Trigger harvest** — `/memory-hub session` to capture what was learned
+3. **Trigger harvest** — `/knowledge-hub session` to capture what was learned
 
 ### General Handoff Rules
 

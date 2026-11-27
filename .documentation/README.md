@@ -27,7 +27,7 @@ Technical documentation for this OpenCode agent harness. Start at
 
 | Page | Component | What it does |
 | ---- | --------- | ------------ |
-| [Memory System](memory-system.md) | `.opencode/context/`, `/memory-hub` | Durable context, state vs context, the self-maintaining wiki |
+| [Memory System](memory-system.md) | `.opencode/context/`, `/knowledge-hub` | Durable context, state vs context, the self-maintaining wiki |
 | [Knowledge Plane](knowledge-plane.md) | `skills/graph-context/`, `skills/vectorize-context/` | Graph + vector hybrid retrieval, structural invariants, incremental rebuilds |
 | [Orchestration](subagent-orchestration.md) | `agents/`, `modes.ts` | 31 subagents, the dispatch policy, mode detection |
 | [Rules & Skills](rules-and-skills.md) | `rules/`, `skills/`, `tools/` | 23 rules, 127 skills, 31 tools, MCP servers |

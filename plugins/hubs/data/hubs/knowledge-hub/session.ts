@@ -15,7 +15,7 @@ const spec: HubSubcommandSpec = {
 - Anti-patterns identified
 - Unresolved questions
 
-Each extracted item is classified and saved to .opencode/state/harvest/ as a structured markdown document. The output can then be promoted to durable context (.opencode/context/) via /memory-hub memory, which runs wiki compliance (updates index.md, log.md, frontmatter, cross-references).
+Each extracted item is classified and saved to .opencode/state/harvest/ as a structured markdown document. The output can then be promoted to durable context (.opencode/context/) via /knowledge-hub memory, which runs wiki compliance (updates index.md, log.md, frontmatter, cross-references).
 
 This is the first step of context harvesting — extract, then promote. Use at the end of a session (or when context is getting large) to preserve knowledge before it's lost to compaction.`,
 
@@ -24,8 +24,8 @@ This is the first step of context harvesting — extract, then promote. Use at t
 
   examples: [
     {
-      input: "/memory-hub session",
-      approach: "Scan conversation. Find: decision 'use Redis for sessions' (rationale: faster than DB). Pattern: 'repository pattern for all data access'. Lesson: 'N+1 queries on dashboard'. Save to .opencode/state/harvest/session-{timestamp}.md. Then /memory-hub memory to promote to wiki with compliance."
+      input: "/knowledge-hub session",
+      approach: "Scan conversation. Find: decision 'use Redis for sessions' (rationale: faster than DB). Pattern: 'repository pattern for all data access'. Lesson: 'N+1 queries on dashboard'. Save to .opencode/state/harvest/session-{timestamp}.md. Then /knowledge-hub memory to promote to wiki with compliance."
     }
   ]
 }

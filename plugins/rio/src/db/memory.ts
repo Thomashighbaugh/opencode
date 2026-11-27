@@ -1,10 +1,10 @@
 /**
- * Memory DB — shared target with memory-hub subcommands.
+ * Memory DB — shared target with knowledge-hub subcommands.
  *
  * Single SQLite file at .opencode/state/vector/memory.db (already exists,
  * created by the deprecated memory-system plugin). Uses FTS5 for lexical
  * recall and sqlite-vec (when available) for semantic recall. Same schema,
- * same tables — rio and memory-hub operate on identical targets.
+ * same tables — rio and knowledge-hub operate on identical targets.
  *
  * Lazy bun:sqlite import so the plugin loads on non-bun runtimes.
  */

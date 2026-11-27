@@ -107,7 +107,7 @@ prompt before a command executes.
 | `log.md` | ingest / refresh / prune append one parseable line |
 | Graph | `document` nodes with edges to tags and directory grouping |
 | Vector index | `vectorize-hook` syncs `context/**` on `file.edited`; no extra wiring |
-| Hubs | `research-hub/{library-docs,web-research,deep-research}`, `memory-hub/{consume,search,prune}` call the tool |
+| Hubs | `research-hub/{library-docs,web-research,deep-research}`, `knowledge-hub/{consume,search,prune}` call the tool |
 | Compaction | `summary` is what survives; `get` returns it by default |
 
 ## Freshness

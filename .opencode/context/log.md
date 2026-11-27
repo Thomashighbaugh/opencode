@@ -241,7 +241,7 @@ Chronological record of all wiki operations. Append-only.
 
 ## [2026-10-18] consume | AI-writing style references
 
-- **Operation**: Ingested two external repositories as durable context via `/memory-hub consume`
+- **Operation**: Ingested two external repositories as durable context via `/knowledge-hub consume`
 - **Sources**:
   - `github.com/conorbronsdon/avoid-ai-writing` (MIT, skill v3.38.0) — AI-ism detector & rewrite catalog
   - `github.com/andrewroxby/claude-style-patch` (CC0) — positive prose style contract
@@ -258,7 +258,7 @@ Chronological record of all wiki operations. Append-only.
 
 ## [2026-10-18] consume | Premise Workshop (local skill)
 
-- **Operation**: Ingested a local skill directory (`./premise-workshop/`) via `/memory-hub consume` and worked it into the Buchbinder premise pipeline
+- **Operation**: Ingested a local skill directory (`./premise-workshop/`) via `/knowledge-hub consume` and worked it into the Buchbinder premise pipeline
 - **Source**: local `premise-workshop/` (SKILL.md + 4 references), authored for a Story Skills ecosystem
 - **Files created**:
   - `research/premise-workshop/2026-10-18.md` — source-summary: the spark→premise pipeline, logline stress tests, three-level stakes, common premise failures, and the Buchbinder mapping
@@ -270,7 +270,7 @@ Chronological record of all wiki operations. Append-only.
 
 ## [2026-10-18] consume | Theme Craft + Worldbuilding (local skills)
 
-- **Operation**: Ingested two local skill directories (`./theme-craft/`, `./worldbuilding/`) via `/memory-hub consume` and worked them into the Buchbinder ideation/manifest/specify/revision pipeline; the three dropped source dirs (premise-workshop, theme-craft, worldbuilding) were then removed from the repo root
+- **Operation**: Ingested two local skill directories (`./theme-craft/`, `./worldbuilding/`) via `/knowledge-hub consume` and worked them into the Buchbinder ideation/manifest/specify/revision pipeline; the three dropped source dirs (premise-workshop, theme-craft, worldbuilding) were then removed from the repo root
 - **Files created**:
   - `research/theme-craft/2026-10-18.md` — controlling idea (value + cause), counter-premise, lie/truth/ghost-wound, three arc types, antagonist design, motif plant-and-vary, theme audit
   - `research/worldbuilding/2026-10-18.md` — element types, economy/logistics/costs, maps and routes, calendars/seasons/moons, naming, and the Buchbinder mapping

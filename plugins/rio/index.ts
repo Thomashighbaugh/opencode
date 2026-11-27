@@ -6,7 +6,7 @@
  * Rio combines token-optimization (fill %, quality scoring, request
  * efficiency, mechanical alternatives) with a local memory system (embedding
  * + rerank + classification over .opencode/state/vector/memory.db — the same
- * target used by memory-hub subcommands so rio and memory-hub are always
+ * target used by knowledge-hub subcommands so rio and knowledge-hub are always
  * compatible).
  *
  * Feature flags (all default true, env-overridable):

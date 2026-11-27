@@ -7,7 +7,7 @@ const spec: HubSubcommandSpec = {
   reminder: "Promote knowledge to memory or wiki.",
   skill: "remember",
 
-  detailedDescription: `Promotes extracted knowledge to durable storage. Reviews what was harvested (via /memory-hub session or discovered during the session) and decides where it belongs:
+  detailedDescription: `Promotes extracted knowledge to durable storage. Reviews what was harvested (via /knowledge-hub session or discovered during the session) and decides where it belongs:
 
 - Project memory (.opencode/state/project-memory.json): cross-session durable facts that should persist but are project-specific.
 - Notepad: temporary notes for the current work context.
@@ -17,7 +17,7 @@ const spec: HubSubcommandSpec = {
 
 **Wiki compliance**: when promoting to .opencode/context/ (wiki, decisions, patterns), update .opencode/context/index.md, append to .opencode/context/log.md, add YAML frontmatter to new files, scan for cross-references to existing pages.
 
-The remember skill classifies each knowledge item and routes it to the right store. Sensitive data is stripped before committing. Use after /memory-hub session to promote extracted knowledge to durable locations.`,
+The remember skill classifies each knowledge item and routes it to the right store. Sensitive data is stripped before committing. Use after /knowledge-hub session to promote extracted knowledge to durable locations.`,
 
   tools: TOOLS_LOADSKILL_BASH_AGENTCONTEXT,
   rules: RULES_CONTEXT_STRATEGY_SECURITY,

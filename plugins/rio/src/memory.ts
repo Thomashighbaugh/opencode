@@ -2,8 +2,8 @@
  * MemoryService — learn, recall, relate, forget.
  *
  * Shares the same .opencode/state/vector/memory.db target as the
- * memory-hub subcommands (capture, memory, session, vectorize, search,
- * consume). Rio and memory-hub operate on identical tables, so memories
+ * knowledge-hub subcommands (capture, memory, session, vectorize, search,
+ * consume). Rio and knowledge-hub operate on identical tables, so memories
  * created by either are visible to both.
  *
  * Embedding / rerank / classification reuse the local ONNX runtime from

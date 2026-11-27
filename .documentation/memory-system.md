@@ -85,7 +85,7 @@ paths. Loading everything is how a context window becomes useless.
 
 ---
 
-## `/memory-hub`
+## `/knowledge-hub`
 
 The user-facing interface. 18 subcommands across four intents.
 
@@ -96,7 +96,7 @@ The user-facing interface. 18 subcommands across four intents.
 | **Curate**  | `prune`, `sweep`, `compress`, `diff`, `export`, `codebase` |
 | **Compound**| `recall`, `consume`, `codebase` |
 
-### `/memory-hub consume`
+### `/knowledge-hub consume`
 
 Ingests external content into durable context:
 

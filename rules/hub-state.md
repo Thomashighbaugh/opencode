@@ -6,7 +6,7 @@ description: Hub state conventions: which menus track state, where it lives, and
 # Hub State Conventions
 
 OpenCode Hubs has 14 menus — 13 named `<topic>-hub` plus `/hub-setup`, which keeps the same 12 subcommands and the same `stateDir` that `/scaffold-hub` used. Five track state (`/hub-setup`, `/ideate-hub` +
-`/plan-hub`, `/orchestrate-hub` + `/swarm-hub`, `/memory-hub`); the rest are stateless. All state lives in `.opencode/state/` and is gitignored. Durable context lives in `.opencode/context/` and is committed. See `rules/context-strategy.md` for the full context model.
+`/plan-hub`, `/orchestrate-hub` + `/swarm-hub`, `/knowledge-hub`); the rest are stateless. All state lives in `.opencode/state/` and is gitignored. Durable context lives in `.opencode/context/` and is committed. See `rules/context-strategy.md` for the full context model.
 
 ## State vs Context Separation
 
@@ -22,7 +22,7 @@ OpenCode Hubs has 14 menus — 13 named `<topic>-hub` plus `/hub-setup`, which k
 | `/hub-setup` | — | — | `.opencode/state/init/` | `.opencode/state/init/init-checkpoint.json` |
 | `/ideate-hub`, `/plan-hub` | `.opencode/state/ideation/work-products/` | — | `.opencode/state/ideation/` | — |
 | `/orchestrate-hub`, `/swarm-hub` | `.opencode/state/orchestration/progress/` | `.opencode/state/orchestration/progress/` | `.opencode/state/orchestration/` | `.opencode/state/orchestration/checkpoints/` |
-| `/memory-hub` | — | — | `.opencode/context/` (durable) / `.opencode/state/harvest/` (session/PII) | — |
+| `/knowledge-hub` | — | — | `.opencode/context/` (durable) / `.opencode/state/harvest/` (session/PII) | — |
 | all other menus | — (stateless) | — | — | — |
 
 ## Durable Context Paths

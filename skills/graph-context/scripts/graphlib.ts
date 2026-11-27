@@ -993,7 +993,7 @@ export function backfillFromCode(inputDir: string | undefined): CodeBackfillResu
     signature: null
   }
   if (!fs.existsSync(paths.codeDbPath)) {
-    result.skipped = "no code.db (build via /memory-hub vectorize)"
+    result.skipped = "no code.db (build via /knowledge-hub vectorize)"
     return result
   }
 

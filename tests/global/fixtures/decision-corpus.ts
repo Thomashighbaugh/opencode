@@ -43,7 +43,7 @@ export const DECISIONS: string[] = [
   "The decision is to keep the pure function pure and put the model in `decide`.",
   "Let's commit to the native API and delete the custom JSX.",
   "Renaming the subcommand to `decide` instead of `classify`.",
-  "Right, so: rio owns memory, memory-hub reads the same DB."
+  "Right, so: rio owns memory, knowledge-hub reads the same DB."
 ]
 
 export const NON_DECISIONS: string[] = [

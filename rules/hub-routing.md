@@ -50,7 +50,7 @@ tools/
 └── hubs/
     ├── hub-setup/      # 12 files + index.ts
     ├── resource-hub/      # 18
-    ├── memory-hub/        # 13
+    ├── knowledge-hub/        # 13
     ├── research-hub/      # 14
     ├── design-hub/        #  7
     ├── ideate-hub/        # 17
@@ -75,7 +75,7 @@ The 2026-10 re-homing pass moved subcommands to the hub that owns their activity
 A later 2026-10 pass moved the architecture cluster (`arch-prep`, `architecture`, `modularity`) out
 of `design-hub` — where "design" ambiguously spanned visual UI/UX and project architecture — into
 `build-hub`, alongside `refactor`/`modernize`/`overhaul`.
-Every vacated `<hub>/<sub>` key was added to `LEGACY_ROUTE_MAP`, so a saved `/memory-hub resume`
+Every vacated `<hub>/<sub>` key was added to `LEGACY_ROUTE_MAP`, so a saved `/knowledge-hub resume`
 prompt still resolves.
 
 ## Delegation Table (173 subcommands)
@@ -139,19 +139,19 @@ prompt still resolves.
 | `maintain-hub` | `self-improve` | self-improvement |
 | `maintain-hub` | `sweep` | inline |
 | `maintain-hub` | `workspace` | inline |
-| `memory-hub` | `capture` | remember |
-| `memory-hub` | `compress` | inline |
-| `memory-hub` | `consolidate-telemetry` | inline |
-| `memory-hub` | `consume` | inline |
-| `memory-hub` | `context` | inline |
-| `memory-hub` | `diff` | inline |
-| `memory-hub` | `export` | inline |
-| `memory-hub` | `memory` | remember |
-| `memory-hub` | `prune` | inline |
-| `memory-hub` | `search` | inline |
-| `memory-hub` | `secondbrain` | inline |
-| `memory-hub` | `session` | inline |
-| `memory-hub` | `vectorize` | inline |
+| `knowledge-hub` | `capture` | remember |
+| `knowledge-hub` | `compress` | inline |
+| `knowledge-hub` | `consolidate-telemetry` | inline |
+| `knowledge-hub` | `consume` | inline |
+| `knowledge-hub` | `context` | inline |
+| `knowledge-hub` | `diff` | inline |
+| `knowledge-hub` | `export` | inline |
+| `knowledge-hub` | `memory` | remember |
+| `knowledge-hub` | `prune` | inline |
+| `knowledge-hub` | `search` | inline |
+| `knowledge-hub` | `secondbrain` | inline |
+| `knowledge-hub` | `session` | inline |
+| `knowledge-hub` | `vectorize` | inline |
 | `orchestrate-hub` | `autopilot` | autopilot |
 | `orchestrate-hub` | `ccg` | ccg |
 | `orchestrate-hub` | `consensus` | inline |

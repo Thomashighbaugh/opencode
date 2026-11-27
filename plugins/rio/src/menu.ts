@@ -225,7 +225,7 @@ export async function runMenuAction(
         `Wiki index: .opencode/context/index.md`,
         `Decisions: .opencode/context/decisions.md`,
         `Patterns: .opencode/context/patterns/`,
-        `Vector DB: .opencode/state/vector/memory.db (shared with memory-hub)`,
+        `Vector DB: .opencode/state/vector/memory.db (shared with knowledge-hub)`,
         `No action needed — memory system is shared and compatible.`,
       ].join("\n")
     }

@@ -36,7 +36,7 @@ The report is saved to .opencode/state/ideation/work-products/ with ISO date pre
 
 ## Registry
 
-The analysis results can be persisted to the durable context registry (.opencode/context/patterns/) for cross-session reuse via /memory-hub.
+The analysis results can be persisted to the durable context registry (.opencode/context/patterns/) for cross-session reuse via /knowledge-hub.
 
 ## Gatekeeping Question
 

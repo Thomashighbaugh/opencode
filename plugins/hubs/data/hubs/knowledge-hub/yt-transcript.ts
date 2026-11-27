@@ -40,7 +40,7 @@ If tgrab fails (age-restricted, region-locked, no captions), say which failure i
 
   examples: [
     {
-      input: "/memory-hub yt-transcript https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      input: "/knowledge-hub yt-transcript https://www.youtube.com/watch?v=dQw4w9WgXcQ",
       approach:
         "tgrab → 212 caption lines. Slug rick-astley-never-gonna-give-you-up-dQw4w9WgXcQ. Write .opencode/context/research/youtube/<slug>.md with frontmatter + verbatim transcript, run regen-index.ts, report path and 212 lines.",
     },
