@@ -203,7 +203,7 @@ Every mechanism that already writes durable markdown feeds the graph:
 | `/knowledge-hub` (session/pattern/decision writes) | nodes + derived_from edges on next `build` |
 | `self-improvement` skill learnings capture | learning nodes, `touches` edges, weight = Recurrence-Count |
 | `/knowledge-hub consolidate-telemetry` (ADRs) | decision nodes, `supersedes` edges |
-| `/maintain-hub retrospect` | lesson nodes |
+| `/verify-hub retrospect` | lesson nodes |
 | `/ideation` finalize | plan nodes, derived_from → sources |
 
 Run `graph build` after any of these to fold new knowledge into the graph.
@@ -238,4 +238,4 @@ Run `graph build` after any of these to fold new knowledge into the graph.
 - `wiki` skill — frontmatter schema is the node-extraction contract
 - `graph-thinking` skill — mental model for structuring the graph
 - `/knowledge-hub consolidate-telemetry` — ADR → supersedes edges
-- `/plan-hub improvements` — cluster-density edges can order audit proposals
+- `/think-hub improvements` — cluster-density edges can order audit proposals

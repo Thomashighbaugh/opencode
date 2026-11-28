@@ -14,7 +14,7 @@ const spec: HubSubcommandSpec = {
 - Best-effort worker verification: each worker self-verifies, but the orchestrator runs the authoritative integration test after merging a batch.
 - Blocked worker protocol: if a worker hits a blocker, it marks itself blocked rather than spinning. The orchestrator can unblock or reassign.
 
-This is the execution half of the Hive methodology (the planning half is /swarm-hub hive-plan, the "Architect Bee" phase). After /swarm-hub hive-plan produces plan.md and the user approves, /swarm-hub hive executes it.
+This is the execution half of the Hive methodology (the planning half is /orchestrate-hub hive-plan, the "Architect Bee" phase). After /orchestrate-hub hive-plan produces plan.md and the user approves, /orchestrate-hub hive executes it.
 
 Use for large parallelizable features where file conflicts are a real risk. Worktree isolation makes parallel work safe.
 
@@ -24,7 +24,7 @@ Before executing, ask (passing the flag skips the question — non-interactive p
 
 > **Question — which plan to execute?**
 > 1. Select an approved plan — list .opencode/state/ideation/*.md
-> 2. Type a topic — run /swarm-hub hive-plan first to produce the plan
+> 2. Type a topic — run /orchestrate-hub hive-plan first to produce the plan
 > (or type a path)
 
 Resolved answer maps to \`--plan=<file>\`.`,
@@ -34,11 +34,11 @@ Resolved answer maps to \`--plan=<file>\`.`,
 
   examples: [
     {
-      input: "/swarm-hub hive",
+      input: "/orchestrate-hub hive",
       approach: "Asks which plan (selects .opencode/state/ideation/plan.md). Read the approved plan. Create worktrees per task batch. Dispatch workers in parallel. After each batch: merge branches, run integration tests. If fail, fix or roll back. Proceed to next batch."
     },
     {
-      input: "/swarm-hub hive --plan=.opencode/state/ideation/plan.md",
+      input: "/orchestrate-hub hive --plan=.opencode/state/ideation/plan.md",
       approach: "Flag passed → gate skipped. Same execution flow with the plan supplied directly."
     }
   ],

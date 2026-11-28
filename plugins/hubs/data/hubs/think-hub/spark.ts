@@ -6,7 +6,7 @@ const spec: HubSubcommandSpec = {
   reminder: "Spark project-aware improvement and expansion ideas.",
   inline: true,
 
-  detailedDescription: `Generates short, high-signal idea sparks anchored in the actual project. Unlike /ideate-hub brainstorm (free-form, no codebase awareness), spark first scans the project for concrete surfaces to improve or expand, then produces a structured output of short prompts — each just enough to ignite further exploration.
+  detailedDescription: `Generates short, high-signal idea sparks anchored in the actual project. Unlike /think-hub brainstorm (free-form, no codebase awareness), spark first scans the project for concrete surfaces to improve or expand, then produces a structured output of short prompts — each just enough to ignite further exploration.
 
 Process:
 1. Optionally accept a user-provided area or theme to focus on (e.g. "performance", "api design", "ux"). If none given, scan broadly.
@@ -15,7 +15,7 @@ Process:
 4. Output as a markdown table with columns: Area, Spark, Effort (S/M/L). Optionally also as an unordered list if the user prefers list format.
 5. Save to .opencode/state/ideation/work-products/{timestamp}_spark_{theme}.md
 
-Each spark should be concrete enough to be actionable but open enough to explore: "Add retry with exponential backoff to the API client's fetch calls" not just "improve error handling". Use when you know the project has potential but don't know where to start iterating — the output feeds directly into /plan-hub plan, /plan-hub decomposition, or /ideate-hub refine.`,
+Each spark should be concrete enough to be actionable but open enough to explore: "Add retry with exponential backoff to the API client's fetch calls" not just "improve error handling". Use when you know the project has potential but don't know where to start iterating — the output feeds directly into /think-hub plan, /think-hub decomposition, or /think-hub refine.`,
 
   tools: ["bash", "glob", "grep", "read"],
   relatedSkills: [],

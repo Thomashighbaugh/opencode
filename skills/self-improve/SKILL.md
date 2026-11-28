@@ -10,7 +10,7 @@ mode: subagent
 
 ## Gatekeeping Question
 
-`/swarm-hub self-assess` asks before iterating (passing `--thresholds` skips it):
+`/orchestrate-hub self-assess` asks before iterating (passing `--thresholds` skips it):
 
 > **Question — quality thresholds?** Default set (coverage>=90%, lint=0, complexity<10) / Coverage only / type your own comma-separated.
 

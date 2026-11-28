@@ -15,7 +15,7 @@ const spec: HubSubcommandSpec = {
 4. Resolves dependencies between decisions: if decision B depends on A, A is resolved first.
 5. Surfaces hidden assumptions that would cause rework if discovered during implementation.
 
-The output is a fully-stress-tested plan with every decision resolved and every assumption surfaced. Use before committing to implementation — especially for plans from /plan-hub plan, /build-hub architecture, or any design that seems "done" but might hide assumptions.
+The output is a fully-stress-tested plan with every decision resolved and every assumption surfaced. Use before committing to implementation — especially for plans from /think-hub plan, /build-hub architecture, or any design that seems "done" but might hide assumptions.
 
 ## Gatekeeping Question
 
@@ -33,11 +33,11 @@ Resolved answer is either the inline topic or \`--plan=<file>\`.`,
 
   examples: [
     {
-      input: "/ideate-hub grill",
+      input: "/think-hub grill",
       approach: "Asks what to grill — user types the topic. Q1: 'session store — Redis or DB?' (recommends Redis). Q2 (depends on Q1): 'session expiry — sliding or absolute?' (recommends sliding). Q3: 'what happens on Redis failure?' (recommends fallback to DB). ... until every branch is resolved."
     },
     {
-      input: "/ideate-hub grill --plan=auth-redesign.md",
+      input: "/think-hub grill --plan=auth-redesign.md",
       approach: "Flag passed → gate skipped. Same grilling, run against the named plan file."
     }
   ]

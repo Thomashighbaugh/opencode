@@ -17,14 +17,14 @@ Each task in the output plan has:
 
 The plan is saved to .opencode/state/ideation/work-products/ as a markdown document. It becomes the input for /orchestrate-hub patterns (plan-execute, subagent-driven, ralph with the plan as goal).
 
-Unlike /plan-hub decomposition (which just breaks work down), plan includes an interview phase to ensure the goal is fully understood before decomposition. Use when the goal is clear enough to plan but has ambiguities that need clarification.`,
+Unlike /think-hub decomposition (which just breaks work down), plan includes an interview phase to ensure the goal is fully understood before decomposition. Use when the goal is clear enough to plan but has ambiguities that need clarification.`,
 
   tools: ["loadSkill", "taskTodos"],
   relatedSkills: SKILLS_PLANNING_BREAKDOWN,
 
   examples: [
     {
-      input: "/plan-hub plan 'add user notifications for mentions, replies, and task assignments'",
+      input: "/think-hub plan 'add user notifications for mentions, replies, and task assignments'",
       approach: "Interview: 'real-time or digest?' → 'both'. 'Which channels?' → 'in-app + email'. 'Opt-out per type?' → 'yes'. Plan: 1) notification model, 2) mention detector, 3) reply watcher, 4) assignment handler, 5) in-app UI, 6) email digester, 7) settings UI."
     }
   ]

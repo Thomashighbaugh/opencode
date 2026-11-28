@@ -13,7 +13,7 @@ Units → Modules → Subsystems → System
 
 Each level composes elements from the level below. The bottom-up approach is best when you have strong existing components and want to figure out what you can build with them. It's grounded in what exists rather than what's envisioned.
 
-Contrast with /plan-hub top-down (decompose from vision). Use bottom-up when you have capable building blocks and want to discover what system they can form.`,
+Contrast with /think-hub top-down (decompose from vision). Use bottom-up when you have capable building blocks and want to discover what system they can form.`,
 
   tools: TOOLS_BASH_TASKTODOS,
   relatedSkills: [],

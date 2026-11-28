@@ -53,7 +53,7 @@ At the end of the audit, present the **ordered list** — sorted by impact/effor
 - Write the audit + proposal list to \`.opencode/state/ideation/work-products/YYYYMMDD_HHMMSS_improvements_{topic-slug}_{stage}.md\` using the ideation naming convention.
 - Terminal summary table: item # | severity | title | effort | status (approved/denied).
 
-**Pairs with:** /build-hub overhaul (8-dimension phased plan), /plan-hub quality (code quality deep-dive), /build-hub optimize, /build-hub refactor. Use this when the user wants a quick "what should I improve?" sweep with a decision gate; use overhaul when they want the full phased plan.`,
+**Pairs with:** /build-hub overhaul (8-dimension phased plan), /think-hub quality (code quality deep-dive), /build-hub optimize, /build-hub refactor. Use this when the user wants a quick "what should I improve?" sweep with a decision gate; use overhaul when they want the full phased plan.`,
 
   tools: TOOLS_BASH,
   relatedSkills: [],
@@ -63,7 +63,7 @@ At the end of the audit, present the **ordered list** — sorted by impact/effor
       approach: "Audit dimensions, find e.g. 2 majors (unpinned deps with CVE, no e2e tests) + 3 minors (naming in utils/, stale README, dead code in legacy/). Ordered list: 1. pin deps, 2. e2e smoke, 3. README update, 4. rename utils, 5. delete legacy. Ask approve/deny per item, then stop."
     },
     {
-      input: "/plan-hub improvements",
+      input: "/think-hub improvements",
       approach: "Run the 4-phase flow: audit → itemize major/minor → ordered proposal list → approve/deny gate. Save work-product to state; do not implement approved items without explicit go-ahead."
     }
   ],

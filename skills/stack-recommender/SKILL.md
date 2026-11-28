@@ -296,7 +296,7 @@ Rules:
 6. **De-duplicate and prioritize** — remove duplicate resource references and order by relevance.
 7. **Return recommendations** — structured JSON with `hint_pack`, `hints`, `research`, `preferences`, skills, agents, rules, tools, fine_rules, commands, gaps, and notes. `project-config-composer` **synthesizes** from these; it never copies a pack.
 8. If calling from `/init-project`, pass the recommendations to `project-config-composer` for `.opencode/` generation
-9. If `tools` or `fine_rules` are present, `/resource-hub find` can be called to search registries for additional resources not in the local template catalog (type-gated: skills, agents, rules, tools, commands)
+9. If `tools` or `fine_rules` are present, `/hub-setup find` can be called to search registries for additional resources not in the local template catalog (type-gated: skills, agents, rules, tools, commands)
 
 ## Integration
 
@@ -316,4 +316,4 @@ flowchart LR
 When a user says "I'm building a [description]" without a codebase:
 1. Use `@stack-detector` with the description to construct a synthetic fingerprint
 2. Pass through the same recommendation pipeline
-3. If description is too vague, use `/ideate-hub grill` to sharpen it first
+3. If description is too vague, use `/think-hub grill` to sharpen it first

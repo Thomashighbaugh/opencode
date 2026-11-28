@@ -9,7 +9,7 @@ compatibility: Requires sqlite3 CLI and the same DB discovery as the session-mem
 
 ## Gatekeeping Question
 
-`/maintain-hub insights` asks before analyzing (passing `--range` skips it):
+`/verify-hub insights` asks before analyzing (passing `--range` skips it):
 
 > **Question — analysis range?** Last 20 sessions (default) / 1 week / 2 weeks / 1 month (or type your own range, or a session ID).
 

@@ -35,11 +35,11 @@ Resolved answers map to \`--driver=@x\` and \`--navigator=@y\`.`,
 
   examples: [
     {
-      input: "/swarm-hub pair 'implement the password reset token flow'",
+      input: "/orchestrate-hub pair 'implement the password reset token flow'",
       approach: "Asks driver (@executor) and navigator (@security-reviewer). Driver writes the token generation, Navigator immediately flags 'token must be cryptographically random, not Math.random()'. Driver fixes. Driver writes the email step, Navigator flags 'don't log the token'. Driver fixes."
     },
     {
-      input: "/swarm-hub pair --navigator=@security-reviewer 'implement the password reset token flow'",
+      input: "/orchestrate-hub pair --navigator=@security-reviewer 'implement the password reset token flow'",
       approach: "Flag passed → navigator gate skipped (driver still defaults to @executor). Same review flow."
     }
   ]

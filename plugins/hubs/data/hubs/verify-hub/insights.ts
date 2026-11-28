@@ -18,7 +18,7 @@ The analysis covers:
 
 Data is gathered via the session-memory skill's read-only SQLite queries. The report is written to .opencode/state/insights/insights-{YYYYMMDD}.md.
 
-Distinct from /maintain-hub retrospect (post-run lessons-learned for a single orchestration): this analyzes cross-session usage history. Use insights when the question is "what have I been working on / where am I losing time" — use retrospect when finishing a specific run.
+Distinct from /verify-hub retrospect (post-run lessons-learned for a single orchestration): this analyzes cross-session usage history. Use insights when the question is "what have I been working on / where am I losing time" — use retrospect when finishing a specific run.
 
 Rules: read-only DB access (mode=ro), evidence over vibes (every claim traces to transcript text), synthesize don't dump.
 
@@ -38,11 +38,11 @@ Resolved answer maps to \`--range <range>\`.`,
   relatedSkills: ["session-memory"],
   examples: [
     {
-      input: "/maintain-hub insights",
+      input: "/verify-hub insights",
       approach: "Asks range (keeps default: last 20 sessions). Load the insights skill, gather session data via read-only SQLite queries, cluster into project areas, count friction categories, write .opencode/state/insights/insights-{date}.md, summarize top findings."
     },
     {
-      input: "/maintain-hub insights --range 2weeks",
+      input: "/verify-hub insights --range 2weeks",
       approach: "Flag passed → gate skipped. Same analysis scoped to the last 2 weeks — stats, wins, friction categories, and horizon recommendations grounded in that window."
     }
   ],

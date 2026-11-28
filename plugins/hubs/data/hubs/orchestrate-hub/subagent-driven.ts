@@ -17,9 +17,9 @@ Per-task flow:
 
 After all tasks: a broad final review covers cross-task integration, not just per-task correctness.
 
-Hub-to-hub handoff protocol: this pattern includes a bridge protocol for passing plans from /ideate-hub → /orchestrate-hub → /knowledge-hub. The plan document is the handoff artifact — it survives context switches because it's on disk, not in a context window.
+Hub-to-hub handoff protocol: this pattern includes a bridge protocol for passing plans from /think-hub → /orchestrate-hub → /knowledge-hub. The plan document is the handoff artifact — it survives context switches because it's on disk, not in a context window.
 
-Use for executing plans produced by /ideate-hub (plan, ralplan, decomposition, etc.) where you want per-task isolation + automated review. The fresh-context-per-task design prevents earlier tasks' mistakes from contaminating later tasks' context.
+Use for executing plans produced by /think-hub (plan, ralplan, decomposition, etc.) where you want per-task isolation + automated review. The fresh-context-per-task design prevents earlier tasks' mistakes from contaminating later tasks' context.
 
 ## Gatekeeping Question
 
@@ -37,7 +37,7 @@ Resolved answer maps to \`--plan=<file>\`.`,
 
   examples: [
     {
-      input: "/swarm-hub subagent-driven",
+      input: "/orchestrate-hub subagent-driven",
       approach: "Asks which plan (selects .opencode/state/ideation/plan.md). Read plan (5 tasks). Task 1: fresh @executor implements, @code-reviewer reviews → pass. Task 2: fresh @executor (doesn't know about task 1's mistakes), implements, reviewed → pass. ... Final: broad review of all 5 tasks together."
     }
   ]

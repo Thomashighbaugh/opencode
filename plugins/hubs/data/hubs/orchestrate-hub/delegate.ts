@@ -51,11 +51,11 @@ Resolved answers map to \`--read-only\`, \`--model\`/\`--lane\`, \`--cd\`, \`--b
   relatedSkills: ["verify"],
   examples: [
     {
-      input: "/swarm-hub delegate \"rename X to Y across src/ and update imports\"",
+      input: "/orchestrate-hub delegate \"rename X to Y across src/ and update imports\"",
       approach: "Asks mode (implement), model/lane, repo, brief source (inline), fresh/continue, timeout. Load opencode-delegate skill, check opencode CLI present, write self-contained brief with gate commands, dispatch via relay.ts with the chosen lane, wait for result.json, re-run gates + read diff, then commit the verified work."
     },
     {
-      input: "/swarm-hub delegate --read-only \"review the auth refactor for security holes\"",
+      input: "/orchestrate-hub delegate --read-only \"review the auth refactor for security holes\"",
       approach: "Flag passed → mode gate skipped (review-only). Load skill, dispatch with --read-only (plan agent, no --auto), review the returned diagnosis without touching the tree."
     }
   ],

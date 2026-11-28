@@ -16,7 +16,7 @@ If the resource type is not given inline, ask via the \`question\` tool:
 > **Which resource type?**
 > 1. skills   2. rules   3. tools   4. commands   5. agents   6. all
 
-Pass the type inline (e.g. \`/resource-hub list rules\`) or \`--type=rules\` to skip the gate. \`all\` lists every type.
+Pass the type inline (e.g. \`/hub-setup list rules\`) or \`--type=rules\` to skip the gate. \`all\` lists every type.
 
 Scopes:
 

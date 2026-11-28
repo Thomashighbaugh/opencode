@@ -34,7 +34,7 @@ Resolved answer maps to \`--deploy="..."\`.`,
 
   examples: [
     {
-      input: "/swarm-hub devin 'add WebSocket support to the chat server'",
+      input: "/orchestrate-hub devin 'add WebSocket support to the chat server'",
       approach: "Asks deploy command (npm run deploy). Plan: add WS server, client adapter, message handler, reconnection logic. Code: implement each. Debug: tests fail on reconnection — root cause is race condition in close handler. Fix. Re-verify: pass. Deploy."
     }
   ]

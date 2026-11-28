@@ -32,7 +32,7 @@ Resolved answer maps to \`--backlog="<glob>"\`.`,
 
   examples: [
     {
-      input: "/swarm-hub gastown 'process the backlog'",
+      input: "/orchestrate-hub gastown 'process the backlog'",
       approach: "Asks backlog source (selects issues/*.md). Each issue becomes a git branch. Agent claims issue-42 branch, implements, commits, merges. If it fails mid-way, the branch retains progress; a new agent claims and continues."
     }
   ]

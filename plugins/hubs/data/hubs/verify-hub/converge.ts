@@ -24,7 +24,7 @@ Use for release readiness — confirms the project meets all quality bars before
 
   examples: [
     {
-      input: "/maintain-hub converge",
+      input: "/verify-hub converge",
       approach: "Gate 1: tests pass (100%). Gate 2: lint clean, complexity 8. Gate 3: tsc passes. Gate 4: security scan — 1 high finding (outdated dep). Fix: update dep. Re-run: pass. Gate 5: bundle 240kb (budget 250kb). Pass. Converged."
     }
   ]

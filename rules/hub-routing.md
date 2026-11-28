@@ -49,18 +49,18 @@ tools/
 ├── hub-<name>-hub.ts       # Thin manifest (13 files) — identity slice only
 └── hubs/
     ├── hub-setup/      # 12 files + index.ts
-    ├── resource-hub/      # 18
+    ├── hub-setup/      # 18
     ├── knowledge-hub/        # 13
     ├── research-hub/      # 14
     ├── design-hub/        #  7
-    ├── ideate-hub/        # 17
-    ├── plan-hub/          # 16
+    ├── think-hub/        # 17
+    ├── think-hub/          # 16
     ├── verify-hub/        # 14
-    ├── swarm-hub/         # 17
+    ├── orchestrate-hub/         # 17
     ├── build-hub/         # 14
     ├── orchestrate-hub/   # 12
     ├── git-hub/           # 10
-    ├── maintain-hub/      #  9
+    ├── verify-hub/      #  9
 ```
 
 ## Legacy Routing
@@ -71,7 +71,7 @@ redirect: `project/pt-review`, `project/pt-audit`, `project/pt-debt`, `project/p
 pattern) and `orchestrate/deep` (duplicate of `ideation/deep-dive`).
 
 The 2026-10 re-homing pass moved subcommands to the hub that owns their activity (e.g. `journal` →
-`orchestrate-hub`, `sweep` → `maintain-hub`, `tracer` → `verify-hub`, `scan` renamed `sec-scan`).
+`orchestrate-hub`, `sweep` → `verify-hub`, `tracer` → `verify-hub`, `scan` renamed `sec-scan`).
 A later 2026-10 pass moved the architecture cluster (`arch-prep`, `architecture`, `modularity`) out
 of `design-hub` — where "design" ambiguously spanned visual UI/UX and project architecture — into
 `build-hub`, alongside `refactor`/`modernize`/`overhaul`.
@@ -113,32 +113,32 @@ prompt still resolves.
 | `git-hub` | `git-stage-thread` | inline |
 | `git-hub` | `pr` | github-ops |
 | `git-hub` | `release` | inline |
-| `ideate-hub` | `adversarial-debate` | inline |
-| `ideate-hub` | `brainstorm` | inline |
-| `ideate-hub` | `cleanroom` | inline |
-| `ideate-hub` | `ddd` | inline |
-| `ideate-hub` | `deep-dive` | deep-dive |
-| `ideate-hub` | `deep-thinker` | deep-thinker |
-| `ideate-hub` | `double-diamond` | inline |
-| `ideate-hub` | `event-storming` | inline |
-| `ideate-hub` | `grill` | grilling |
-| `ideate-hub` | `interview` | deep-interview |
-| `ideate-hub` | `opro` | opro |
-| `ideate-hub` | `pwf` | inline |
-| `ideate-hub` | `refine` | idea-refine |
-| `ideate-hub` | `resume` | inline |
-| `ideate-hub` | `rpikit` | inline |
-| `ideate-hub` | `spark` | inline |
-| `ideate-hub` | `tree-of-thoughts` | tree-of-thoughts |
-| `maintain-hub` | `converge` | inline |
-| `maintain-hub` | `insights` | insights |
-| `maintain-hub` | `organize` | file-organizer |
-| `maintain-hub` | `purge` | inline |
-| `maintain-hub` | `retrospect` | inline |
-| `maintain-hub` | `sandbox` | inline |
-| `maintain-hub` | `self-improve` | self-improvement |
-| `maintain-hub` | `sweep` | inline |
-| `maintain-hub` | `workspace` | inline |
+| `think-hub` | `adversarial-debate` | inline |
+| `think-hub` | `brainstorm` | inline |
+| `think-hub` | `cleanroom` | inline |
+| `think-hub` | `ddd` | inline |
+| `think-hub` | `deep-dive` | deep-dive |
+| `think-hub` | `deep-thinker` | deep-thinker |
+| `think-hub` | `double-diamond` | inline |
+| `think-hub` | `event-storming` | inline |
+| `think-hub` | `grill` | grilling |
+| `think-hub` | `interview` | deep-interview |
+| `think-hub` | `opro` | opro |
+| `think-hub` | `pwf` | inline |
+| `think-hub` | `refine` | idea-refine |
+| `think-hub` | `resume` | inline |
+| `think-hub` | `rpikit` | inline |
+| `think-hub` | `spark` | inline |
+| `think-hub` | `tree-of-thoughts` | tree-of-thoughts |
+| `verify-hub` | `converge` | inline |
+| `verify-hub` | `insights` | insights |
+| `verify-hub` | `organize` | file-organizer |
+| `verify-hub` | `purge` | inline |
+| `verify-hub` | `retrospect` | inline |
+| `verify-hub` | `sandbox` | inline |
+| `verify-hub` | `self-improve` | self-improvement |
+| `verify-hub` | `sweep` | inline |
+| `verify-hub` | `workspace` | inline |
 | `knowledge-hub` | `capture` | remember |
 | `knowledge-hub` | `compress` | inline |
 | `knowledge-hub` | `consolidate-telemetry` | inline |
@@ -164,22 +164,22 @@ prompt still resolves.
 | `orchestrate-hub` | `swarm` | swarm |
 | `orchestrate-hub` | `team` | team |
 | `orchestrate-hub` | `ultrawork` | ultrawork |
-| `plan-hub` | `bottom-up` | inline |
-| `plan-hub` | `constitution` | inline |
-| `plan-hub` | `decomposition` | inline |
-| `plan-hub` | `effort-estimator` | @effort-estimator |
-| `plan-hub` | `impact-mapping` | inline |
-| `plan-hub` | `improvements` | inline |
-| `plan-hub` | `jtbd` | inline |
-| `plan-hub` | `lean-canvas` | inline |
-| `plan-hub` | `plan-execute` | plan-execute |
-| `plan-hub` | `plan` | plan |
-| `plan-hub` | `ralplan` | ralplan |
-| `plan-hub` | `requirements-analyzer` | @requirements-analyzer |
-| `plan-hub` | `spiral` | inline |
-| `plan-hub` | `status` | inline |
-| `plan-hub` | `story-mapping` | inline |
-| `plan-hub` | `top-down` | inline |
+| `think-hub` | `bottom-up` | inline |
+| `think-hub` | `constitution` | inline |
+| `think-hub` | `decomposition` | inline |
+| `think-hub` | `effort-estimator` | @effort-estimator |
+| `think-hub` | `impact-mapping` | inline |
+| `think-hub` | `improvements` | inline |
+| `think-hub` | `jtbd` | inline |
+| `think-hub` | `lean-canvas` | inline |
+| `think-hub` | `plan-execute` | plan-execute |
+| `think-hub` | `plan` | plan |
+| `think-hub` | `ralplan` | ralplan |
+| `think-hub` | `requirements-analyzer` | @requirements-analyzer |
+| `think-hub` | `spiral` | inline |
+| `think-hub` | `status` | inline |
+| `think-hub` | `story-mapping` | inline |
+| `think-hub` | `top-down` | inline |
 | `research-hub` | `analyst` | @analyst |
 | `research-hub` | `analyze-patterns` | inline |
 | `research-hub` | `compare` | inline |
@@ -194,24 +194,24 @@ prompt still resolves.
 | `research-hub` | `sciomc` | sciomc |
 | `research-hub` | `tech-eval` | inline |
 | `research-hub` | `web-research` | inline |
-| `resource-hub` | `add` | inline |
-| `resource-hub` | `config-orchestrator` | @config-orchestrator |
-| `resource-hub` | `create` | inline |
-| `resource-hub` | `edit` | inline |
-| `resource-hub` | `find` | inline |
-| `resource-hub` | `graph` | graph-thinking |
-| `resource-hub` | `info` | inline |
-| `resource-hub` | `knowledge-graph` | graph-context |
-| `resource-hub` | `list` | inline |
-| `resource-hub` | `package` | inline |
-| `resource-hub` | `prompt-simplifier` | @prompt-simplifier |
-| `resource-hub` | `remove` | inline |
-| `resource-hub` | `scan` | inline |
-| `resource-hub` | `search` | inline |
-| `resource-hub` | `setup` | inline |
-| `resource-hub` | `sync` | inline |
-| `resource-hub` | `update` | inline |
-| `resource-hub` | `validate` | inline |
+| `hub-setup` | `add` | inline |
+| `hub-setup` | `config-orchestrator` | @config-orchestrator |
+| `hub-setup` | `create` | inline |
+| `hub-setup` | `edit` | inline |
+| `hub-setup` | `find` | inline |
+| `hub-setup` | `graph` | graph-thinking |
+| `hub-setup` | `info` | inline |
+| `hub-setup` | `knowledge-graph` | graph-context |
+| `hub-setup` | `list` | inline |
+| `hub-setup` | `package` | inline |
+| `hub-setup` | `prompt-simplifier` | @prompt-simplifier |
+| `hub-setup` | `remove` | inline |
+| `hub-setup` | `scan` | inline |
+| `hub-setup` | `search` | inline |
+| `hub-setup` | `setup` | inline |
+| `hub-setup` | `sync` | inline |
+| `hub-setup` | `update` | inline |
+| `hub-setup` | `validate` | inline |
 | `hub-setup` | `config` | opencode-configure |
 | `hub-setup` | `detect` | stack-detector |
 | `hub-setup` | `doctor` | inline |
@@ -224,23 +224,23 @@ prompt still resolves.
 | `hub-setup` | `status` | inline |
 | `hub-setup` | `tag` | tag-resources |
 | `hub-setup` | `verify` | verify |
-| `swarm-hub` | `cc10x` | inline |
-| `swarm-hub` | `delegate` | opencode-delegate |
-| `swarm-hub` | `devin` | inline |
-| `swarm-hub` | `gastown` | inline |
-| `swarm-hub` | `gsd` | inline |
-| `swarm-hub` | `harden` | harden |
-| `swarm-hub` | `hive-plan` | inline |
-| `swarm-hub` | `hive` | hive-methodology |
-| `swarm-hub` | `maestro` | inline |
-| `swarm-hub` | `metaswarm` | inline |
-| `swarm-hub` | `pair` | inline |
-| `swarm-hub` | `react` | inline |
-| `swarm-hub` | `remediate` | inline |
-| `swarm-hub` | `ruflo` | inline |
-| `swarm-hub` | `self-assess` | self-improve |
-| `swarm-hub` | `spec-driven` | inline |
-| `swarm-hub` | `subagent-driven` | subagent-driven-development |
+| `orchestrate-hub` | `cc10x` | inline |
+| `orchestrate-hub` | `delegate` | opencode-delegate |
+| `orchestrate-hub` | `devin` | inline |
+| `orchestrate-hub` | `gastown` | inline |
+| `orchestrate-hub` | `gsd` | inline |
+| `orchestrate-hub` | `harden` | harden |
+| `orchestrate-hub` | `hive-plan` | inline |
+| `orchestrate-hub` | `hive` | hive-methodology |
+| `orchestrate-hub` | `maestro` | inline |
+| `orchestrate-hub` | `metaswarm` | inline |
+| `orchestrate-hub` | `pair` | inline |
+| `orchestrate-hub` | `react` | inline |
+| `orchestrate-hub` | `remediate` | inline |
+| `orchestrate-hub` | `ruflo` | inline |
+| `orchestrate-hub` | `self-assess` | self-improve |
+| `orchestrate-hub` | `spec-driven` | inline |
+| `orchestrate-hub` | `subagent-driven` | subagent-driven-development |
 | `verify-hub` | `audit` | inline |
 | `verify-hub` | `code-review` | code-reviewer |
 | `verify-hub` | `create-tests` | inline |

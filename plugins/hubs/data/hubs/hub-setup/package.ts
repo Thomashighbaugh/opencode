@@ -16,11 +16,11 @@ If the resource type is not given inline, ask via the \`question\` tool:
 > **Which resource type?**
 > 1. skill   2. rule   3. tool   4. command   5. agent
 
-Pass the type inline (e.g. \`/resource-hub package skill\`) or \`--type=skill\` to skip the gate.
+Pass the type inline (e.g. \`/hub-setup package skill\`) or \`--type=skill\` to skip the gate.
 
 Process:
 
-1. Validate the resource structure (see /resource-hub validate).
+1. Validate the resource structure (see /hub-setup validate).
 2. If validation passes: create a distributable zip containing the resource directory.
 3. If validation fails: report errors and suggest fixes — do not package.
 

@@ -41,7 +41,7 @@ Resolved answers map to \`--wrap=...\`, \`--circuit-breaker=...\`, \`--gate="...
 
   examples: [
     {
-      input: "/swarm-hub harden 'fix all type errors'",
+      input: "/orchestrate-hub harden 'fix all type errors'",
       approach: "Asks wrap mode (ralph), threshold (3/5), and gate command ('npm test'). Ralph loops fixing type errors. CircuitBreaker: if 3 of 5 attempts fail, halt (something is systematically wrong). verificationGate: each fix must pass 'npm test' before the next iteration."
     }
   ]

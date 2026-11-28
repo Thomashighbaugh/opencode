@@ -9,7 +9,7 @@ license: MIT
 
 ## Gatekeeping Question
 
-`/swarm-hub subagent-driven` asks before dispatching (passing `--plan` skips it):
+`/orchestrate-hub subagent-driven` asks before dispatching (passing `--plan` skips it):
 
 > **Question — which plan to execute?** Select an approved plan (`.opencode/state/ideation/*.md`), or type a topic to generate one first, or type a path.
 

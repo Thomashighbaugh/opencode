@@ -30,7 +30,7 @@ Resolved answer maps to \`--thresholds="..."\`.`,
 
   examples: [
     {
-      input: "/swarm-hub self-assess 'write tests for src/utils/'",
+      input: "/orchestrate-hub self-assess 'write tests for src/utils/'",
       approach: "Asks thresholds (default set: coverage>=90%, lint=0, complexity<10). Iter 1: write tests, run coverage (72%), lint (2 errors). Self-assess: weakest is coverage. Iter 2: add more tests, coverage 88%. Iter 3: cover edge cases, 92%. Lint 0. Complexity OK. Done."
     }
   ]

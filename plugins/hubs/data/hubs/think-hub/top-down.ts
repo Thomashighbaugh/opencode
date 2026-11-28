@@ -13,7 +13,7 @@ Vision → System → Subsystems → Modules → Units
 
 Each level is a decomposition of the level above. The top-down approach ensures the architecture serves the vision, not the other way around. It's best when the vision is clear but the implementation path isn't.
 
-Contrast with /plan-hub bottom-up (compose from primitives). Use top-down when you have a clear end-state vision and need to figure out the components.`,
+Contrast with /think-hub bottom-up (compose from primitives). Use top-down when you have a clear end-state vision and need to figure out the components.`,
 
   tools: TOOLS_BASH_TASKTODOS,
   relatedSkills: [],

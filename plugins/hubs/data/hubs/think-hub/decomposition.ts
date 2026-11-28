@@ -7,16 +7,16 @@ const spec: HubSubcommandSpec = {
   reminder: "Break complex tasks into actionable subtasks.",
   inline: true,
 
-  detailedDescription: `Decomposes a complex task into an ordered list of actionable subtasks. Unlike /plan-hub plan (which includes an interview), decomposition assumes the goal is already clear and just breaks it down.
+  detailedDescription: `Decomposes a complex task into an ordered list of actionable subtasks. Unlike /think-hub plan (which includes an interview), decomposition assumes the goal is already clear and just breaks it down.
 
 Each subtask has:
 - A one-line objective
 - Verifiable completion criteria
 - Dependencies on prior subtasks (ordered)
 
-The decomposition produces a flat or tree-structured task list. The output is ready to feed into /plan-hub plan-execute, /orchestrate-hub ralph (with the task list as the goal), or /swarm-hub subagent-driven.
+The decomposition produces a flat or tree-structured task list. The output is ready to feed into /think-hub plan-execute, /orchestrate-hub ralph (with the task list as the goal), or /orchestrate-hub subagent-driven.
 
-Use when you have a clear task and need to break it into implementable pieces. For tasks that need clarification first, use /plan-hub plan.`,
+Use when you have a clear task and need to break it into implementable pieces. For tasks that need clarification first, use /think-hub plan.`,
 
   tools: TOOLS_BASH_TASKTODOS,
   relatedSkills: SKILLS_PLANNING_BREAKDOWN,

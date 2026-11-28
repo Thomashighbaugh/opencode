@@ -21,7 +21,7 @@ Corrections, knowledge gaps, best practices, and stale knowledge found in this p
 - **Summary**: `project-memory.json` carried
   `"Verify orchestrate hive → hive-methodology skill routing — spec references hive-methodology but dir is skills/hive/"`.
   Verified resolved: `skills/hive-methodology/SKILL.md` exists, and `validate-delegation` reports
-  `swarm-hub hive` → `hive-methodology` as `ok` at
+  `orchestrate-hub hive` → `hive-methodology` as `ok` at
   `/home/tlh/.config/opencode/skills/hive-methodology/SKILL.md`. The concern was correct when
   written and has since been fixed.
 - **Reproduce clues**: none — already resolved. Confirmed by direct path check + validator run.
@@ -68,7 +68,7 @@ Corrections, knowledge gaps, best practices, and stale knowledge found in this p
 - **Status**: fixed
 - **Priority**: medium
 - **Source**: conversation
-- **Area**: `skills/vectorize-context/SKILL.md`, `rules/efficiency-first.md`, `tools/hubs/maintain-hub/vectorize.ts`, `tools/hubs/spec-registry.json`, `tools/semantic-cache.ts`
+- **Area**: `skills/vectorize-context/SKILL.md`, `rules/efficiency-first.md`, `tools/hubs/verify-hub/vectorize.ts`, `tools/hubs/spec-registry.json`, `tools/semantic-cache.ts`
 - **Logged**: 2026-10-03
 - **Why it will matter later**: the ONNX migration landed as code and left the prose behind. A
   reader following `SKILL.md` would try to start a daemon that is no longer on the hot path, or
@@ -76,7 +76,7 @@ Corrections, knowledge gaps, best practices, and stale knowledge found in this p
   code is worse than absent documentation, because it is trusted.
 - **Summary**: after the embedder moved, five surfaces still described Ollama embeddings at
   1024 dims: the skill's frontmatter and model table, its indexing step, `efficiency-first.md`'s
-  retrieval-ladder note, the `/maintain-hub vectorize` spec, and the generated
+  retrieval-ladder note, the `/verify-hub vectorize` spec, and the generated
   `spec-registry.json`. The spec registry is generated, so fixing the spec without rebuilding left
   the stale text in the artifact the agent actually reads.
 - **Fix applied**: all five updated; spec registry regenerated via `npx tsx tools/build-spec-registry.ts`.

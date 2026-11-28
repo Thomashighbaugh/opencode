@@ -9,7 +9,7 @@ const spec: HubSubcommandSpec = {
 
   detailedDescription: `Discovers *new* installable resources relevant to the project by searching registries. Absorbs the former \`find-skills\` / \`find-agents\` / \`find-rules\` / \`find-tools\` subcommands into one type-gated command.
 
-This searches external registries. To search resources already on disk, use /resource-hub search.
+This searches external registries. To search resources already on disk, use /hub-setup search.
 
 ## Resource Type Gate
 
@@ -18,7 +18,7 @@ If the resource type is not given inline, ask via the \`question\` tool:
 > **Which resource type?**
 > 1. skills   2. agents   3. rules   4. tools   5. commands
 
-Pass the type inline (e.g. \`/resource-hub find rules\`) or \`--type=rules\` to skip the gate.
+Pass the type inline (e.g. \`/hub-setup find rules\`) or \`--type=rules\` to skip the gate.
 
 ## Dispatch
 

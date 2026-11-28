@@ -17,7 +17,7 @@ metadata:
 
 ## Gatekeeping Question
 
-`/swarm-hub delegate` asks before dispatching (passing the flags skips the corresponding question):
+`/orchestrate-hub delegate` asks before dispatching (passing the flags skips the corresponding question):
 
 > **Question 1 — implement or review-only?** Implement (write agent, `--auto`) / Review-only (plan agent, no `--auto`)
 > **Question 2 — model/lane?** pick a configured lane, or type provider/model

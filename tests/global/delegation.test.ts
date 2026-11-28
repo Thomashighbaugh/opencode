@@ -189,7 +189,7 @@ describe("scaffold-hub merged into hub-setup", () => {
     "verify"
   ]
 
-  // hub-setup grew `migrate-v2` and then absorbed resource-hub in the
+  // hub-setup grew `migrate-v2` and then absorbed the resource menu in the
   // 2026-11-24 consolidation. `status` was renamed `setup-status` to remove the
   // cross-menu collision with plan-status and run-status.
   const EFFECTIVE_SCAFFOLD = SCAFFOLD_LABELS.map((l) => (l === "status" ? "setup-status" : l))

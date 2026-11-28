@@ -10,9 +10,9 @@ license: MIT
 
 ## Gatekeeping Question
 
-`/plan-hub ralplan` asks before validating (passing `--plan` skips it):
+`/think-hub ralplan` asks before validating (passing `--plan` skips it):
 
-> **Question — which plan to validate?** Select an existing plan (`.opencode/state/ideation/*.md`), or type a topic (generate the plan first via `/plan-hub plan`), or type a path.
+> **Question — which plan to validate?** Select an existing plan (`.opencode/state/ideation/*.md`), or type a topic (generate the plan first via `/think-hub plan`), or type a path.
 
 Resolved answer maps to `--plan=<file>`. The skill's own flags (`--interactive`, `--deliberate`, `--architect`, `--critic`) are separate and unaffected.
 

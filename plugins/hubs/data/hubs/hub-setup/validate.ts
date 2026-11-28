@@ -16,7 +16,7 @@ If the resource type is not given inline, ask via the \`question\` tool:
 > **Which resource type?**
 > 1. skill   2. rule   3. tool   4. command   5. agent
 
-Pass the type inline (e.g. \`/resource-hub validate skill\`) or \`--type=skill\` to skip the gate.
+Pass the type inline (e.g. \`/hub-setup validate skill\`) or \`--type=skill\` to skip the gate.
 
 Checks per type (common core + type-specific):
 

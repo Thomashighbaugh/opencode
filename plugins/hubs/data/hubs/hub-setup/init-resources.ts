@@ -16,7 +16,7 @@ If the resource type is not given inline, ask via the \`question\` tool:
 > **Which resource type?**
 > 1. skills   2. rules   3. tools   4. commands   5. agents
 
-Pass the type inline (e.g. \`/resource-hub setup agent\`) or \`--type=agent\` to skip the gate. With no type given, steps run across all types.
+Pass the type inline (e.g. \`/hub-setup setup agent\`) or \`--type=agent\` to skip the gate. With no type given, steps run across all types.
 
 Steps:
 

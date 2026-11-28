@@ -7,7 +7,7 @@ const spec: HubSubcommandSpec = {
   reminder: "Quick-add a resource via wizard.",
   inline: true,
 
-  detailedDescription: `Quick-add wizard. Prompts for the essentials and writes a minimal resource file. The fast path — for full creation with scripts, references, and validation use /resource-hub create instead.
+  detailedDescription: `Quick-add wizard. Prompts for the essentials and writes a minimal resource file. The fast path — for full creation with scripts, references, and validation use /hub-setup create instead.
 
 ## Resource Type Gate
 
@@ -16,7 +16,7 @@ If the resource type is not given inline, ask via the \`question\` tool:
 > **Which resource type?**
 > 1. skill   2. rule   3. tool   4. command   5. agent
 
-Pass the type inline (e.g. \`/resource-hub add rule\`) or \`--type=rule\` to skip the gate.
+Pass the type inline (e.g. \`/hub-setup add rule\`) or \`--type=rule\` to skip the gate.
 
 Then prompt for:
 

@@ -40,7 +40,7 @@ Directly invoke the matching subcommand. Print the reminder, then delegate to th
 | `reset` | — | inline | Reset project state — archive .opencode/state and .opencode/context, start fresh |
 | `provision` | 4 | `provision` skill | Auto-generate .opencode/ agents, skills, tools, rules from stack fingerprint + recommendations |
 | `tag` | — | `tag-resources` skill | Audit and fix resource tags on global skills, agents, rules, and archetypes |
-| `find` | — | `find` (type-gated) | Discover skills, agents, rules, tools, or commands from registries — `/resource-hub find <type>` |
+| `find` | — | `find` (type-gated) | Discover skills, agents, rules, tools, or commands from registries — `/hub-setup find <type>` |
 
 ### Subcommand Behavior
 
@@ -136,8 +136,8 @@ This ensures the stack-recommender's mapping tables are complete and no resource
 After `provision`, if the composer reports missing tool or rule templates, run discovery:
 
 ```bash
-/resource-hub find tools   # Search registries for missing TypeScript tools
-/resource-hub find rules   # Search registries for missing OpenCode rules
+/hub-setup find tools   # Search registries for missing TypeScript tools
+/hub-setup find rules   # Search registries for missing OpenCode rules
 ```
 
 These can also run standalone to discover resources for any project, independent of the detection pipeline.
@@ -182,9 +182,9 @@ Init state lives in `.opencode/state/init/` (gitignored).
 ### Cross-Hub Hand-Off
 
 - `/hub-setup setup` (full mode) completion can trigger a `/knowledge-hub` offer
-- `/design-hub docs` output feeds into `/ideate-hub` as project context
+- `/design-hub docs` output feeds into `/think-hub` as project context
 - `/hub-setup verify` results can inform `/project` operations
-- `/ideate-hub` final plans may reference `/hub-setup` detection results
+- `/think-hub` final plans may reference `/hub-setup` detection results
 
 ## Architecture
 
@@ -276,7 +276,7 @@ Save checkpoint after each phase to `.opencode/state/init/init-checkpoint.json`.
 On completion, display summary and offer next step:
 - If minimal mode: offer `/design-hub docs`
 - If default: Offer `/knowledge-hub capture` to add deep context, or `/hub-setup verify` to validate
-- If full mode: offer `/knowledge-hub` to extract more context, or `/maintain-hub workspace` to manage the new setup
+- If full mode: offer `/knowledge-hub` to extract more context, or `/verify-hub workspace` to manage the new setup
 
 ## Subcommand: detect
 
@@ -524,6 +524,6 @@ Resume with `/hub-setup setup --force` or `/hub-setup refresh`.
 - `wiki` skill — Persistent knowledge base (used by `context` subcommand)
 - `mcp-setup` skill — MCP server configuration
 - `hubs-doctor` skill — Diagnose installation issues
-- `/plan-hub` hub — Planning and research
+- `/think-hub` hub — Planning and research
 - `/orchestrate` hub — Execution patterns
 - `/knowledge-hub` hub — Context and artifact extraction

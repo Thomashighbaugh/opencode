@@ -16,7 +16,7 @@ If the resource type is not given inline, ask via the \`question\` tool:
 > **Which resource type?**
 > 1. skills   2. rules   3. tools   4. commands   5. agents
 
-Pass the type inline (e.g. \`/resource-hub sync skill\`) or \`--type=skill\` to skip the gate.
+Pass the type inline (e.g. \`/hub-setup sync skill\`) or \`--type=skill\` to skip the gate.
 
 Process:
 

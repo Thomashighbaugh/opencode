@@ -38,7 +38,7 @@ Resolved answers map to \`--ci="..."\` and \`--max-iter=N\`.`,
 
   examples: [
     {
-      input: "/swarm-hub remediate",
+      input: "/orchestrate-hub remediate",
       approach: "Asks CI command (gh run view --log-failed) and max iterations (5). Fetch failing log. Analyze: 'TypeError in auth.test.ts:42'. Fix: correct the type. Re-run CI. Still failing? New error: 'missing env var'. Fix: add to CI config. Re-run. Green. Done."
     }
   ]

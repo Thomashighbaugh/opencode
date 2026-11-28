@@ -16,7 +16,7 @@ If the resource type is not given inline, ask via the \`question\` tool:
 > **Which resource type?**
 > 1. skill   2. rule   3. tool   4. command   5. agent
 
-Pass the type inline (e.g. \`/resource-hub create skill\`) or \`--type=skill\` to skip the gate.
+Pass the type inline (e.g. \`/hub-setup create skill\`) or \`--type=skill\` to skip the gate.
 
 ## Dispatch
 
@@ -30,7 +30,7 @@ Load and follow the creator for the chosen type:
 | command | \`opencode-command-creator\` | \`.opencode/commands/{name}.md\`                       |
 | agent   | \`opencode-agent-creator\` | \`agents/{name}.md\`                                   |
 
-Each workflow: gather requirements → design structure → write → validate. For a quick, simple resource use /resource-hub add; to iterate an existing one use /resource-hub update.
+Each workflow: gather requirements → design structure → write → validate. For a quick, simple resource use /hub-setup add; to iterate an existing one use /hub-setup update.
 
 Use when creating a reusable resource that others (or future-you) will use.`,
 

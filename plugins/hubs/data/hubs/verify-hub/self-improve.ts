@@ -24,7 +24,7 @@ Load the \`self-improvement\` skill and follow its workflow:
    - Guardrail format: BEFORE <op>: <checks> / TRIGGERED BY / ADDED BECAUSE: <entry ID> / EFFECTIVENESS: <tracked>.
    - Promotions are bounded edits (one surface, minimal delta) and are NEVER auto-applied — present to the user for approval.
 
-**4. Validate** — mark entries promoted, track EFFECTIVENESS. Every 10 sessions run /maintain-hub retrospect + /maintain-hub consolidate-telemetry to fold telemetry into the loop.
+**4. Validate** — mark entries promoted, track EFFECTIVENESS. Every 10 sessions run /verify-hub retrospect + /verify-hub consolidate-telemetry to fold telemetry into the loop.
 
 **Signals to act on (rolling 10 sessions):** first-attempt success < 80%, avg revisions >= 1.5, error recurrence >= 10%, user corrections >= 5%, time-to-completion accuracy outside 0.8–1.2.
 
@@ -34,14 +34,14 @@ Load the \`self-improvement\` skill and follow its workflow:
 - \`ls .opencode/context/learnings/\` — capture files exist
 - \`grep -c "Recurrence-Count: 3" .opencode/context/learnings/LEARNINGS.md\` — promotion candidates
 
-See the \`self-improvement\` skill for the full capture format, triage table, and promotion rules. Related: \`remember\` (memory surfaces), \`learner\` (skill extraction), \`self-improve\` (evolutionary code engine), /maintain-hub retrospect, /maintain-hub consolidate-telemetry.`,
+See the \`self-improvement\` skill for the full capture format, triage table, and promotion rules. Related: \`remember\` (memory surfaces), \`learner\` (skill extraction), \`self-improve\` (evolutionary code engine), /verify-hub retrospect, /verify-hub consolidate-telemetry.`,
 
   tools: TOOLS_LOADSKILL_BASH,
   rules: RULES_KARPAHTY_GUIDELINES,
   relatedSkills: ["remember", "learner", "self-improve"],
   examples: [
-    { input: "Tool keeps failing the same way", approach: "/maintain-hub self-improve — capture the error, triage to config vs agent bucket, promote if Recurrence-Count >= 3" },
-    { input: "User keeps correcting the same thing", approach: "/maintain-hub self-improve — log corrections to LEARNINGS.md, check for a knowledge gap in project rules" },
+    { input: "Tool keeps failing the same way", approach: "/verify-hub self-improve — capture the error, triage to config vs agent bucket, promote if Recurrence-Count >= 3" },
+    { input: "User keeps correcting the same thing", approach: "/verify-hub self-improve — log corrections to LEARNINGS.md, check for a knowledge gap in project rules" },
   ],
   warnings: [
     "Never auto-apply config changes — promotions require user approval",

@@ -7,7 +7,7 @@ license: MIT
 
 ## Gatekeeping Question
 
-`/ideate-hub grill` asks before grilling (passing `--plan` skips it):
+`/think-hub grill` asks before grilling (passing `--plan` skips it):
 
 > **Question — what to grill?** Type a plan/topic inline, or select an existing plan (`.opencode/state/ideation/*.md`), or type a path.
 

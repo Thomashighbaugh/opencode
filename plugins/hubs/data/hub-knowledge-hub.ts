@@ -3,7 +3,7 @@ import { subcommands } from "./hubs/knowledge-hub"
 
 // `/knowledge-hub` — durable knowledge and documentation.
 //
-// Merged from knowledge-hub (capture, context, vectorize) and docs-hub
+// Merged from the former memory menu (capture, context, vectorize) and the docs menu
 // (AGENTS.md, README, technical writing). Both produce and retain knowledge,
 // so they share one menu instead of two.
 const hub: HubDefinition = {

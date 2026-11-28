@@ -34,11 +34,11 @@ Resolved answer is either the inline topic or \`--spec=<file>\`.`,
 
   examples: [
     {
-      input: "/ideate-hub adversarial-debate",
+      input: "/think-hub adversarial-debate",
       approach: "Asks what to debate — user types the claim 'rotation doesn't prevent replay within the token lifetime'. Proposer argues it's sound. Security critic and Performance critic attack it. Judge: 'fail — fix replay prevention and add token cache'."
     },
     {
-      input: "/ideate-hub adversarial-debate --spec=auth-redesign.md",
+      input: "/think-hub adversarial-debate --spec=auth-redesign.md",
       approach: "Flag passed → gate skipped. Same debate, run against the named spec file."
     }
   ]

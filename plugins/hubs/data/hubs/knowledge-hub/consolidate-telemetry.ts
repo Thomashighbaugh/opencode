@@ -23,7 +23,7 @@ const spec: HubSubcommandSpec = {
 5. Append to .opencode/context/decisions.md (or .opencode/context/proposed-improvements.md if it exists).
 6. Print a summary table to the terminal.
 
-**Hot-path cost:** zero. The consolidation step runs only on explicit invocation and does LLM-free pattern detection. A user can call \`/ideate-hub tree-of-thoughts\` after consolidation to brainstorm alternatives if the proposals feel weak.
+**Hot-path cost:** zero. The consolidation step runs only on explicit invocation and does LLM-free pattern detection. A user can call \`/think-hub tree-of-thoughts\` after consolidation to brainstorm alternatives if the proposals feel weak.
 
 **Validation commands:**
 - \`wc -l .opencode/state/telemetry.ndjson\` — log size.

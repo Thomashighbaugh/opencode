@@ -70,6 +70,6 @@ A project's `opencode.jsonc` can include or exclude global resources by tag:
 ## Convention Enforcement
 
 - `tag-resources` skill scans all resources and suggests missing tags
-- `/resource-hub create rule` uses tags to organize generated rules
+- `/hub-setup create rule` uses tags to organize generated rules
 - `stack-recommender` maps stack dimensions to tag-based resource recommendations
 - `project-config-composer` uses `resource_tags` to generate per-project configs

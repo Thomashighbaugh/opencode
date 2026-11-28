@@ -3,8 +3,8 @@ import { subcommands } from "./hubs/think-hub"
 
 // `/think-hub` — ideation and planning.
 //
-// Merged from ideate-hub (diverge: brainstorm, debate, frameworks) and
-// plan-hub (converge: requirements, decomposition, roadmaps). One workflow:
+// Merged from the former ideate menu (diverge: brainstorm, debate, frameworks) and
+// the former plan menu (converge: requirements, decomposition, roadmaps). One workflow:
 // generate options, then shape them into an executable plan.
 const hub: HubDefinition = {
   name: "think-hub",

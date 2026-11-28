@@ -10,7 +10,7 @@ const spec: HubSubcommandSpec = {
   detailedDescription: `Full code review round. Analyzes recent changes (since last commit/branch) across multiple dimensions:
 
 1. Change analysis: what changed, why, is the change appropriate?
-2. Security scan: are there new vulnerabilities? (runs /maintain-hub scan logic).
+2. Security scan: are there new vulnerabilities? (runs /verify-hub scan logic).
 3. Complexity check: did the changes introduce complexity hotspots?
 4. Convention adherence: do the changes follow existing conventions?
 5. Test coverage: are the changes tested?

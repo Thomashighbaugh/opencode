@@ -208,11 +208,11 @@ FINAL_ID="$(date +%Y%m%d_%H%M%S)_${METHOD}_${TOPIC_SLUG}_final"
 
 ## Resume Behavior
 
-`/ideate-hub resume` checks `.opencode/state/ideation/work-products/` for the most recent in-progress work and offers to continue from where it left off.
+`/think-hub resume` checks `.opencode/state/ideation/work-products/` for the most recent in-progress work and offers to continue from where it left off.
 
 ## Status Behavior
 
-`/plan-hub status` shows:
+`/think-hub status` shows:
 - Active work products in `.opencode/state/ideation/work-products/`
 - Finalized outputs in `.opencode/state/ideation/`
 - Current method and topic if a session is active

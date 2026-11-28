@@ -16,7 +16,7 @@ const spec: HubSubcommandSpec = {
 
 Output: a security report with findings classified by severity (critical, high, medium, low) and specific remediation instructions. Follows the security.md rule's response protocol.
 
-Use before commits, releases, or periodically as a security baseline. Also runs as gate 4 of /maintain-hub converge.`,
+Use before commits, releases, or periodically as a security baseline. Also runs as gate 4 of /verify-hub converge.`,
 
   tools: TOOLS_BASH,
   rules: RULES_SECURITY,

@@ -11,7 +11,7 @@ const spec: HubSubcommandSpec = {
 
 The gate checks for: vague tasks ("improve X" without criteria), missing dependencies, unverified assumptions, undefined edge cases, and unclear acceptance criteria. If the plan fails the gate, the specific weaknesses are reported so the plan can be refined.
 
-Use after /plan-hub plan (or any planning step) and before /orchestrate-hub. It's the quality gate between planning and execution — prevents executing a plan that's too vague to succeed. This is especially important for hub-to-hub handoffs where a vague plan would cause the executor to flounder.
+Use after /think-hub plan (or any planning step) and before /orchestrate-hub. It's the quality gate between planning and execution — prevents executing a plan that's too vague to succeed. This is especially important for hub-to-hub handoffs where a vague plan would cause the executor to flounder.
 
 ## Gatekeeping Question
 
@@ -19,7 +19,7 @@ Before validating, ask (passing the flag skips the question — non-interactive 
 
 > **Question — which plan to validate?**
 > 1. Select an existing plan file (list .opencode/state/ideation/*.md)
-> 2. Type a topic — generate the plan first via /plan-hub plan
+> 2. Type a topic — generate the plan first via /think-hub plan
 > (or type a path)
 
 Resolved answer maps to \`--plan=<file>\`.`,
@@ -29,7 +29,7 @@ Resolved answer maps to \`--plan=<file>\`.`,
 
   examples: [
     {
-      input: "/plan-hub ralplan",
+      input: "/think-hub ralplan",
       approach: "Asks which plan (selects .opencode/state/ideation/plan.md). 3 agents evaluate the plan. Agent 1: 'task 3 is vague — no acceptance criteria'. Agent 2: 'missing dependency: task 5 needs task 2 done first'. Agent 3: 'looks good'. Consensus: fail, fix tasks 3 and 5. User refines, re-runs ralplan. Pass."
     }
   ]

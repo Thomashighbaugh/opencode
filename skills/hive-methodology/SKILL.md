@@ -9,9 +9,9 @@ license: MIT
 
 ## Gatekeeping Question
 
-`/swarm-hub hive` asks before executing (passing `--plan` skips it):
+`/orchestrate-hub hive` asks before executing (passing `--plan` skips it):
 
-> **Question — which plan to execute?** Select an approved plan (`.opencode/state/ideation/*.md`), or type a topic (run `/swarm-hub hive-plan` first), or type a path.
+> **Question — which plan to execute?** Select an approved plan (`.opencode/state/ideation/*.md`), or type a topic (run `/orchestrate-hub hive-plan` first), or type a path.
 
 Resolved answer maps to `--plan=<file>`.
 
@@ -118,16 +118,16 @@ Enforce with tools and instructions, not soft suggestions.
 
 ### Planning with Hive
 ```
-/swarm-hub hive-plan add user authentication
+/orchestrate-hub hive-plan add user authentication
 → Architect Bee interviews you
 → Gathers context (existing auth code, patterns)
 → Produces plan.md with task breakdown
-→ You approve → ready for /swarm-hub hive
+→ You approve → ready for /orchestrate-hub hive
 ```
 
 ### Execution with Hive
 ```
-/swarm-hub hive user authentication
+/orchestrate-hub hive user authentication
 → Swarm Bee loads approved plan
 → Batch 1: AuthService + Token refresh (parallel)
 → Batch 2: API routes + Tests (after Batch 1)
@@ -139,8 +139,8 @@ Enforce with tools and instructions, not soft suggestions.
 ### Combined Flow
 ```
 /hive add dark mode support
-→ /swarm-hub hive-plan plan (interviews, produces plan.md)
-→ /swarm-hub hive execute (batched parallel execution)
+→ /orchestrate-hub hive-plan plan (interviews, produces plan.md)
+→ /orchestrate-hub hive execute (batched parallel execution)
 → Context persists for next session
 ```
 
@@ -148,8 +148,8 @@ Enforce with tools and instructions, not soft suggestions.
 
 | Hub | Subcommand | Hive Phase |
 |-----|-----------|------------|
-| `/swarm-hub hive-plan` | Plan | Architect Bee — interview → context → plan.md → approval gate |
-| `/swarm-hub hive` | Execute | Swarm Bee — batched parallelism → blocked protocol → batch test → merge |
+| `/orchestrate-hub hive-plan` | Plan | Architect Bee — interview → context → plan.md → approval gate |
+| `/orchestrate-hub hive` | Execute | Swarm Bee — batched parallelism → blocked protocol → batch test → merge |
 
 ## When to Use
 

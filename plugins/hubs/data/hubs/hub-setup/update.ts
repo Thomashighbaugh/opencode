@@ -14,7 +14,7 @@ const spec: HubSubcommandSpec = {
 3. Apply changes (content updates, new sections, revised triggers/metadata).
 4. Validate the structure after changes.
 
-Different from /resource-hub edit (a simple field-by-field editor) — update uses the creator's structured workflow for more comprehensive changes.
+Different from /hub-setup edit (a simple field-by-field editor) — update uses the creator's structured workflow for more comprehensive changes.
 
 ## Resource Type Gate
 
@@ -23,7 +23,7 @@ If the resource type is not given inline, ask via the \`question\` tool:
 > **Which resource type?**
 > 1. skill   2. rule   3. tool   4. command   5. agent
 
-Pass the type inline (e.g. \`/resource-hub update skill\`) or \`--type=skill\` to skip the gate.
+Pass the type inline (e.g. \`/hub-setup update skill\`) or \`--type=skill\` to skip the gate.
 
 Dispatch: skill → \`skill-creator\`, rule → \`rule-generator\`, tool → \`tool-creator\`, command → \`opencode-command-creator\`, agent → \`opencode-agent-creator\`.`,
 

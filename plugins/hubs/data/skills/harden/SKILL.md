@@ -9,7 +9,7 @@ license: MIT
 
 ## Gatekeeping Question
 
-`/swarm-hub harden` asks before wrapping (passing the flags skips it):
+`/orchestrate-hub harden` asks before wrapping (passing the flags skips it):
 
 > **Question 1 — wrap which orchestration pattern?** ralph / autopilot / team / ultrawork (or type your own)
 > **Question 2 — circuit-breaker threshold?** 3/5 (default) / 5/10 (or type your own `failures/attempts`)

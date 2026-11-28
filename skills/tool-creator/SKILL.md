@@ -41,7 +41,7 @@ OpenCode 2 auto-discovers every directory under `<config>/plugins/` and `<projec
 ## When Not to Use
 
 - The task is better served by an existing tool (check `tools/` first)
-- The user wants a skill, not a tool (use `/resource-hub create skill`)
+- The user wants a skill, not a tool (use `/hub-setup create skill`)
 - The user wants a slash command (use `opencode-command-creator`)
 - The user wants an agent (use `opencode-agent-creator`)
 - The user wants a plugin that is not a tool (use `opencode-plugin-creator`)

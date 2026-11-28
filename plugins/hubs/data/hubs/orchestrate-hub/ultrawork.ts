@@ -10,7 +10,7 @@ const spec: HubSubcommandSpec = {
 
 Designed for tasks where the units of work are genuinely independent (no data dependencies between them) and throughput matters more than coordination. Each subagent gets fresh context (no cross-contamination) and a single focused objective.
 
-Use when you have a batch of similar, independent tasks: "write tests for these 12 modules", "fix lint errors across these 30 files", "document these 8 endpoints". NOT for tasks with sequential dependencies — use /plan-hub plan-execute or /orchestrate-hub ralph for those.
+Use when you have a batch of similar, independent tasks: "write tests for these 12 modules", "fix lint errors across these 30 files", "document these 8 endpoints". NOT for tasks with sequential dependencies — use /think-hub plan-execute or /orchestrate-hub ralph for those.
 
 Each subagent's output is captured to .opencode/state/orchestration/ultrawork-{session}/.
 

@@ -208,7 +208,7 @@ Generate a structured, actionable plan stored to `.opencode/state/ideation/work-
 
 ## Orchestration Handoff
 This plan can be executed via `/orchestrate`:
-- `/plan-hub plan-execute "Phase 1: Foundation tasks"`
+- `/think-hub plan-execute "Phase 1: Foundation tasks"`
 - `/orchestrate-hub ralph "fix all critical security issues"`
 - `/orchestrate-hub ultrawork "run all quick wins in parallel"`
 ```
@@ -229,7 +229,7 @@ On user approval:
 
 ## Resume Behavior
 
-`/ideate-hub resume` checks `.opencode/state/ideation/work-products/` for in-progress overhaul plans and offers to continue.
+`/think-hub resume` checks `.opencode/state/ideation/work-products/` for in-progress overhaul plans and offers to continue.
 
 ## Output
 
@@ -264,5 +264,5 @@ The final output is a markdown implementation plan saved to `.opencode/state/ide
 
 - `/orchestrate` — Execute the overhaul plan
 - `/harvest-context` — Extract overhaul context for documentation
-- `/ideate-hub interview` — Deep-dive specific issues identified in the plan
-- `/maintain-hub converge` — Quality gate convergence after implementation
+- `/think-hub interview` — Deep-dive specific issues identified in the plan
+- `/verify-hub converge` — Quality gate convergence after implementation

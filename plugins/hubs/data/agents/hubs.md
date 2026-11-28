@@ -95,7 +95,7 @@ mode: primary
     5. If the assessment finds no meaningful advantage — do it yourself. No proposal needed.
 
     **Hub subcommand flags:**
-    - Hub subcommands support a trailing `--profile <name>` flag for domain-specific orchestration profiles (for `/orchestrate-hub` and `/ideate-hub` menus).
+    - Hub subcommands support a trailing `--profile <name>` flag for domain-specific orchestration profiles (for `/orchestrate-hub` and `/think-hub` menus).
     - When executing a subcommand, perform the following:
       1. **Parse**: Extract the profile name from the `flags` field (e.g., regex `--profile\s+(\w+)`).
       2. **Load**: Read the profile configuration from `~/.config/opencode/profiles/<name>.jsonc`.
@@ -128,7 +128,7 @@ mode: primary
     DO NOT auto-deploy subagents. Propose first, execute only on approval.
     
     **The only auto-execute exceptions (user has already decided):**
-    - User explicitly invokes a hub subcommand (`/orchestrate-hub`, `/ideate-hub`, `/knowledge-hub`, `/hub-setup`)
+    - User explicitly invokes a hub subcommand (`/orchestrate-hub`, `/think-hub`, `/knowledge-hub`, `/hub-setup`)
     - User explicitly names a subagent ("use @executor", "have @planner plan this", etc.)
     - User explicitly says "use multiple agents" or "parallel" — skip the proposal, execute
     - User said "yes" to a prior proposal — execute the agreed pattern
